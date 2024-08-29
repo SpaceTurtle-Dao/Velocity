@@ -50,7 +50,7 @@ jobs:
         uses: OutlierVentures/arweave-bundler@v0.3.2
         with:
           command: upload
-          directory: build/
+          directory: dist/
           private-key: ${{secrets.DEPLOY_KEY}}
           network: arweave.net
 
@@ -60,6 +60,6 @@ jobs:
         uses: OutlierVentures/arweave-bundler@v0.3.2
         with:
           command: upload
-          directory: build/
+          directory: dist/
           private-key: ${{secrets.DEPLOY_KEY}}
           network: arweave.net
