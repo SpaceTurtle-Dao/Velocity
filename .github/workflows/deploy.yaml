@@ -43,6 +43,7 @@ jobs:
           command: upload
           directory: dist/
           private-key: ${{secrets.DEPLOY_KEY}}
+          ant-address: "tkk51D3sYyK-_Y3cCC2XvPmP6RVUBK1oertIhSeTiC8"
           network: arweave.net
       
       - name: Deploy to staging
@@ -52,6 +53,7 @@ jobs:
           command: upload
           directory: dist/
           private-key: ${{secrets.DEPLOY_KEY}}
+          ant-address: "tkk51D3sYyK-_Y3cCC2XvPmP6RVUBK1oertIhSeTiC8"
           network: arweave.net
 
         
@@ -62,4 +64,5 @@ jobs:
           command: upload
           directory: dist/
           private-key: ${{secrets.DEPLOY_KEY}}
+          ant-address: "tkk51D3sYyK-_Y3cCC2XvPmP6RVUBK1oertIhSeTiC8"
           network: arweave.net
