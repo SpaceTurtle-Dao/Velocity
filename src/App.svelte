@@ -27,7 +27,7 @@
 <Router {url}>
     <div class="flex h-screen overflow-hidden">
         <aside
-            class="w-64 bg-white shadow-lg flex flex-col justify-between p-4"
+            class="w-64 bg-background shadow-lg flex flex-col justify-between p-4"
         >
             <div class="space-y-4">
                 <div class="p-2">
@@ -58,7 +58,7 @@
                                         class="w-6 h-6 mr-4 text-primary-500"
                                     />
                                     <span
-                                        class="text-lg font-medium text-gray-700"
+                                        class="text-lg font-medium text-primary"
                                         >{item.label}</span
                                     >
                                 </a>
@@ -69,9 +69,9 @@
                                 class="flex items-center p-2 rounded-full hover:bg-secondary-100 transition-colors duration-200"
                             >
                                 <MoreHorizontal
-                                    class="w-6 h-6 mr-4 text-primary-500"
+                                    class="w-6 h-6 mr-4 text-primary"
                                 />
-                                <span class="text-lg font-medium text-gray-700"
+                                <span class="text-lg font-medium text-primary"
                                     >More</span
                                 >
                             </button>
@@ -93,15 +93,15 @@
                         N
                     </div>
                     <div class="flex-grow text-left">
-                        <p class="font-semibold text-gray-800">Nickzz</p>
-                        <p class="text-sm text-gray-500">@Nickzz_AO</p>
+                        <p class="font-semibold text-primary">Nickzz</p>
+                        <p class="text-sm text-primary">@Nickzz_AO</p>
                     </div>
-                    <MoreHorizontal class="w-5 h-5 text-gray-500" />
+                    <MoreHorizontal class="w-5 h-5 text-primary" />
                 </button>
             </div>
         </aside>
 
-        <main class="flex-1 overflow-y-auto bg-[#FFF0F5]">
+        <main class="flex-1 overflow-y-auto bg-background">
             <Navbar />
             <div class="container mx-auto px-4 pt-16">
                 <Route path="/feed" component={Feed} />
@@ -114,6 +114,6 @@
 
 <style>
     :global(body) {
-        @apply bg-[#FFF0F5];
+        @apply bg-background;
     }
 </style>

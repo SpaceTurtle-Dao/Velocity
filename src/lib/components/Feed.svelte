@@ -1,4 +1,5 @@
 <script>
+    import CreatePost from "$lib/components/createPost.svelte";
     const posts = [
         {
             Id: "1",
@@ -36,10 +37,12 @@
         },
     ];
 
+    // @ts-ignore
     function formatDate(timestamp) {
         return new Date(timestamp).toLocaleString();
     }
 
+    // @ts-ignore
     function getKindLabel(kind) {
         switch (kind) {
             case 1:
@@ -52,41 +55,44 @@
                 return "Unknown";
         }
     }
+
+    function handleCreatePost() {
+        console.log("crate");
+    }
 </script>
 
-<div class="max-w-2xl mx-auto p-4 bg-gray-100">
+<div class="max-w-2xl mx-auto p-4 bg-background">
+    <CreatePost on:createPost={handleCreatePost} />
     {#each posts as post (post.Id)}
-        <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+        <div class="bg-secondary rounded-lg shadow-md p-4 mb-4">
             <div class="flex justify-between items-center mb-2">
-                <span class="font-bold">{post.Creator}</span>
-                <span class="text-sm text-gray-500"
+                <span class="font-bold text-primary">{post.Creator}</span>
+                <span class="text-sm text-primary"
                     >{formatDate(post.Created_at)}</span
                 >
             </div>
-            <div class="mb-2">{post.Content}</div>
-            <div class="mb-2 text-sm text-gray-600">
-                Process ID: {post.ProcessId} | Kind: {getKindLabel(post.Kind)}
-            </div>
+            <div class="mb-2 py-2 text-primary">{post.Content}</div>
             <div class="mb-2 flex flex-wrap">
                 {#each post.Tags as tag}
-                    <span
-                        class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 mb-2 px-2.5 py-0.5 rounded"
-                        >{tag}</span
+                    <span class=" text-white text-xs font-semibold px-1 rounded"
+                        >#{tag}</span
                     >
                 {/each}
             </div>
-            <div class="flex justify-between text-sm text-gray-500 mb-2">
-                <span>Likes: {post.Engagement.likes}</span>
-                <span>Comments: {post.Engagement.comments}</span>
-                <span>Shares: {post.Engagement.shares}</span>
-            </div>
-            <div class="text-sm text-gray-500 mb-2">
+
+            <div class="text-sm text-secondary mb-2">
                 Views: {post.Analytics.views} | Clicks: {post.Analytics.clicks}
             </div>
-            <div class="flex justify-between text-sm text-gray-500">
-                <button class="hover:text-blue-500">Like</button>
-                <button class="hover:text-blue-500">Comment</button>
-                <button class="hover:text-blue-500">Share</button>
+            <div class="flex flex-wrap text-sm text-gray-500">
+                <button class="hover:text-primary px-3"
+                    >Like {post.Engagement.likes}</button
+                >
+                <button class="hover:text-primary px-3"
+                    >Comment {post.Engagement.comments}</button
+                >
+                <button class="hover:text-primary px-3"
+                    >Share {post.Engagement.shares}</button
+                >
             </div>
         </div>
     {/each}

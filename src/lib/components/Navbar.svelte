@@ -23,7 +23,7 @@
                 >
             </div>
 
-            <div class="hidden md:block">
+            <!-- <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline space-x-2 lg:space-x-4">
                     <p
                         class="text-white px-2 py-2 rounded-md text-xs lg:text-sm font-medium"
@@ -31,7 +31,7 @@
                         Launch a Token Swap a Token
                     </p>
                 </div>
-            </div>
+            </div> -->
             <div class="hidden md:block">
                 <WalletConnectButton
                     buttonClass="text-secondary-600 border-white bg-white hover:bg-secondary-100 text-xs lg:text-sm font-semibold transition-colors duration-300"
