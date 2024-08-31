@@ -4,12 +4,13 @@
   import Navbar from "$lib/components/Navbar.svelte";
   import ProfileView from "$lib/components/ProfileView.svelte";
   import UserProfile from "$lib/components/UserProfile.svelte";
+  import Feedpage from "$lib/components/Feedpage.svelte";
   import { Home as HomeIcon, Search, Bell, User, MoreHorizontal, Plus } from 'lucide-svelte';
 
   export let url = "";
 
   const menuItems = [
-    { icon: HomeIcon, label: 'Home', href: '/' },
+    { icon: HomeIcon, label: 'Home', href: '/feedpage' },
     { icon: Search, label: 'Explore', href: '/explore' },
     { icon: Bell, label: 'Notifications', href: '/UserProfile' },
     { icon: User, label: 'Profile', href: '/profile' },
@@ -67,6 +68,7 @@
       <div class="container mx-auto px-4 pt-16">
         <Route path="/profile" component={ProfileView} />
         <Route path="/UserProfile" component={UserProfile} />
+        <Route path="/feedpage" component={Feedpage} />
       </div>
     </main>
   </div>
