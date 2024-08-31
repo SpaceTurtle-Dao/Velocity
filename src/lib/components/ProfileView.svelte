@@ -53,6 +53,7 @@
 
   onMount(() => {
     const ctx = document.getElementById('marketCapChart');
+    //@ts-ignore
     chart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -146,7 +147,7 @@
               </div>
               <Button size="sm" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-500 hover:to-purple-500 text-white transition-all duration-300">
                 <Rocket class="w-4 h-4 mr-2" />
-                Buy Tokens
+                Pump
               </Button>
             </CardFooter>
           </Card>
