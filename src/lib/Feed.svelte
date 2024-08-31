@@ -18,6 +18,13 @@
                      likes: 20,
                      retweets: 10,
               },
+              {
+                     id: "3",
+                     username: "janeSmith",
+                     text: "I'm loving this Svelte tutorial! #SvelteTutorials",
+                     likes: 20,
+                     retweets: 10,
+              },
        ];
 
        onMount(() => {
@@ -41,7 +48,7 @@
        // }
 </script>
 
-<main>
+<div>
        {#each tweets as tweet}
               <Tweet
                      id={tweet.id}
@@ -53,4 +60,4 @@
                      onRetweet={() => {}}
               />
        {/each}
-</main>
+</div>
