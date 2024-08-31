@@ -14,49 +14,50 @@ const config: Config = {
 			}
 		},
 		extend: {
+			fontFamily: {
+				display: 'Overpass, ui-sans-serif',
+				heading: 'Encode Sans, ui-serif',
+			},
 			colors: {
-				border: "hsl(var(--border) / <alpha-value>)",
-				input: "hsl(var(--input) / <alpha-value>)",
-				ring: "hsl(var(--ring) / <alpha-value>)",
-				background: "hsl(var(--background) / <alpha-value>)",
-				foreground: "hsl(var(--foreground) / <alpha-value>)",
+				border: "hsl(240, 3.7%, 15.9%)",
+				input: "hsl(240, 3.7%, 15.9%)",
+				ring: "hsl(240, 4.9%, 83.9%)",
+				background: "hsl(240, 10%, 3.9%)",
+				foreground: "hsl(0, 0%, 98%)",
 				primary: {
-					DEFAULT: "hsl(var(--primary) / <alpha-value>)",
-					foreground: "hsl(var(--primary-foreground) / <alpha-value>)"
+					DEFAULT: "hsl(0, 0%, 98%)",
+					foreground: "hsl(240, 5.9%, 10%)",
 				},
 				secondary: {
-					DEFAULT: "hsl(var(--secondary) / <alpha-value>)",
-					foreground: "hsl(var(--secondary-foreground) / <alpha-value>)"
+					DEFAULT: "hsl(240, 3.7%, 15.9%)",
+					foreground: "hsl(0, 0%, 98%)",
 				},
 				destructive: {
-					DEFAULT: "hsl(var(--destructive) / <alpha-value>)",
-					foreground: "hsl(var(--destructive-foreground) / <alpha-value>)"
+					DEFAULT: "hsl(194, 97%, 45%)",
+					foreground: "hsl(0, 0%, 98%)",
 				},
 				muted: {
-					DEFAULT: "hsl(var(--muted) / <alpha-value>)",
-					foreground: "hsl(var(--muted-foreground) / <alpha-value>)"
+					DEFAULT: "hsl(240, 3.7%, 15.9%)",
+					foreground: "hsl(325, 80%, 56%)",
 				},
 				accent: {
-					DEFAULT: "hsl(var(--accent) / <alpha-value>)",
-					foreground: "hsl(var(--accent-foreground) / <alpha-value>)"
+					DEFAULT: "hsl(240, 3.7%, 15.9%)",
+					foreground: "hsl(0, 0%, 98%)",
 				},
 				popover: {
-					DEFAULT: "hsl(var(--popover) / <alpha-value>)",
-					foreground: "hsl(var(--popover-foreground) / <alpha-value>)"
+					DEFAULT: "hsl(240, 10%, 3.9%)",
+					foreground: "hsl(0, 0%, 98%)",
 				},
 				card: {
-					DEFAULT: "hsl(var(--card) / <alpha-value>)",
-					foreground: "hsl(var(--card-foreground) / <alpha-value>)"
-				}
+					DEFAULT: "hsl(240, 10%, 3.9%)",
+					foreground: "hsl(0, 0%, 98%)",
+				},
 			},
 			borderRadius: {
-				lg: "var(--radius)",
-				md: "calc(var(--radius) - 2px)",
-				sm: "calc(var(--radius) - 4px)"
+				lg: "0.5rem",
+				md: "calc(0.5rem - 2px)",
+				sm: "calc(0.5rem - 4px)",
 			},
-			fontFamily: {
-				sans: [...fontFamily.sans]
-			}
 		}
 	},
 };
