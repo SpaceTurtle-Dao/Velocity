@@ -12,11 +12,12 @@
         MoreHorizontal,
         Plus,
     } from "lucide-svelte";
+    import Feed from "$lib/components/Feed.svelte";
 
     export let url = "";
 
     const menuItems = [
-        { icon: HomeIcon, label: "Home", href: "/" },
+        { icon: HomeIcon, label: "Home", href: "/feed" },
         { icon: Search, label: "Explore", href: "/explore" },
         { icon: Bell, label: "Notifications", href: "/UserProfile" },
         { icon: User, label: "Profile", href: "/profile" },
@@ -103,6 +104,7 @@
         <main class="flex-1 overflow-y-auto bg-[#FFF0F5]">
             <Navbar />
             <div class="container mx-auto px-4 pt-16">
+                <Route path="/feed" component={Feed} />
                 <Route path="/profile" component={ProfileView} />
                 <Route path="/UserProfile" component={UserProfile} />
             </div>
