@@ -28,6 +28,7 @@
     "clsx": "^2.1.1",
     "lucide-svelte": "^0.436.0",
     "mode-watcher": "^0.4.1",
+    "recharts": "^2.12.7",
     "svelte-sonner": "^0.3.27",
     "tailwind-merge": "^2.5.2",
     "tailwind-variants": "^0.2.1"
