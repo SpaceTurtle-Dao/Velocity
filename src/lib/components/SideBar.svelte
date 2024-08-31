@@ -1,24 +1,23 @@
 <script lang="ts">
-  import { Router, Route } from "svelte-routing";
-  import "./app.css";
-  import Navbar from "$lib/components/Navbar.svelte";
-  import ProfileView from "$lib/components/ProfileView.svelte";
-  import UserProfile from "$lib/components/UserProfile.svelte";
-  import { Home as HomeIcon, Search, Bell, User, MoreHorizontal, Plus } from 'lucide-svelte';
+  import { Router, Link, Route } from 'svelte-routing';
+  import { Home, Search, Bell, Mail, Bookmark, Users, User, MoreHorizontal, Plus } from 'lucide-svelte';
+  
+  // Import your components
+  import UserProfile from './UserProfile.svelte';
 
-  export let url = "";
+  export let url = '';
 
   const menuItems = [
-    { icon: HomeIcon, label: 'Home', href: '/' },
+    { icon: Home, label: 'Home', href: '/' },
     { icon: Search, label: 'Explore', href: '/explore' },
-    { icon: Bell, label: 'Notifications', href: '/UserProfile' },
-    { icon: User, label: 'Profile', href: '/profile' },
+    { icon: Bell, label: 'Notifications', href: '/notifications' },
+    { icon: User, label: 'Profile', href: '/UserProfile' },
   ];
 </script>
 
 <Router {url}>
-  <div class="flex h-screen overflow-hidden">
-    <aside class="w-64 bg-white shadow-lg flex flex-col justify-between p-4">
+  <div class="flex h-screen">
+    <aside class="w-1/4 bg-white shadow-lg flex flex-col justify-between p-4">
       <div class="space-y-4">
         <div class="p-2">
           <svg class="w-8 h-8 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -29,10 +28,10 @@
           <ul class="space-y-2">
             {#each menuItems as item}
               <li>
-                <a href={item.href} class="flex items-center p-2 rounded-full hover:bg-purple-100 transition-colors duration-200">
+                <Link to={item.href} class="flex items-center p-2 rounded-full hover:bg-purple-100 transition-colors duration-200">
                   <svelte:component this={item.icon} class="w-6 h-6 mr-4 text-purple-500" />
                   <span class="text-lg font-medium text-gray-700">{item.label}</span>
-                </a>
+                </Link>
               </li>
             {/each}
             <li>
@@ -62,12 +61,11 @@
       </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto bg-[#FFF0F5]">
-      <Navbar />
-      <div class="container mx-auto px-4 pt-16">
-        <Route path="/profile" component={ProfileView} />
-        <Route path="/UserProfile" component={UserProfile} />
-      </div>
+    <main class="flex-1 p-4 bg-[#FFF0F5] overflow-auto">
+      <!-- <Route path="/" component={HomeComponent} />
+      <Route path="/explore" component={ExploreComponent} />
+      <Route path="/notifications" component={NotificationsComponent} /> -->
+      <Route path="/UserProfile" component={UserProfile} />
     </main>
   </div>
 </Router>

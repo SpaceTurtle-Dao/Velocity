@@ -1,17 +1,15 @@
 <script>
 	import { onMount } from 'svelte';
 	import SmallSpinner from '$lib/components/smallSpinner.svelte';
-	import WalletModal from '$lib/components/walletModal.svelte';
 	
 	export let buttonClass = "";
 
 	let title = 'Connect Wallet';
 	let isLoading = false;
 	let walletAddress = '';
-	let showModal = false;
+	let isConnected = false;
 
 	onMount(async () => {
-		// Checking if wallet is already connected on component mount
 		await checkWalletConnection();
 	});
 
@@ -24,6 +22,7 @@
 				if (address) {
 					walletAddress = formatAddress(address);
 					title = walletAddress;
+					isConnected = true;
 				}
 			} catch (error) {
 				console.error('Failed to get active address:', error);
@@ -37,9 +36,9 @@
 	}
 	
 	const connectWallet = async () => {
-		if (walletAddress) {
-			showModal = true;
-      		return;
+		if (isConnected) {
+			await disconnectWallet();
+			return;
 		}
 
 		title = "Connecting";
@@ -78,9 +77,22 @@
 		}
 	};
 
-	function closeModal() {
-    	showModal = false;
-  	}
+	const disconnectWallet = async () => {
+		title = "Disconnecting";
+		isLoading = true;
+		try {
+			// @ts-ignore
+			await window.arweaveWallet.disconnect();
+			console.log('Wallet disconnected successfully');
+			walletAddress = '';
+			title = "Connect Wallet";
+			isConnected = false;
+		} catch (error) {
+			console.error('Failed to disconnect wallet:', error);
+		} finally {
+			isLoading = false;
+		}
+	};
 </script>
 
 <button
@@ -95,13 +107,6 @@
       <div class="pl-2"><SmallSpinner /></div>
     </div>
   {:else}
-    {title}
+    {isConnected ? 'Disconnect Wallet' : title}
   {/if}
 </button>
-
-{#if showModal}
-  <WalletModal 
-    walletAddress={walletAddress} 
-    on:close={closeModal}
-  />
-{/if}
