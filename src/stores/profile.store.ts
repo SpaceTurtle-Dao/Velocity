@@ -1,45 +1,20 @@
-import { writable } from 'svelte/store';
+import type { Meme } from "$lib/models/Meme";
+import type { Profile } from "$lib/models/Profile";
+import { writable } from "svelte/store";
 
-// Interfaces
-export interface UserData {
-  username: string;
-  displayName: string;
-  avatar: string;
-  bio: string;
-  followers: number;
-  following: number;
-  totalMarketCap: number;
-}
 
-export interface Post {
-  id: string; 
-  author: {
-    id: string;
-    username: string;
-    displayName: string;
-    avatarUrl: string;
-  };
-  content: string;
-  createdAt: string; 
-  updatedAt: string;
-  metrics: {
-    marketCap: number;
-    tokenPrice: number;
-    commentsCount: number;
-    sharesCount: number;
-    likesCount: number;
-  };
-  tags: string[];
-  isEdited: boolean;
+const anon = {
+  Image: "mc5xNGMpBSqoQ3pWCyYUstQKb6IOIH6BTsa4suvIe-o",
+  CreatedAt: 0,
+  Name: "anon",
+  Creator: "anon",
 }
+export const currentUser = writable<Profile>(anon);
+export const profileMemes = writable<Meme[]>([]);
 
-export interface MarketCapData {
-  labels: string[];
-  data: number[];
-}
 
 // User Data Store
-export const userData = writable<UserData>({
+/*export const userData = writable<UserData>({
   username: "Nickzz_AO",
   displayName: "Nickkzz",
   avatar: "/Users/nickk/Documents/Meme_Market_Frontend/src/assets/sunny.jpeg",
@@ -100,4 +75,4 @@ export const activeTab = writable<'posts' | 'marketCap'>('posts');
 export const marketCapData = writable<MarketCapData>({
   labels: ['7d', '6d', '5d', '4d', '3d', '2d', '1d'],
   data: [120000, 125000, 140000, 135000, 150000, 145000, 156000]
-});
+});*/
