@@ -32,14 +32,21 @@
   import type { Profile } from "$lib/models/Profile";
   import { currentUser, profileMemes } from "../../stores/profile.store";
   import type { Meme } from "$lib/models/Meme";
-    import { fetchProfileMemes, getCurrentProfile } from "$lib/ao/mememaker";
+  import { fetchProfileMemes, getCurrentProfile } from "$lib/ao/mememaker";
+  // @ts-ignore
+  import { Quantity, Token } from "ao-tokens";
+  import { WAR_TOKEN } from "$lib/constants";
+  // @ts-ignore
+  import fromExponential from "from-exponential";
 
   let activeTab: string | undefined = "posts";
   let chart;
 
   let profile: Profile;
   let memes: Meme[];
-
+  const decimals = (value: BigInt) => {
+    return Math.pow(10, Number(value));
+  };
   currentUser.subscribe((value) => {
     profile = value;
   });
@@ -48,14 +55,17 @@
     memes = value;
   });
 
-  function toUrl(tx:string) {
-    return "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/"+tx
+  function toUrl(tx: string) {
+    return (
+      "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
+      tx
+    );
   }
 
   onMount(async () => {
-    const address = await window.arweaveWallet.getActiveAddress()
-    await fetchProfileMemes(address,"1","100")
-    await getCurrentProfile()
+    const address = await window.arweaveWallet.getActiveAddress();
+    await fetchProfileMemes(address, "1", "100");
+    await getCurrentProfile();
     const ctx = document.getElementById("marketCapChart");
     //@ts-ignore
     chart = new Chart(ctx, {
@@ -84,6 +94,7 @@
     });
   });
 </script>
+
 <div class="max-w-4xl mx-auto p-4">
   <Card
     class="mb-8 overflow-hidden transition-all duration-300 hover:shadow-xl"
@@ -157,7 +168,7 @@
     </TabsList>
     <TabsContent value="posts">
       <div class="space-y-4">
-        {#each memes as meme }
+        {#each memes as meme}
           <Card
             class="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
           >
@@ -177,11 +188,15 @@
             >
               <div class="flex items-center">
                 <BarChart3 class="w-4 h-4 mr-1 text-secondary-500" />
-                <span>${meme.Analytics.MarketCap.toLocaleString()}</span>
+                <span>${meme.Analytics.MarketCap / decimals(BigInt(12))}</span>
               </div>
               <div class="flex items-center">
                 <TrendingUp class="w-4 h-4 mr-1 text-green-500" />
-                <span>${meme.Analytics.Price}</span>
+                <span
+                  >${fromExponential(
+                    Number(meme.Analytics.Price) / decimals(BigInt(12)),
+                  ).toString()}</span
+                >
               </div>
               <div class="flex items-center">
                 <MessageCircle class="w-4 h-4 mr-1 text-blue-500" />

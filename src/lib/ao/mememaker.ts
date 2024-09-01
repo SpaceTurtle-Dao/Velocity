@@ -11,10 +11,10 @@ import {
     GetProfile,
     GetMeme,
 } from "$lib/ao/messegeFactory.svelte";
-import { PROCESS_ID } from "$lib/constants";
+import { PROCESS_ID, WAR_TOKEN } from "$lib/constants";
 import { upload } from "$lib/ao/uploader";
-// @ts-ignore
-import { Quantity, Token } from "ao-tokens";
+
+
 import { profileMemes, currentUser } from "../../stores/profile.store";
 //import { UserData,Post,MarketCapData } from "../../stores/profile.store";
 
@@ -30,7 +30,6 @@ export const profile = async (name: string, image: string, bio: string) => {
 };
 
 export const meme = async (
-    token: string,
     quantity: string,
     amount: string,
     kind: string,
@@ -41,7 +40,7 @@ export const meme = async (
     try {
         // @ts-ignore
         let message = Meme(quantity, amount, kind, tags, content, parent);
-        let result = await send(token, message);
+        let result = await send(WAR_TOKEN(), message);
         console.log(result);
     } catch (e) {
         console.log(e);
@@ -135,7 +134,6 @@ export const fetchProfileMemes = async (
 ) => {
     let memes: Array<any> = [];
     try {
-        // @ts-ignore
         let message = FetchProfileMemes(profile, page, size);
         let result = await read(PROCESS_ID(), message);
         console.log(result);
