@@ -30,12 +30,12 @@ export const profile = async (name: string, image: string, bio: string) => {
 };
 
 export const meme = async (
-    quantity: string,
-    amount: string,
-    kind: string,
+    quantity: string, //how much of the base token you are selling
+    amount: string, //how much of the new token you want
+    kind: string, // tells us if content is just a string or stringified json
     tags: string,
     content: string,
-    parent: string | null | undefined,
+    parent: string | null | undefined, //pool of the post you are replying to
 ) => {
     try {
         // @ts-ignore
@@ -48,10 +48,10 @@ export const meme = async (
 };
 
 export const pump = async (
-    quantity: string,
+    quantity: string, // amount of tokens you are selling
     slippage: string,
     recipient: string,
-    token: string,
+    token: string, // the process id of the token you are selling
 ) => {
     try {
         // @ts-ignore
