@@ -13,6 +13,7 @@
         MoreHorizontal,
         Plus,
     } from "lucide-svelte";
+    import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
 
     export let url = "";
 
@@ -29,7 +30,8 @@
         isCreatePostModalOpen = !isCreatePostModalOpen;
     }
 
-    function handlePostSubmit(event) {
+    async function handlePostSubmit(event) {
+        let memes = await fetchProfileMemes("vd97vAnBhKD7zGNDTjTgl5N0WKLcl92MO8Ob3T0w6IM","1","100")
         console.log("New post submitted:", event.detail.content);
         // Handle post submission logic here
     }
