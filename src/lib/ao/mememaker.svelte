@@ -63,7 +63,7 @@
         }
     };
 
-    const fetchMemes = async (page: string, size: string) => {
+    export const fetchMemes = async (page: string, size: string) => {
         let _memes: Array<any> = [];
         try {
             // @ts-ignore
@@ -83,7 +83,7 @@
         return _memes;
     };
 
-    const fetchReplies = async (parent: string, page: string, size: string) => {
+    export const fetchReplies = async (parent: string, page: string, size: string) => {
         let _memes: Array<any> = [];
         try {
             // @ts-ignore
@@ -103,7 +103,7 @@
         return _memes;
     };
 
-    const fetchMemesByIds = async (memes: string) => {
+    export const fetchMemesByIds = async (memes: string) => {
         let _memes: Array<any> = [];
         try {
             // @ts-ignore
@@ -123,7 +123,7 @@
         return _memes;
     };
 
-    const fetchProfileMemes = async (
+    export const fetchProfileMemes = async (
         profile: string,
         page: string,
         size: string,
@@ -147,7 +147,7 @@
         return _memes;
     };
 
-    const getProfiles = async (profile: string) => {
+    export const getProfiles = async (profile: string) => {
         let _profile: any;
         try {
             // @ts-ignore
@@ -163,7 +163,7 @@
         return _profile;
     };
 
-    const getMeme = async (meme: string) => {
+    export const getMeme = async (meme: string) => {
         let _profile: any;
         try {
             // @ts-ignore
@@ -179,7 +179,7 @@
         return _profile;
     };
 
-    const fetchProfiles = async (page: string, size: string) => {
+    export const fetchProfiles = async (page: string, size: string) => {
         let _profiles: Array<any> = [];
         try {
             // @ts-ignore
