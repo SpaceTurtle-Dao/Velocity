@@ -11,11 +11,13 @@ import {
     GetProfile,
     GetMeme,
 } from "$lib/ao/messegeFactory.svelte";
-import { PROCESS_ID } from "$lib/constants";
+import { PROCESS_ID, WAR_TOKEN } from "$lib/constants";
 import { upload } from "$lib/ao/uploader";
-// @ts-ignore
-import { Quantity, Token } from "ao-tokens";
+
+
+import { profileMemes, currentUser } from "../../stores/profile.store";
 //import { UserData,Post,MarketCapData } from "../../stores/profile.store";
+
 export const profile = async (name: string, image: string, bio: string) => {
     try {
         // @ts-ignore
@@ -28,7 +30,6 @@ export const profile = async (name: string, image: string, bio: string) => {
 };
 
 export const meme = async (
-    token: string,
     quantity: string,
     amount: string,
     kind: string,
@@ -39,7 +40,7 @@ export const meme = async (
     try {
         // @ts-ignore
         let message = Meme(quantity, amount, kind, tags, content, parent);
-        let result = await send(token, message);
+        let result = await send(WAR_TOKEN(), message);
         console.log(result);
     } catch (e) {
         console.log(e);
@@ -131,26 +132,39 @@ export const fetchProfileMemes = async (
     page: string,
     size: string,
 ) => {
-    let _memes: Array<any> = [];
+    let memes: Array<any> = [];
     try {
-        // @ts-ignore
         let message = FetchProfileMemes(profile, page, size);
         let result = await read(PROCESS_ID(), message);
-        if (result == undefined) return _memes;
         console.log(result);
         let json = JSON.parse(result.Data);
         console.log(json);
         for (const key in json) {
-            _memes.push(json[key]);
+            memes.push(json[key]);
             console.log(json[key]);
         }
+        profileMemes.set(memes)
     } catch (e) {
         console.log(e);
     }
-    return _memes;
 };
 
-export const getProfiles = async (profile: string) => {
+export const getCurrentProfile = async () => {
+    const address = await window.arweaveWallet.getActiveAddress()
+    try {
+        // @ts-ignore
+        let message = GetProfile(address);
+        let result = await read(PROCESS_ID(), message);
+        console.log(result);
+        let json = JSON.parse(result.Data);
+        currentUser.set(json)
+        console.log(json);
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+export const getProfile = async (profile: string) => {
     let _profile: any;
     try {
         // @ts-ignore

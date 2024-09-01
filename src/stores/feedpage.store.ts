@@ -1,27 +1,79 @@
 import { writable } from "svelte/store";
 
-// interfaces.ts
-export interface User {
-  id: string;
-  username: string;
-  displayName: string;
-  avatar: string;
-  bio: string;
-  followers: number;
-  following: number;
-  totalMarketCap: number;
+
+export interface Meme {
+  BondingCurve: string
+  Post: Post
+  Denomination: string
+  AmountB: string
+  AmountA: string
+  Dumps: number
+  createdAt: number
+  Creator: string
+  Module: string
+  Supply: string
+  Analytics: Analytics
+  TokenB: string
+  Pumps: number
+  TokenA: string
+  IsPump: boolean
+  Pool: string
+  IsActive: boolean
+  Replies: number
+  Profile: Profile
+  Holders: Holders
 }
 
 export interface Post {
-  id: string;
-  userId: string;
-  content: string;
-  timestamp: string;
-  marketCap: number;
-  tokenPrice: number;
-  comments: number;
-  shares: number;
+  Tags: any[]
+  Content: string
+  Kind: string
 }
 
-export const currentUser = writable<User | null>(null);
-export const feedPosts = writable<Post[]>([]);
+export interface Analytics {
+  WeekVolume: WeekVolume
+  Volume: string
+  Buys: number
+  HourVolume: HourVolume
+  MarketCap: number
+  Liquidty: string
+  Price: string
+  MontlyVolume: MontlyVolume
+  DayVolume: DayVolume
+}
+
+export interface WeekVolume {
+  Past: string
+  Now: string
+}
+
+export interface HourVolume {
+  Past: string
+  Now: string
+}
+
+export interface MontlyVolume {
+  Past: string
+  Now: string
+}
+
+export interface DayVolume {
+  Past: string
+  Now: string
+}
+
+export interface Profile {
+  Image: string
+  CreatedAt: number
+  Name: string
+  Creator: string
+}
+
+export interface Holders {
+  count: number
+  top10: number
+  dev: number
+}
+
+export const currentUser = writable<Profile | null>(null);
+export const feedPosts = writable<Meme[]>([]);
