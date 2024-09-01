@@ -12,6 +12,8 @@ const { result, results, message, spawn, monitor, unmonitor, dryrun } = connect(
 
 // @ts-ignore
 export async function send (processId, tags) {
+	console.log("Sending tags")
+	console.log(tags)
 	console.log("Sending message to: " + processId)
 	// The only 2 mandatory parameters here are process and signer
 	// connect to the extension

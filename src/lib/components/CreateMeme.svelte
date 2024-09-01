@@ -11,7 +11,7 @@
   let quantity = '';
   let amount = '';
   let kind = '1';
-  let tags = '';
+  let tags = '[]';
   let content = '';
   let parent: string | null = null;
   let jsonContent = {};
@@ -55,9 +55,9 @@
         validatedData.quantity,
         validatedData.amount,
         validatedData.kind,
-        validatedData.tags || JSON.stringify([]),
+        validatedData.tags || '[]',
         validatedData.content,
-        "validatedData.parent || undefined"
+        null
       );
 
       closeModal();
