@@ -12,13 +12,25 @@ export interface UserData {
 }
 
 export interface Post {
-  id: number;
+  id: string; 
+  author: {
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl: string;
+  };
   content: string;
-  timestamp: string;
-  marketCap: number;
-  tokenPrice: number;
-  comments: number;
-  shares: number;
+  createdAt: string; 
+  updatedAt: string;
+  metrics: {
+    marketCap: number;
+    tokenPrice: number;
+    commentsCount: number;
+    sharesCount: number;
+    likesCount: number;
+  };
+  tags: string[];
+  isEdited: boolean;
 }
 
 export interface MarketCapData {
@@ -40,32 +52,47 @@ export const userData = writable<UserData>({
 // Posts Store
 export const posts = writable<Post[]>([
   {
-    id: 1,
+    id: "1",
+    author: {
+      id: "user123",
+      username: "Nickzz_AO",
+      displayName: "Nickkzz",
+      avatarUrl: "/Users/nickk/Documents/Meme_Market_Frontend/src/assets/sunny.jpeg"
+    },
     content: "Just launched our new bonding curve algorithm! 🚀 The future of social media is here. #CryptoTwitter #Web3",
-    timestamp: "2h ago",
-    marketCap: 2500,
-    tokenPrice: 0.05,
-    comments: 42,
-    shares: 18
+    createdAt: "2024-09-01T10:00:00Z",
+    updatedAt: "2024-09-01T10:00:00Z",
+    metrics: {
+      marketCap: 2500,
+      tokenPrice: 0.05,
+      commentsCount: 42,
+      sharesCount: 18,
+      likesCount: 105
+    },
+    tags: ["CryptoTwitter", "Web3"],
+    isEdited: false
   },
   {
-    id: 2,
+    id: "2",
+    author: {
+      id: "user123",
+      username: "Nickzz_AO",
+      displayName: "Nickkzz",
+      avatarUrl: "/Users/nickk/Documents/Meme_Market_Frontend/src/assets/sunny.jpeg"
+    },
     content: "Thoughts on using market cap for content recommendation? Let's discuss the pros and cons. 🤔 #ContentDiscovery",
-    timestamp: "5h ago",
-    marketCap: 1800,
-    tokenPrice: 0.03,
-    comments: 37,
-    shares: 12
+    createdAt: "2024-09-01T07:00:00Z",
+    updatedAt: "2024-09-01T07:30:00Z",
+    metrics: {
+      marketCap: 1800,
+      tokenPrice: 0.03,
+      commentsCount: 37,
+      sharesCount: 12,
+      likesCount: 89
+    },
+    tags: ["ContentDiscovery"],
+    isEdited: true
   },
-  {
-    id: 3,
-    content: "New blog post: 'The Attention Economy and Token-Powered Social Media' - check it out! 📝 #AttentionEconomy #Tokenomics",
-    timestamp: "1d ago",
-    marketCap: 3200,
-    tokenPrice: 0.07,
-    comments: 56,
-    shares: 29
-  }
 ]);
 
 export const activeTab = writable<'posts' | 'marketCap'>('posts');
