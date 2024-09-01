@@ -16,29 +16,45 @@
   import { Textarea } from "$lib/components/ui/ui/textarea";
   import { Label } from "$lib/components/ui/ui/label";
   import { Camera } from "lucide-svelte";
+  import { profile } from '$lib/ao/mememaker';
+  import { upload } from '$lib/ao/uploader';
 
   let username = "";
   let displayName = "";
   let bio = "";
   let avatarUrl = "";
+  let avatarFile: File | null = null;
 
-  //@ts-ignore
-  function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
+  function handleFileUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      avatarFile = input.files[0];
       const reader = new FileReader();
       reader.onload = (e) => {
-        //@ts-ignore
-        avatarUrl = e.target.result;
+        avatarUrl = e.target?.result as string;
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(avatarFile);
     }
   }
 
-  function handleSubmit() {
-    // Here you would typically send the profile data to your backend
-    console.log({ username, displayName, bio, avatarUrl });
-    alert("Profile created successfully!");
+  async function handleCreateProfile() {
+    if (!avatarFile) {
+      alert("Please upload a profile picture.");
+      return;
+    }
+
+    try {
+      // Upload avatar to Arweave
+      const tx = await upload(await avatarFile.arrayBuffer());
+
+      // Create profile
+      await profile(username, tx, bio);
+
+      alert("Profile created successfully!");
+    } catch (error) {
+      console.error("Error creating profile:", error);
+      alert("An error occurred while creating your profile. Please try again.");
+    }
   }
 </script>
 
@@ -108,7 +124,7 @@
 
       <Button
         class="w-full bg-gradient-to-r from-secondary-500 to-pink-500 hover:from-pink-500 hover:to-secondary-500 text-white transition-all duration-300"
-        on:click={handleSubmit}
+        on:click={handleCreateProfile}
       >
         Create Profile
       </Button>

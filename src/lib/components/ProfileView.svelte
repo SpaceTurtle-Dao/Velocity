@@ -208,7 +208,7 @@
               </div>
               <Button
                 size="sm"
-                class="bg-gradient-to-r from-secondary-500 to-pink-500 hover:from-pink-500 hover:to-secondary-500 text-white transition-all duration-300"
+                class="bg-pink-500 text-white"
               >
                 <Rocket class="w-4 h-4 mr-2" />
                 Pump
