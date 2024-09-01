@@ -13,7 +13,7 @@
   let kind = '1';
   let tags = '';
   let content = '';
-  let parent: string | null | undefined = null;
+  let parent: string | null = null;
   let jsonContent = {};
   let error = '';
   let fileInput: HTMLInputElement | null = null;
@@ -23,14 +23,14 @@
 
   const dispatch = createEventDispatcher();
 
-  // const schema = z.object({
-  //   quantity: z.string().min(1, 'Quantity is required'),
-  //   amount: z.string().min(1, 'Amount is required'),
-  //   // kind: z.enum(['0', '1']),
-  //   // tags: z.string(),
-  //   content: z.string().min(1, 'Content is required'),
-  //   parent: z.string().nullable().optional(),
-  // });
+  const schema = z.object({
+    quantity: z.string().min(1, 'Quantity is required'),
+    amount: z.string().min(1, 'Amount is required'),
+    kind: z.enum(['0', '1']),
+    tags: z.string().optional(),
+    content: z.string().min(1, 'Content is required'),
+    parent: z.string().nullable().optional(),
+  });
 
   async function create_meme() {
     try {
@@ -41,34 +41,34 @@
         throw new Error('Please select an image');
       }
 
-      // const validatedData = schema.parse({
-      //   quantity,
-      //   amount,
-      //   // kind,
-      //   // tags,
-      //   content: kind === '0' ? JSON.stringify(jsonContent) : content,
-      //   parent,
-      // });
+      const validatedData = schema.parse({
+        quantity,
+        amount,
+        kind,
+        tags,
+        content: kind === '0' ? JSON.stringify(jsonContent) : content,
+        parent,
+      });
 
       let tx = await upload(await selectedImage.arrayBuffer());
       await meme(
-        quantity,
-        amount,
-        "1",
-        JSON.stringify([]),
-        content,
-        parent
+        validatedData.quantity,
+        validatedData.amount,
+        validatedData.kind,
+        validatedData.tags || JSON.stringify([]),
+        validatedData.content,
+        "validatedData.parent || undefined"
       );
 
       closeModal();
     } catch (e) {
-      // if (e instanceof z.ZodError) {
-      //   error = e.errors.map(err => err.message).join(', ');
-      // } else if (e instanceof Error) {
-      //   error = e.message;
-      // } else {
-      //   error = 'An unexpected error occurred';
-      // }
+      if (e instanceof z.ZodError) {
+        error = e.errors.map(err => `${err.path.join('.')}: ${err.message}`).join(', ');
+      } else if (e instanceof Error) {
+        error = e.message;
+      } else {
+        error = 'An unexpected error occurred';
+      }
     } finally {
       isLoading = false;
     }
@@ -78,8 +78,7 @@
     dispatch('close');
   }
 
-  //@ts-ignore
-  function handleJsonChange(event) {
+  function handleJsonChange(event: CustomEvent) {
     jsonContent = event.detail.json;
   }
 
@@ -140,17 +139,17 @@
         </div>
 
         <div>
-          <label for="content" class="block text-sm font-medium text-gray-700">Content:</label>
-          {#if kind === '0'}
-            <JSONEditor content={jsonContent} onChange={handleJsonChange} class="mt-1 block w-full border border-gray-300 rounded-md" />
-          {:else}
-            <textarea id="content" bind:value={content} required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="4"></textarea>
-          {/if}
+          <label for="tags" class="block text-sm font-medium text-gray-700">Tags:</label>
+          <input id="tags" type="text" bind:value={tags} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
         </div>
 
         <div>
-          <label for="parent" class="block text-sm font-medium text-gray-700">Parent:</label>
-          <input id="parent" type="text" bind:value={parent} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+          <label for="content" class="block text-sm font-medium text-gray-700">Content:</label>
+          {#if kind === '0'}
+            <JSONEditor content={jsonContent} on:change={handleJsonChange} class="mt-1 block w-full border border-gray-300 rounded-md" />
+          {:else}
+            <textarea id="content" bind:value={content} required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="4"></textarea>
+          {/if}
         </div>
 
         <!-- Image Preview and File Upload -->
