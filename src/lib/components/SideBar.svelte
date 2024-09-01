@@ -11,8 +11,6 @@
     MoreHorizontal,
     Plus,
   } from "lucide-svelte";
-
-  // Import your components
   import UserProfile from "./UserProfile.svelte";
 
   export let url = "";

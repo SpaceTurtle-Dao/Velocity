@@ -23,7 +23,7 @@
                 >
             </div>
 
-            <!-- <div class="hidden md:block">
+            <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline space-x-2 lg:space-x-4">
                     <p
                         class="text-white px-2 py-2 rounded-md text-xs lg:text-sm font-medium"

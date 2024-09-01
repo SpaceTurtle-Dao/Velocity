@@ -4,6 +4,7 @@
   import Navbar from "$lib/components/Navbar.svelte";
   import ProfileView from "$lib/components/ProfileView.svelte";
   import UserProfile from "$lib/components/UserProfile.svelte";
+  import CreatePostModal from "$lib/components/CreateMeme.svelte";
   import {
     Home as HomeIcon,
     Search,
@@ -12,22 +13,37 @@
     MoreHorizontal,
     Plus,
   } from "lucide-svelte";
-  import Feed from "$lib/components/Feed.svelte";
+  import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
+
   export let url = "";
 
+  let isCreatePostModalOpen = false;
+
   const menuItems = [
-    { icon: HomeIcon, label: "Home", href: "/feed" },
+    { icon: HomeIcon, label: "Home", href: "/" },
     { icon: Search, label: "Explore", href: "/explore" },
     { icon: Bell, label: "Notifications", href: "/UserProfile" },
     { icon: User, label: "Profile", href: "/profile" },
   ];
+
+  function toggleCreatePostModal() {
+    isCreatePostModalOpen = !isCreatePostModalOpen;
+  }
+
+  async function handlePostSubmit(event) {
+    let memes = await fetchProfileMemes(
+      "vd97vAnBhKD7zGNDTjTgl5N0WKLcl92MO8Ob3T0w6IM",
+      "1",
+      "100",
+    );
+    console.log("New post submitted:", event.detail.content);
+    // Handle post submission logic here
+  }
 </script>
 
 <Router {url}>
   <div class="flex h-screen overflow-hidden">
-    <aside
-      class="w-64 bg-background shadow-lg flex flex-col justify-between p-4"
-    >
+    <aside class="w-64 bg-white shadow-lg flex flex-col justify-between p-4">
       <div class="space-y-4">
         <div class="p-2">
           <svg
@@ -56,7 +72,7 @@
                     this={item.icon}
                     class="w-6 h-6 mr-4 text-primary-500"
                   />
-                  <span class="text-lg font-medium text-primary"
+                  <span class="text-lg font-medium text-gray-700"
                     >{item.label}</span
                   >
                 </a>
@@ -64,16 +80,18 @@
             {/each}
             <li>
               <button
+                on:click={toggleCreatePostModal}
                 class="flex items-center p-2 rounded-full hover:bg-secondary-100 transition-colors duration-200"
               >
-                <MoreHorizontal class="w-6 h-6 mr-4 text-primary" />
-                <span class="text-lg font-medium text-primary">More</span>
+                <MoreHorizontal class="w-6 h-6 mr-4 text-primary-500" />
+                <span class="text-lg font-medium text-gray-700">More</span>
               </button>
             </li>
           </ul>
         </nav>
         <button
-          class="w-full bg-secondary-500 text-white rounded-full py-3 font-bold text-lg hover:bg-secondary-600 transition-colors duration-200 flex items-center justify-center"
+          on:click={toggleCreatePostModal}
+          class="w-full bg-black text-white rounded-full py-3 font-bold text-lg hover:bg-secondary-600 transition-colors duration-200 flex items-center justify-center"
         >
           <Plus class="w-5 h-5 mr-2" />
           Post
@@ -87,18 +105,17 @@
             N
           </div>
           <div class="flex-grow text-left">
-            <p class="font-semibold text-primary">Nickzz</p>
-            <p class="text-sm text-primary">@Nickzz_AO</p>
+            <p class="font-semibold text-gray-800">Nickzz</p>
+            <p class="text-sm text-gray-500">@Nickzz_AO</p>
           </div>
-          <MoreHorizontal class="w-5 h-5 text-primary" />
+          <MoreHorizontal class="w-5 h-5 text-gray-500" />
         </button>
       </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto bg-background">
+    <main class="flex-1 overflow-y-auto bg-[#FFF0F5]">
       <Navbar />
       <div class="container mx-auto px-4 pt-16">
-        <Route path="/feed" component={Feed} />
         <Route path="/profile" component={ProfileView} />
         <Route path="/UserProfile" component={UserProfile} />
       </div>
@@ -106,8 +123,8 @@
   </div>
 </Router>
 
-<style>
-  :global(body) {
-    @apply bg-background;
-  }
-</style>
+<CreatePostModal
+  isOpen={isCreatePostModalOpen}
+  on:close={toggleCreatePostModal}
+  on:submit={handlePostSubmit}
+/>

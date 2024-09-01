@@ -24,11 +24,16 @@
     "vite": "^5.4.1"
   },
   "dependencies": {
+    "@permaweb/aoconnect": "^0.0.59",
+    "ao-tokens": "^0.0.4",
+    "arweave": "^1.15.1",
     "bits-ui": "^0.21.13",
     "chart.js": "^4.4.4",
     "clsx": "^2.1.1",
+    "from-exponential": "^1.1.1",
     "lucide-svelte": "^0.436.0",
     "mode-watcher": "^0.4.1",
+    "recharts": "^2.12.7",
     "svelte-sonner": "^0.3.27",
     "tailwind-merge": "^2.5.2",
     "tailwind-variants": "^0.2.1"
