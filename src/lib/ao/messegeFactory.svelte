@@ -1,102 +1,127 @@
 <script context="module" lang="ts">
+    import { PROCESS_ID, WAR_TOKEN } from "$lib/constants";
+
 	//import type { TokenData } from './models/TokenData.svelte';
 
-	export const Create = (
-		tokenB: string,
-		name: string,
-		ticker: string,
-		logo: string,
-		description: string,
-		amountA: string,
-		amountB: string
+	export const Meme = (
+		quantity: string,
+		amount: string,
+		kind: string,
+		tags: string,
+		content: string,
+		parent: string | null | undefined,
 	) => {
 		return [
-			{ name: 'Action', value: 'Init' },
+			{ name: 'Action', value: 'Transfer' },
+			{ name: 'Quantity', value: quantity },
+			{ name: 'Recipient', value: WAR_TOKEN() },
+			{ name: 'X-Kind', value: kind },
+			{ name: 'X-Tags', value: tags },
+			{ name: 'X-Content', value: content },
+			{ name: 'X-Amount', value: amount },
+			{ name: 'X-Parent', value: parent }
+		];
+	};
+
+	export const Profile = (
+		name: string,
+		image: string,
+		bio: string
+	) => {
+		return [
+			{ name: 'Action', value: 'Profile' },
 			{ name: 'Name', value: name },
-			{ name: 'Ticker', value: ticker },
-			{ name: 'Logo', value: logo },
-			{ name: 'Description', value: description },
-			{ name: 'TokenB', value: tokenB },
-			{ name: 'AmountA', value: amountA },
-			{ name: 'AmountB', value: amountB }
+			{ name: 'Image', value: image },
+			{ name: 'Bio', value: bio }
 		];
 	};
 
-	export const pools = () => {
-		return [{ name: 'Action', value: 'Pools' }];
-	};
-
-	export const pumps = () => {
-		return [{ name: 'Action', value: 'Pumps' }];
-	};
-
-	export const pool = (poolId:string) => {
-		return [
-			{ name: 'Action', value: 'Pool' },
-			{ name: 'PoolId', value: poolId }
-		];
-	};
-
-	export const add = (amountA: string, amountB: string) => {
-		return [
-			{ name: 'Action', value: 'Add' },
-			{ name: 'amountA', value: amountA },
-			{ name: 'amountB', value: amountB }
-		];
-	};
-
-	export const remove = (share: string) => {
-		return [
-			{ name: 'Action', value: 'Remove' },
-			{ name: 'share', value: share }
-		];
-	};
-
-	export const swapA = (amount: string, slippage: string) => {
-		return [
-			{ name: 'Action', value: 'SwapA' },
-			{ name: 'amount', value: amount },
-			{ name: 'slippage', value: slippage }
-		];
-	};
-
-	export const swapB = (amount: string, slippage: string) => {
-		return [
-			{ name: 'Action', value: 'SwapB' },
-			{ name: 'amount', value: amount },
-			{ name: 'slippage', value: slippage }
-		];
-	};
-
-	export const balance = () => {
-		return [{ name: 'Action', value: 'Balance' }];
-	};
-
-	export const info = () => {
-		return [{ name: 'Action', value: 'Info' }];
-	};
-
-	export const transfer = (recipient: string, quantity: string) => {
+	export const Pump = (
+		quantity: string,
+		slippage: string,
+		recipient: string
+	) => {
 		return [
 			{ name: 'Action', value: 'Transfer' },
+			{ name: 'Quantity', value: quantity },
 			{ name: 'Recipient', value: recipient },
-			{ name: 'Quantity', value: quantity }
+			{ name: 'X-Slippage', value: slippage },
+			{ name: 'X-Swap', value: "" },
 		];
 	};
 
-	/*export const withdrawB = (amount: string) => {
+	export const FetchMemes = (
+		page: string,
+		size: string
+	) => {
 		return [
-			{ name: 'Action', value: 'WithdrawBox' },
-			{ name: 'Quantity', value: amount },
-			{ name: 'isTokenA', value: "false" }
+			{ name: 'Action', value: 'FetchMemes' },
+			{ name: 'Page', value: page },
+			{ name: 'Size', value: size }
 		];
 	};
 
-	export const withdrawA = (amount: string) => {
+	export const FetchProfileMemes = (
+		profile:string,
+		page: string,
+		size: string
+	) => {
 		return [
-			{ name: 'Action', value: 'WithdrawBox' },
-			{ name: 'Quantity', value: amount },
-			{ name: 'isTokenA', value: "true" }
+			{ name: 'Action', value: 'FetchProfileMemes' },
+			{ name: 'Profile', value: profile },
+			{ name: 'Page', value: page },
+			{ name: 'Size', value: size }
 		];
-	};*/
+	};
+
+	export const FetchReplies = (
+		parent: string,
+		page: string,
+		size: string
+	) => {
+		return [
+			{ name: 'Action', value: 'FetchReplies' },
+			{ name: 'Parent', value: parent },
+			{ name: 'Page', value: page },
+			{ name: 'Size', value: size }
+		];
+	};
+
+	export const FetchMemesByIds = (
+		memes: string //stringified json string array
+	) => {
+		return [
+			{ name: 'Action', value: 'FetchMemesByIds' },
+			{ name: 'Memes', value: memes }
+		];
+	};
+
+	export const FetchProfiles = (
+		page: string,
+		size: string
+	) => {
+		return [
+			{ name: 'Action', value: 'FetchProfiles' },
+			{ name: 'Page', value: page },
+			{ name: 'Size', value: size }
+		];
+	};
+
+	export const GetProfile = (
+		profile: string
+	) => {
+		return [
+			{ name: 'Action', value: 'GetProfile' },
+			{ name: 'Profile', value: profile },
+		];
+	};
+
+	export const GetMeme = (
+		meme: string
+	) => {
+		return [
+			{ name: 'Action', value: 'GetMeme' },
+			{ name: 'Meme', value: meme },
+		];
+	};
 </script>

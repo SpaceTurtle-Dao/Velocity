@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@permaweb/aoconnect": "^0.0.59",
+    "ao-tokens": "^0.0.4",
     "arweave": "^1.15.1",
     "bits-ui": "^0.21.13",
     "chart.js": "^4.4.4",

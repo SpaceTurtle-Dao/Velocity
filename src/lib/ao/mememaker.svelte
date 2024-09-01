@@ -1,23 +1,214 @@
 <script lang="ts">
-import { send, read } from '$lib/ao/process.svelte';
-import { info, pools, pumps, pool, transfer } from '$lib/ao/messegeFactory.svelte';
-import {PROCESS_ID} from '$lib/constants';
-import {upload} from '$lib/ao/uploader';
+    import { send, read } from "$lib/ao/process.svelte";
+    import {
+        Meme,
+        Profile,
+        Pump,
+        FetchMemes,
+        FetchProfileMemes,
+        FetchReplies,
+        FetchMemesByIds,
+        FetchProfiles,
+        GetProfile,
+        GetMeme,
+    } from "$lib/ao/messegeFactory.svelte";
+    import { PROCESS_ID } from "$lib/constants";
+    import { upload } from "$lib/ao/uploader";
+    // @ts-ignore
+    import { Quantity, Token } from "ao-tokens";
 
-const decimals = (value: BigInt) => {
-    let _decimals = 1;
-    for (let i = 0; i < Number(value); i++) {
-        _decimals = _decimals * 10;
-    }
+    export const profile = async (name: string, image: string, bio: string) => {
+        try {
+            // @ts-ignore
+            let message = Profile(name, image, bio);
+            let result = await send(PROCESS_ID(), message);
+            console.log(result);
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
-    return _decimals;
-};
+    export const meme = async (
+        token: string,
+        quantity: string,
+        amount: string,
+        kind: string,
+        tags: string,
+        content: string,
+        parent: string | null | undefined,
+    ) => {
+        try {
+            // @ts-ignore
+            let message = Meme(quantity, amount, kind, tags, content, parent);
+            let result = await send(token, message);
+            console.log(result);
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
-function relDiff(a: number, b: number) {
-    return (100) * Math.abs((a - b) / ((a + b) / 2));
-}
+    export const pump = async (
+        quantity: string,
+        slippage: string,
+        recipient: string,
+        token: string,
+    ) => {
+        try {
+            // @ts-ignore
+            let message = Pump(quantity, slippage, recipient);
+            let result = await send(token, message);
+            console.log(result);
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
-/*export const fetchPumps = async () => {
+    const fetchMemes = async (page: string, size: string) => {
+        let _memes: Array<any> = [];
+        try {
+            // @ts-ignore
+            let message = FetchMemes(page, size);
+            let result = await read(PROCESS_ID(), message);
+            if (result == undefined) return _memes;
+            console.log(result);
+            let json = JSON.parse(result.Data);
+            console.log(json);
+            for (const key in json) {
+                _memes.push(json[key]);
+                console.log(json[key]);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+        return _memes;
+    };
+
+    const fetchReplies = async (parent: string, page: string, size: string) => {
+        let _memes: Array<any> = [];
+        try {
+            // @ts-ignore
+            let message = FetchReplies(parent, page, size);
+            let result = await read(PROCESS_ID(), message);
+            if (result == undefined) return _memes;
+            console.log(result);
+            let json = JSON.parse(result.Data);
+            console.log(json);
+            for (const key in json) {
+                _memes.push(json[key]);
+                console.log(json[key]);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+        return _memes;
+    };
+
+    const fetchMemesByIds = async (memes: string) => {
+        let _memes: Array<any> = [];
+        try {
+            // @ts-ignore
+            let message = FetchMemesByIds(memes);
+            let result = await read(PROCESS_ID(), message);
+            if (result == undefined) return _memes;
+            console.log(result);
+            let json = JSON.parse(result.Data);
+            console.log(json);
+            for (const key in json) {
+                _memes.push(json[key]);
+                console.log(json[key]);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+        return _memes;
+    };
+
+    const fetchProfileMemes = async (
+        profile: string,
+        page: string,
+        size: string,
+    ) => {
+        let _memes: Array<any> = [];
+        try {
+            // @ts-ignore
+            let message = FetchProfileMemes(profile, page, size);
+            let result = await read(PROCESS_ID(), message);
+            if (result == undefined) return _memes;
+            console.log(result);
+            let json = JSON.parse(result.Data);
+            console.log(json);
+            for (const key in json) {
+                _memes.push(json[key]);
+                console.log(json[key]);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+        return _memes;
+    };
+
+    const getProfiles = async (profile: string) => {
+        let _profile: any;
+        try {
+            // @ts-ignore
+            let message = GetProfile(profile);
+            let result = await read(PROCESS_ID(), message);
+            if (result == undefined) return _profile;
+            console.log(result);
+            let json = JSON.parse(result.Data);
+            console.log(json);
+        } catch (e) {
+            console.log(e);
+        }
+        return _profile;
+    };
+
+    const getMeme = async (meme: string) => {
+        let _profile: any;
+        try {
+            // @ts-ignore
+            let message = GetMeme(meme);
+            let result = await read(PROCESS_ID(), message);
+            if (result == undefined) return _profile;
+            console.log(result);
+            let json = JSON.parse(result.Data);
+            console.log(json);
+        } catch (e) {
+            console.log(e);
+        }
+        return _profile;
+    };
+
+    const fetchProfiles = async (page: string, size: string) => {
+        let _profiles: Array<any> = [];
+        try {
+            // @ts-ignore
+            let message = FetchProfiles(page, size);
+            let result = await read(PROCESS_ID(), message);
+            if (result == undefined) return _profiles;
+            console.log(result);
+            let json = JSON.parse(result.Data);
+            console.log(json);
+            for (const key in json) {
+                _profiles.push(json[key]);
+                console.log(json[key]);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+        return _profiles;
+    };
+
+
+    /*const stuff = async () => {
+        const aoCredToken = await Token(
+            // id of the token
+            "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc",
+        );
+        const amountToSend = aoCredToken.Quantity.fromString("752.34");
+    };*/
+
+    /*export const fetchPumps = async () => {
     let _pools: Array<Pool> = [];
     let pools = await _fetchPumps();
     for (let i = 0; i < pools!.length; i++) {
@@ -55,171 +246,5 @@ function relDiff(a: number, b: number) {
     return _pools;
 };*/
 
-const _fetchPumps = async () => {
-    let _pools: Array<any> = [];
-    try {
-        // @ts-ignore
-        let message = pumps();
-        let result = await read(PROCESS_ID(), message);
-        if (result == undefined) return _pools;
-        console.log(result)
-        let json = JSON.parse(result.Data);
-        console.log(json);
-        for (const key in json) {
-            _pools.push(json[key]);
-            console.log(json[key]);
-        }
-    } catch (e) {
-        console.log(e);
-    }
-    return _pools;
-};
-
-/*export const tokenInfo = async (process: string) => {
-    try {
-        let obj = {};
-        let result = await read(process, info());
-        console.log(result);
-        console.log(result.Tags);
-        let tags = result.Tags;
-        console.log("Boom");
-        console.log(tags);
-        tags.forEach((tag: Tag) => {
-            // @ts-ignore
-            obj[tag.name] = tag.value;
-        });
-        // @ts-ignore
-        let data: TokenData = {
-            id: process,
-            // @ts-ignore
-            Name: obj.Name,
-            // @ts-ignore
-            Ticker: obj.Ticker,
-            // @ts-ignore
-            Logo: obj.Logo,
-            // @ts-ignore
-            Denomination: obj.Denomination
-        };
-        //console.log(tags);
-        //console.log(obj);
-        console.log(data);
-        return data;
-    } catch (e) {
-        console.log(e);
-    }
-};*/
-
-export const poolInfo = async (poolId: string) => {
-    try {
-        // @ts-ignore
-        let message = pool(poolId);
-        let result = await read(PROCESS_ID(), message);
-        console.log("res")
-        console.log(result[0].Data)
-        return result[0]
-    } catch (e) {
-        console.log(e);
-    }
-};
-
-/*export const createPump = async (icon: File, tokenB: string, name: string, ticker: string, description: string, amountA: string, amountB: string,) => {
-    try {
-        // @ts-ignore
-        createToast(StatusCode.Loading, "Uploading Image for " + ticker, "", "");
-        let imageId = await upload(await icon.arrayBuffer());
-        let url = `https://www.arweave.net/${imageId}?ext=png`;
-        let message = init(
-            tokenB,
-            name,
-            ticker,
-            imageId,
-            description,
-            amountA,
-            amountB,
-        );
-        let result = await send(PROCESS_ID(), message);
-        console.log(result);
-        return result[0]
-    } catch (e) {
-        console.log(e);
-    }
-};*/
-
-export const add = async (poolId: string, amountA: string, amountB: string) => {
-    try {
-        console.log('boom');
-        // @ts-ignore
-        let message = add(amountA, amountB);
-        let result = await send(poolId, message);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
-    }
-};
-
-
-export const swapA = async (poolId: string, amount: string, slippage: string) => {
-    try {
-        // @ts-ignore
-        let message = swapA(amount, slippage);
-        let result = await send(poolId, message);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
-    }
-};
-
-export const swapB = async (poolId: string, amount: string, slippage: string) => {
-    try {
-        // @ts-ignore
-        let message = swapB(amount, slippage);
-        let result = await send(poolId, message);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
-    }
-};
-
-export const transferToken = async (token: string, recipient: string, quantity: string) => {
-    try {
-        // @ts-ignore
-        let message = transfer(recipient, quantity);
-        let result = await send(token, message);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
-    }
-};
-
-/*export const getBalance = async () => {
-    try {
-        // @ts-ignore
-        let result = await send(poolId, balance(), null);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
-    }
-};
-
-export const removeLiquidity = async () => {
-    try {
-        // @ts-ignore
-        let message = remove('100');
-        let result = await send(poolId, message, null);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
-    }
-};
-
-export const getInfo = async () => {
-    try {
-        // @ts-ignore
-        let message = info();
-        let result = await send('519RPbPUoo-7eIkBt3IFAI5ORP0p14q4DEuICIstN14', message);
-        console.log(result)
-    } catch (e) {
-        console.log(e);
-    }
-};*/
 </script>
+
