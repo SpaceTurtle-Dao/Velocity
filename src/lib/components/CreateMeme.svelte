@@ -1,28 +1,108 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
-  import { fade, fly } from 'svelte/transition';
-  import { Image, Smile, Calendar, MapPin, X, ChevronDown } from 'lucide-svelte';
+  import { z } from 'zod';
+  import { JSONEditor } from 'svelte-jsoneditor';
+  import { meme } from '$lib/ao/mememaker';
+  import { Button } from '$lib/components/ui/ui/button';
+  import { Image, XCircle } from 'lucide-svelte';
+  import { upload } from '$lib/ao/uploader';
 
   export let isOpen = false;
-  let postContent = "";
-  let charCount = 0;
-  let maxChars = 280;
+  let quantity = '';
+  let amount = '';
+  let kind = '1';
+  let tags = '[]';
+  let content = '';
+  let parent: string | null = null;
+  let jsonContent = {};
+  let error = '';
+  let fileInput: HTMLInputElement | null = null;
+  let selectedImage: File | null = null;
+  let imagePreviewUrl: string | null = null;
+  let isLoading = false;
 
   const dispatch = createEventDispatcher();
+
+  const schema = z.object({
+    quantity: z.string().min(1, 'Quantity is required'),
+    amount: z.string().min(1, 'Amount is required'),
+    kind: z.enum(['0', '1']),
+    tags: z.string().optional(),
+    content: z.string().min(1, 'Content is required'),
+    parent: z.string().nullable().optional(),
+  });
+
+  async function create_meme() {
+    try {
+      isLoading = true;
+      error = '';
+
+      if (!selectedImage) {
+        throw new Error('Please select an image');
+      }
+
+      const validatedData = schema.parse({
+        quantity,
+        amount,
+        kind,
+        tags,
+        content: kind === '0' ? JSON.stringify(jsonContent) : content,
+        parent,
+      });
+
+      let tx = await upload(await selectedImage.arrayBuffer());
+      await meme(
+        validatedData.quantity,
+        validatedData.amount,
+        validatedData.kind,
+        validatedData.tags || '[]',
+        validatedData.content,
+        null
+      );
+
+      closeModal();
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        error = e.errors.map(err => `${err.path.join('.')}: ${err.message}`).join(', ');
+      } else if (e instanceof Error) {
+        error = e.message;
+      } else {
+        error = 'An unexpected error occurred';
+      }
+    } finally {
+      isLoading = false;
+    }
+  }
 
   function closeModal() {
     dispatch('close');
   }
 
-  function submitPost() {
-    if (postContent.trim() && charCount <= maxChars) {
-      dispatch('submit', { content: postContent });
-      postContent = "";
-      closeModal();
+  function handleJsonChange(event: CustomEvent) {
+    jsonContent = event.detail.json;
+  }
+
+  function handleImageButtonClick() {
+    if (fileInput) {
+      fileInput.click();
     }
   }
 
-  $: charCount = postContent.length;
+  function handleFileChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+      selectedImage = target.files[0];
+      imagePreviewUrl = URL.createObjectURL(selectedImage);
+    }
+  }
+
+  function removeSelectedImage() {
+    selectedImage = null;
+    imagePreviewUrl = null;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
 
   onMount(() => {
     if (isOpen) {
@@ -35,59 +115,77 @@
 </script>
 
 {#if isOpen}
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50" 
-       transition:fade={{duration: 200}}
-       on:click|self={closeModal}>
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl w-full max-w-2xl shadow-2xl"
-         transition:fly={{y: 50, duration: 300}}
-         on:click|stopPropagation>
-      <div class="flex justify-between items-center p-6 border-b border-gray-700">
-        <button on:click={closeModal} class="text-gray-400 hover:text-white transition-colors">
-          <X size={24} />
-        </button>
-        <h2 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text">Create Meme</h2>
-        <div class="w-6"></div> <!-- Spacer for alignment -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl w-full max-w-lg shadow-lg p-6 space-y-6">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold text-gray-900">Create Meme</h2>
+        <Button variant="ghost" on:click={closeModal} class="text-gray-600 hover:text-gray-900">
+          <span class="sr-only">Close</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </Button>
       </div>
-      
-      <div class="p-6">
-        <div class="flex items-start space-x-4">
-          <div class="flex-grow">
-            <textarea
-              bind:value={postContent}
-              placeholder="Post Memes for Pumping and Dumping !!!"
-              class="w-full bg-transparent resize-none focus:outline-none text-xl min-h-[120px] scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
-              rows="4"
-            ></textarea>
-          </div>
+
+      <form on:submit|preventDefault={create_meme} class="space-y-4">
+        <div>
+          <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity:</label>
+          <input id="quantity" type="text" bind:value={quantity} required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
         </div>
-      </div>
-      
-      <div class="px-6 pb-4">
-        <div class="flex justify-between items-center">
-          <div class="flex space-x-4">
-            <button class="text-blue-400 hover:bg-blue-900 hover:bg-opacity-20 p-2 rounded-full transition-colors">
+
+        <div>
+          <label for="amount" class="block text-sm font-medium text-gray-700">Amount:</label>
+          <input id="amount" type="text" bind:value={amount} required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+        </div>
+
+        <div>
+          <label for="tags" class="block text-sm font-medium text-gray-700">Tags:</label>
+          <input id="tags" type="text" bind:value={tags} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+        </div>
+
+        <div>
+          <label for="content" class="block text-sm font-medium text-gray-700">Content:</label>
+          {#if kind === '0'}
+            <JSONEditor content={jsonContent} on:change={handleJsonChange} class="mt-1 block w-full border border-gray-300 rounded-md" />
+          {:else}
+            <textarea id="content" bind:value={content} required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="4"></textarea>
+          {/if}
+        </div>
+
+        <!-- Image Preview and File Upload -->
+        {#if imagePreviewUrl}
+          <div class="relative">
+            <!-- svelte-ignore a11y-img-redundant-alt -->
+            <img src={imagePreviewUrl} alt="Selected Image" class="w-full h-auto rounded-md shadow-md" />
+            <Button type="button" variant="ghost" on:click={removeSelectedImage} class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600">
+              <XCircle size={20} />
+              <span class="sr-only">Remove Image</span>
+            </Button>
+          </div>
+        {:else}
+          <div class="flex justify-center items-center border-2 border-dashed border-gray-300 rounded-md p-4">
+            <Button variant="ghost" on:click={handleImageButtonClick} class="text-indigo-600 hover:bg-indigo-50 p-2 rounded-full">
               <Image size={24} />
-            </button>
-            <button class="text-blue-400 hover:bg-blue-900 hover:bg-opacity-20 p-2 rounded-full transition-colors">
-              <span class="font-bold">GIF</span>
-            </button>
-            <button class="text-blue-400 hover:bg-blue-900 hover:bg-opacity-20 p-2 rounded-full transition-colors">
-              <Smile size={24} />
-            </button>
+              <span class="sr-only">Upload Image</span>
+            </Button>
+            <input
+              type="file"
+              accept="image/*"
+              bind:this={fileInput}
+              class="hidden"
+              on:change={handleFileChange}
+            />
           </div>
-          <div class="flex items-center space-x-4">
-            <button
-              on:click={submitPost}
-              class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full font-bold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-              Post
-            </button>
-          </div>
-        </div>
-      </div>
+        {/if}
+
+        {#if error}
+          <p class="text-red-500">{error}</p>
+        {/if}
+
+        <Button type="submit" class="w-full mt-4" disabled={isLoading}>
+          {isLoading ? 'Creating Meme...' : 'Create Meme'}
+        </Button>
+      </form>
     </div>
   </div>
 {/if}

@@ -30,6 +30,7 @@
         isCreatePostModalOpen = !isCreatePostModalOpen;
     }
 
+    //@ts-ignore
     async function handlePostSubmit(event) {
         let memes = await fetchProfileMemes("vd97vAnBhKD7zGNDTjTgl5N0WKLcl92MO8Ob3T0w6IM","1","100")
         console.log("New post submitted:", event.detail.content);
