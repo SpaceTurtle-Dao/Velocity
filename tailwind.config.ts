@@ -2,64 +2,85 @@ import { fontFamily } from "tailwindcss/defaultTheme";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-	darkMode: ["class"],
-	content: ["./src/**/*.{html,js,svelte,ts}"],
-	safelist: ["dark"],
-	theme: {
-		container: {
-			center: true,
-			padding: "2rem",
-			screens: {
-				"2xl": "1400px"
-			}
-		},
-		extend: {
-			fontFamily: {
-				display: 'Overpass, ui-sans-serif',
-				heading: 'Encode Sans, ui-serif',
-			},
-			colors: {
-				border: "hsl(240, 3.7%, 15.9%)",
-				input: "hsl(240, 3.7%, 15.9%)",
-				ring: "hsl(240, 4.9%, 83.9%)",
-				background: "hsl(240, 10%, 3.9%)",
-				foreground: "hsl(0, 0%, 98%)",
-				primary: {
-					DEFAULT: "hsl(0, 0%, 98%)",
-					foreground: "hsl(240, 5.9%, 10%)",
-				},
-				secondary: {
-					DEFAULT: "hsl(240, 3.7%, 15.9%)",
-					foreground: "hsl(0, 0%, 98%)",
-				},
-				destructive: {
-					DEFAULT: "hsl(194, 97%, 45%)",
-					foreground: "hsl(0, 0%, 98%)",
-				},
-				muted: {
-					DEFAULT: "hsl(240, 3.7%, 15.9%)",
-					foreground: "hsl(325, 80%, 56%)",
-				},
-				accent: {
-					DEFAULT: "hsl(240, 3.7%, 15.9%)",
-					foreground: "hsl(0, 0%, 98%)",
-				},
-				popover: {
-					DEFAULT: "hsl(240, 10%, 3.9%)",
-					foreground: "hsl(0, 0%, 98%)",
-				},
-				card: {
-					DEFAULT: "hsl(240, 10%, 3.9%)",
-					foreground: "hsl(0, 0%, 98%)",
-				},
-			},
-			borderRadius: {
-				lg: "0.5rem",
-				md: "calc(0.5rem - 2px)",
-				sm: "calc(0.5rem - 4px)",
-			},
-		}
-	},
+  darkMode: ["class"],
+  content: [
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{html,js,svelte,ts}"
+  ],
+  safelist: ["dark"],
+  theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px"
+      }
+    },
+    extend: {
+      fontFamily: {
+        heading: ['var(--font-heading)', 'Encode Sans', ...fontFamily.sans],
+        body: ['var(--font-body)', 'Overpass', ...fontFamily.sans],
+        display: ['Overpass', 'ui-sans-serif']
+      },
+      colors: {
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))'
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))'
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))'
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))'
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))'
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))'
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))'
+        },
+      },
+      borderRadius: {
+        xl: `calc(var(--radius) + 4px)`,
+        lg: `var(--radius)`,
+        md: `calc(var(--radius) - 2px)`,
+        sm: `calc(var(--radius) - 4px)`
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" }
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" }
+        }
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out"
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
 };
 
 export default config;
