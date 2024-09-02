@@ -32,8 +32,9 @@
   } from "recharts";
   import type { Post } from "../../stores/feedpage.store";
   import { feedPosts } from "../../stores/feedpage.store";
+  import type { Meme } from "$lib/models/Meme";
 
-  let posts: Post[];
+  let posts: Meme[];
 
   feedPosts.subscribe((value) => (posts = value));
 

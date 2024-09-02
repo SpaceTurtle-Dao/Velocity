@@ -5,6 +5,7 @@
   import ProfileView from "$lib/components/ProfileView.svelte";
   import UserProfile from "$lib/components/UserProfile.svelte";
   import CreatePostModal from "$lib/components/CreateMeme.svelte";
+  import Feed from "$lib/components/Feed.svelte";
   import {
     Home as HomeIcon,
     Search,
@@ -20,7 +21,7 @@
   let isCreatePostModalOpen = false;
 
   const menuItems = [
-    { icon: HomeIcon, label: "Home", href: "/" },
+    { icon: HomeIcon, label: "Home", href: "/feed" },
     // { icon: Search, label: "Explore", href: "/explore" },
     // { icon: Bell, label: "Notifications", href: "/UserProfile" },
     { icon: User, label: "Profile", href: "/profile" },
@@ -43,12 +44,10 @@
 
 <Router {url}>
   <div class="flex h-screen overflow-hidden">
-    <aside
-      class="w-64 bg-background shadow-lg flex flex-col justify-between p-4"
-    >
+    <aside class="w-64 bg-primary shadow-lg flex flex-col justify-between p-4">
       <div class="space-y-4">
-        <div class="p-2">
-          <svg
+        <div class="p-2 py-6">
+          <!-- <svg
             class="w-8 h-8 text-secondary-500"
             viewBox="0 0 24 24"
             fill="none"
@@ -60,7 +59,7 @@
             <path
               d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"
             ></path>
-          </svg>
+          </svg> -->
         </div>
         <nav>
           <ul class="space-y-2">
@@ -115,9 +114,10 @@
       </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto bg-[#FFF0F5]">
+    <main class="flex-1 overflow-y-auto bg-background">
       <Navbar />
       <div class="container mx-auto px-4 pt-16">
+        <Route path="/feed" component={Feed} />
         <Route path="/profile" component={ProfileView} />
         <Route path="/UserProfile" component={UserProfile} />
       </div>

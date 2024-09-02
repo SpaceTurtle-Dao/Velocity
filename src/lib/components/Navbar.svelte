@@ -18,18 +18,17 @@
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
                 <span
-                    class="ml-2 text-xl font-bold text-white nova-mono-regular"
+                    class="ml-2 text-xl font-bold text-primary nova-mono-regular"
                     >MEMENICS</span
                 >
             </div>
-
             <div class="hidden md:block">
                 <WalletConnectButton
                     buttonClass="text-secondary-600 border-white bg-white hover:bg-secondary-100 text-xs lg:text-sm font-semibold transition-colors duration-300"
                 />
             </div>
             <div class="md:hidden">
-                <button on:click={toggleMenu} class="text-white">
+                <button on:click={toggleMenu} class="text-primary">
                     <svg
                         class="h-6 w-6"
                         fill="none"
