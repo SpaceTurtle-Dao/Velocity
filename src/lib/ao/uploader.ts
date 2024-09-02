@@ -20,6 +20,8 @@ export const upload = async (file) => {
 
   // #5 Core flow: create a transaction, upload and wait for the status!
   let transaction = await arweave.createTransaction({ data: file });
+  // let video_transaction = await arweave.createTransaction({data: file});
+  // video_transaction.addTag("Content-Type", "video/mp4");
   transaction.addTag("Content-Type", "image/png");
   await arweave.transactions.sign(transaction);
   const response = await arweave.transactions.post(transaction);

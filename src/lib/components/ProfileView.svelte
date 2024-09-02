@@ -38,6 +38,8 @@
   import { WAR_TOKEN } from "$lib/constants";
   // @ts-ignore
   import fromExponential from "from-exponential";
+    import Pump from "./Pump.svelte";
+    import Dump from "./Dump.svelte";
 
   let activeTab: string | undefined = "posts";
   let chart;
@@ -206,13 +208,8 @@
                 <Share2 class="w-4 h-4 mr-1 text-indigo-500" />
                 <span>{"post.shares"}</span>
               </div>
-              <Button
-                size="sm"
-                class="bg-gradient-to-r from-secondary-500 to-pink-500 hover:from-pink-500 hover:to-secondary-500 text-white transition-all duration-300"
-              >
-                <Rocket class="w-4 h-4 mr-2" />
-                Pump
-              </Button>
+              <Pump {meme}/>
+              <Dump {meme}/>
             </CardFooter>
           </Card>
         {/each}

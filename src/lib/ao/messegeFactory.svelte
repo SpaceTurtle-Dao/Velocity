@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-    import { PROCESS_ID, WAR_TOKEN } from "$lib/constants";
+	import { PROCESS_ID, WAR_TOKEN } from "$lib/constants";
 
 	//import type { TokenData } from './models/TokenData.svelte';
 
@@ -11,117 +11,104 @@
 		content: string,
 		parent: string | null | undefined,
 	) => {
-		return [
-			{ name: 'Action', value: 'Transfer' },
-			{ name: 'Quantity', value: quantity },
-			{ name: 'Recipient', value: WAR_TOKEN() },
-			{ name: 'X-Kind', value: kind },
-			{ name: 'X-Tags', value: tags },
-			{ name: 'X-Content', value: content },
-			{ name: 'X-Amount', value: amount },
-			{ name: 'X-Parent', value: parent }
+		let _tags = [
+			{ name: "Action", value: "Transfer" },
+			{ name: "Quantity", value: quantity },
+			{ name: "Recipient", value: PROCESS_ID() },
+			{ name: "X-Kind", value: kind },
+			{ name: "X-Tags", value: tags },
+			{ name: "X-Content", value: content },
+			{ name: "X-Amount", value: amount },
 		];
+		if(parent)_tags.push({ name: "X-Parent", value: parent });
+		return _tags ;
 	};
 
-	export const Profile = (
-		name: string,
-		image: string,
-		bio: string
-	) => {
+	export const Profile = (name: string, image: string, bio: string) => {
 		return [
-			{ name: 'Action', value: 'Profile' },
-			{ name: 'Name', value: name },
-			{ name: 'Image', value: image },
-			{ name: 'Bio', value: bio }
+			{ name: "Action", value: "Profile" },
+			{ name: "Name", value: name },
+			{ name: "Image", value: image },
+			{ name: "Bio", value: bio },
 		];
 	};
 
 	export const Pump = (
 		quantity: string,
 		slippage: string,
-		recipient: string
+		recipient: string,
 	) => {
 		return [
-			{ name: 'Action', value: 'Transfer' },
-			{ name: 'Quantity', value: quantity },
-			{ name: 'Recipient', value: recipient },
-			{ name: 'X-Slippage', value: slippage },
-			{ name: 'X-Swap', value: "" },
+			{ name: "Action", value: "Transfer" },
+			{ name: "Quantity", value: quantity },
+			{ name: "Recipient", value: recipient },
+			{ name: "X-Slippage", value: slippage },
+			{ name: "X-Swap", value: "" },
 		];
 	};
 
-	export const FetchMemes = (
-		page: string,
-		size: string
-	) => {
+	export const FetchMemes = (page: string, size: string) => {
 		return [
-			{ name: 'Action', value: 'FetchMemes' },
-			{ name: 'Page', value: page },
-			{ name: 'Size', value: size }
+			{ name: "Action", value: "FetchMemes" },
+			{ name: "Page", value: page },
+			{ name: "Size", value: size },
 		];
 	};
 
 	export const FetchProfileMemes = (
-		profile:string,
+		profile: string,
 		page: string,
-		size: string
+		size: string,
 	) => {
 		return [
-			{ name: 'Action', value: 'FetchProfileMemes' },
-			{ name: 'Profile', value: profile },
-			{ name: 'Page', value: page },
-			{ name: 'Size', value: size }
+			{ name: "Action", value: "FetchProfileMemes" },
+			{ name: "Profile", value: profile },
+			{ name: "Page", value: page },
+			{ name: "Size", value: size },
 		];
 	};
 
 	export const FetchReplies = (
 		parent: string,
 		page: string,
-		size: string
+		size: string,
 	) => {
 		return [
-			{ name: 'Action', value: 'FetchReplies' },
-			{ name: 'Parent', value: parent },
-			{ name: 'Page', value: page },
-			{ name: 'Size', value: size }
+			{ name: "Action", value: "FetchReplies" },
+			{ name: "Parent", value: parent },
+			{ name: "Page", value: page },
+			{ name: "Size", value: size },
 		];
 	};
 
 	export const FetchMemesByIds = (
-		memes: string //stringified json string array
+		memes: string, //stringified json string array
 	) => {
 		return [
-			{ name: 'Action', value: 'FetchMemesByIds' },
-			{ name: 'Memes', value: memes }
+			{ name: "Action", value: "FetchMemesByIds" },
+			{ name: "Memes", value: memes },
 		];
 	};
 
-	export const FetchProfiles = (
-		page: string,
-		size: string
-	) => {
+	export const FetchProfiles = (page: string, size: string) => {
 		return [
-			{ name: 'Action', value: 'FetchProfiles' },
-			{ name: 'Page', value: page },
-			{ name: 'Size', value: size }
+			{ name: "Action", value: "FetchProfiles" },
+			{ name: "Page", value: page },
+			{ name: "Size", value: size },
 		];
 	};
 
-	export const GetProfile = (
-		profile: string
-	) => {
+	export const GetProfile = (profile: string) => {
 		return [
-			{ name: 'Action', value: 'GetProfile' },
-			{ name: 'Profile', value: profile },
+			{ name: "Action", value: "GetProfile" },
+			{ name: "Profile", value: profile },
 		];
 	};
 
-	export const GetMeme = (
-		meme: string
-	) => {
+	export const GetMeme = (meme: string) => {
 		return [
-			{ name: 'Action', value: 'GetMeme' },
-			{ name: 'Meme', value: meme },
+			{ name: "Action", value: "GetMeme" },
+			{ name: "Meme", value: meme },
 		];
 	};
 </script>
