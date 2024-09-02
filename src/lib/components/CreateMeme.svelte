@@ -63,7 +63,7 @@
         "0",
         validatedData.tags || '[]',
         validatedData.content,
-        null
+        "Wx88y46DYs_4CtT6mxzpegjA8lU0b9JPRRAV8hOBWzw"
       );
 
       closeModal();

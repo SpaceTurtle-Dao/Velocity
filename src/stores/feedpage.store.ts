@@ -77,3 +77,4 @@ export interface Holders {
 
 export const currentUser = writable<Profile | null>(null);
 export const feedPosts = writable<Meme[]>([]);
+export const replies = writable<Meme[]>([]);
