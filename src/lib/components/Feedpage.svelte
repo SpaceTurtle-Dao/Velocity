@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { fly } from "svelte/transition";
+  import { Link } from "svelte-routing";
   import {
     Card,
     CardContent,
@@ -48,6 +49,7 @@
 <div class="max-w-4xl mx-auto p-4">
   <div class="space-y-6">
     {#each memes as meme (meme.Pool)}
+    <Link to="/Feed/{meme.Pool}">
       <Card class="overflow-hidden transition-all duration-300 hover:shadow-lg">
         <CardHeader>
           <div class="flex items-center space-x-4">
@@ -124,6 +126,7 @@
           <Dump {meme}/>
         </CardFooter>
       </Card>
+    </Link>
     {/each}
   </div>
 </div>

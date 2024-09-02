@@ -12,6 +12,7 @@
     Plus,
   } from "lucide-svelte";
   import UserProfile from "./UserProfile.svelte";
+  import Feed from "$lib/Feed.svelte";
 
   export let url = "";
 
@@ -98,8 +99,8 @@
     </aside>
 
     <main class="flex-1 p-4 bg-[#FFF0F5] overflow-auto">
-      <!-- <Route path="/" component={HomeComponent} />
-      <Route path="/explore" component={ExploreComponent} />
+       <Route path="/" component={Feed} />
+      <!-- <Route path="/explore" component={ExploreComponent} /> 
       <Route path="/notifications" component={NotificationsComponent} /> -->
       <Route path="/UserProfile" component={UserProfile} />
     </main>
