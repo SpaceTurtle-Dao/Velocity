@@ -21,8 +21,8 @@
 
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/" },
-    { icon: Search, label: "Explore", href: "/explore" },
-    { icon: Bell, label: "Notifications", href: "/UserProfile" },
+    // { icon: Search, label: "Explore", href: "/explore" },
+    // { icon: Bell, label: "Notifications", href: "/UserProfile" },
     { icon: User, label: "Profile", href: "/profile" },
   ];
 
@@ -43,7 +43,9 @@
 
 <Router {url}>
   <div class="flex h-screen overflow-hidden">
-    <aside class="w-64 bg-primary shadow-lg flex flex-col justify-between p-4">
+    <aside
+      class="w-64 bg-background shadow-lg flex flex-col justify-between p-4"
+    >
       <div class="space-y-4">
         <div class="p-2">
           <svg
@@ -66,19 +68,19 @@
               <li>
                 <a
                   href={item.href}
-                  class="flex items-center p-2 rounded-full hover:bg-secondary-100 transition-colors duration-200"
+                  class="flex items-center p-2 px-3 rounded-full hover:bg-secondary bg-background transition-colors duration-200"
                 >
                   <svelte:component
                     this={item.icon}
-                    class="w-6 h-6 mr-4 text-primary-500"
+                    class="w-6 h-6 mr-4 text-primary"
                   />
-                  <span class="text-lg font-medium text-gray-700"
+                  <span class="text-lg font-medium text-primary"
                     >{item.label}</span
                   >
                 </a>
               </li>
             {/each}
-            <li>
+            <!-- <li>
               <button
                 on:click={toggleCreatePostModal}
                 class="flex items-center p-2 rounded-full hover:bg-secondary-100 transition-colors duration-200"
@@ -86,12 +88,12 @@
                 <MoreHorizontal class="w-6 h-6 mr-4 text-primary-500" />
                 <span class="text-lg font-medium text-gray-700">More</span>
               </button>
-            </li>
+            </li> -->
           </ul>
         </nav>
         <button
           on:click={toggleCreatePostModal}
-          class="w-full bg-black text-white rounded-full py-3 font-bold text-lg hover:bg-secondary-600 transition-colors duration-200 flex items-center justify-center"
+          class="w-full bg-background text-white rounded-full py-3 font-bold text-lg hover:bg-secondary-600 transition-colors duration-200 flex items-center justify-center"
         >
           <Plus class="w-5 h-5 mr-2" />
           Post
@@ -100,13 +102,13 @@
       <div class="p-4">
         <button class="flex items-center space-x-2">
           <div
-            class="w-10 h-10 rounded-full bg-secondary-200 flex items-center justify-center text-secondary-500 font-bold text-xl"
+            class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-secondary-500 font-bold text-xl"
           >
             N
           </div>
           <div class="flex-grow text-left">
-            <p class="font-semibold text-gray-800">Nickzz</p>
-            <p class="text-sm text-gray-500">@Nickzz_AO</p>
+            <p class="font-semibold text-primary">Nickzz</p>
+            <p class="text-sm text-primary">@Nickzz_AO</p>
           </div>
           <MoreHorizontal class="w-5 h-5 text-gray-500" />
         </button>
