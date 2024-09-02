@@ -34,6 +34,8 @@
   import { feedPosts } from "../../stores/feedpage.store";
   import type { Meme } from "$lib/models/Meme";
   import { fetchMemes } from "$lib/ao/mememaker";
+    import Pump from "./Pump.svelte";
+    import Dump from "./Dump.svelte";
 
   let memes: Meme[];
 
@@ -125,13 +127,8 @@
             <Share2 class="w-4 h-4 mr-1 text-indigo-500" />
             <!--<span>{post.shares}</span>-->
           </div>
-          <Button
-            size="sm"
-            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white transition-all duration-300"
-          >
-            <Rocket class="w-4 h-4 mr-2" />
-            Pump
-          </Button>
+          <Pump {meme}/>
+          <Dump {meme}/>
         </CardFooter>
       </Card>
     {/each}
