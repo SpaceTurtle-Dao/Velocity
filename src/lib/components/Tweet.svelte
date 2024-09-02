@@ -2,7 +2,7 @@
   import { MessageCircleIcon, RepeatIcon, HeartIcon, ShareIcon, DollarSignIcon, TrendingUpIcon } from 'lucide-svelte';
   import Card from '$lib/components/ui/ui/card/card.svelte';
   import Avatar from '$lib/components/ui/ui/avatar/avatar.svelte';
-  import Button from './components/ui/ui/button/button.svelte';
+  import Button from '$lib/components/ui/ui/button/button.svelte';
 
   export let avatarSrc = '/placeholder-user.jpg';
   export let username = 'User';
