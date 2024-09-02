@@ -184,6 +184,7 @@
             </CardHeader>
             <CardContent>
               {#if meme.Post.Kind == "0"}
+              <!-- svelte-ignore a11y-img-redundant-alt -->
               <img alt="Image" src={toUrl(JSON.parse(meme.Post.Content).media)}/>
               <p>{JSON.parse(meme.Post.Content).content}</p>
               {:else}

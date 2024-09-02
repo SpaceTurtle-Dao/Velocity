@@ -105,9 +105,3 @@
     </main>
   </div>
 </Router>
-
-<style>
-  :global(body) {
-    @apply bg-[#FFF0F5];
-  }
-</style>

@@ -22,14 +22,6 @@
     Share2,
     TrendingUp,
   } from "lucide-svelte";
-  import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    Tooltip,
-    ResponsiveContainer,
-  } from "recharts";
   import type { Post } from "../../stores/feedpage.store";
   import { feedPosts } from "../../stores/feedpage.store";
   import type { Meme } from "$lib/models/Meme";
@@ -93,6 +85,7 @@
         <CardContent>
           {#if meme.Post.Kind == "0"}
             <p>{JSON.parse(meme.Post.Content).content}</p>
+            <!-- svelte-ignore a11y-img-redundant-alt -->
             <img alt="Image" src={toUrl(JSON.parse(meme.Post.Content).media)} />
           {:else}
             <p>{meme.Post.Content}</p>
