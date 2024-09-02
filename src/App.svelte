@@ -1,4 +1,5 @@
 <script lang="ts">
+    
     import { Router, Route } from "svelte-routing";
     import "./app.css";
     import Navbar from "$lib/components/Navbar.svelte";
@@ -14,7 +15,9 @@
         Plus,
     } from "lucide-svelte";
     import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
+  import Feed from "$lib/Feed.svelte";
     import Feedpage from "$lib/components/Feedpage.svelte";
+    import RepliesPage from "$lib/components/RepliesPage.svelte";
 
     export let url = "";
 
@@ -123,9 +126,15 @@
             <Navbar />
             <div class="container mx-auto px-4 pt-16">
                 <Route path="/profile" component={ProfileView} />
+                <Route path="/" component={Feed} />
                 <Route path="/UserProfile" component={UserProfile} />
                 <Route path="/Feed" component={Feedpage} />
+                <!-- <Route path="/Feed/:id" let:params component={RepliesPage} /> -->
+                <Route path="/Feed/:id" let:params>
+                    <RepliesPage memeId={params.id} />
+                </Route>
             </div>
+
         </main>
     </div>
 </Router>
