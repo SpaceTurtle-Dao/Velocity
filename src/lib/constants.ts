@@ -28,3 +28,5 @@ export function WAR_TOKEN(): string {
     }
     return "";
 }
+
+export const DEFAULT_QUANTITY = "1000000000000"

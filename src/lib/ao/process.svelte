@@ -113,13 +113,12 @@ const readMessage = async (messageId: string, processId: string) => {
 		process: processId
 	});
 	if (Error == undefined) {
-		let message = Messages.pop();
-		let data = JSON.parse(message.Data);
+		//let message = Messages.pop();
+		//let data = JSON.parse(message.Data);
 	}else{
 
 	}
 	console.log(Messages);
-	console.log("Spwawns"+Spawns);
 	console.log(Output);
 	console.log(Error);
 	throw (Error)
