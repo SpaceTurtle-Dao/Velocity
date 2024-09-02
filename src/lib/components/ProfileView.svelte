@@ -183,7 +183,12 @@
               >
             </CardHeader>
             <CardContent>
+              {#if meme.Post.Kind == "0"}
+              <img alt="Image" src={toUrl(JSON.parse(meme.Post.Content).media)}/>
+              <p>{JSON.parse(meme.Post.Content).content}</p>
+              {:else}
               <p>{meme.Post.Content}</p>
+              {/if}
             </CardContent>
             <CardFooter
               class="flex justify-between text-sm text-gray-500 bg-secondary-50"

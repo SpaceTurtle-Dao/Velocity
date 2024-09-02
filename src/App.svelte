@@ -15,6 +15,7 @@
         Plus,
     } from "lucide-svelte";
     import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
+    import Feedpage from "$lib/components/Feedpage.svelte";
 
     export let url = "";
 
@@ -25,6 +26,7 @@
         { icon: Search, label: "Explore", href: "/explore" },
         { icon: Bell, label: "Notifications", href: "/UserProfile" },
         { icon: User, label: "Profile", href: "/profile" },
+        { icon: User, label: "Feed", href: "/Feed" },
     ];
 
     function toggleCreatePostModal() {
@@ -33,7 +35,6 @@
 
     //@ts-ignore
     async function handlePostSubmit(event) {
-        let memes = await fetchProfileMemes("vd97vAnBhKD7zGNDTjTgl5N0WKLcl92MO8Ob3T0w6IM","1","100")
         console.log("New post submitted:", event.detail.content);
         // Handle post submission logic here
     }
@@ -125,6 +126,7 @@
                 <Route path="/feed" component={Feed} />
                 <Route path="/profile" component={ProfileView} />
                 <Route path="/UserProfile" component={UserProfile} />
+                <Route path="/Feed" component={Feedpage} />
             </div>
         </main>
     </div>
