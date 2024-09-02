@@ -11,7 +11,7 @@
   let amount = '';
   let tags = '[]';
   let content = '';
-  let parent: string | null = null;
+  export let parent: string | null = null;
   let jsonContent = {};
   let error = '';
   let fileInput: HTMLInputElement | null = null;
@@ -61,7 +61,7 @@
         "0",
         validatedData.tags || '[]',
         validatedData.content,
-        null
+        "Wx88y46DYs_4CtT6mxzpegjA8lU0b9JPRRAV8hOBWzw"
       );
 
       showSuccessMessage = true;
