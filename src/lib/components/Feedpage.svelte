@@ -1,22 +1,53 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { fly } from 'svelte/transition';
-  import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "$lib/components/ui/ui/card";
-  import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/ui/avatar";
+  import { onMount } from "svelte";
+  import { fly } from "svelte/transition";
+  import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "$lib/components/ui/ui/card";
+  import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+  } from "$lib/components/ui/ui/avatar";
   import { Button } from "$lib/components/ui/ui/button";
-  import { BarChart3, Rocket, MessageCircle, Share2, TrendingUp } from "lucide-svelte";
-  import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-  import type { Post } from '../../stores/feedpage.store';
-  import { feedPosts } from '../../stores/feedpage.store';
-  import type { Meme } from '$lib/models/Meme';
-    import { fetchMemes } from '$lib/ao/mememaker';
+  import {
+    BarChart3,
+    Rocket,
+    MessageCircle,
+    Share2,
+    TrendingUp,
+  } from "lucide-svelte";
+  import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    Tooltip,
+    ResponsiveContainer,
+  } from "recharts";
+  import type { Post } from "../../stores/feedpage.store";
+  import { feedPosts } from "../../stores/feedpage.store";
+  import type { Meme } from "$lib/models/Meme";
+  import { fetchMemes } from "$lib/ao/mememaker";
 
   let memes: Meme[];
 
-  feedPosts.subscribe(value => memes = value);
+  feedPosts.subscribe((value) => (memes = value));
+
+  function toUrl(tx: string) {
+    return (
+      "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
+      tx
+    );
+  }
 
   onMount(async () => {
-    await fetchMemes("1","100")
+    await fetchMemes("1", "100");
   });
 </script>
 
@@ -26,18 +57,44 @@
       <Card class="overflow-hidden transition-all duration-300 hover:shadow-lg">
         <CardHeader>
           <div class="flex items-center space-x-4">
-            <Avatar>
-              <AvatarImage src={`https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/${meme.Profile.Image}?ext=png`} alt={meme.Creator} />
-              <AvatarFallback>{meme.Creator}</AvatarFallback>
-            </Avatar>
-            <div>
-              <CardTitle class="text-lg font-semibold text-blue-700">{meme.Creator}</CardTitle>
-              <CardDescription>@{meme.Profile.Name} · {meme.createdAt}</CardDescription>
-            </div>
+            {#if meme.Profile}
+              <Avatar>
+                <AvatarImage
+                  src={`https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/${meme.Profile.Image}?ext=png`}
+                  alt={meme.Creator}
+                />
+                <AvatarFallback>{meme.Creator}</AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle class="text-lg font-semibold text-blue-700"
+                  >{meme.Creator}</CardTitle
+                >
+                <CardDescription
+                  >@{meme.Profile.Name} · {meme.createdAt}</CardDescription
+                >
+              </div>
+            {:else}
+              <Avatar>
+                <AvatarFallback>{meme.Creator}</AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle class="text-lg font-semibold text-blue-700"
+                  >{meme.Creator}</CardTitle
+                >
+                <CardDescription
+                  >@{meme.Creator} · {meme.createdAt}</CardDescription
+                >
+              </div>
+            {/if}
           </div>
         </CardHeader>
         <CardContent>
-          <p class="mb-4">{meme.Post.Content}</p>
+          {#if meme.Post.Kind == "0"}
+            <p>{JSON.parse(meme.Post.Content).content}</p>
+            <img alt="Image" src={toUrl(JSON.parse(meme.Post.Content).media)} />
+          {:else}
+            <p>{meme.Post.Content}</p>
+          {/if}
           <div class="h-48 w-full">
             <!--<ResponsiveContainer width="100%" height="100%">
               <LineChart data={post.marketCapHistory.map((value, index) => ({ day: 7 - index, value }))}>
@@ -49,10 +106,12 @@
             </ResponsiveContainer>-->
           </div>
         </CardContent>
-        <CardFooter class="flex justify-between text-sm text-gray-500 bg-blue-50">
+        <CardFooter
+          class="flex justify-between text-sm text-gray-500 bg-blue-50"
+        >
           <div class="flex items-center">
             <BarChart3 class="w-4 h-4 mr-1 text-blue-500" />
-            <span>${meme.Analytics.MarketCap.toLocaleString()}</span>
+            <span>${meme.Analytics.MarketCap}</span>
           </div>
           <div class="flex items-center">
             <TrendingUp class="w-4 h-4 mr-1 text-green-500" />
@@ -60,13 +119,16 @@
           </div>
           <div class="flex items-center">
             <MessageCircle class="w-4 h-4 mr-1 text-blue-500" />
-           <!-- <span>{post.comments}</span>-->
+            <!-- <span>{post.comments}</span>-->
           </div>
           <div class="flex items-center">
             <Share2 class="w-4 h-4 mr-1 text-indigo-500" />
             <!--<span>{post.shares}</span>-->
           </div>
-          <Button size="sm" class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white transition-all duration-300">
+          <Button
+            size="sm"
+            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white transition-all duration-300"
+          >
             <Rocket class="w-4 h-4 mr-2" />
             Pump
           </Button>
@@ -78,6 +140,6 @@
 
 <style>
   :global(body) {
-    background-color: #E3F2FD;
+    background-color: #e3f2fd;
   }
 </style>
