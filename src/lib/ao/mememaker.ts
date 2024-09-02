@@ -16,6 +16,7 @@ import { upload } from "$lib/ao/uploader";
 
 
 import { profileMemes, currentUser } from "../../stores/profile.store";
+import { feedPosts } from "../../stores/feedpage.store";
 //import { UserData,Post,MarketCapData } from "../../stores/profile.store";
 
 export const profile = async (name: string, image: string, bio: string) => {
@@ -77,6 +78,7 @@ export const fetchMemes = async (page: string, size: string) => {
             _memes.push(json[key]);
             console.log(json[key]);
         }
+        feedPosts.set(_memes)
     } catch (e) {
         console.log(e);
     }

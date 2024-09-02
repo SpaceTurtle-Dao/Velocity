@@ -10,7 +10,7 @@
   export let isOpen = false;
   let quantity = '';
   let amount = '';
-  let kind = '1';
+  let kind = '0';
   let tags = '[]';
   let content = '';
   let parent: string | null = null;
@@ -41,20 +41,26 @@
         throw new Error('Please select an image');
       }
 
+      let tx = await upload(await selectedImage.arrayBuffer());
+
+      let jsonContent = {
+        media:tx,
+        content:content
+      }
+
       const validatedData = schema.parse({
         quantity,
         amount,
         kind,
         tags,
-        content: kind === '0' ? JSON.stringify(jsonContent) : content,
+        content: JSON.stringify(jsonContent),
         parent,
       });
 
-      let tx = await upload(await selectedImage.arrayBuffer());
       await meme(
         validatedData.quantity,
         validatedData.amount,
-        validatedData.kind,
+        "0",
         validatedData.tags || '[]',
         validatedData.content,
         null
@@ -145,11 +151,7 @@
 
         <div>
           <label for="content" class="block text-sm font-medium text-gray-700">Content:</label>
-          {#if kind === '0'}
-            <JSONEditor content={jsonContent} on:change={handleJsonChange} class="mt-1 block w-full border border-gray-300 rounded-md" />
-          {:else}
-            <textarea id="content" bind:value={content} required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="4"></textarea>
-          {/if}
+          <textarea id="content" bind:value={content} required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="4"></textarea>
         </div>
 
         <!-- Image Preview and File Upload -->
