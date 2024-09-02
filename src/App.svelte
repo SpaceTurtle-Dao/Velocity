@@ -30,7 +30,7 @@
     isCreatePostModalOpen = !isCreatePostModalOpen;
   }
 
-  async function handlePostSubmit(event) {
+  async function handlePostSubmit(event: { detail: { content: any } }) {
     let memes = await fetchProfileMemes(
       "vd97vAnBhKD7zGNDTjTgl5N0WKLcl92MO8Ob3T0w6IM",
       "1",
@@ -43,7 +43,7 @@
 
 <Router {url}>
   <div class="flex h-screen overflow-hidden">
-    <aside class="w-64 bg-white shadow-lg flex flex-col justify-between p-4">
+    <aside class="w-64 bg-primary shadow-lg flex flex-col justify-between p-4">
       <div class="space-y-4">
         <div class="p-2">
           <svg

@@ -75,7 +75,7 @@
           </ul>
         </nav>
         <button
-          class="w-full bg-secondary-500 text-white rounded-full py-3 font-bold text-lg hover:bg-purple-600 transition-colors duration-200 flex items-center justify-center"
+          class="w-full bg-secondary text-white rounded-full py-3 font-bold text-lg hover:bg-secondary transition-colors duration-200 flex items-center justify-center"
         >
           <Plus class="w-5 h-5 mr-2" />
           Post
@@ -83,11 +83,11 @@
       </div>
       <div class="p-4">
         <button class="flex items-center space-x-2">
-          <div
+          <!-- <div
             class="w-10 h-10 rounded-full bg-purple-200 flex items-center justify-center text-purple-500 font-bold text-xl"
           >
             N
-          </div>
+          </div> -->
           <div class="flex-grow text-left">
             <p class="font-semibold text-gray-800">Nickzz</p>
             <p class="text-sm text-gray-500">@Nickzz_AO</p>
@@ -97,7 +97,7 @@
       </div>
     </aside>
 
-    <main class="flex-1 p-4 bg-[#FFF0F5] overflow-auto">
+    <main class="flex-1 p-4 bg-background overflow-auto">
       <!-- <Route path="/" component={HomeComponent} />
       <Route path="/explore" component={ExploreComponent} />
       <Route path="/notifications" component={NotificationsComponent} /> -->
@@ -108,6 +108,6 @@
 
 <style>
   :global(body) {
-    @apply bg-[#FFF0F5];
+    @apply bg-background;
   }
 </style>

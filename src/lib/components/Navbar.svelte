@@ -24,15 +24,6 @@
             </div>
 
             <div class="hidden md:block">
-                <div class="ml-10 flex items-baseline space-x-2 lg:space-x-4">
-                    <p
-                        class="text-white px-2 py-2 rounded-md text-xs lg:text-sm font-medium"
-                    >
-                        Launch a Token Swap a Token
-                    </p>
-                </div>
-            </div> -->
-            <div class="hidden md:block">
                 <WalletConnectButton
                     buttonClass="text-secondary-600 border-white bg-white hover:bg-secondary-100 text-xs lg:text-sm font-semibold transition-colors duration-300"
                 />
@@ -60,9 +51,6 @@
     {#if isMenuOpen}
         <div class="md:hidden">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <p class="text-white px-3 py-2 rounded-md text-sm font-medium">
-                    Launch a Token Swap a Token
-                </p>
                 <div class="mt-4">
                     <WalletConnectButton
                         buttonClass="w-full text-secondary-600 border-white bg-white hover:bg-secondary-100 font-semibold transition-colors duration-300"
