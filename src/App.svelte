@@ -6,6 +6,7 @@
     import ProfileView from "$lib/components/ProfileView.svelte";
     import UserProfile from "$lib/components/UserProfile.svelte";
     import CreatePostModal from "$lib/components/CreateMeme.svelte";
+    import Feed from "$lib/components/Feed.svelte";
     import {
         Home as HomeIcon,
         Search,
@@ -15,7 +16,6 @@
         Plus,
     } from "lucide-svelte";
     import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
-  import Feed from "$lib/Feed.svelte";
     import Feedpage from "$lib/components/Feedpage.svelte";
     import RepliesPage from "$lib/components/RepliesPage.svelte";
 
@@ -24,11 +24,10 @@
     let isCreatePostModalOpen = false;
 
     const menuItems = [
-        { icon: HomeIcon, label: "Home", href: "/" },
+        { icon: HomeIcon, label: "Home", href: "/feed" },
         { icon: Search, label: "Explore", href: "/explore" },
         { icon: Bell, label: "Notifications", href: "/UserProfile" },
         { icon: User, label: "Profile", href: "/profile" },
-        { icon: User, label: "Feed", href: "/Feed" },
     ];
 
     function toggleCreatePostModal() {
@@ -125,6 +124,7 @@
         <main class="flex-1 overflow-y-auto bg-[#FFF0F5]">
             <Navbar />
             <div class="container mx-auto px-4 pt-16">
+                <Route path="/feed" component={Feed} />
                 <Route path="/profile" component={ProfileView} />
                 <Route path="/" component={Feed} />
                 <Route path="/UserProfile" component={UserProfile} />
