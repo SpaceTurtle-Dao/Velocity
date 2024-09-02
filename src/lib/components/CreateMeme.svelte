@@ -13,7 +13,7 @@
   let kind = '0';
   let tags = '[]';
   let content = '';
-  let parent: string | null = null;
+  export let parent: string | null = null;
   let jsonContent = {};
   let error = '';
   let fileInput: HTMLInputElement | null = null;

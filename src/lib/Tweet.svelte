@@ -139,12 +139,12 @@
         <span class="font-semibold">Supply: {formatNumber(meme.Supply)}</span>
       </div>
       <div class="flex items-center space-x-4">
-        <Pump {meme}>
-          <span slot="counter" class="ml-2 font-semibold">{meme.Pumps}</span>
-        </Pump>
-        <Dump {meme}>
-          <span slot="counter" class="ml-2 font-semibold">{meme.Dumps}</span>
-        </Dump>
+        <Pump {meme}/>
+          <span  class="ml-2 font-semibold">{meme.Pumps}</span>
+        
+        <Dump {meme}/>
+          <span  class="ml-2 font-semibold">{meme.Dumps}</span>
+  
       </div>
     </CardFooter>
   </Card>
