@@ -16,12 +16,8 @@
         Plus,
     } from "lucide-svelte";
     import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
-<<<<<<< HEAD
-=======
-  import Feed from "$lib/Feed.svelte";
     import Feedpage from "$lib/components/Feedpage.svelte";
     import RepliesPage from "$lib/components/RepliesPage.svelte";
->>>>>>> 1332ae15a16c237377f6488f2b44a3ac42caf836
 
     export let url = "";
 
@@ -132,14 +128,11 @@
                 <Route path="/profile" component={ProfileView} />
                 <Route path="/" component={Feed} />
                 <Route path="/UserProfile" component={UserProfile} />
-<<<<<<< HEAD
-=======
                 <Route path="/Feed" component={Feedpage} />
                 <!-- <Route path="/Feed/:id" let:params component={RepliesPage} /> -->
                 <Route path="/Feed/:id" let:params>
                     <RepliesPage memeId={params.id} />
                 </Route>
->>>>>>> 1332ae15a16c237377f6488f2b44a3ac42caf836
             </div>
 
         </main>
