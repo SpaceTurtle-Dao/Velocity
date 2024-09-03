@@ -5,16 +5,16 @@
     CardContent,
     CardHeader,
     CardTitle,
-  } from "$lib/components/ui/ui/card";
+  } from "$lib/components/ui/card";
   import {
     Avatar,
     AvatarFallback,
     AvatarImage,
-  } from "$lib/components/ui/ui/avatar";
-  import { Button } from "$lib/components/ui/ui/button";
-  import { Input } from "$lib/components/ui/ui/input";
-  import { Textarea } from "$lib/components/ui/ui/textarea";
-  import { Label } from "$lib/components/ui/ui/label";
+  } from "$lib/components/ui/avatar";
+  import { Button } from "$lib/components/ui/button";
+  import { Input } from "$lib/components/ui/input";
+  import { Textarea } from "$lib/components/ui/textarea";
+  import { Label } from "$lib/components/ui/label";
   import { Camera } from "lucide-svelte";
   import { profile } from '$lib/ao/mememaker';
   import { upload } from '$lib/ao/uploader';

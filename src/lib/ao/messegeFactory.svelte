@@ -47,6 +47,13 @@
 		];
 	};
 
+	export const FetchSwaps = (pool: string) => {
+		return [
+			{ name: "Action", value: "FetchSwaps" },
+			{ name: "Pool", value: pool },
+		];
+	};
+
 	export const FetchMemes = (page: string, size: string) => {
 		return [
 			{ name: "Action", value: "FetchMemes" },

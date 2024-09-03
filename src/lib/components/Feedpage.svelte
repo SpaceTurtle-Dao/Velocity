@@ -9,13 +9,12 @@
     CardFooter,
     CardHeader,
     CardTitle,
-  } from "$lib/components/ui/ui/card";
+  } from "$lib/components/ui/card";
   import {
     Avatar,
     AvatarFallback,
     AvatarImage,
-  } from "$lib/components/ui/ui/avatar";
-  import { Button } from "$lib/components/ui/ui/button";
+  } from "$lib/components/ui/avatar";
   import {
     BarChart3,
     Rocket,
