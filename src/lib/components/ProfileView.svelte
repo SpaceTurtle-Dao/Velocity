@@ -99,53 +99,61 @@
 
 <div class="max-w-4xl mx-auto p-4">
   <Card
-    class="mb-8 overflow-hidden transition-all duration-300 hover:shadow-xl"
+    class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg"
   >
-    <div class="bg-gradient-to-r from-secondary-500 to-pink-500 p-6">
-      <div class="flex items-center space-x-4">
-        <Avatar class="h-24 w-24 ring-4 ring-white">
+    <!-- Gradient Header -->
+    <div class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 p-8">
+      <div class="flex items-center space-x-6">
+        <!-- Avatar with Border -->
+        <Avatar class="h-28 w-28 rounded-full ring-4 ring-white shadow-lg">
           <AvatarImage src={toUrl(profile.Image)} alt={profile.Name} />
           <AvatarFallback>{profile.Name}</AvatarFallback>
         </Avatar>
+        <!-- Profile Info -->
         <div>
-          <h1 class="text-3xl font-extrabold text-white">
+          <h1 class="text-4xl font-extrabold text-white leading-tight">
             {profile.Name}
           </h1>
-          <p class="text-secondary-200">@{profile.Name}</p>
-          <p class="mt-2 text-white">{"profile.bio"}</p>
+          <p class="text-lg text-pink-100">@{profile.Name}</p>
+          <p class="mt-4 text-white opacity-90">{profile.bio}</p>
         </div>
       </div>
     </div>
+
+    <!-- Card Content with Blur Effect -->
     <CardContent
-      class="bg-white bg-opacity-50 backdrop-filter backdrop-blur-lg"
+      class="bg-white bg-opacity-70 backdrop-filter backdrop-blur-lg p-6 rounded-b-lg"
     >
-      <div class="flex justify-between mt-6">
+      <div class="flex justify-between mt-6 space-x-4">
+        <!-- Followers -->
         <div class="text-center">
           <p
             in:fly={{ y: 20, duration: 500 }}
-            class="text-2xl font-semibold text-secondary-600"
+            class="text-3xl font-semibold text-purple-600"
           >
             {"1,000"}
           </p>
-          <p class="text-gray-500">Followers</p>
+          <p class="text-gray-600">Followers</p>
         </div>
+        <!-- Following -->
         <div class="text-center">
           <p
             in:fly={{ y: 20, duration: 500, delay: 100 }}
-            class="text-2xl font-semibold text-secondary-600"
+            class="text-3xl font-semibold text-pink-600"
           >
             {"1"}
           </p>
-          <p class="text-gray-500">Following</p>
+          <p class="text-gray-600">Following</p>
         </div>
+        <!-- Market Cap -->
         <div class="text-center">
           <p
             in:fly={{ y: 20, duration: 500, delay: 200 }}
-            class="text-2xl font-semibold text-secondary-600"
+            class="text-3xl font-semibold text-red-600"
           >
             ${"10,000,000"}
           </p>
-          <p class="text-gray-500">Total Market Cap</p>
+          <p class="text-gray-600">Total Market Cap</p>
         </div>
       </div>
     </CardContent>
