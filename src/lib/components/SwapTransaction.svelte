@@ -13,7 +13,6 @@
 
   onMount(async () => {
     try {
-      // Replace this with your actual API call to fetch swaps
       await fetchSwaps(memeId);
     } catch (error) {
       console.error("Error fetching swaps:", error);
