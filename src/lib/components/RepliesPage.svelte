@@ -60,7 +60,7 @@
   {#if isCreatePostOpen}
     <CreatePost
       isOpen={isCreatePostOpen}
-      parent={meme?.Pool}  
+      parent={memeId}  
       on:close={() => isCreatePostOpen = false}
     />
   {/if}
