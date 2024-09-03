@@ -184,19 +184,19 @@ export const getProfile = async (profile: string) => {
 };
 
 export const getMeme = async (meme: string) => {
-    let _profile: any;
+    let _meme: any;
     try {
         // @ts-ignore
         let message = GetMeme(meme);
         let result = await read(PROCESS_ID(), message);
-        if (result == undefined) return _profile;
+        if (result == undefined) throw("Not Found");
         console.log(result);
-        let json = JSON.parse(result.Data);
-        console.log(json);
+        _meme = JSON.parse(result.Data);
+        console.log(_meme);
     } catch (e) {
         console.log(e);
     }
-    return _profile;
+    return _meme;
 };
 
 export const fetchProfiles = async (page: string, size: string) => {

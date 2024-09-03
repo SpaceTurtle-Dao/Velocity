@@ -40,6 +40,7 @@
   import fromExponential from "from-exponential";
     import Pump from "./Pump.svelte";
     import Dump from "./Dump.svelte";
+    import Tweet from "./Tweet.svelte";
 
   let activeTab: string | undefined = "posts";
   let chart;
@@ -125,7 +126,7 @@
             in:fly={{ y: 20, duration: 500 }}
             class="text-2xl font-semibold text-secondary-600"
           >
-            {"profile.followers.toLocaleString()"}
+            {"1,000"}
           </p>
           <p class="text-gray-500">Followers</p>
         </div>
@@ -134,7 +135,7 @@
             in:fly={{ y: 20, duration: 500, delay: 100 }}
             class="text-2xl font-semibold text-secondary-600"
           >
-            {"profile.following.toLocaleString()"}
+            {"1"}
           </p>
           <p class="text-gray-500">Following</p>
         </div>
@@ -143,7 +144,7 @@
             in:fly={{ y: 20, duration: 500, delay: 200 }}
             class="text-2xl font-semibold text-secondary-600"
           >
-            ${"profile.totalMarketCap.toLocaleString()"}
+            ${"10,000,000"}
           </p>
           <p class="text-gray-500">Total Market Cap</p>
         </div>
@@ -171,53 +172,7 @@
     <TabsContent value="posts">
       <div class="space-y-4">
         {#each memes as meme}
-          <Card
-            class="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-          >
-            <CardHeader>
-              <CardTitle class="text-lg font-semibold text-secondary-700"
-                >{profile.Name}</CardTitle
-              >
-              <CardDescription
-                >@{profile.Name} · {meme.createdAt}</CardDescription
-              >
-            </CardHeader>
-            <CardContent>
-              {#if meme.Post.Kind == "0"}
-              <!-- svelte-ignore a11y-img-redundant-alt -->
-              <img alt="Image" src={toUrl(JSON.parse(meme.Post.Content).media)}/>
-              <p>{JSON.parse(meme.Post.Content).content}</p>
-              {:else}
-              <p>{meme.Post.Content}</p>
-              {/if}
-            </CardContent>
-            <CardFooter
-              class="flex justify-between text-sm text-gray-500 bg-secondary-50"
-            >
-              <div class="flex items-center">
-                <BarChart3 class="w-4 h-4 mr-1 text-secondary-500" />
-                <span>${meme.Analytics.MarketCap / decimals(BigInt(12))}</span>
-              </div>
-              <div class="flex items-center">
-                <TrendingUp class="w-4 h-4 mr-1 text-green-500" />
-                <span
-                  >${fromExponential(
-                    Number(meme.Analytics.Price) / decimals(BigInt(12)),
-                  ).toString()}</span
-                >
-              </div>
-              <div class="flex items-center">
-                <MessageCircle class="w-4 h-4 mr-1 text-blue-500" />
-                <span>{meme.Replies}</span>
-              </div>
-              <div class="flex items-center">
-                <Share2 class="w-4 h-4 mr-1 text-indigo-500" />
-                <span>{"post.shares"}</span>
-              </div>
-              <Pump {meme}/>
-              <Dump {meme}/>
-            </CardFooter>
-          </Card>
+          <Tweet {meme}/>
         {/each}
       </div>
     </TabsContent>

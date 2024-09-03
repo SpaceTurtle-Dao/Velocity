@@ -19,35 +19,14 @@
     DollarSign,
     Users,
     Activity,
+    Coins
   } from "lucide-svelte";
   import Pump from "$lib/components/Pump.svelte";
   import Dump from "$lib/components/Dump.svelte";
+    import type { Meme } from "$lib/models/Meme";
+    import { DECIMALS } from "$lib/constants";
 
-  export let meme: {
-    Pool: string;
-    Creator: string;
-    Profile?: {
-      Name: string;
-      Image: string;
-      CreatedAt: number;
-    };
-    Post: {
-      Kind: string;
-      Content: string;
-    };
-    createdAt: number;
-    Analytics: {
-      MarketCap: string;
-      Volume: string;
-      Buys: number;
-      Liquidty: string;
-    };
-    Pumps: number;
-    Dumps: number;
-    Replies: number;
-    Supply: string;
-    Holders: any[];
-  };
+  export let meme: Meme;
 
   function toUrl(tx: string) {
     return `https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/${tx}`;
@@ -72,8 +51,9 @@
   }
 </script>
 
-<Link to="/Feed/{meme.Pool}" class="block w-full max-w-3xl mx-auto">
+
   <Card class="overflow-hidden transition-all duration-300 hover:shadow-lg w-full bg-white">
+    <Link to="/Feed/{meme.Pool}" class="block w-full max-w-3xl mx-auto">
     <CardHeader class="p-6 bg-gray-50">
       <div class="flex items-center space-x-4">
         <Avatar class="w-16 h-16 border-2 border-blue-500">
@@ -110,16 +90,17 @@
         />
       {/if}
     </CardContent>
+  </Link>
     <CardFooter class="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-gray-50 p-6">
       <div class="flex flex-col items-center">
         <DollarSign class="w-6 h-6 text-green-500 mb-1" />
         <span class="font-semibold text-sm">Market Cap</span>
-        <span class="text-gray-600">${formatNumber(meme.Analytics.MarketCap)}</span>
+        <span class="text-gray-600">{formatNumber(Number(meme.Analytics.MarketCap/DECIMALS))} wAr</span>
       </div>
       <div class="flex flex-col items-center">
         <TrendingUp class="w-6 h-6 text-blue-500 mb-1" />
-        <span class="font-semibold text-sm">Volume</span>
-        <span class="text-gray-600">${formatNumber(meme.Analytics.Volume)}</span>
+        <span class="font-semibold text-sm">Liquidty</span>
+        <span class="text-gray-600">{formatNumber(Number(meme.Analytics.Liquidty)/DECIMALS)} wAr</span>
       </div>
       <div class="flex flex-col items-center">
         <Activity class="w-6 h-6 text-purple-500 mb-1" />
@@ -129,7 +110,7 @@
       <div class="flex flex-col items-center">
         <Users class="w-6 h-6 text-orange-500 mb-1" />
         <span class="font-semibold text-sm">Holders</span>
-        <span class="text-gray-600">{meme.Holders.length}</span>
+        <span class="text-gray-600">{meme.Holders.count}</span>
       </div>
       <div class="flex flex-col items-center">
         <MessageCircle class="w-6 h-6 text-indigo-500 mb-1" />
@@ -137,9 +118,10 @@
         <span class="text-gray-600">{meme.Replies}</span>
       </div>
       <div class="flex flex-col items-center">
-        <Share2 class="w-6 h-6 text-red-500 mb-1" />
-        <span class="font-semibold text-sm">Supply</span>
-        <span class="text-gray-600">{formatNumber(meme.Supply)}</span>
+        <Coins class="w-6 h-6 text-red-500 mb-1" />
+        <span class="font-semibold text-sm">Token</span>
+        <a class="btn text-blue-500" target="_blank" href={`https://www.ao.link/#/token/${meme.TokenA}`}>AOLink</a>
+        <span class="text-gray-600"></span>
       </div>
     </CardFooter>
     <div class="flex justify-center space-x-4 p-4 bg-gray-100">
@@ -157,7 +139,7 @@
       </Dump>
     </div>
   </Card>
-</Link>
+
 
 <style>
   :global(body) {
