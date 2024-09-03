@@ -17,6 +17,8 @@ import { upload } from "$lib/ao/uploader";
 
 import { profileMemes, currentUser } from "../../stores/profile.store";
 import { feedPosts, replies } from "../../stores/feedpage.store";
+import type { Swap } from "$lib/models/Swap";
+import { swapsStore } from "../../stores/pool.store";
 //import { UserData,Post,MarketCapData } from "../../stores/profile.store";
 
 export const profile = async (name: string, image: string, bio: string) => {
@@ -83,6 +85,26 @@ export const fetchMemes = async (page: string, size: string) => {
         console.log(e);
     }
     return _memes;
+};
+
+export const swaps = async (pool: string) => {
+    let _swaps: Array<Swap> = [];
+    try {
+        // @ts-ignore
+        let message = Swaps(pool);
+        let result = await read(PROCESS_ID(), message);
+        if (result == undefined) return _swaps;
+        console.log(result);
+        let json = JSON.parse(result.Data);
+        console.log(json);
+        for (const key in json) {
+            _swaps.push(json[key]);
+            console.log(json[key]);
+        }
+        swapsStore.set(_swaps)
+    } catch (e) {
+        console.log(e);
+    }
 };
 
 export const fetchReplies = async (

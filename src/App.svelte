@@ -1,5 +1,4 @@
 <script lang="ts">
-    
     import { Router, Route } from "svelte-routing";
     import "./app.css";
     import Navbar from "$lib/components/Navbar.svelte";
@@ -19,10 +18,27 @@
     import Feedpage from "$lib/components/Feedpage.svelte";
     import RepliesPage from "$lib/components/RepliesPage.svelte";
 
+    import { currentUser } from "./stores/profile.store";
+    import {
+        Avatar,
+        AvatarFallback,
+        AvatarImage,
+    } from "$lib/components/ui/ui/avatar";
+    import { Profile } from "$lib/ao/messegeFactory.svelte";
+
     export let url = "";
 
     let isCreatePostModalOpen = false;
-
+    let profile:any;
+    function toUrl(tx: string) {
+        return (
+            "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
+            tx
+        );
+    }
+    currentUser.subscribe((value) => {
+        profile = value;
+    });
     const menuItems = [
         { icon: HomeIcon, label: "Home", href: "/feed" },
         { icon: Search, label: "Explore", href: "/explore" },
@@ -39,7 +55,6 @@
         console.log("New post submitted:", event.detail.content);
         // Handle post submission logic here
     }
-
 </script>
 
 <Router {url}>
@@ -84,7 +99,7 @@
                         {/each}
                         <li>
                             <button
-                            on:click={toggleCreatePostModal}
+                                on:click={toggleCreatePostModal}
                                 class="flex items-center p-2 rounded-full hover:bg-secondary-100 transition-colors duration-200"
                             >
                                 <MoreHorizontal
@@ -107,14 +122,16 @@
             </div>
             <div class="p-4">
                 <button class="flex items-center space-x-2">
-                    <div
-                        class="w-10 h-10 rounded-full bg-secondary-200 flex items-center justify-center text-secondary-500 font-bold text-xl"
-                    >
-                        N
-                    </div>
+                    <Avatar class="h-12 w-12 ring-4 ring-white">
+                        <AvatarImage
+                            src={toUrl(profile.Image)}
+                            alt={profile.Name}
+                        />
+                        <AvatarFallback>{profile.Name}</AvatarFallback>
+                    </Avatar>
                     <div class="flex-grow text-left">
-                        <p class="font-semibold text-gray-800">Nickzz</p>
-                        <p class="text-sm text-gray-500">@Nickzz_AO</p>
+                        <p class="font-semibold text-gray-800">{profile.Name}</p>
+                        <p class="text-sm text-gray-500">@{profile.Creator.slice(0, 12)}</p>
                     </div>
                     <MoreHorizontal class="w-5 h-5 text-gray-500" />
                 </button>
@@ -134,7 +151,6 @@
                     <RepliesPage memeId={params.id} />
                 </Route>
             </div>
-
         </main>
     </div>
 </Router>
