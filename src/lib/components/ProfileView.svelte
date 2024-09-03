@@ -125,7 +125,7 @@
             in:fly={{ y: 20, duration: 500 }}
             class="text-2xl font-semibold text-secondary-600"
           >
-            {"profile.followers.toLocaleString()"}
+            {"1,000"}
           </p>
           <p class="text-gray-500">Followers</p>
         </div>
@@ -134,7 +134,7 @@
             in:fly={{ y: 20, duration: 500, delay: 100 }}
             class="text-2xl font-semibold text-secondary-600"
           >
-            {"profile.following.toLocaleString()"}
+            {"1"}
           </p>
           <p class="text-gray-500">Following</p>
         </div>
@@ -143,7 +143,7 @@
             in:fly={{ y: 20, duration: 500, delay: 200 }}
             class="text-2xl font-semibold text-secondary-600"
           >
-            ${"profile.totalMarketCap.toLocaleString()"}
+            ${"10,000,000"}
           </p>
           <p class="text-gray-500">Total Market Cap</p>
         </div>
