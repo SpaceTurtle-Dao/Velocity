@@ -1,21 +1,21 @@
 <script lang="ts">
     //@ts-nocheck
     import { onMount } from 'svelte';
-    import { fetchMemesByIds, fetchReplies, getMeme } from "$lib/ao/mememaker";
+    import { fetchMemesByIds, fetchReplies } from "$lib/ao/mememaker";
     import Tweet from "$lib/components/Tweet.svelte";
     import { Link } from "svelte-routing";
     import { Button } from "$lib/components/ui/ui/button";
     import CreatePost from "$lib/components/CreateMeme.svelte";  // Import CreatePost component
-    import type { Meme } from '$lib/models/Meme';
+    import SwapTransactions from "$lib/components/SwapTransaction.svelte";
     
     export let memeId: string;
     
-    export let meme:Meme;
+    let meme;
     let replies = [];
     let isCreatePostOpen = false;  // State for managing CreatePost modal
     onMount(async () => {
         try {
-            meme = await getMeme(memeId);
+            meme = await fetchMemesByIds(memeId);
             replies = await fetchReplies(memeId, '1', '100');
             console.log(meme);
             console.log(replies);
@@ -46,7 +46,7 @@
       <div class="mt-4 text-right">
         <Button on:click={openCreatePostModal}>Reply</Button>
       </div>
-    
+
       <div class="mt-8">
         <h2 class="text-xl font-bold mb-4">Replies</h2>
         {#each replies as reply}
@@ -55,13 +55,17 @@
           </Link>
         {/each}
       </div>
+      <div class="mt-8">
+        <SwapTransactions {memeId} />
+      </div>
+    
     <!-- </div> -->
   <!-- {/if} -->
   
   {#if isCreatePostOpen}
     <CreatePost
       isOpen={isCreatePostOpen}
-      parent={meme.Pool}  
+      parent={meme?.Pool}  
       on:close={() => isCreatePostOpen = false}
     />
   {/if}
@@ -71,3 +75,4 @@
       background-color: #e3f2fd;
     }
   </style>
+  

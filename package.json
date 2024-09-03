@@ -30,6 +30,7 @@
     "bits-ui": "^0.21.13",
     "chart.js": "^4.4.4",
     "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
     "from-exponential": "^1.1.1",
     "lucide-svelte": "^0.436.0",
     "mode-watcher": "^0.4.1",
