@@ -1,20 +1,21 @@
 <script lang="ts">
     //@ts-nocheck
     import { onMount } from 'svelte';
-    import { fetchMemesByIds, fetchReplies } from "$lib/ao/mememaker";
+    import { fetchMemesByIds, fetchReplies, getMeme } from "$lib/ao/mememaker";
     import Tweet from "$lib/components/Tweet.svelte";
     import { Link } from "svelte-routing";
     import { Button } from "$lib/components/ui/ui/button";
     import CreatePost from "$lib/components/CreateMeme.svelte";  // Import CreatePost component
+    import type { Meme } from '$lib/models/Meme';
     
     export let memeId: string;
     
-    let meme;
+    export let meme:Meme;
     let replies = [];
     let isCreatePostOpen = false;  // State for managing CreatePost modal
     onMount(async () => {
         try {
-            meme = await fetchMemesByIds(memeId);
+            meme = await getMeme(memeId);
             replies = await fetchReplies(memeId, '1', '100');
             console.log(meme);
             console.log(replies);
@@ -60,7 +61,7 @@
   {#if isCreatePostOpen}
     <CreatePost
       isOpen={isCreatePostOpen}
-      parent={meme?.Pool}  
+      parent={meme.Pool}  
       on:close={() => isCreatePostOpen = false}
     />
   {/if}

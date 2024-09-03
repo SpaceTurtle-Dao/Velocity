@@ -19,6 +19,7 @@
     DollarSign,
     Users,
     Activity,
+    Coins
   } from "lucide-svelte";
   import Pump from "$lib/components/Pump.svelte";
   import Dump from "$lib/components/Dump.svelte";
@@ -50,8 +51,9 @@
   }
 </script>
 
-<Link to="/Feed/{meme.Pool}" class="block w-full max-w-3xl mx-auto">
+
   <Card class="overflow-hidden transition-all duration-300 hover:shadow-lg w-full bg-white">
+    <Link to="/Feed/{meme.Pool}" class="block w-full max-w-3xl mx-auto">
     <CardHeader class="p-6 bg-gray-50">
       <div class="flex items-center space-x-4">
         <Avatar class="w-16 h-16 border-2 border-blue-500">
@@ -88,6 +90,7 @@
         />
       {/if}
     </CardContent>
+  </Link>
     <CardFooter class="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-gray-50 p-6">
       <div class="flex flex-col items-center">
         <DollarSign class="w-6 h-6 text-green-500 mb-1" />
@@ -115,9 +118,10 @@
         <span class="text-gray-600">{meme.Replies}</span>
       </div>
       <div class="flex flex-col items-center">
-        <Share2 class="w-6 h-6 text-red-500 mb-1" />
-        <span class="font-semibold text-sm">Price</span>
-        <span class="text-gray-600">{(Number(meme.Analytics.Price)/DECIMALS).toFixed(18)}</span>
+        <Coins class="w-6 h-6 text-red-500 mb-1" />
+        <span class="font-semibold text-sm">Token</span>
+        <a class="btn text-blue-500" target="_blank" href={`https://www.ao.link/#/token/${meme.TokenA}`}>AOLink</a>
+        <span class="text-gray-600"></span>
       </div>
     </CardFooter>
     <div class="flex justify-center space-x-4 p-4 bg-gray-100">
@@ -135,7 +139,7 @@
       </Dump>
     </div>
   </Card>
-</Link>
+
 
 <style>
   :global(body) {
