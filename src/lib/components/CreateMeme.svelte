@@ -12,7 +12,6 @@
   let tags = '[]';
   let content = '';
   export let parent: string | null = null;
-  let jsonContent = {};
   let error = '';
   let fileInput: HTMLInputElement | null = null;
   let selectedImage: File | null = null;
@@ -61,9 +60,9 @@
         "0",
         validatedData.tags || '[]',
         validatedData.content,
-        "Wx88y46DYs_4CtT6mxzpegjA8lU0b9JPRRAV8hOBWzw"
+        validatedData.parent
       );
-
+      console.log("parent:" + validatedData.parent)
       showSuccessMessage = true;
       setTimeout(() => showSuccessMessage = false, 3000);
 
