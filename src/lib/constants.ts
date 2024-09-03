@@ -29,5 +29,5 @@ export function WAR_TOKEN(): string {
     return "";
 }
 
-export const DEFAULT_QUANTITY = "1000000000000"
+export const DEFAULT_QUANTITY = "1000000000000000000"
 export const DECIMALS = 1000000000000;

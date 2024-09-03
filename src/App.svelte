@@ -23,7 +23,7 @@
         Avatar,
         AvatarFallback,
         AvatarImage,
-    } from "$lib/components/ui/ui/avatar";
+    } from "$lib/components/ui/avatar";
     import { Profile } from "$lib/ao/messegeFactory.svelte";
 
     export let url = "";

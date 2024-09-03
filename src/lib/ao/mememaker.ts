@@ -10,6 +10,7 @@ import {
     FetchProfiles,
     GetProfile,
     GetMeme,
+    FetchSwaps,
 } from "$lib/ao/messegeFactory.svelte";
 import { PROCESS_ID, WAR_TOKEN } from "$lib/constants";
 import { upload } from "$lib/ao/uploader";
@@ -87,11 +88,11 @@ export const fetchMemes = async (page: string, size: string) => {
     return _memes;
 };
 
-export const swaps = async (pool: string) => {
+export const fetchSwaps = async (pool: string) => {
     let _swaps: Array<Swap> = [];
     try {
         // @ts-ignore
-        let message = Swaps(pool);
+        let message = FetchSwaps(pool);
         let result = await read(PROCESS_ID(), message);
         if (result == undefined) return _swaps;
         console.log(result);

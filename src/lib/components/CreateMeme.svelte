@@ -2,7 +2,7 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import { z } from 'zod';
   import { meme } from '$lib/ao/mememaker';
-  import { Button } from '$lib/components/ui/ui/button';
+  import { Button } from '$lib/components/ui/button';
   import { Image, XCircle, CheckCircle } from 'lucide-svelte';
   import { upload } from '$lib/ao/uploader';
 
