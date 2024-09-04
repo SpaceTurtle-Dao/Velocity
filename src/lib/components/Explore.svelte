@@ -23,6 +23,7 @@
   import Pump from "./Pump.svelte";
   import Dump from "./Dump.svelte";
   import Spinner from "./Spinner.svelte";
+  import DECIMALS from "$lib/constants";
 
   let memes: Meme[] = [];
   let loading = true;
