@@ -29,7 +29,7 @@
   import * as Tabs from "$lib/components/ui/tabs";
 
   export let meme: Meme;
-  let loading = true;
+  let loading = true;  // Initialize loading state
 
   function toUrl(tx: string) {
     return `https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/${tx}`;
@@ -53,10 +53,6 @@
     return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
   }
 
-  // Simulate content loading
-  setTimeout(() => {
-    loading = false;
-  }, 1000);
 </script>
 
 <Card
@@ -91,11 +87,6 @@
       </div>
     </CardHeader>
     <CardContent class="p-6 bg-white">
-      {#if loading}
-        <div class="flex justify-center items-center h-48">
-          <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"></div>
-        </div>
-      {:else}
         <p class="text-lg mb-4 text-gray-800 leading-relaxed">
           {meme.Post.Kind === "0"
             ? JSON.parse(meme.Post.Content).content
@@ -110,7 +101,6 @@
             style="max-height: 500px; object-fit: cover; width: 100%;"
           />
         {/if}
-      {/if}
     </CardContent>
   </Link>
   <CardFooter class="grid grid-cols-2 sm:grid-cols-3 gap-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-6">
