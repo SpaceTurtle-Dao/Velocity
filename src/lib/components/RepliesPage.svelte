@@ -10,7 +10,7 @@
   import * as Tabs from "$lib/components/ui/tabs";
   export let memeId: string;
 
-  let meme;
+  let meme:Meme;
   let replies = [];
   let isCreatePostOpen = false;
   onMount(async () => {
@@ -42,6 +42,7 @@
       </Link>
 -->
 
+{#if meme}
 <div class="w-full mt-8 flex items-center justify-center">
   <Tabs.Root value="replies">
     <div class="flex flex-row justify-between">
@@ -55,7 +56,7 @@
     </div>
 
     <Tabs.Content value="transactions">
-      <SwapTransactions {memeId} />
+      <SwapTransactions {meme}/>
     </Tabs.Content>
     <Tabs.Content value="replies">
       {#each replies as reply}
@@ -69,6 +70,9 @@
     </Tabs.Content>
   </Tabs.Root>
 </div>
+{:else}
+<!-- add some loading indicator or some kind of ui to handle the temorary time that meme is null -->
+{/if}
 
 <!-- </div> -->
 <!-- {/if} -->

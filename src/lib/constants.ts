@@ -29,5 +29,19 @@ export function WAR_TOKEN(): string {
     return "";
 }
 
-export const DEFAULT_QUANTITY = "1000000000000000000"
+export const DEFAULT_QUANTITY = "1000000000000"
 export const DECIMALS = 1000000000000;
+
+
+export function formatNumber(num:number) {
+    const suffixes = ['', 'K', 'M', 'B', 'T', 'P', 'E']; // Add more if needed
+    let tier = Math.log10(Math.abs(num)) / 3 | 0;
+
+    if (tier === 0) return num.toString();
+
+    const suffix = suffixes[tier];
+    const scale = Math.pow(10, tier * 3);
+    const scaled = num / scale;
+
+    return scaled.toFixed(1).replace(/\.0$/, '') + suffix;
+}
