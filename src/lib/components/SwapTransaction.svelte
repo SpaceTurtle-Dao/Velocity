@@ -5,15 +5,18 @@
   import { fetchSwaps } from "$lib/ao/mememaker";
   import { swapsStore } from "../../stores/pool.store";
   import type { Swap } from "$lib/models/Swap";
-  import { DECIMALS } from "$lib/constants";
+  import { DECIMALS, formatNumber } from "$lib/constants";
+  import type { Meme } from "$lib/models/Meme";
 
-  export let memeId: string;
+  export let meme: Meme;
 
   let swaps: Swap[] = [];
 
   onMount(async () => {
+    console.log("meme")
+    console.log(meme)
     try {
-      await fetchSwaps(memeId);
+      await fetchSwaps(meme.Pool);
     } catch (error) {
       console.error("Error fetching swaps:", error);
     }
@@ -66,14 +69,22 @@
             <p class="text-sm text-gray-600">
               Recipient: {formatAddress(swap.Recipient)}
             </p>
+          {:else}
+          <p class="text-sm text-gray-600">
+            Dev: {formatAddress(meme.Creator)}
+          </p>
           {/if}
         </div>
         <div class="text-right">
+          {#if swap.IsBuy}
           <p class="font-medium">
-            {(swap.TokenA / DECIMALS).toFixed(5)} TokenA → {(
-              swap.TokenB / DECIMALS
-            ).toFixed(5)} TokenB
+            {formatNumber(swap.TokenB / DECIMALS)} wAr → {formatNumber(swap.TokenA / DECIMALS)} TokenA
           </p>
+          {:else}
+          <p class="font-medium">
+            {formatNumber(swap.TokenA / DECIMALS)} TokenA → {formatNumber(swap.TokenB / DECIMALS)} wAr
+          </p>
+          {/if}
           <p class="text-xs text-gray-500">{formatTime(swap.Timestamp)}</p>
         </div>
       </div>
