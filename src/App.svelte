@@ -29,7 +29,7 @@
     export let url = "";
 
     let isCreatePostModalOpen = false;
-    let profile:any;
+    let profile: any;
     function toUrl(tx: string) {
         return (
             "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
@@ -59,10 +59,9 @@
 <Router {url}>
     <div class="flex h-screen overflow-hidden">
         <aside
-            class="w-64 bg-white shadow-lg flex flex-col justify-between p-4"
+            class="w-64 bg-primary shadow-lg flex flex-col justify-between p-4"
         >
             <div class="space-y-4 pt-16">
-               
                 <nav>
                     <ul class="space-y-2">
                         {#each menuItems as item}
@@ -115,8 +114,12 @@
                         <AvatarFallback>{profile.Name}</AvatarFallback>
                     </Avatar>
                     <div class="flex-grow text-left">
-                        <p class="font-semibold text-gray-800">{profile.Name}</p>
-                        <p class="text-sm text-gray-500">@{profile.Creator.slice(0, 12)}</p>
+                        <p class="font-semibold text-gray-800">
+                            {profile.Name}
+                        </p>
+                        <p class="text-sm text-gray-500">
+                            @{profile.Creator.slice(0, 12)}
+                        </p>
                     </div>
                     <MoreHorizontal class="w-5 h-5 text-gray-500" />
                 </button>
