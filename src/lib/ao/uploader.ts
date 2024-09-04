@@ -34,5 +34,8 @@ export const upload = async (file) => {
     `Completed transaction ${transaction.id} with status code ${status}!`,
   );
   console.log(url);
-  return transaction.id;
+  return {
+    hash:transaction.id,
+    ext: ext
+  };
 };
