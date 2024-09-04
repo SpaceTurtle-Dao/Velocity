@@ -39,7 +39,7 @@
         throw new Error('Please select an image');
       }
 
-      let tx = await upload(await selectedImage.arrayBuffer());
+      let tx = await upload(selectedImage);
 
       let jsonContent = {
         media: tx,
@@ -178,7 +178,7 @@
               </Button>
               <input
                 type="file"
-                accept="image/*"
+                accept="video/* audio/* image/*"
                 bind:this={fileInput}
                 class="hidden"
                 on:change={handleFileChange}
