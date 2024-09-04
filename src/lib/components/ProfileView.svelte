@@ -115,7 +115,7 @@
             {profile.Name}
           </h1>
           <p class="text-lg text-pink-100">@{profile.Name}</p>
-          <p class="mt-4 text-white opacity-90">{profile.bio}</p>
+          <!--<p class="mt-4 text-white opacity-90">{profile.bio}</p>-->
         </div>
       </div>
     </div>
