@@ -19,7 +19,7 @@
   });
 </script>
 
-<div class="max-w-4xl mx-auto p-4">
+<div class="max-w-4xl mx-auto p-4 bg-background-500">
   {#if loading}
     <div>
       <Spinner />

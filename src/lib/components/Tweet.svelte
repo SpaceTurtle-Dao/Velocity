@@ -60,12 +60,10 @@
 </script>
 
 <Card
-  class="overflow-hidden transition-all duration-300 hover:shadow-lg w-full bg-white rounded-lg"
+  class="overflow-hidden transition-all duration-300 hover:shadow-lg w-full bg-background-500 rounded-lg"
 >
   <Link to="/Feed/{meme.Pool}" class="block w-full max-w-3xl mx-auto">
-    <CardHeader
-      class="p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200"
-    >
+    <CardHeader class="p-2 bg-gradient-to-">
       <div class="flex items-center space-x-4">
         <Avatar
           class="w-16 h-16 rounded-full border-2 border-blue-500 shadow-lg"
@@ -73,14 +71,14 @@
           {#if meme.Profile}
             <AvatarImage src={toUrl(meme.Profile.Image)} alt={meme.Creator} />
           {/if}
-          <AvatarFallback class="text-2xl bg-blue-100 text-blue-700">
+          <AvatarFallback class="text-2xl bg-primary text-white">
             {meme.Profile
               ? meme.Profile.Name.slice(0, 2)
               : meme.Creator.slice(0, 2)}
           </AvatarFallback>
         </Avatar>
         <div>
-          <h3 class="text-xl font-bold text-blue-700">
+          <h3 class="text-xl font-bold text-white">
             {meme.Profile ? meme.Profile.Name : meme.Creator}
           </h3>
           <p class="text-sm text-gray-500">
@@ -94,7 +92,7 @@
         </div>
       </div>
     </CardHeader>
-    <CardContent class="p-6 bg-white">
+    <CardContent class="p-6">
       {#if loading}
         <div class="flex justify-center items-center h-48">
           <div
@@ -102,7 +100,7 @@
           ></div>
         </div>
       {:else}
-        <p class="text-lg mb-4 text-gray-800 leading-relaxed">
+        <p class="text-xl mb-4 text-white leading-relaxed">
           {meme.Post.Kind === "0"
             ? JSON.parse(meme.Post.Content).content
             : meme.Post.Content}
@@ -128,40 +126,40 @@
     </CardContent>
   </Link>
   <CardFooter
-    class="grid grid-cols-2 sm:grid-cols-3 gap-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-6"
+    class="grid grid-cols-2 sm:grid-cols-3 gap-6 bg-background-500 p-6"
   >
     <div class="flex flex-col items-center text-center">
       <DollarSign class="w-6 h-6 text-green-500 mb-1" />
-      <span class="font-semibold text-sm text-gray-700">Market Cap</span>
-      <span class="text-gray-600">
+      <span class="font-semibold text-sm text-white">Market Cap</span>
+      <span class="text-white">
         {formatNumber(Number(meme.Analytics.MarketCap / DECIMALS))} wAr
       </span>
     </div>
     <div class="flex flex-col items-center text-center">
       <TrendingUp class="w-6 h-6 text-blue-500 mb-1" />
-      <span class="font-semibold text-sm text-gray-700">Liquidity</span>
-      <span class="text-gray-600">
+      <span class="font-semibold text-sm text-white">Liquidity</span>
+      <span class="text-white">
         {formatNumber(Number(meme.Analytics.Liquidty) / DECIMALS)} wAr
       </span>
     </div>
     <div class="flex flex-col items-center text-center">
       <Activity class="w-6 h-6 text-purple-500 mb-1" />
-      <span class="font-semibold text-sm text-gray-700">Buys</span>
-      <span class="text-gray-600">{meme.Analytics.Buys}</span>
+      <span class="font-semibold text-sm text-white">Buys</span>
+      <span class="text-white">{meme.Analytics.Buys}</span>
     </div>
     <div class="flex flex-col items-center text-center">
       <Users class="w-6 h-6 text-orange-500 mb-1" />
-      <span class="font-semibold text-sm text-gray-700">Holders</span>
-      <span class="text-gray-600">{meme.Holders.count}</span>
+      <span class="font-semibold text-sm text-white">Holders</span>
+      <span class="text-white">{meme.Holders.count}</span>
     </div>
     <div class="flex flex-col items-center text-center">
       <MessageCircle class="w-6 h-6 text-indigo-500 mb-1" />
-      <span class="font-semibold text-sm text-gray-700">Replies</span>
-      <span class="text-gray-600">{meme.Replies}</span>
+      <span class="font-semibold text-sm text-white">Replies</span>
+      <span class="text-white">{meme.Replies}</span>
     </div>
     <div class="flex flex-col items-center text-center">
       <Coins class="w-6 h-6 text-red-500 mb-1" />
-      <span class="font-semibold text-sm text-gray-700">Token</span>
+      <span class="font-semibold text-sm text-white">Token</span>
       <a
         class="btn text-blue-500 font-semibold hover:underline"
         target="_blank"
@@ -169,7 +167,7 @@
       >
     </div>
   </CardFooter>
-  <div class="flex justify-center space-x-4 p-4 bg-gray-100">
+  <div class="flex justify-center space-x-4 p-4 bg-primary-800">
     <Pump {meme}>
       <Button
         variant="outline"
@@ -192,7 +190,4 @@
 </Card>
 
 <style>
-  :global(body) {
-    background-color: #e3f2fd;
-  }
 </style>

@@ -16,8 +16,8 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import { Label } from "$lib/components/ui/label";
   import { Camera } from "lucide-svelte";
-  import { profile } from '$lib/ao/mememaker';
-  import { upload } from '$lib/ao/uploader';
+  import { profile } from "$lib/ao/mememaker";
+  import { upload } from "$lib/ao/uploader";
 
   let username = "";
   let displayName = "";
@@ -61,7 +61,7 @@
 <div class="max-w-2xl mx-auto p-4">
   <Card class="overflow-hidden transition-all duration-300 hover:shadow-xl">
     <CardHeader
-      class="bg-gradient-to-r from-secondary-500 to-pink-500 text-white"
+      class="bg-gradient-to-r from-secondary-500 to-secondary-800 text-white"
     >
       <CardTitle class="text-2xl font-bold">Create Your Profile</CardTitle>
     </CardHeader>

@@ -84,12 +84,12 @@
                         <li>
                             <button
                                 on:click={toggleCreatePostModal}
-                                class="flex items-center p-2 rounded-full hover:bg-secondary-100 transition-colors duration-200"
+                                class="flex items-center p-2 px-5 rounded-full hover:bg-background-700 transition-colors duration-200"
                             >
                                 <MoreHorizontal
-                                    class="w-6 h-6 mr-4 text-primary-500"
+                                    class="w-6 h-6 mr-4 text-white"
                                 />
-                                <span class="text-lg font-medium text-gray-700"
+                                <span class="text-lg font-medium text-white"
                                     >More</span
                                 >
                             </button>
@@ -98,7 +98,7 @@
                 </nav>
                 <button
                     on:click={toggleCreatePostModal}
-                    class="w-full bg-primary text-white rounded-full py-3 font-bold text-lg hover:bg-secondary-600 transition-colors duration-200 flex items-center justify-center"
+                    class="w-full bg-background-700 text-white rounded-full py-3 font-bold text-lg hover:bg-primary-50 transition-colors duration-200 flex items-center justify-center"
                 >
                     <Plus class="w-5 h-5 mr-2" />
                     Post
@@ -109,7 +109,7 @@
             </div>
         </aside>
 
-        <main class="flex-1 overflow-y-auto">
+        <main class="flex-1 overflow-y-auto bg-background-500">
             <Navbar />
             <div class="container mx-auto px-4 pt-16">
                 <Route path="/feed" component={Feed} />

@@ -6,7 +6,7 @@
   import { Image, XCircle, CheckCircle } from "lucide-svelte";
   import { upload } from "$lib/ao/uploader";
   import { Video } from "flowbite-svelte";
-  import mime from 'mime';
+  import mime from "mime";
   export let isOpen = false;
   let quantity = "";
   let amount = "";
@@ -30,14 +30,14 @@
     parent: z.string().nullable().optional(),
   });
 
-  function getExt(name:string) {
+  function getExt(name: string) {
     let mimeType = mime.getType(name);
     let ext = mime.getExtension(mimeType);
     console.log(name);
     console.log(mimeType);
     console.log(ext);
-    return ext
-  };
+    return ext;
+  }
 
   async function create_meme() {
     try {
@@ -112,7 +112,7 @@
   }
 
   function removeSelectedImage() {
-    selectedImage = null;
+    // selectedImage = null;
     imagePreviewUrl = null;
     if (fileInput) {
       fileInput.value = "";

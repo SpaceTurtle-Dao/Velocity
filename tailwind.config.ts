@@ -119,9 +119,9 @@ const config: Config = {
       },
       colors: {
         primary: pallet.primary,
-        secondary: pallet.amarnath,
+        secondary: pallet.cadet,
         background: pallet.backg,
-        foreground: pallet.amarnath,
+        foreground: pallet.onyx,
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
