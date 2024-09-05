@@ -1,8 +1,8 @@
 <script lang="ts">
   //@ts-nocheck
-  import { onMount } from 'svelte';
-  import Tweet from '$lib/components/Tweet.svelte';
-  import { fetchMemes } from './ao/mememaker';
+  import { onMount } from "svelte";
+  import Tweet from "$lib/components/Tweet.svelte";
+  import { fetchMemes } from "./ao/mememaker";
   import type { Meme } from "$lib/models/Meme";
 
   let memes: Meme[] = [];
@@ -11,7 +11,7 @@
     try {
       memes = await fetchMemes("1", "100");
     } catch (error) {
-      console.error('Error fetching memes:', error);
+      console.error("Error fetching memes:", error);
     }
   });
 </script>
@@ -26,6 +26,6 @@
 
 <style>
   :global(body) {
-    background-color: #e3f2fd;
+    /* background-color: #000000; */
   }
 </style>
