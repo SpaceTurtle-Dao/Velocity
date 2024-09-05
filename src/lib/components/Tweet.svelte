@@ -27,7 +27,7 @@
   import { DECIMALS } from "$lib/constants";
   // @ts-ignore
   import * as Tabs from "$lib/components/ui/tabs";
-  import { Video } from "flowbite-svelte";
+
   export let meme: Meme;
   let loading = true;  // Initialize loading state
 
@@ -58,15 +58,10 @@
 <Card
   class="overflow-hidden transition-all duration-300 hover:shadow-lg w-full bg-white rounded-lg"
 >
-  <!-- Only the clickable header and content are wrapped inside the Link -->
   <Link to="/Feed/{meme.Pool}" class="block w-full max-w-3xl mx-auto">
-    <CardHeader
-      class="p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200"
-    >
+    <CardHeader class="p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200">
       <div class="flex items-center space-x-4">
-        <Avatar
-          class="w-16 h-16 rounded-full border-2 border-blue-500 shadow-lg"
-        >
+        <Avatar class="w-16 h-16 rounded-full border-2 border-blue-500 shadow-lg">
           {#if meme.Profile}
             <AvatarImage src={toUrl(meme.Profile.Image)} alt={meme.Creator} />
           {/if}
@@ -92,13 +87,6 @@
       </div>
     </CardHeader>
     <CardContent class="p-6 bg-white">
-      {#if loading}
-        <div class="flex justify-center items-center h-48">
-          <div
-            class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"
-          ></div>
-        </div>
-      {:else}
         <p class="text-lg mb-4 text-gray-800 leading-relaxed">
           {meme.Post.Kind === "0"
             ? JSON.parse(meme.Post.Content).content
@@ -106,28 +94,16 @@
         </p>
         {#if meme.Post.Kind === "0"}
           <!-- svelte-ignore a11y-img-redundant-alt -->
-          {#if JSON.parse(meme.Post.Content).ext === "mp4" || JSON.parse(meme.Post.Content).ext === "mov" || JSON.parse(meme.Post.Content).ext === "avi"}
-            <Video
-              src={toUrl(JSON.parse(meme.Post.Content).media)}
-              controls
-              trackSrc={toUrl(JSON.parse(meme.Post.Content).media)}
-            />
-          {:else}
-            <img
-              alt="Meme Image"
-              src={toUrl(JSON.parse(meme.Post.Content).media)}
-              class="rounded-lg object-cover w-full shadow-md"
-              style="max-height: 500px; object-fit: cover; width: 100%;"
-            />
-          {/if}
+          <img
+            alt="Meme Image"
+            src={toUrl(JSON.parse(meme.Post.Content).media)}
+            class="rounded-lg object-cover w-full shadow-md"
+            style="max-height: 500px; object-fit: cover; width: 100%;"
+          />
         {/if}
-      {/if}
     </CardContent>
   </Link>
-
-  <CardFooter
-    class="grid grid-cols-2 sm:grid-cols-3 gap-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-6"
-  >
+  <CardFooter class="grid grid-cols-2 sm:grid-cols-3 gap-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-6">
     <div class="flex flex-col items-center text-center">
       <DollarSign class="w-6 h-6 text-green-500 mb-1" />
       <span class="font-semibold text-sm text-gray-700">Market Cap</span>
@@ -163,11 +139,11 @@
       <a
         class="btn text-blue-500 font-semibold hover:underline"
         target="_blank"
-        href={`https://www.ao.link/#/token/${meme.TokenA}`}>AOLink</a>
+        href={`https://www.ao.link/#/token/${meme.TokenA}`}
+        >AOLink</a
+      >
     </div>
   </CardFooter>
-
-  <!-- Buttons must be outside any links -->
   <div class="flex justify-center space-x-4 p-4 bg-gray-100">
     <Pump {meme}>
       <Button
