@@ -6,6 +6,7 @@
     import UserProfile from "$lib/components/UserProfile.svelte";
     import CreatePostModal from "$lib/components/CreateMeme.svelte";
     import Feed from "$lib/components/Feed.svelte";
+    import Explore from "$lib/components/Explore.svelte";
     import {
         Home as HomeIcon,
         Search,
@@ -25,6 +26,7 @@
         AvatarImage,
     } from "$lib/components/ui/avatar";
     import { Profile } from "$lib/ao/messegeFactory.svelte";
+    import LowerProfile from "$lib/components/LowerProfile.svelte";
 
     export let url = "";
 
@@ -42,7 +44,7 @@
     const menuItems = [
         { icon: HomeIcon, label: "Home", href: "/feed" },
         { icon: Search, label: "Explore", href: "/explore" },
-        { icon: Bell, label: "Notifications", href: "/UserProfile" },
+        // { icon: Bell, label: "Notifications", href: "/UserProfile" },
         { icon: User, label: "Profile", href: "/profile" },
     ];
 
@@ -106,20 +108,7 @@
                 </button>
             </div>
             <div class="p-4">
-                <button class="flex items-center space-x-2">
-                    <Avatar class="h-12 w-12 ring-4 ring-white">
-                        <AvatarImage
-                            src={toUrl(profile.Image)}
-                            alt={profile.Name}
-                        />
-                        <AvatarFallback>{profile.Name}</AvatarFallback>
-                    </Avatar>
-                    <div class="flex-grow text-left">
-                        <p class="font-semibold text-gray-800">{profile.Name}</p>
-                        <p class="text-sm text-gray-500">@{profile.Creator.slice(0, 12)}</p>
-                    </div>
-                    <MoreHorizontal class="w-5 h-5 text-gray-500" />
-                </button>
+                <LowerProfile/>
             </div>
         </aside>
 
@@ -129,6 +118,7 @@
                 <Route path="/feed" component={Feed} />
                 <Route path="/profile" component={ProfileView} />
                 <Route path="/" component={Feed} />
+                <Route path="/explore" component={Explore} />
                 <Route path="/UserProfile" component={UserProfile} />
                 <Route path="/Feed" component={Feedpage} />
                 <!-- <Route path="/Feed/:id" let:params component={RepliesPage} /> -->

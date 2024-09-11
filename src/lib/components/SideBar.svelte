@@ -19,14 +19,14 @@
     Avatar,
     AvatarFallback,
     AvatarImage,
-  } from "$lib/components/ui/ui/avatar";
+  } from "$lib/components/ui/avatar";
 
   export let url = "";
   let profile: Profile;
   const menuItems = [
     { icon: Home, label: "Home", href: "/" },
     { icon: Search, label: "Explore", href: "/explore" },
-    { icon: Bell, label: "Notifications", href: "/notifications" },
+    // { icon: Bell, label: "Notifications", href: "/notifications" },
     { icon: User, label: "Profile", href: "/UserProfile" },
   ];
   function toUrl(tx: string) {
@@ -107,9 +107,9 @@
             </Avatar>
             <div>
               <h1 class="text-3xl font-extrabold text-white">
-                {profile.Name}
+                {profile.Name} 
               </h1>
-              <p class="text-secondary-200">@{profile.Name}</p>
+              <p class="text-secondary-200">@{profile.Name} </p>
               <p class="mt-2 text-white">{"profile.bio"}</p>
             </div>
           </div>

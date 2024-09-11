@@ -60,9 +60,9 @@
 </script>
 
 <Card
-  class="overflow-hidden transition-all duration-300 hover:shadow-lg w-full bg-white rounded-lg"
+  class="overflow-hidden transition-all duration-300 hover:shadow-lg  w-full bg-white rounded-lg"
 >
-  <Link to="/Feed/{meme.Pool}" class="block w-full max-w-3xl mx-auto">
+  <Link to="/Feed/{meme.Pool}" class="block mx-auto">
     <CardHeader
       class="p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200"
     >
@@ -112,7 +112,7 @@
           {#if JSON.parse(meme.Post.Content).ext === "mp4" || JSON.parse(meme.Post.Content).ext === "mov" || JSON.parse(meme.Post.Content).ext === "avi"}
             <Video
               src={toUrl(JSON.parse(meme.Post.Content).media)}
-              controls
+              controls class="w-full max-w-full h-auto rounded-lg border border-gray-200 dark:border-gray-700"
               trackSrc={toUrl(JSON.parse(meme.Post.Content).media)}
             />
           {:else}
