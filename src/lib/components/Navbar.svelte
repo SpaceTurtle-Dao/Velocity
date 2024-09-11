@@ -12,13 +12,12 @@
 </script>
 
 <nav
-    class="fixed top-0 left-0 right-0 z-50 bg-blue-500 backdrop-blur-md shadow-md"
+    class="fixed top-0 left-0 right-0 z-50 bg-background-500 backdrop-blur-md shadow-md"
 >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
-                <span
-                    class="ml-2 text-xl font-bold text-white nova-mono-regular"
+                <span class="ml-2 text-xl text-white nova-mono-regular"
                     >Meme Market</span
                 >
             </div>
