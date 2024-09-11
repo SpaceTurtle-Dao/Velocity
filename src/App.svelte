@@ -6,6 +6,7 @@
     import UserProfile from "$lib/components/UserProfile.svelte";
     import CreatePostModal from "$lib/components/CreateMeme.svelte";
     import Feed from "$lib/components/Feed.svelte";
+    import Explore from "$lib/components/Explore.svelte";
     import {
         Home as HomeIcon,
         Search,
@@ -115,6 +116,7 @@
                 <Route path="/feed" component={Feed} />
                 <Route path="/profile" component={ProfileView} />
                 <Route path="/" component={Feed} />
+                <Route path="/explore" component={Explore} />
                 <Route path="/UserProfile" component={UserProfile} />
                 <Route path="/Feed" component={Feedpage} />
                 <!-- <Route path="/Feed/:id" let:params component={RepliesPage} /> -->

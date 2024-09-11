@@ -5,14 +5,14 @@
   import Tweet from "$lib/components/Tweet.svelte";
   import { Link } from "svelte-routing";
   import { Button } from "$lib/components/ui/button";
-  import CreatePost from "$lib/components/CreateMeme.svelte"; // Import CreatePost component
+  import CreatePost from "$lib/components/CreateMeme.svelte"; 
   import SwapTransactions from "$lib/components/SwapTransaction.svelte";
   import * as Tabs from "$lib/components/ui/tabs";
   export let memeId: string;
 
   let meme:Meme;
   let replies = [];
-  let isCreatePostOpen = false; // State for managing CreatePost modal
+  let isCreatePostOpen = false;
   onMount(async () => {
     try {
       meme = await getMeme(memeId);

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, afterUpdate } from "svelte";
   import { fly } from "svelte/transition";
   import {
     Card,
@@ -14,18 +14,15 @@
     AvatarFallback,
     AvatarImage,
   } from "$lib/components/ui/avatar";
-  import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-  } from "$lib/components/ui/tabs";
+  import { Button } from "$lib/components/ui/button";
   import {
     BarChart3,
     Rocket,
     MessageCircle,
     Share2,
     TrendingUp,
+    Users,
+    UserPlus,
   } from "lucide-svelte";
   import Chart from "chart.js/auto";
   import type { Profile } from "$lib/models/Profile";
@@ -37,12 +34,14 @@
   import { WAR_TOKEN } from "$lib/constants";
   // @ts-ignore
   import fromExponential from "from-exponential";
-    import Pump from "./Pump.svelte";
-    import Dump from "./Dump.svelte";
-    import Tweet from "./Tweet.svelte";
+  import Pump from "./Pump.svelte";
+  import Dump from "./Dump.svelte";
+  import Tweet from "./Tweet.svelte";
+  import Followers from "./Followers.svelte";
+  import Following from "./Following.svelte";
 
-  let activeTab: string | undefined = "posts";
-  let chart;
+  let activeTab: string = "posts";
+  let chart: Chart | null = null;
 
   let profile: Profile;
   let memes: Meme[];
@@ -64,36 +63,53 @@
     );
   }
 
+  function setActiveTab(tab: string) {
+    activeTab = tab;
+  }
+
+  function initializeChart() {
+    if (activeTab === "marketCap") {
+      const ctx = document.getElementById("marketCapChart") as HTMLCanvasElement;
+      if (ctx) {
+        if (chart) {
+          chart.destroy();
+        }
+        chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: ["7d", "6d", "5d", "4d", "3d", "2d", "1d"],
+            datasets: [
+              {
+                label: "Market Cap",
+                data: [120000, 125000, 140000, 135000, 150000, 145000, 156000],
+                borderColor: "rgb(147, 51, 234)",
+                tension: 0.3,
+                fill: true,
+                backgroundColor: "rgba(147, 51, 234, 0.2)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+          },
+        });
+      }
+    }
+  }
+
   onMount(async () => {
     const address = await window.arweaveWallet.getActiveAddress();
     await fetchProfileMemes(address, "1", "100");
     await getCurrentProfile();
-    const ctx = document.getElementById("marketCapChart");
-    //@ts-ignore
-    chart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: ["7d", "6d", "5d", "4d", "3d", "2d", "1d"],
-        datasets: [
-          {
-            label: "Market Cap",
-            data: [120000, 125000, 140000, 135000, 150000, 145000, 156000],
-            borderColor: "rgb(147, 51, 234)",
-            tension: 0.3,
-            fill: true,
-            backgroundColor: "rgba(147, 51, 234, 0.2)",
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            display: false,
-          },
-        },
-      },
-    });
+  });
+
+  afterUpdate(() => {
+    initializeChart();
   });
 </script>
 
@@ -115,7 +131,6 @@
             {profile.Name}
           </h1>
           <p class="text-lg text-pink-100">@{profile.Name}</p>
-          <!--<p class="mt-4 text-white opacity-90">{profile.bio}</p>-->
         </div>
       </div>
     </div>
@@ -159,43 +174,59 @@
     </CardContent>
   </Card>
 
-  <Tabs
-    value={activeTab}
-    onValueChange={(value) => (activeTab = value)}
-    class="mb-6"
-  >
-    <TabsList class="grid w-full grid-cols-2 rounded-lg bg-secondary-100 p-1">
-      <TabsTrigger
-        value="posts"
-        class="rounded-md py-2 data-[state=active]:bg-white data-[state=active]:text-secondary-700 data-[state=active]:shadow-sm transition-all"
-        >Posts</TabsTrigger
-      >
-      <TabsTrigger
-        value="marketCap"
-        class="rounded-md py-2 data-[state=active]:bg-white data-[state=active]:text-secondary-700 data-[state=active]:shadow-sm transition-all"
-        >Market Cap</TabsTrigger
-      >
-    </TabsList>
-    <TabsContent value="posts">
-      <div class="space-y-4">
-        {#each memes as meme}
-          <Tweet {meme}/>
-        {/each}
-      </div>
-    </TabsContent>
-    <TabsContent value="marketCap">
-      <Card class="overflow-hidden transition-all duration-300 hover:shadow-lg">
-        <CardHeader>
-          <CardTitle class="text-xl font-bold text-secondary-700"
-            >Market Cap Over Time</CardTitle
-          >
-        </CardHeader>
-        <CardContent>
-          <canvas id="marketCapChart"></canvas>
-        </CardContent>
-      </Card>
-    </TabsContent>
-  </Tabs>
+  <div class="grid grid-cols-4 gap-4 mb-6">
+    <Button
+      variant={activeTab === "posts" ? "default" : "outline"}
+      on:click={() => setActiveTab("posts")}
+    >
+      <MessageCircle class="mr-2 h-4 w-4" />
+      Posts
+    </Button>
+    <Button
+      variant={activeTab === "followers" ? "default" : "outline"}
+      on:click={() => setActiveTab("followers")}
+    >
+      <Users class="mr-2 h-4 w-4" />
+      Followers
+    </Button>
+    <Button
+      variant={activeTab === "following" ? "default" : "outline"}
+      on:click={() => setActiveTab("following")}
+    >
+      <UserPlus class="mr-2 h-4 w-4" />
+      Following
+    </Button>
+    <Button
+      variant={activeTab === "marketCap" ? "default" : "outline"}
+      on:click={() => setActiveTab("marketCap")}
+    >
+      <BarChart3 class="mr-2 h-4 w-4" />
+      Market Cap
+    </Button>
+  </div>
+
+  {#if activeTab === "posts"}
+    <div class="space-y-4">
+      {#each memes as meme}
+        <Tweet {meme}/>
+      {/each}
+    </div>
+  {:else if activeTab === "followers"}
+    <Followers />
+  {:else if activeTab === "following"}
+    <Following />
+  {:else if activeTab === "marketCap"}
+    <Card class="overflow-hidden transition-all duration-300 hover:shadow-lg">
+      <CardHeader>
+        <CardTitle class="text-xl font-bold text-secondary-700"
+          >Market Cap Over Time</CardTitle
+        >
+      </CardHeader>
+      <CardContent>
+        <canvas id="marketCapChart"></canvas>
+      </CardContent>
+    </Card>
+  {/if}
 </div>
 
 <style>
