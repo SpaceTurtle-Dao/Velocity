@@ -11,7 +11,7 @@
     MoreHorizontal,
     Plus,
   } from "lucide-svelte";
-  import UserProfile from "./UserProfile.svelte";
+  import UserProfile from "./views/profile/UserProfile.svelte";
   import Feed from "$lib/Feed.svelte";
   import { currentUser } from "../../stores/profile.store";
   import type { Profile } from "$lib/models/Profile";
@@ -22,19 +22,23 @@
   } from "$lib/components/ui/avatar";
 
   export let url = "";
+
   let profile: Profile;
+
   const menuItems = [
     { icon: Home, label: "Home", href: "/" },
     { icon: Search, label: "Explore", href: "/explore" },
     // { icon: Bell, label: "Notifications", href: "/notifications" },
     { icon: User, label: "Profile", href: "/UserProfile" },
   ];
+
   function toUrl(tx: string) {
     return (
       "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
       tx
     );
   }
+
   currentUser.subscribe((value) => {
     profile = value;
   });
@@ -107,9 +111,9 @@
             </Avatar>
             <div>
               <h1 class="text-3xl font-extrabold text-white">
-                {profile.Name} 
+                {profile.Name}
               </h1>
-              <p class="text-secondary-200">@{profile.Name} </p>
+              <p class="text-secondary-200">@{profile.Name}</p>
               <p class="mt-2 text-white">{"profile.bio"}</p>
             </div>
           </div>

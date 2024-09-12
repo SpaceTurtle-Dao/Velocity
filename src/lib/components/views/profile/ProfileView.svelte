@@ -26,7 +26,7 @@
   } from "lucide-svelte";
   import Chart from "chart.js/auto";
   import type { Profile } from "$lib/models/Profile";
-  import { currentUser, profileMemes } from "../../stores/profile.store";
+  import { currentUser, profileMemes } from "../../../../stores/profile.store";
   import type { Meme } from "$lib/models/Meme";
   import { fetchProfileMemes, getCurrentProfile } from "$lib/ao/mememaker";
   // @ts-ignore
@@ -34,9 +34,9 @@
   import { WAR_TOKEN } from "$lib/constants";
   // @ts-ignore
   import fromExponential from "from-exponential";
-  import Pump from "./Pump.svelte";
-  import Dump from "./Dump.svelte";
-  import Tweet from "./Tweet.svelte";
+  import Pump from "../../Pump.svelte";
+  import Dump from "../../Dump.svelte";
+  import Tweet from "../../Tweet.svelte";
   import Followers from "./Followers.svelte";
   import Following from "./Following.svelte";
 

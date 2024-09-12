@@ -2,8 +2,8 @@
     import { Router, Route } from "svelte-routing";
     import "./app.css";
     import Navbar from "$lib/components/Navbar.svelte";
-    import ProfileView from "$lib/components/ProfileView.svelte";
-    import UserProfile from "$lib/components/UserProfile.svelte";
+    import ProfileView from "$lib/components/views/profile/ProfileView.svelte";
+    import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
     import CreatePostModal from "$lib/components/CreateMeme.svelte";
     import Feed from "$lib/components/Feed.svelte";
     import Explore from "$lib/components/Explore.svelte";
