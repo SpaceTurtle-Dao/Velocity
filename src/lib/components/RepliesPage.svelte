@@ -5,14 +5,15 @@
   import Tweet from "$lib/components/Tweet.svelte";
   import { Link } from "svelte-routing";
   import { Button } from "$lib/components/ui/button";
-  import CreatePost from "$lib/components/CreateMeme.svelte"; 
+  import CreatePost from "$lib/components/CreateMeme.svelte";
   import SwapTransactions from "$lib/components/SwapTransaction.svelte";
   import * as Tabs from "$lib/components/ui/tabs";
   export let memeId: string;
 
-  let meme:Meme;
+  let meme: Meme;
   let replies = [];
   let isCreatePostOpen = false;
+
   onMount(async () => {
     try {
       meme = await getMeme(memeId);
@@ -43,35 +44,35 @@
 -->
 
 {#if meme}
-<div class="w-full mt-8 flex items-center justify-center">
-  <Tabs.Root value="replies">
-    <div class="flex flex-row justify-between">
-      <Tabs.List class="grid w-[400px] grid-cols-2">
-        <Tabs.Trigger value="transactions">Transactions</Tabs.Trigger>
-        <Tabs.Trigger value="replies">Replies</Tabs.Trigger>
-      </Tabs.List>
-      <div class="text-right">
-        <Button on:click={openCreatePostModal}>Reply</Button>
+  <div class="w-full mt-8 flex items-center justify-center">
+    <Tabs.Root value="replies">
+      <div class="flex flex-row justify-between">
+        <Tabs.List class="grid w-[400px] grid-cols-2">
+          <Tabs.Trigger value="transactions">Transactions</Tabs.Trigger>
+          <Tabs.Trigger value="replies">Replies</Tabs.Trigger>
+        </Tabs.List>
+        <div class="text-right">
+          <Button on:click={openCreatePostModal}>Reply</Button>
+        </div>
       </div>
-    </div>
 
-    <Tabs.Content value="transactions">
-      <SwapTransactions {meme}/>
-    </Tabs.Content>
-    <Tabs.Content value="replies">
-      {#each replies as reply}
-        <Link
-          to="/Feed/{reply.Pool}"
-          class="block w-full max-w-3xl mx-auto mb-6"
-        >
-          <Tweet meme={reply} />
-        </Link>
-      {/each}
-    </Tabs.Content>
-  </Tabs.Root>
-</div>
+      <Tabs.Content value="transactions">
+        <SwapTransactions {meme} />
+      </Tabs.Content>
+      <Tabs.Content value="replies">
+        {#each replies as reply}
+          <Link
+            to="/Feed/{reply.Pool}"
+            class="block w-full max-w-3xl mx-auto mb-6"
+          >
+            <Tweet meme={reply} />
+          </Link>
+        {/each}
+      </Tabs.Content>
+    </Tabs.Root>
+  </div>
 {:else}
-<!-- add some loading indicator or some kind of ui to handle the temorary time that meme is null -->
+  <!-- add some loading indicator or some kind of ui to handle the temorary time that meme is null -->
 {/if}
 
 <!-- </div> -->
