@@ -70,4 +70,20 @@
 			{ name: "Filters", value: filters },
 		];
 	};
+
+	//INDEXER METHODS
+	export const Request = () => {
+		let _tags = [{ name: "Action", value: "Request" }];
+		return _tags;
+	};
+
+	export const Relay = (owner:string) => {
+		let _tags = [{ name: "Action", value: "Relay" },{ name: "_Owner", value: owner }];
+		return _tags;
+	};
+
+	export const Relays = (page:string,size:string) => {
+		let _tags = [{ name: "Action", value: "Relays" },{ name: "Page", value: page },{ name: "Size", value: size}];
+		return _tags;
+	};
 </script>
