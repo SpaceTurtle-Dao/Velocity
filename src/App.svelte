@@ -6,7 +6,7 @@
     import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
     import CreatePostModal from "$lib/components/CreateMeme.svelte";
     import Feed from "$lib/components/Feed.svelte";
-    import Explore from "$lib/components/Explore.svelte";
+    import Explore from "$lib/components/views/explore/Explore.svelte";
     import {
         Home as HomeIcon,
         Search,
@@ -26,7 +26,7 @@
         AvatarImage,
     } from "$lib/components/ui/avatar";
     import { Profile } from "$lib/ao/messegeFactory.svelte";
-    import LowerProfile from "$lib/components/LowerProfile.svelte";
+    import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
 
     export let url = "";
 

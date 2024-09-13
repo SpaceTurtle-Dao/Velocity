@@ -6,7 +6,7 @@
   import { Link } from "svelte-routing";
   import { Button } from "$lib/components/ui/button";
   import CreatePost from "$lib/components/CreateMeme.svelte";
-  import SwapTransactions from "$lib/components/SwapTransaction.svelte";
+  import SwapTransactions from "$lib/components/views/swap/SwapTransaction.svelte";
   import * as Tabs from "$lib/components/ui/tabs";
   export let memeId: string;
 

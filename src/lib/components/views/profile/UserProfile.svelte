@@ -36,6 +36,8 @@
 
   async function fetchEvents() {
     eventStore.setLoading(true);
+    // let events = ao.getEvents();
+    // eventsStore.set(events);
     try {
     } catch (err) {
     } finally {

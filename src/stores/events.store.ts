@@ -13,20 +13,17 @@ export interface Event {
        sig: ""
 }
 
-// Define the structure of our event store
 interface EventStore {
        events: Event[];
        loading: boolean;
        error: string | null;
 }
 
-// Create the initial state
 const initialState: EventStore = {
        events: [],
        loading: false,
        error: null,
 };
-
 
 
 // Create the store

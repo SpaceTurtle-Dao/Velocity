@@ -9,6 +9,7 @@ const anon = {
   Name: "anon",
   Creator: "anon",
 }
+
 export const currentUser = writable<Profile>(anon);
 export const profileMemes = writable<Meme[]>([]);
 
