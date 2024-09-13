@@ -4,12 +4,58 @@
 	//import type { TokenData } from './models/TokenData.svelte';
 
 	export const Event = () => {
-		let _tags = [
-			{ name: "Action", value: "Event" },
-		];
-		return _tags ;
+		let _tags = [{ name: "Action", value: "Event" }];
+		return _tags;
 	};
 
+	export const Subscribe = (
+		token: string,
+		quantity: string,
+		relay: string,
+	) => {
+		let _tags = [
+			{ name: "Action", value: "Subscribe" },
+			{ name: "Token", value: token },
+			{ name: "Quantity", value: quantity },
+			{ name: "Relay", value: relay },
+		];
+		return _tags;
+	};
+
+	export const UnSubscribe = (
+		relay: string
+	) => {
+		let _tags = [
+			{ name: "Action", value: "UnSubscribe" },
+			{ name: "Relay", value: relay }
+		];
+		return _tags;
+	};
+
+	export const SetOwner = (
+		owner: string
+	) => {
+		let _tags = [
+			{ name: "Action", value: "SetOwner" },
+			{ name: "_Owner", value: owner }
+		];
+		return _tags;
+	};
+
+	export const Info = () => {
+		let _tags = [{ name: "Action", value: "Info" }];
+		return _tags;
+	};
+
+	export const Subs = () => {
+		let _tags = [{ name: "Action", value: "Subs" }];
+		return _tags;
+	};
+
+	export const Subscriptions = () => {
+		let _tags = [{ name: "Action", value: "Subscriptions" }];
+		return _tags;
+	};
 
 	export const FetchFeed = (filters: string) => {
 		return [
