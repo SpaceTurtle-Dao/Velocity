@@ -109,7 +109,6 @@
                 <LowerProfile />
             </div>
         </aside>
-
         <main class="flex-1 overflow-y-auto bg-background-500">
             <Navbar />
             <div class="container mx-auto px-4 pt-16">

@@ -131,9 +131,3 @@
     </CardContent>
   </Card>
 </div>
-
-<style>
-  :global(body) {
-    background-color: #fce4ec;
-  }
-</style>

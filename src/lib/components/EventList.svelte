@@ -1,5 +1,5 @@
 <script lang="ts">
-import { eventsStore, type EventsStoresData } from '$lib/models/Event';
+import { eventsStore, type EventsStoresData } from '$lib/model/Event.ts';
 
 let events: EventsStoresData;
 
