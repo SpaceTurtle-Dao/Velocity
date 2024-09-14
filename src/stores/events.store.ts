@@ -2,15 +2,12 @@ import { writable } from 'svelte/store';
 
 
 export interface Event {
-       id: string,
-       pubkey: string,
-       created_at: number,
-       kind: number,
-       tags: [
-              [],
-       ],
-       content: "",
-       sig: ""
+  id: string;
+  pubkey: string;
+  created_at: number;
+  kind: number;
+  tags: string[][];
+  content: string;
 }
 
 interface EventStore {

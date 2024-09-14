@@ -18,6 +18,7 @@
     import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
     import Feedpage from "$lib/components/Feedpage.svelte";
     import RepliesPage from "$lib/components/RepliesPage.svelte";
+    import ProfileNip from "$lib/components/views/profile/ProfileNip.svelte";
 
     import { currentUser } from "./stores/profile.store";
     import {
@@ -114,7 +115,7 @@
             <Navbar />
             <div class="container mx-auto px-4 pt-16">
                 <Route path="/feed" component={Feed} />
-                <Route path="/profile" component={ProfileView} />
+                <Route path="/profile" component={ProfileNip} />
                 <Route path="/" component={Feed} />
                 <Route path="/explore" component={Explore} />
                 <Route path="/UserProfile" component={UserProfile} />

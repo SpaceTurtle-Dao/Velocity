@@ -193,5 +193,24 @@
     </div>
 </Card>
 
-<style>
-</style>
+    <div class="flex justify-center space-x-4 p-4 bg-background-600">
+        <Pump {meme}>
+            <Button
+                variant="outline"
+                class="flex items-center space-x-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-2 px-4 rounded-lg"
+            >
+                <span>Pump</span>
+                <span class="font-bold">{meme.Pumps}</span>
+            </Button>
+        </Pump>
+        <Dump {meme}>
+            <Button
+                variant="outline"
+                class="flex items-center space-x-2 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg"
+            >
+                <span>Dump</span>
+                <span class="font-bold">{meme.Dumps}</span>
+            </Button>
+        </Dump>
+    </div>
+</Card>

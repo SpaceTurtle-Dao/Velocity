@@ -85,9 +85,3 @@
     on:close={() => (isCreatePostOpen = false)}
   />
 {/if}
-
-<style>
-  :global(body) {
-    background-color: #e3f2fd;
-  }
-</style>
