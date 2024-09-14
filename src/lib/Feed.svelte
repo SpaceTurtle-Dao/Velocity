@@ -2,7 +2,7 @@
     //@ts-nocheck
     import { onMount } from "svelte";
     import Tweet from "$lib/components/Tweet.svelte";
-    import { fetchMemes } from "./ao/mememaker";
+    import { fetchMemes } from "./ao/relay";
     import type { Meme } from "$lib/models/Meme";
 
     let memes: Meme[] = [];

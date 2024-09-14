@@ -1,8 +1,4 @@
 <script context="module" lang="ts">
-	import { PROCESS_ID, WAR_TOKEN } from "$lib/constants";
-
-	//import type { TokenData } from './models/TokenData.svelte';
-
 	export const Event = () => {
 		let _tags = [{ name: "Action", value: "Event" }];
 		return _tags;
