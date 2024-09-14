@@ -33,9 +33,9 @@
   function getExt(name: string) {
     let mimeType = mime.getType(name);
     let ext = mime.getExtension(mimeType);
-    console.log(name);
-    console.log(mimeType);
-    console.log(ext);
+    // console.log(name);
+    // console.log(mimeType);
+    // console.log(ext);
     return ext;
   }
 

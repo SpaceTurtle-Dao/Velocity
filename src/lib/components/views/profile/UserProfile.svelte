@@ -18,12 +18,32 @@
   import { Camera } from "lucide-svelte";
   import { profile } from "$lib/ao/mememaker";
   import { upload } from "$lib/ao/uploader";
+  import { eventStore } from "../../../../stores/events.store";
 
   let username = "";
   let displayName = "";
   let bio = "";
   let avatarUrl = "";
   let avatarFile: File | null = null;
+
+  $: events = $eventStore.events;
+  $: loading = $eventStore.loading;
+  $: error = $eventStore.error;
+
+  function addNewEvent(event: Event) {
+    // eventStore.addEvent(event);
+  }
+
+  async function fetchEvents() {
+    eventStore.setLoading(true);
+    // let events = ao.getEvents();
+    // eventsStore.set(events);
+    try {
+    } catch (err) {
+    } finally {
+      eventStore.setLoading(false);
+    }
+  }
 
   function handleFileUpload(event: Event) {
     const input = event.target as HTMLInputElement;

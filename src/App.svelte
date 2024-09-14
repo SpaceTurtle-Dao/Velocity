@@ -2,11 +2,11 @@
     import { Router, Route } from "svelte-routing";
     import "./app.css";
     import Navbar from "$lib/components/Navbar.svelte";
-    import ProfileView from "$lib/components/ProfileView.svelte";
-    import UserProfile from "$lib/components/UserProfile.svelte";
+    import ProfileView from "$lib/components/views/profile/ProfileView.svelte";
+    import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
     import CreatePostModal from "$lib/components/CreateMeme.svelte";
     import Feed from "$lib/components/Feed.svelte";
-    import Explore from "$lib/components/Explore.svelte";
+    import Explore from "$lib/components/views/explore/Explore.svelte";
     import {
         Home as HomeIcon,
         Search,
@@ -18,6 +18,7 @@
     import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
     import Feedpage from "$lib/components/Feedpage.svelte";
     import RepliesPage from "$lib/components/RepliesPage.svelte";
+    import ProfileNip from "$lib/components/views/profile/ProfileNip.svelte";
 
     import { currentUser } from "./stores/profile.store";
     import {
@@ -26,7 +27,7 @@
         AvatarImage,
     } from "$lib/components/ui/avatar";
     import { Profile } from "$lib/ao/messegeFactory.svelte";
-    import LowerProfile from "$lib/components/LowerProfile.svelte";
+    import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
 
     export let url = "";
 
@@ -113,7 +114,7 @@
             <Navbar />
             <div class="container mx-auto px-4 pt-16">
                 <Route path="/feed" component={Feed} />
-                <Route path="/profile" component={ProfileView} />
+                <Route path="/profile" component={ProfileNip} />
                 <Route path="/" component={Feed} />
                 <Route path="/explore" component={Explore} />
                 <Route path="/UserProfile" component={UserProfile} />

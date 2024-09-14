@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+  import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
   import { MoreHorizontal } from "lucide-svelte";
-  import { currentUser } from "../../stores/profile.store";
+  import { currentUser } from "../../../../stores/profile.store";
   import ConnectWalletButton from "$lib/components/wallet.svelte";
   import { navigate } from "svelte-routing";
 
