@@ -80,7 +80,7 @@ export const setOwner = async (
     }
 };
 
-export const request = async () => {
+export const spawnRelay = async () => {
     try {
         // @ts-ignore
         let message = Request();
