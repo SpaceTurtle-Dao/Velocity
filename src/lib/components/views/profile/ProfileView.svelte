@@ -28,7 +28,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { currentUser, profileMemes } from "../../../../stores/profile.store";
   import type { Meme } from "$lib/models/Meme";
-  import { fetchProfileMemes, getCurrentProfile } from "$lib/ao/mememaker";
+  import { fetchProfileMemes, getCurrentProfile } from "$lib/ao/relay";
   // @ts-ignore
   import { Quantity, Token } from "ao-tokens";
   import { WAR_TOKEN } from "$lib/constants";

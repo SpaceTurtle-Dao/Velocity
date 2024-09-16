@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Tweet from "$lib/components/Tweet.svelte";
-  import { fetchMemes } from "$lib/ao/mememaker";
+  import { fetchMemes } from "$lib/ao/relay";
   import type { Meme } from "$lib/models/Meme";
   import Spinner from "$lib/components/Spinner.svelte";
 

@@ -3,7 +3,7 @@
         Rocket,
     } from "lucide-svelte";
     import { Button } from "$lib/components/ui/button";
-    import { pump } from "$lib/ao/mememaker";
+    import { pump } from "$lib/ao/relay";
     import type { Meme } from "$lib/models/Meme";
     import { DEFAULT_QUANTITY } from "$lib/constants";
 

@@ -15,7 +15,7 @@
         MoreHorizontal,
         Plus,
     } from "lucide-svelte";
-    import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
+    import { fetchMemes, fetchProfileMemes } from "$lib/ao/relay";
     import Feedpage from "$lib/components/Feedpage.svelte";
     import RepliesPage from "$lib/components/RepliesPage.svelte";
     import ProfileNip from "$lib/components/views/profile/ProfileNip.svelte";

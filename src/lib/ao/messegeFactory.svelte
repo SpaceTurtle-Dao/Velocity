@@ -1,121 +1,85 @@
 <script context="module" lang="ts">
-	import { PROCESS_ID, WAR_TOKEN } from "$lib/constants";
+	export const Event = () => {
+		let _tags = [{ name: "Action", value: "Event" }];
+		return _tags;
+	};
 
-	//import type { TokenData } from './models/TokenData.svelte';
-
-	export const Meme = (
+	export const Subscribe = (
+		token: string,
 		quantity: string,
-		amount: string,
-		kind: string,
-		tags: string,
-		content: string,
-		parent: string | null | undefined,
+		relay: string,
 	) => {
 		let _tags = [
-			{ name: "Action", value: "Transfer" },
+			{ name: "Action", value: "Subscribe" },
+			{ name: "Token", value: token },
 			{ name: "Quantity", value: quantity },
-			{ name: "Recipient", value: PROCESS_ID() },
-			{ name: "X-Kind", value: kind },
-			{ name: "X-Tags", value: tags },
-			{ name: "X-Content", value: content },
-			{ name: "X-Amount", value: amount },
+			{ name: "Relay", value: relay },
 		];
-		if(parent)_tags.push({ name: "X-Parent", value: parent });
-		return _tags ;
+		return _tags;
 	};
 
-	export const Profile = (name: string, image: string, bio: string) => {
-		return [
-			{ name: "Action", value: "Profile" },
-			{ name: "Name", value: name },
-			{ name: "Image", value: image },
-			{ name: "Bio", value: bio },
-		];
-	};
-
-	export const Pump = (
-		quantity: string,
-		slippage: string,
-		recipient: string,
+	export const UnSubscribe = (
+		relay: string
 	) => {
-		return [
-			{ name: "Action", value: "Transfer" },
-			{ name: "Quantity", value: quantity },
-			{ name: "Recipient", value: recipient },
-			{ name: "X-Slippage", value: slippage },
-			{ name: "X-Swap", value: "" },
+		let _tags = [
+			{ name: "Action", value: "UnSubscribe" },
+			{ name: "Relay", value: relay }
 		];
+		return _tags;
 	};
 
-	export const FetchSwaps = (pool: string) => {
-		return [
-			{ name: "Action", value: "FetchSwaps" },
-			{ name: "Pool", value: pool },
-		];
-	};
-
-	export const FetchMemes = (page: string, size: string) => {
-		return [
-			{ name: "Action", value: "FetchMemes" },
-			{ name: "Page", value: page },
-			{ name: "Size", value: size },
-		];
-	};
-
-	export const FetchProfileMemes = (
-		profile: string,
-		page: string,
-		size: string,
+	export const SetOwner = (
+		owner: string
 	) => {
+		let _tags = [
+			{ name: "Action", value: "SetOwner" },
+			{ name: "_Owner", value: owner }
+		];
+		return _tags;
+	};
+
+	export const Info = () => {
+		let _tags = [{ name: "Action", value: "Info" }];
+		return _tags;
+	};
+
+	export const Subs = () => {
+		let _tags = [{ name: "Action", value: "Subs" }];
+		return _tags;
+	};
+
+	export const Subscriptions = () => {
+		let _tags = [{ name: "Action", value: "Subscriptions" }];
+		return _tags;
+	};
+
+	export const FetchFeed = (filters: string) => {
 		return [
-			{ name: "Action", value: "FetchProfileMemes" },
-			{ name: "Profile", value: profile },
-			{ name: "Page", value: page },
-			{ name: "Size", value: size },
+			{ name: "Action", value: "FetchFeed" },
+			{ name: "Filters", value: filters },
 		];
 	};
 
-	export const FetchReplies = (
-		parent: string,
-		page: string,
-		size: string,
-	) => {
+	export const FetchEvents = (filters: string) => {
 		return [
-			{ name: "Action", value: "FetchReplies" },
-			{ name: "Parent", value: parent },
-			{ name: "Page", value: page },
-			{ name: "Size", value: size },
+			{ name: "Action", value: "FetchEvents" },
+			{ name: "Filters", value: filters },
 		];
 	};
 
-	export const FetchMemesByIds = (
-		memes: string, //stringified json string array
-	) => {
-		return [
-			{ name: "Action", value: "FetchMemesByIds" },
-			{ name: "Memes", value: memes },
-		];
+	//INDEXER METHODS
+	export const Request = () => {
+		let _tags = [{ name: "Action", value: "Request" }];
+		return _tags;
 	};
 
-	export const FetchProfiles = (page: string, size: string) => {
-		return [
-			{ name: "Action", value: "FetchProfiles" },
-			{ name: "Page", value: page },
-			{ name: "Size", value: size },
-		];
+	export const Relay = (owner:string) => {
+		let _tags = [{ name: "Action", value: "Relay" },{ name: "_Owner", value: owner }];
+		return _tags;
 	};
 
-	export const GetProfile = (profile: string) => {
-		return [
-			{ name: "Action", value: "GetProfile" },
-			{ name: "Profile", value: profile },
-		];
-	};
-
-	export const GetMeme = (meme: string) => {
-		return [
-			{ name: "Action", value: "GetMeme" },
-			{ name: "Meme", value: meme },
-		];
+	export const Relays = (page:string,size:string) => {
+		let _tags = [{ name: "Action", value: "Relays" },{ name: "Page", value: page },{ name: "Size", value: size}];
+		return _tags;
 	};
 </script>
