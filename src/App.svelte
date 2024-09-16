@@ -19,7 +19,6 @@
   import Feedpage from "$lib/components/Feedpage.svelte";
   import RepliesPage from "$lib/components/RepliesPage.svelte";
   import ProfileNip from "$lib/components/views/profile/ProfileNip.svelte";
-
   import { currentUser } from "./stores/profile.store";
   import {
     Avatar,

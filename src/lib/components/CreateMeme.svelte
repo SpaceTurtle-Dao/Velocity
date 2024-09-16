@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { z } from "zod";
-  import { meme } from "$lib/ao/mememaker";
+  import { meme } from "$lib/ao/relay";
   import { Button } from "$lib/components/ui/button";
   import { Image, XCircle, CheckCircle } from "lucide-svelte";
   import { upload } from "$lib/ao/uploader";

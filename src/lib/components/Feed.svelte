@@ -1,6 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
+
   import Tweet from "$lib/components/TweetVideoNip.svelte";
+// =======
+//   import Tweet from "$lib/components/Tweet.svelte";
+//   import { fetchMemes } from "$lib/ao/relay";
+//   import type { Meme } from "$lib/models/Meme";
+// >>>>>>> development
   import Spinner from "$lib/components/Spinner.svelte";
   import type { Event } from "../../stores/events.store"; // Define your Event model here or import it
 

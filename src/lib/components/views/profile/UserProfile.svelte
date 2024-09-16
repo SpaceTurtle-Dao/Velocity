@@ -16,7 +16,7 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import { Label } from "$lib/components/ui/label";
   import { Camera } from "lucide-svelte";
-  import { profile } from "$lib/ao/mememaker";
+  import { profile } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { eventStore } from "../../../../stores/events.store";
 

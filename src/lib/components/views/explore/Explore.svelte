@@ -19,7 +19,7 @@
   } from "lucide-svelte";
   import type { Meme } from "$lib/models/Meme";
   import { feedPosts } from "../../../../stores/feedpage.store";
-  import { fetchMemes } from "$lib/ao/mememaker";
+  import { fetchMemes } from "$lib/ao/relay";
   import Pump from "../../Pump.svelte";
   import Dump from "../../Dump.svelte";
   import Spinner from "../../Spinner.svelte";
