@@ -1,7 +1,7 @@
 <script lang="ts">
   //@ts-nocheck
   import { onMount } from "svelte";
-  import { fetchMemesByIds, fetchReplies, getMeme } from "$lib/ao/relay";
+  // import { fetchMemesByIds, fetchReplies, getMeme } from "$lib/ao/relay";
   import Tweet from "$lib/components/Tweet.svelte";
   import { Link } from "svelte-routing";
   import { Button } from "$lib/components/ui/button";

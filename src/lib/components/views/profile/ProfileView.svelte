@@ -28,7 +28,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { currentUser, profileMemes } from "../../../../stores/profile.store";
   import type { Meme } from "$lib/models/Meme";
-  import { fetchProfileMemes, getCurrentProfile } from "$lib/ao/relay";
+  // import { fetchProfileMemes, getCurrentProfile } from "$lib/ao/relay";
   // @ts-ignore
   import { Quantity, Token } from "ao-tokens";
   import { WAR_TOKEN } from "$lib/constants";
@@ -102,11 +102,11 @@
     }
   }
 
-  onMount(async () => {
-    const address = await window.arweaveWallet.getActiveAddress();
-    await fetchProfileMemes(address, "1", "100");
-    await getCurrentProfile();
-  });
+  // onMount(async () => {
+  //   const address = await window.arweaveWallet.getActiveAddress();
+  //   await fetchProfileMemes(address, "1", "100");
+  //   await getCurrentProfile();
+  // });
 
   afterUpdate(() => {
     initializeChart();

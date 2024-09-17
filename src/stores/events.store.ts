@@ -6,7 +6,7 @@ export interface Event {
   pubkey: string;
   created_at: number;
   kind: number;
-  tags: string[][];
+  tags: [string[]];
   content: string;
 }
 

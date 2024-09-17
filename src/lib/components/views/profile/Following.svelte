@@ -1,4 +1,5 @@
 <script lang="ts">
+  //@ts-ignore
   export let following = [];
 </script>
 

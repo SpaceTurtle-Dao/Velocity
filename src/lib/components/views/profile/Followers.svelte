@@ -2,6 +2,7 @@
 import { eventsStore, type EventsStoresData } from '$lib/models/Event';
 
 let events: EventsStoresData;
+export let followers = [];
 
 //@ts-ignore
 eventsStore.subscribe(value => {
@@ -54,8 +55,6 @@ small {
   color: #666;
 }
 </style>
-  export let followers = [];
-</script>
 
 <div class="p-4 bg-white rounded-lg shadow-md">
   <h2 class="text-2xl font-bold text-purple-600 mb-4">Followers</h2>
