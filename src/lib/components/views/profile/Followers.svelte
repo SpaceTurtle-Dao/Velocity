@@ -17,6 +17,7 @@ function getActionFromTags(tags: string[][]): string {
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleString();
 }
+
 </script>
 
 <div class="events-list">
@@ -55,6 +56,7 @@ small {
   color: #666;
 }
 </style>
+
 
 <div class="p-4 bg-white rounded-lg shadow-md">
   <h2 class="text-2xl font-bold text-purple-600 mb-4">Followers</h2>
