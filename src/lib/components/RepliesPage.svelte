@@ -1,7 +1,7 @@
 <script lang="ts">
-  //@ts-nocheck
+  
   import { onMount } from "svelte";
-  import { fetchMemesByIds, fetchReplies, getMeme } from "$lib/ao/relay";
+  // import { fetchMemesByIds, fetchReplies, getMeme } from "$lib/ao/relay";
   import Tweet from "$lib/components/Tweet.svelte";
   import { Link } from "svelte-routing";
   import { Button } from "$lib/components/ui/button";
@@ -10,16 +10,16 @@
   import * as Tabs from "$lib/components/ui/tabs";
   export let memeId: string;
 
-  let meme: Meme;
+  let meme;
   let replies = [];
   let isCreatePostOpen = false;
 
   onMount(async () => {
     try {
-      meme = await getMeme(memeId);
-      replies = await fetchReplies(memeId, "1", "100");
-      console.log(meme);
-      console.log(replies);
+      // meme = await getMeme(memeId);
+      // replies = await fetchReplies(memeId, "1", "100");
+      // console.log(meme);
+      // console.log(replies);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

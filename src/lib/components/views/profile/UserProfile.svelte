@@ -16,7 +16,7 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import { Label } from "$lib/components/ui/label";
   import { Camera } from "lucide-svelte";
-  import { profile } from "$lib/ao/relay";
+  // import { profile } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { eventStore } from "../../../../stores/events.store";
 
@@ -68,7 +68,7 @@
       const tx = await upload(await avatarFile.arrayBuffer());
 
       // Create profile
-      await profile(username, tx, bio);
+      // await profile(username, tx, bio);
 
       alert("Profile created successfully!");
     } catch (error) {

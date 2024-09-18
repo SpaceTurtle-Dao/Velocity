@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { z } from "zod";
-  import { meme } from "$lib/ao/relay";
+  // import { meme } from "$lib/ao/relay";
   import { Button } from "$lib/components/ui/button";
   import { Image, XCircle, CheckCircle } from "lucide-svelte";
   import { upload } from "$lib/ao/uploader";
@@ -65,14 +65,14 @@
         parent,
       });
 
-      await meme(
-        validatedData.quantity,
-        validatedData.amount,
-        "0",
-        validatedData.tags || "[]",
-        validatedData.content,
-        validatedData.parent,
-      );
+      // await meme(
+      //   validatedData.quantity,
+      //   validatedData.amount,
+      //   "0",
+      //   validatedData.tags || "[]",
+      //   validatedData.content,
+      //   validatedData.parent,
+      // );
       console.log("parent:" + validatedData.parent);
       showSuccessMessage = true;
       setTimeout(() => (showSuccessMessage = false), 3000);

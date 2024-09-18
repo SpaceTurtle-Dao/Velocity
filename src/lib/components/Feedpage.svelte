@@ -25,7 +25,7 @@
   import type { Post } from "../../stores/feedpage.store";
   import { feedPosts } from "../../stores/feedpage.store";
   import type { Meme } from "$lib/models/Meme";
-  import { fetchMemes } from "$lib/ao/relay";
+  // import { fetchMemes } from "$lib/ao/relay";
   import Pump from "./Pump.svelte";
   import Dump from "./Dump.svelte";
 
@@ -41,7 +41,7 @@
   }
 
   onMount(async () => {
-    await fetchMemes("1", "100");
+    // await fetchMemes("1", "100");
   });
 </script>
 

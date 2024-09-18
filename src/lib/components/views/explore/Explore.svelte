@@ -19,7 +19,7 @@
   } from "lucide-svelte";
   import type { Meme } from "$lib/models/Meme";
   import { feedPosts } from "../../../../stores/feedpage.store";
-  import { fetchMemes } from "$lib/ao/relay";
+  // import { fetchMemes } from "$lib/ao/relay";
   import Pump from "../../Pump.svelte";
   import Dump from "../../Dump.svelte";
   import Spinner from "../../Spinner.svelte";
@@ -38,7 +38,7 @@
   }
 
   onMount(async () => {
-    await fetchMemes("1", "100");
+    // await fetchMemes("1", "100");
     loading = false;
   });
 </script>
@@ -98,8 +98,8 @@
             </div>
           </CardFooter>
           <div class="flex justify-between w-full px-3 py-2 bg-white">
-            <Pump {meme} />
-            <Dump {meme} />
+            <!-- <Pump {meme} />
+            <Dump {meme} /> -->
           </div>
         </Card>
       </Link>

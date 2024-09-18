@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { formatDistanceToNow } from "date-fns";
   import { ArrowUpRight, ArrowDownRight } from "lucide-svelte";
-  import { fetchSwaps } from "$lib/ao/relay";
+  // import { fetchSwaps } from "$lib/ao/relay";
   import { swapsStore } from "../../../../stores/pool.store";
   import type { Swap } from "$lib/models/Swap";
   import { DECIMALS, formatNumber } from "$lib/constants";
@@ -16,7 +16,7 @@
     console.log("meme")
     console.log(meme)
     try {
-      await fetchSwaps(meme.Pool);
+      // await fetchSwaps(meme.Pool);
     } catch (error) {
       console.error("Error fetching swaps:", error);
     }
