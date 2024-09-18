@@ -20,6 +20,7 @@ import { profileMemes, currentUser } from "../../stores/profile.store";
 import { feedPosts, replies } from "../../stores/feedpage.store";
 import type { Swap } from "$lib/models/Swap";
 import { swapsStore } from "../../stores/pool.store";
+import { ta } from "date-fns/locale";
 
 
 export const event = async (
@@ -190,19 +191,22 @@ export const info = async (process: string) => {
     }
 };
 
-export const relay = async (owner: string) => {
+export const relay = async (owner: string): Promise<string> => {
+    let _relay = "";
     try {
         // @ts-ignore
         let message = Relay(owner);
-        let result = await read(relay, message);
+        let result = await read(INDEXER_ID(), message);
         if (result == undefined) throw("404");
-        console.log(result);
-        let json = JSON.parse(result.Data);
-        console.log(json);
-        return json
+        for (var tag in result.Tags) {
+            let _tag = result.Tags[tag]
+            if (_tag.name == "Relay") _relay = _tag.value;
+        };
+        console.log(_relay);
     } catch (e) {
         console.log(e);
     }
+    return _relay
 };
 
 export const relays = async (page: string, size: string) => {
