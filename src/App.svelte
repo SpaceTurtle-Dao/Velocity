@@ -14,8 +14,8 @@
     User,
     MoreHorizontal,
     Plus,
+    Zap // New icon for Relay
   } from "lucide-svelte";
-  // import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
   import Feedpage from "$lib/components/Feedpage.svelte";
   import RepliesPage from "$lib/components/RepliesPage.svelte";
   import ProfileNip from "$lib/components/views/profile/ProfileNip.svelte";
@@ -25,8 +25,8 @@
     AvatarFallback,
     AvatarImage,
   } from "$lib/components/ui/avatar";
-  // import { Profile } from "$lib/ao/messegeFactory.svelte";
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
+  import RelayButtons from '$lib/components/Relay.svelte';
 
   export let url = "";
 
@@ -44,8 +44,8 @@
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
     { icon: Search, label: "Explore", href: "/explore" },
-    // { icon: Bell, label: "Notifications", href: "/UserProfile" },
     { icon: User, label: "Profile", href: "/profile" },
+    { icon: Zap, label: "Relay", href: "/relay" }
   ];
 
   function toggleCreatePostModal() {
@@ -115,10 +115,10 @@
         <Route path="/explore" component={Explore} />
         <Route path="/UserProfile" component={UserProfile} />
         <Route path="/Feed" component={Feedpage} />
-        <!-- <Route path="/Feed/:id" let:params component={RepliesPage} /> -->
         <Route path="/Feed/:id" let:params>
           <RepliesPage memeId={params.id} />
         </Route>
+        <Route path="/relay" component={RelayButtons} />
       </div>
     </main>
   </div>
