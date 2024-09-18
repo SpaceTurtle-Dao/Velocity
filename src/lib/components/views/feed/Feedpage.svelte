@@ -22,12 +22,12 @@
     Share2,
     TrendingUp,
   } from "lucide-svelte";
-  import type { Post } from "../../stores/feedpage.store";
-  import { feedPosts } from "../../stores/feedpage.store";
+  import type { Post } from "../../../../stores/feedpage.store";
+  import { feedPosts } from "../../../../stores/feedpage.store";
   import type { Meme } from "$lib/models/Meme";
   import { fetchMemes } from "$lib/ao/relay";
-  import Pump from "./Pump.svelte";
-  import Dump from "./Dump.svelte";
+  import Pump from "../xyz/Pump.svelte";
+  import Dump from "../xyz/Dump.svelte";
 
   let memes: Meme[];
 

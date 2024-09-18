@@ -13,7 +13,7 @@ import {
     Relay,
     Relays
 } from "$lib/ao/messegeFactory.svelte";
-import { INDEXER_ID, WAR_TOKEN } from "$lib/constants";
+import { INDEXER_ID, WAR_TOKEN } from "$lib/common/constants";
 import { upload } from "$lib/ao/uploader";
 
 import { profileMemes, currentUser } from "../../stores/profile.store";

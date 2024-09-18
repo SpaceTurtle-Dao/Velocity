@@ -31,12 +31,12 @@
   import { fetchProfileMemes, getCurrentProfile } from "$lib/ao/relay";
   // @ts-ignore
   import { Quantity, Token } from "ao-tokens";
-  import { WAR_TOKEN } from "$lib/constants";
+  import { WAR_TOKEN } from "$lib/common/constants";
   // @ts-ignore
   import fromExponential from "from-exponential";
-  import Pump from "../../Pump.svelte";
-  import Dump from "../../Dump.svelte";
-  import Tweet from "../../Tweet.svelte";
+  import Pump from "../xyz/Pump.svelte";
+  import Dump from "../xyz/Dump.svelte";
+  import Tweet from "../feed/Tweet.svelte";
   import Followers from "./Followers.svelte";
   import Following from "./Following.svelte";
 

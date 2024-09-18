@@ -1,11 +1,11 @@
 <script lang="ts">
   import { Router, Route } from "svelte-routing";
   import "./app.css";
-  import Navbar from "$lib/components/Navbar.svelte";
+  import Navbar from "$lib/components/views/home/Navbar.svelte";
   import ProfileView from "$lib/components/views/profile/ProfileView.svelte";
   import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
-  import CreatePostModal from "$lib/components/CreateMeme.svelte";
-  import Feed from "$lib/components/Feed.svelte";
+  import CreatePostModal from "$lib/components/views/feed/CreateMeme.svelte";
+  import Feed from "$lib/components/views/feed/Feed.svelte";
   import Explore from "$lib/components/views/explore/Explore.svelte";
   import {
     Home as HomeIcon,
@@ -16,8 +16,8 @@
     Plus,
   } from "lucide-svelte";
   import { fetchMemes, fetchProfileMemes } from "$lib/ao/mememaker";
-  import Feedpage from "$lib/components/Feedpage.svelte";
-  import RepliesPage from "$lib/components/RepliesPage.svelte";
+  import Feedpage from "$lib/components/views/feed/Feedpage.svelte";
+  import RepliesPage from "$lib/components/views/feed/RepliesPage.svelte";
   import ProfileNip from "$lib/components/views/profile/ProfileNip.svelte";
   import { currentUser } from "./stores/profile.store";
   import {

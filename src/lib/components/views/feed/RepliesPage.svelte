@@ -2,10 +2,10 @@
   //@ts-nocheck
   import { onMount } from "svelte";
   import { fetchMemesByIds, fetchReplies, getMeme } from "$lib/ao/relay";
-  import Tweet from "$lib/components/Tweet.svelte";
+  import Tweet from "$lib/components/views/feed/Tweet.svelte";
   import { Link } from "svelte-routing";
   import { Button } from "$lib/components/ui/button";
-  import CreatePost from "$lib/components/CreateMeme.svelte";
+  import CreatePost from "$lib/components/views/feed/CreateMeme.svelte";
   import SwapTransactions from "$lib/components/views/swap/SwapTransaction.svelte";
   import * as Tabs from "$lib/components/ui/tabs";
   export let memeId: string;

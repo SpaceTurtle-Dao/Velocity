@@ -22,24 +22,42 @@
         Coins,
     } from "lucide-svelte";
 
-    import Pump from "$lib/components/Pump.svelte";
-    import Dump from "$lib/components/Dump.svelte";
-    import type { Meme } from "$lib/models/Meme";
-    import { DECIMALS } from "$lib/constants";
+    import Pump from "$lib/components/views/xyz/Pump.svelte";
+    import Dump from "$lib/components/views/xyz/Dump.svelte";
+    import { DECIMALS } from "$lib/common/constants";
     // @ts-ignore
     import * as Tabs from "$lib/components/ui/tabs";
     import { Video } from "flowbite-svelte";
-    export let meme: Meme;
-    console.log(meme);  
+  import type { Event }  from "../../../../stores/events.store";
+//   import type { Meme } from "../../stores/feedpage.store";
+
+//   export let meme: Meme;
+
+    
+
+    // export interface Event {
+    //     id: string;
+    //     pubkey: string;
+    //     created_at: number;
+    //     kind: number;
+    //     tags: string[][];
+    //     content: string;
+    // }
+
+    export let event: Event;
     let loading = true;
 
+    function getTagValue(tags: string[][], key: string): string | undefined {
+        return tags.find(tag => tag[0] === key)?.[1];
+    }
+  
     function toUrl(tx: string) {
         return `https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/${tx}`;
     }
 
     function formatTime(timestamp: number): string {
         const now = Date.now();
-        const diff = now - timestamp;
+        const diff = now - timestamp * 1000; // Convert seconds to milliseconds
         const minutes = Math.floor(diff / 60000);
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
@@ -55,6 +73,20 @@
         return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
     }
 
+    const title = getTagValue(event.tags, "title") || "Untitled";
+    const thumbnail = getTagValue(event.tags, "thumb");
+    const mediaUrl = getTagValue(event.tags, "url");
+    const mimeType = getTagValue(event.tags, "m");
+    const publishedAt = getTagValue(event.tags, "published_at");
+    const marketCap = getTagValue(event.tags, "market_cap") || "0";
+    const liquidity = getTagValue(event.tags, "liquidity") || "0";
+    const buys = getTagValue(event.tags, "buys") || "0";
+    const holders = getTagValue(event.tags, "holders") || "0";
+    const replies = getTagValue(event.tags, "replies") || "0";
+    const tokenId = getTagValue(event.tags, "token_id");
+    const pumps = getTagValue(event.tags, "pumps") || "0";
+    const dumps = getTagValue(event.tags, "dumps") || "0";
+
     // Simulate content loading
     setTimeout(() => {
         loading = false;
@@ -69,34 +101,21 @@
             <Avatar
                 class="w-12 h-12 rounded-full border-2 border-blue-500 shadow-lg"
             >
-                {#if meme.Profile}
-                    <AvatarImage
-                        src={toUrl(meme.Profile.Image)}
-                        alt={meme.Creator}
-                    />
-                {/if}
                 <AvatarFallback class="text-2xl bg-primary text-white">
-                    {meme.Profile
-                        ? meme.Profile.Name.slice(0, 2)
-                        : meme.Creator.slice(0, 2)}
+                    {event.pubkey.slice(0, 2)}
                 </AvatarFallback>
             </Avatar>
             <div>
                 <h3 class="text-sm font-bold text-white">
-                    {meme.Profile ? meme.Profile.Name : meme.Creator}
+                    {event.pubkey.slice(0, 12)}
                 </h3>
                 <p class="text-sm text-gray-500">
-                    @{meme.Creator.slice(0, 12)} · {formatTime(meme.createdAt)}
+                    @{event.pubkey.slice(0, 12)} · {formatTime(event.created_at)}
                 </p>
-                {#if meme.Profile}
-                    <p class="text-xs text-gray-400">
-                        Joined {formatTime(meme.Profile.CreatedAt)}
-                    </p>
-                {/if}
             </div>
         </div>
     </CardHeader>
-    <Link to="/Feed/{meme.Pool}" class="block w-full max-w-3xl mx-auto ml-16">
+    <Link to="/Feed/{event.id}" class="block w-full max-w-3xl mx-auto ml-16">
         <CardContent>
             {#if loading}
                 <div class="flex justify-center items-center h-48">
@@ -104,23 +123,20 @@
                         class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"
                     ></div>
                 </div>
-            {:else if meme.Post.Kind === "0"}
+            {:else}
                 <p class="text-xl mt-3 text-white leading-relaxed">
-                    {meme.Post.Kind === "0"
-                        ? JSON.parse(meme.Post.Content).content
-                        : meme.Post.Content}
+                    {event.content}
                 </p>
-                <!-- svelte-ignore a11y-img-redundant-alt -->
-                {#if JSON.parse(meme.Post.Content).ext === "mp4" || JSON.parse(meme.Post.Content).ext === "mov" || JSON.parse(meme.Post.Content).ext === "avi"}
+                {#if mimeType && mimeType.startsWith("video/")}
                     <Video
-                        src={toUrl(JSON.parse(meme.Post.Content).media)}
+                        src={mediaUrl || ''}
                         controls
-                        trackSrc={toUrl(JSON.parse(meme.Post.Content).media)}
+                        trackSrc={mediaUrl || ''}
                     />
-                {:else}
+                {:else if thumbnail}
                     <img
-                        alt="Meme Image"
-                        src={toUrl(JSON.parse(meme.Post.Content).media)}
+                        alt={title}
+                        src={thumbnail}
                         class="rounded-lg object-cover w-full shadow-md"
                         style="max-height: 500px; object-fit: cover; width: 100%;"
                     />
@@ -136,82 +152,64 @@
             <DollarSign class="w-6 h-6 text-green-500 mb-1" />
             <span class="font-semibold text-sm text-white">Market Cap</span>
             <span class="text-white">
-                {formatNumber(Number(meme.Analytics.MarketCap / DECIMALS))} wAr
+                {formatNumber(Number(marketCap) / DECIMALS)} wAr
             </span>
         </div>
         <div class="flex flex-col items-center text-center">
             <TrendingUp class="w-6 h-6 text-blue-500 mb-1" />
             <span class="font-semibold text-sm text-white">Liquidity</span>
             <span class="text-white">
-                {formatNumber(Number(meme.Analytics.Liquidty) / DECIMALS)} wAr
+                {formatNumber(Number(liquidity) / DECIMALS)} wAr
             </span>
         </div>
         <div class="flex flex-col items-center text-center">
             <Activity class="w-6 h-6 text-purple-500 mb-1" />
             <span class="font-semibold text-sm text-white">Buys</span>
-            <span class="text-white">{meme.Analytics.Buys}</span>
+            <span class="text-white">{buys}</span>
         </div>
         <div class="flex flex-col items-center text-center">
             <Users class="w-6 h-6 text-orange-500 mb-1" />
             <span class="font-semibold text-sm text-white">Holders</span>
-            <span class="text-white">{meme.Holders.count}</span>
+            <span class="text-white">{holders}</span>
         </div>
         <div class="flex flex-col items-center text-center">
             <MessageCircle class="w-6 h-6 text-indigo-500 mb-1" />
             <span class="font-semibold text-sm text-white">Replies</span>
-            <span class="text-white">{meme.Replies}</span>
+            <span class="text-white">{replies}</span>
         </div>
         <div class="flex flex-col items-center text-center">
             <Coins class="w-6 h-6 text-red-500 mb-1" />
             <span class="font-semibold text-sm text-white">Token</span>
-            <a
-                class="btn text-blue-500 font-semibold hover:underline"
-                target="_blank"
-                href={`https://www.ao.link/#/token/${meme.TokenA}`}>AOLink</a
-            >
+            {#if tokenId}
+                <a
+                    class="btn text-blue-500 font-semibold hover:underline"
+                    target="_blank"
+                    href={`https://www.ao.link/#/token/${tokenId}`}>AOLink</a
+                >
+            {:else}
+                <span class="text-white">N/A</span>
+            {/if}
         </div>
     </CardFooter>
 
-    <div class="flex justify-center space-x-4 p-4 bg-background-600">
-        <Pump {meme}>
+    <!-- <div class="flex justify-center space-x-4 p-4 bg-background-600">
+        <Pump event={event} meme={meme}>
             <Button
                 variant="outline"
                 class="flex items-center space-x-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-2 px-4 rounded-lg"
             >
                 <span>Pump</span>
-                <span class="font-bold">{meme.Pumps}</span>
+                <span class="font-bold">{pumps}</span>
             </Button>
         </Pump>
-        <Dump {meme}>
+        <Dump event={event}  meme={meme}>
             <Button
                 variant="outline"
                 class="flex items-center space-x-2 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg"
             >
                 <span>Dump</span>
-                <span class="font-bold">{meme.Dumps}</span>
+                <span class="font-bold">{dumps}</span>
             </Button>
         </Dump>
-    </div>
+    </div> -->
 </Card>
-
-    <div class="flex justify-center space-x-4 p-4 bg-background-600">
-        <Pump {meme}>
-            <Button
-                variant="outline"
-                class="flex items-center space-x-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-2 px-4 rounded-lg"
-            >
-                <span>Pump</span>
-                <span class="font-bold">{meme.Pumps}</span>
-            </Button>
-        </Pump>
-        <Dump {meme}>
-            <Button
-                variant="outline"
-                class="flex items-center space-x-2 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg"
-            >
-                <span>Dump</span>
-                <span class="font-bold">{meme.Dumps}</span>
-            </Button>
-        </Dump>
-    </div>
-<!-- </Card> -->

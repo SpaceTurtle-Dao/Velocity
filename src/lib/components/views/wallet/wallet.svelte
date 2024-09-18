@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import SmallSpinner from '$lib/components/smallSpinner.svelte';
+	import SmallSpinner from '$lib/components/views/xyz/smallSpinner.svelte';
 	
 	export let buttonClass = "";
 
