@@ -21,6 +21,6 @@ export type Profile = {
 }
 
 export const profileFromEvent = (event:Event) : Profile => {
-  if (event.kind = 0) return JSON.parse(event.content)
+  if (event.kind == 0) return JSON.parse(event.content)
   throw(400)
 }

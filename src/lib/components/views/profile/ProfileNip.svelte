@@ -18,7 +18,7 @@
   import type { Event } from "$lib/models/Event";
   import sunny from "../../../../assets/sunny.jpeg";
   import Follow from "./Follow.svelte";
-  import type { UserInfo } from "$lib/models/Profile";
+  import { profileFromEvent, type UserInfo } from "$lib/models/Profile";
   import { currentUser } from "../../../../stores/profile.store";
 
   let activeTab: string = "posts";
@@ -26,9 +26,14 @@
   let userInfo: UserInfo;
   let _currentUser: UserInfo;
 
+  // Subscribe to the current user store
   currentUser.subscribe((value) => {
-    _currentUser = value;
-  });
+    if (value){
+      userInfo = value;
+      _currentUser = userInfo
+      // change this to be the correct proifles later
+    }
+  });;
   // Mock profile data (Kind 0)
   const profileEvent: Event = {
     id: "profile_event_id",

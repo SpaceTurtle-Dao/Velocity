@@ -6,7 +6,7 @@
   import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
   import CreatePostModal from "$lib/components/CreateMeme.svelte";
   import Feed from "$lib/components/Feed.svelte";
-  import Explore from "$lib/components/views/explore/Explore.svelte";
+  //import Explore from "$lib/components/views/explore/Explore.svelte";
   import {
     Home as HomeIcon,
     Search,
@@ -16,7 +16,6 @@
     Plus,
     Zap // New icon for Relay
   } from "lucide-svelte";
-  import Feedpage from "$lib/components/Feedpage.svelte";
   import RepliesPage from "$lib/components/RepliesPage.svelte";
   import ProfileNip from "$lib/components/views/profile/ProfileNip.svelte";
   import { currentUser } from "./stores/profile.store";
@@ -43,7 +42,7 @@
   });
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
-    { icon: Search, label: "Explore", href: "/explore" },
+    //{ icon: Search, label: "Explore", href: "/explore" },
     { icon: User, label: "Profile", href: "/profile" },
     { icon: Zap, label: "Relay", href: "/relay" }
   ];
@@ -112,9 +111,9 @@
         <Route path="/feed" component={Feed} />
         <Route path="/profile" component={ProfileNip} />
         <Route path="/" component={Feed} />
-        <Route path="/explore" component={Explore} />
+        <!--<Route path="/explore" component={Explore} />-->
         <Route path="/UserProfile" component={UserProfile} />
-        <Route path="/Feed" component={Feedpage} />
+        <Route path="/Feed" component={Feed} />
         <Route path="/Feed/:id" let:params>
           <RepliesPage memeId={params.id} />
         </Route>

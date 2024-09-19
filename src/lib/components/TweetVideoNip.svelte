@@ -28,7 +28,7 @@
     // @ts-ignore
     import * as Tabs from "$lib/components/ui/tabs";
     import { Video } from "flowbite-svelte";
-  import type { Event }  from "../../stores/events.store";
+  import type { Event }  from "$lib/models/Event";
 //   import type { Meme } from "../../stores/feedpage.store";
 
 //   export let meme: Meme;
