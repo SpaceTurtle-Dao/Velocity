@@ -7,6 +7,7 @@
   import CreatePostModal from "$lib/components/CreateMeme.svelte";
   import Feed from "$lib/components/Feed.svelte";
   //import Explore from "$lib/components/views/explore/Explore.svelte";
+  import ProfileCreation from "$lib/components/views/profile/CreateProfile.svelte";
   import {
     Home as HomeIcon,
     Search,
@@ -14,7 +15,8 @@
     User,
     MoreHorizontal,
     Plus,
-    Zap // New icon for Relay
+    Zap, // New icon for Relay
+    Edit
   } from "lucide-svelte";
   import RepliesPage from "$lib/components/RepliesPage.svelte";
   import ProfileNip from "$lib/components/views/profile/ProfileNip.svelte";
@@ -44,7 +46,8 @@
     { icon: HomeIcon, label: "Home", href: "/feed" },
     //{ icon: Search, label: "Explore", href: "/explore" },
     { icon: User, label: "Profile", href: "/profile" },
-    { icon: Zap, label: "Relay", href: "/relay" }
+    { icon: Zap, label: "Relay", href: "/relay" },
+    { icon: Edit, label: "Create Profile", href: "/create-profile" }
   ];
 
   function toggleCreatePostModal() {
@@ -118,6 +121,7 @@
           <RepliesPage memeId={params.id} />
         </Route>
         <Route path="/relay" component={RelayButtons} />
+        <Route path="/create-profile" component={ProfileCreation} />
       </div>
     </main>
   </div>
