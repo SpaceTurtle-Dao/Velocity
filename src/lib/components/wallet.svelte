@@ -2,7 +2,9 @@
     import { onMount } from 'svelte';
     import { walletAddress, setWalletAddress, clearWalletAddress } from '../../stores/walletStore';
     import SmallSpinner from '$lib/components/smallSpinner.svelte';
-    
+    import { relay, info } from '$lib/ao/relay';
+    import { currentUser, userRelay } from '../../stores/profile.store';
+
     export let buttonClass = "";
 
     let title = 'Connect Wallet';
@@ -25,11 +27,15 @@
         if (window.arweaveWallet) {
             try {
                 const address = await window.arweaveWallet.getActiveAddress();
-                if (address) {
-                    setWalletAddress(address);
-                }
+                let _relay = await relay(address)
+                let _currentUser = await info(_relay)
+                currentUser.set(_currentUser)
+                userRelay.set(_relay)
+                setWalletAddress(address);
+                title = "Disconnect";
             } catch (error) {
-                console.error('Failed to get active address:', error);
+                //console.error('Failed to get active address:', error);
+                
             }
         }
     }

@@ -25,7 +25,7 @@
     UserPlus,
   } from "lucide-svelte";
   import Chart from "chart.js/auto";
-  import type { Profile } from "$lib/models/Profile";
+  import { profileFromEvent, type Profile, type UserInfo } from "$lib/models/Profile";
   import { currentUser, profileMemes } from "../../../../stores/profile.store";
   import type { Meme } from "$lib/models/Meme";
   // import { fetchProfileMemes, getCurrentProfile } from "$lib/ao/relay";
@@ -43,13 +43,15 @@
   let activeTab: string = "posts";
   let chart: Chart | null = null;
 
-  let profile: Profile;
+  let userInfo: UserInfo;
+  let userProfile: Profile;
   let memes: Meme[];
   const decimals = (value: BigInt) => {
     return Math.pow(10, Number(value));
   };
   currentUser.subscribe((value) => {
-    profile = value;
+    userInfo = value;
+    userProfile = profileFromEvent(userInfo.Profile)
   });
 
   profileMemes.subscribe((value) => {
@@ -122,15 +124,15 @@
       <div class="flex items-center space-x-6">
         <!-- Avatar with Border -->
         <Avatar class="h-28 w-28 rounded-full ring-4 ring-white shadow-lg">
-          <AvatarImage src={toUrl(profile.Image)} alt={profile.Name} />
-          <AvatarFallback>{profile.Name}</AvatarFallback>
+          <AvatarImage src={toUrl(userProfile.picture)} alt={userProfile.name} />
+          <AvatarFallback>{userProfile.name}</AvatarFallback>
         </Avatar>
         <!-- Profile Info -->
         <div>
           <h1 class="text-4xl font-extrabold text-white leading-tight">
-            {profile.Name}
+            {userProfile.name}
           </h1>
-          <p class="text-lg text-pink-100">@{profile.Name}</p>
+          <p class="text-lg text-pink-100">@{userProfile.name}</p>
         </div>
       </div>
     </div>
@@ -148,7 +150,7 @@
           >
             {"1,000"}
           </p>
-          <p class="text-gray-600">Followers</p>
+          <p class="text-gray-600">Follower</p>
         </div>
         <!-- Following -->
         <div class="text-center">
