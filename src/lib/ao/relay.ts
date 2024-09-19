@@ -176,6 +176,19 @@ export const subscriptions = async (relay: string, page: string, size: string) =
     return _subs;
 };
 
+export const isSubscribed = async (process: string,relay:string) => {
+    try {
+        // @ts-ignore
+        let message = IsSubscribed(relay);
+        let result = await read(process, message);
+        if (result == undefined) throw("404");
+        console.log(result);
+        return result.Data
+    } catch (e) {
+        console.log(e);
+    }
+};
+
 export const info = async (process: string) => {
     try {
         // @ts-ignore
