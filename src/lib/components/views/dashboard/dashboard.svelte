@@ -1,39 +1,6 @@
 <script lang="ts">
-    interface Profile {
-        id: number;
-        name: string;
-        avatar: string;
-    }
-
-    interface Post {
-        id: number;
-        profileId: number;
-        content: string;
-        likes: number;
-    }
-
-    const profiles: Profile[] = [
-        { id: 1, name: "John Doe", avatar: "https://example.com/john.jpg" },
-        { id: 2, name: "Jane Smith", avatar: "https://example.com/jane.jpg" },
-        { id: 3, name: "Bob Johnson", avatar: "https://example.com/bob.jpg" },
-    ];
-
-    const posts: Post[] = [
-        {
-            id: 1,
-            profileId: 1,
-            content: "This is John's first post!",
-            likes: 10,
-        },
-        { id: 2, profileId: 2, content: "Hello from Jane!", likes: 15 },
-        { id: 3, profileId: 1, content: "Another post from John", likes: 5 },
-        {
-            id: 4,
-            profileId: 3,
-            content: "Bob's thoughts for the day",
-            likes: 8,
-        },
-    ];
+    import Profile from "$lib/models/Profile";
+    let profiles: Profile = [];
 
     let selectedProfileId: number | null = null;
 
@@ -52,11 +19,9 @@
             : null;
 </script>
 
-<main>
-    <h1>Social Media Dashboard</h1>
-
+<div>
     <div class="profiles">
-        <h2>Profiles</h2>
+        <h2>Profiles/Relays</h2>
         <div class="profile-list">
             {#each profiles as profile (profile.id)}
                 <div
@@ -88,7 +53,7 @@
     {:else}
         <p>Select a profile to view posts.</p>
     {/if}
-</main>
+</div>
 
 <style>
     main {
