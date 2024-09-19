@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { z } from "zod";
-  import { meme } from "$lib/ao/relay";
+  // import { meme } from "$lib/ao/relay";
   import { Button } from "$lib/components/ui/button";
   import { Image, XCircle, CheckCircle } from "lucide-svelte";
   import { upload } from "$lib/ao/uploader";
@@ -32,66 +32,66 @@
 
   function getExt(name: string) {
     let mimeType = mime.getType(name);
-    let ext = mime.getExtension(mimeType);
+    // let ext = mime.getExtension(mimeType);
     // console.log(name);
     // console.log(mimeType);
     // console.log(ext);
-    return ext;
+    // return ext;
   }
 
-  async function create_meme() {
-    try {
-      isLoading = true;
-      error = "";
-      showSuccessMessage = false;
+  // async function create_meme() {
+  //   try {
+  //     isLoading = true;
+  //     error = "";
+  //     showSuccessMessage = false;
 
-      if (!selectedImage) {
-        throw new Error("Please select an image");
-      }
+  //     if (!selectedImage) {
+  //       throw new Error("Please select an image");
+  //     }
 
-      let media = await upload(selectedImage);
+  //     let media = await upload(selectedImage);
 
-      let jsonContent = {
-        media: media.hash,
-        ext: media.ext,
-        content: content,
-      };
+  //     let jsonContent = {
+  //       media: media.hash,
+  //       ext: media.ext,
+  //       content: content,
+  //     };
 
-      const validatedData = schema.parse({
-        quantity,
-        amount,
-        tags,
-        content: JSON.stringify(jsonContent),
-        parent,
-      });
+  //     const validatedData = schema.parse({
+  //       quantity,
+  //       amount,
+  //       tags,
+  //       content: JSON.stringify(jsonContent),
+  //       parent,
+  //     });
 
-      await meme(
-        validatedData.quantity,
-        validatedData.amount,
-        "0",
-        validatedData.tags || "[]",
-        validatedData.content,
-        validatedData.parent,
-      );
-      console.log("parent:" + validatedData.parent);
-      showSuccessMessage = true;
-      setTimeout(() => (showSuccessMessage = false), 3000);
+  //     await meme(
+  //       validatedData.quantity,
+  //       validatedData.amount,
+  //       "0",
+  //       validatedData.tags || "[]",
+  //       validatedData.content,
+  //       validatedData.parent,
+  //     );
+  //     console.log("parent:" + validatedData.parent);
+  //     showSuccessMessage = true;
+  //     setTimeout(() => (showSuccessMessage = false), 3000);
 
-      closeModal();
-    } catch (e) {
-      if (e instanceof z.ZodError) {
-        error = e.errors
-          .map((err) => `${err.path.join(".")}: ${err.message}`)
-          .join(", ");
-      } else if (e instanceof Error) {
-        error = e.message;
-      } else {
-        error = "An unexpected error occurred";
-      }
-    } finally {
-      isLoading = false;
-    }
-  }
+  //     closeModal();
+  //   } catch (e) {
+  //     if (e instanceof z.ZodError) {
+  //       error = e.errors
+  //         .map((err) => `${err.path.join(".")}: ${err.message}`)
+  //         .join(", ");
+  //     } else if (e instanceof Error) {
+  //       error = e.message;
+  //     } else {
+  //       error = "An unexpected error occurred";
+  //     }
+  //   } finally {
+  //     isLoading = false;
+  //   }
+  // }
 
   function closeModal() {
     dispatch("close");
@@ -168,7 +168,7 @@
           </Button>
         </div>
 
-        <form on:submit|preventDefault={create_meme} class="space-y-4">
+        <form class="space-y-4">
           <div>
             <label
               for="quantity"
@@ -228,7 +228,7 @@
           {#if imagePreviewUrl}
             <div class="relative">
               <!-- svelte-ignore a11y-img-redundant-alt -->
-              {#if getExt(selectedImage.name) === "mp4" || getExt(selectedImage.name) === "mov" || getExt(selectedImage.name) === "avi"}
+              <!-- {#if getExt(selectedImage.name) === "mp4" || getExt(selectedImage.name) === "mov" || getExt(selectedImage.name) === "avi"}
                 <Video
                   src={imagePreviewUrl}
                   controls
@@ -240,7 +240,7 @@
                   alt="Selected Image"
                   class="w-full h-48 object-cover rounded-md shadow-md"
                 />
-              {/if}
+              {/if} -->
 
               <Button
                 type="button"

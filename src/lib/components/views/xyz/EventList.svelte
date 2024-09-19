@@ -1,5 +1,5 @@
 <script lang="ts">
-import { eventsStore, type EventsStoresData } from '$lib/model/Event.ts';
+import { eventsStore, type EventsStoresData } from '$lib/models/Event';
 
 let events: EventsStoresData;
 
@@ -8,7 +8,7 @@ eventsStore.subscribe(value => {
   events = value;
 });
 
-function getActionFromTags(tags: string[][]): string {
+function getActionFromTags(tags: [string[]]): string {
   const actionTag = tags.find(tag => tag[0] === 'Action');
   return actionTag ? actionTag[1] : 'Unknown';
 }

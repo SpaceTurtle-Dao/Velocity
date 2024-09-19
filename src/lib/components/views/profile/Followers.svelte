@@ -2,6 +2,7 @@
 import { eventsStore, type EventsStoresData } from '$lib/models/Event';
 
 let events: EventsStoresData;
+export let followers = [];
 
 //@ts-ignore
 eventsStore.subscribe(value => {
@@ -16,7 +17,6 @@ function getActionFromTags(tags: string[][]): string {
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleString();
 }
-export let followers = [];
 
 </script>
 

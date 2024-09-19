@@ -6,7 +6,7 @@ export type EventsStoresData = Array<{
   pubkey: string;
   created_at: string;
   kind: number;
-  tags: string[][];
+  tags:[string[]];
   content: string;
 }>
 

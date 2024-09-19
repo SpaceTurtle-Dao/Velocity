@@ -25,7 +25,7 @@
   import type { Post } from "../../../../stores/feedpage.store";
   import { feedPosts } from "../../../../stores/feedpage.store";
   import type { Meme } from "$lib/models/Meme";
-  import { fetchMemes } from "$lib/ao/relay";
+  // import { fetchMemes } from "$lib/ao/relay";
   import Pump from "../xyz/Pump.svelte";
   import Dump from "../xyz/Dump.svelte";
 
@@ -40,9 +40,9 @@
     );
   }
 
-  onMount(async () => {
-    await fetchMemes("1", "100");
-  });
+  // onMount(async () => {
+  //   await fetchMemes("1", "100");
+  // });
 </script>
 
 <div class="max-w-4xl mx-auto p-4 bg-background">
