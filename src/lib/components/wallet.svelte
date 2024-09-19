@@ -27,10 +27,10 @@
         if (window.arweaveWallet) {
             try {
                 const address = await window.arweaveWallet.getActiveAddress();
-                //let _relay = await relay(address)
-                //let _currentUser = await info(_relay)
-                //currentUser.set(_currentUser)
-                //userRelay.set(_relay)
+                let _relay = await relay(address)
+                let _currentUser = await info(_relay)
+                currentUser.set(_currentUser)
+                userRelay.set(_relay)
                 setWalletAddress(address);
                 title = "Disconnect";
             } catch (error) {
