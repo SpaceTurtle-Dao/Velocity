@@ -5,7 +5,7 @@ export interface Event {
   pubkey: string;
   created_at: number;
   kind: number;
-  tags: [string[]];
+  tags: Array<Array<string>>;
   content: string;
 }
 export type EventsStoresData = Array<Event>

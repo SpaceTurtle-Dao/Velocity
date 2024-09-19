@@ -1,16 +1,39 @@
 import type { Meme } from "$lib/models/Meme";
-import type { UserInfo } from "$lib/models/Profile";
+import type { Profile, UserInfo } from "$lib/models/Profile";
+import type { Event } from "$lib/models/Event"
 import { writable } from "svelte/store";
 
 
-const anon = {
-  Image: "mc5xNGMpBSqoQ3pWCyYUstQKb6IOIH6BTsa4suvIe-o",
-  CreatedAt: 0,
-  Name: "anon",
-  Creator: "anon",
+let _profileJson:Profile = {
+  name: "Charazard",
+  about: "A fire pokemon",
+  picture: "-RmetHQufxWySiJact95a9ON6pb-0s56dElmyJusGwQ",
+  display_name: "Char",
+  website: "https://www.ao.link/",
+  banner: "-RmetHQufxWySiJact95a9ON6pb-0s56dElmyJusGwQ",
+  bot: false,
+}
+
+let _profile:Event = {
+  id: '1',
+  pubkey: 'vd97vAnBhKD7zGNDTjTgl5N0WKLcl92MO8Ob3T0w6IM',
+  created_at: 1726767860000,
+  kind: 0,
+  tags: [[]],
+  content: JSON.stringify(_profileJson)
+}
+
+let _userInfo:UserInfo = {
+  Token: "WPyLgOqELOyN_BoTNdeEMZp5sz3RxDL19IGcs3A9IPc",
+  Events: 1,
+  Profile: _profile,
+  SubscriptionCost: 1000000,
+  FeedCost: 1000000,
+  Subs: 0,
+  Subscriptions: 0
 }
 export const userRelay = writable<string>();
-export const currentUser = writable<UserInfo>();
+export const currentUser = writable<UserInfo>(_userInfo);
 export const profileMemes = writable<Meme[]>([]);
 
 
