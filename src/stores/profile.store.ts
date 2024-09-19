@@ -1,5 +1,5 @@
 import type { Meme } from "$lib/models/Meme";
-import type { Profile } from "$lib/models/Profile";
+import type { UserInfo } from "$lib/models/Profile";
 import { writable } from "svelte/store";
 
 
@@ -10,7 +10,7 @@ const anon = {
   Creator: "anon",
 }
 export const userRelay = writable<string>();
-export const currentUser = writable<Profile>(anon);
+export const currentUser = writable<UserInfo>();
 export const profileMemes = writable<Meme[]>([]);
 
 

@@ -7,6 +7,7 @@ import {
     Info,
     Subs,
     Subscriptions,
+    IsSubscribed,
     FetchFeed,
     FetchEvents,
     Request,
@@ -181,7 +182,7 @@ export const isSubscribed = async (process: string,relay:string) => {
         // @ts-ignore
         let message = IsSubscribed(relay);
         let result = await read(process, message);
-        if (result == undefined) throw("404");
+        if (result == undefined) throw(404);
         console.log(result);
         return result.Data
     } catch (e) {
@@ -194,7 +195,7 @@ export const info = async (process: string) => {
         // @ts-ignore
         let message = Info();
         let result = await read(process, message);
-        if (result == undefined) throw("404");
+        if (result == undefined) throw(404);
         console.log(result);
         let json = JSON.parse(result.Data);
         console.log(json);
@@ -210,7 +211,7 @@ export const relay = async (owner: string): Promise<string> => {
         // @ts-ignore
         let message = Relay(owner);
         let result = await read(INDEXER_ID(), message);
-        if (result == undefined) throw("404");
+        if (result == undefined) throw(404);
         console.log(result);
         return result.Data
     } catch (e) {

@@ -2,9 +2,9 @@
     import { onMount } from 'svelte';
     import { walletAddress, setWalletAddress, clearWalletAddress } from '../../stores/walletStore';
     import SmallSpinner from '$lib/components/smallSpinner.svelte';
-    import { relay } from '$lib/ao/relay';
-    import { userRelay } from '../../stores/profile.store';
-    
+    import { relay, info } from '$lib/ao/relay';
+    import { currentUser, userRelay } from '../../stores/profile.store';
+
     export let buttonClass = "";
 
     let title = 'Connect Wallet';
@@ -28,6 +28,8 @@
             try {
                 const address = await window.arweaveWallet.getActiveAddress();
                 let _relay = await relay(address)
+                let _currentUser = await info(_relay)
+                currentUser.set(_currentUser)
                 userRelay.set(_relay)
                 setWalletAddress(address);
                 title = "Disconnect";
