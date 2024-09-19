@@ -16,14 +16,34 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import { Label } from "$lib/components/ui/label";
   import { Camera } from "lucide-svelte";
-  import { profile } from '$lib/ao/mememaker';
-  import { upload } from '$lib/ao/uploader';
+  // import { profile } from "$lib/ao/relay";
+  import { upload } from "$lib/ao/uploader";
+  import { eventStore } from "../../../../stores/events.store";
 
   let username = "";
   let displayName = "";
   let bio = "";
   let avatarUrl = "";
   let avatarFile: File | null = null;
+
+  $: events = $eventStore.events;
+  $: loading = $eventStore.loading;
+  $: error = $eventStore.error;
+
+  function addNewEvent(event: Event) {
+    // eventStore.addEvent(event);
+  }
+
+  async function fetchEvents() {
+    eventStore.setLoading(true);
+    // let events = ao.getEvents();
+    // eventsStore.set(events);
+    try {
+    } catch (err) {
+    } finally {
+      eventStore.setLoading(false);
+    }
+  }
 
   function handleFileUpload(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -37,31 +57,31 @@
     }
   }
 
-  async function handleCreateProfile() {
-    if (!avatarFile) {
-      alert("Please upload a profile picture.");
-      return;
-    }
+  // async function handleCreateProfile() {
+  //   if (!avatarFile) {
+  //     alert("Please upload a profile picture.");
+  //     return;
+  //   }
 
-    try {
-      // Upload avatar to Arweave
-      const tx = await upload(await avatarFile.arrayBuffer());
+  //   try {
+  //     // Upload avatar to Arweave
+  //     const tx = await upload(await avatarFile.arrayBuffer());
 
-      // Create profile
-      await profile(username, tx, bio);
+  //     // Create profile
+  //     await profile(username, tx, bio);
 
-      alert("Profile created successfully!");
-    } catch (error) {
-      console.error("Error creating profile:", error);
-      alert("An error occurred while creating your profile. Please try again.");
-    }
-  }
+  //     alert("Profile created successfully!");
+  //   } catch (error) {
+  //     console.error("Error creating profile:", error);
+  //     alert("An error occurred while creating your profile. Please try again.");
+  //   }
+  // }
 </script>
 
 <div class="max-w-2xl mx-auto p-4">
   <Card class="overflow-hidden transition-all duration-300 hover:shadow-xl">
     <CardHeader
-      class="bg-gradient-to-r from-secondary-500 to-pink-500 text-white"
+      class="bg-gradient-to-r from-secondary-500 to-secondary-800 text-white"
     >
       <CardTitle class="text-2xl font-bold">Create Your Profile</CardTitle>
     </CardHeader>
@@ -122,18 +142,12 @@
         </div>
       </div>
 
-      <Button
-        class="w-full bg-gradient-to-r from-secondary-500 to-pink-500 hover:from-pink-500 hover:to-secondary-500 text-white transition-all duration-300"
-        on:click={handleCreateProfile}
-      >
-        Create Profile
-      </Button>
+      <!-- // <Button
+      //   class="w-full bg-gradient-to-r from-secondary-500 to-pink-500 hover:from-pink-500 hover:to-secondary-500 text-white transition-all duration-300"
+      //   on:click={handleCreateProfile}
+      // >
+      //   Create Profile
+      // </Button> -->
     </CardContent>
   </Card>
 </div>
-
-<style>
-  :global(body) {
-    background-color: #fce4ec;
-  }
-</style>

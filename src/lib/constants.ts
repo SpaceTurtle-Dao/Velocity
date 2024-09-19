@@ -1,13 +1,13 @@
-export function PROCESS_ID(): string {
+export function INDEXER_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "H79To8Xv9amLeAstLfwOORpMPIk2Td2EsmP_ePcGNbs";
+            return "79kMURJhUHBJYb3-sqMjkIRoxQ8qTgWVZMCdHm4wFNM";
         }
         case "staging": {
-            return "H79To8Xv9amLeAstLfwOORpMPIk2Td2EsmP_ePcGNbs";
+            return "79kMURJhUHBJYb3-sqMjkIRoxQ8qTgWVZMCdHm4wFNM";
         }
         case "production": {
-            return "H79To8Xv9amLeAstLfwOORpMPIk2Td2EsmP_ePcGNbs";
+            return "79kMURJhUHBJYb3-sqMjkIRoxQ8qTgWVZMCdHm4wFNM";
         }
     }
     return "";
@@ -29,7 +29,7 @@ export function WAR_TOKEN(): string {
     return "";
 }
 
-export const DEFAULT_QUANTITY = "1000000000000"
+export const DEFAULT_QUANTITY = "1000000000000000000"
 export const DECIMALS = 1000000000000;
 
 

@@ -11,14 +11,16 @@ const { result, results, message, spawn, monitor, unmonitor, dryrun } = connect(
 });
 
 // @ts-ignore
-export async function send (processId, tags) {
-	console.log("Sending tags")
+export async function send (processId, tags, data: string | null) {
+	console.log("tags")
 	console.log(tags)
+	console.log("data")
+	console.log(data)
 	console.log("Sending message to: " + processId)
 	// The only 2 mandatory parameters here are process and signer
 	// connect to the extension
 	// @ts-ignore
-	let messageId = await message({
+	let _message = {
 		/*
 		The arweave TXID of the process, this will become the "target".
 		This is the process the message is ultimately sent to.
@@ -27,10 +29,13 @@ export async function send (processId, tags) {
 
 		// Tags that the process will use as input.
 		tags: tags,
+		data: "",
 		// A signer function used to build the message "signature"
 		// @ts-ignore
 		signer: createDataItemSigner(window.arweaveWallet)
-	});
+	}
+	if (data) _message.data = data;
+	let messageId = await message(_message);
 	console.log(messageId);
 	return await readMessage(messageId, processId);
 	//return result

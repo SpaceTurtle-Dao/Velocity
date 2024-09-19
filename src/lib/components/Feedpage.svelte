@@ -25,9 +25,9 @@
   import type { Post } from "../../stores/feedpage.store";
   import { feedPosts } from "../../stores/feedpage.store";
   import type { Meme } from "$lib/models/Meme";
-  import { fetchMemes } from "$lib/ao/mememaker";
-    import Pump from "./Pump.svelte";
-    import Dump from "./Dump.svelte";
+  // import { fetchMemes } from "$lib/ao/relay";
+  import Pump from "./Pump.svelte";
+  import Dump from "./Dump.svelte";
 
   let memes: Meme[];
 
@@ -40,59 +40,64 @@
     );
   }
 
-  onMount(async () => {
-    await fetchMemes("1", "100");
-  });
+  // onMount(async () => {
+  //   await fetchMemes("1", "100");
+  // });
 </script>
 
-<div class="max-w-4xl mx-auto p-4">
+<div class="max-w-4xl mx-auto p-4 bg-background">
   <div class="space-y-6">
     {#each memes as meme (meme.Pool)}
-    <Link to="/Feed/{meme.Pool}">
-      <Card class="overflow-hidden transition-all duration-300 hover:shadow-lg">
-        <CardHeader>
-          <div class="flex items-center space-x-4">
-            {#if meme.Profile}
-              <Avatar>
-                <AvatarImage
-                  src={`https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/${meme.Profile.Image}?ext=png`}
-                  alt={meme.Creator}
-                />
-                <AvatarFallback>{meme.Creator}</AvatarFallback>
-              </Avatar>
-              <div>
-                <CardTitle class="text-lg font-semibold text-blue-700"
-                  >{meme.Creator}</CardTitle
-                >
-                <CardDescription
-                  >@{meme.Profile.Name} · {meme.createdAt}</CardDescription
-                >
-              </div>
+      <Link to="/Feed/{meme.Pool}">
+        <Card
+          class="overflow-hidden transition-all duration-300 hover:shadow-lg"
+        >
+          <CardHeader>
+            <div class="flex items-center space-x-4">
+              {#if meme.Profile}
+                <Avatar>
+                  <AvatarImage
+                    src={`https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/${meme.Profile.Image}?ext=png`}
+                    alt={meme.Creator}
+                  />
+                  <AvatarFallback>{meme.Creator}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <CardTitle class="text-lg font-semibold text-blue-700"
+                    >{meme.Creator}</CardTitle
+                  >
+                  <CardDescription
+                    >@{meme.Profile.Name} · {meme.createdAt}</CardDescription
+                  >
+                </div>
+              {:else}
+                <Avatar>
+                  <AvatarFallback>{meme.Creator}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <CardTitle class="text-lg font-semibold text-blue-700"
+                    >{meme.Creator}</CardTitle
+                  >
+                  <CardDescription
+                    >@{meme.Creator} · {meme.createdAt}</CardDescription
+                  >
+                </div>
+              {/if}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {#if meme.Post.Kind == "0"}
+              <p>{JSON.parse(meme.Post.Content).content}</p>
+              <!-- svelte-ignore a11y-img-redundant-alt -->
+              <img
+                alt="Image"
+                src={toUrl(JSON.parse(meme.Post.Content).media)}
+              />
             {:else}
-              <Avatar>
-                <AvatarFallback>{meme.Creator}</AvatarFallback>
-              </Avatar>
-              <div>
-                <CardTitle class="text-lg font-semibold text-blue-700"
-                  >{meme.Creator}</CardTitle
-                >
-                <CardDescription
-                  >@{meme.Creator} · {meme.createdAt}</CardDescription
-                >
-              </div>
+              <p>{meme.Post.Content}</p>
             {/if}
-          </div>
-        </CardHeader>
-        <CardContent>
-          {#if meme.Post.Kind == "0"}
-            <p>{JSON.parse(meme.Post.Content).content}</p>
-            <!-- svelte-ignore a11y-img-redundant-alt -->
-            <img alt="Image" src={toUrl(JSON.parse(meme.Post.Content).media)} />
-          {:else}
-            <p>{meme.Post.Content}</p>
-          {/if}
-          <div class="h-48 w-full">
-            <!--<ResponsiveContainer width="100%" height="100%">
+            <div class="h-48 w-full">
+              <!--<ResponsiveContainer width="100%" height="100%">
               <LineChart data={post.marketCapHistory.map((value, index) => ({ day: 7 - index, value }))}>
                 <XAxis dataKey="day" />
                 <YAxis />
@@ -100,32 +105,32 @@
                 <Line type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>-->
-          </div>
-        </CardContent>
-        <CardFooter
-          class="flex justify-between text-sm text-gray-500 bg-blue-50"
-        >
-          <div class="flex items-center">
-            <BarChart3 class="w-4 h-4 mr-1 text-blue-500" />
-            <span>${meme.Analytics.MarketCap}</span>
-          </div>
-          <div class="flex items-center">
-            <TrendingUp class="w-4 h-4 mr-1 text-green-500" />
-            <span>${meme.Analytics.Price}</span>
-          </div>
-          <div class="flex items-center">
-            <MessageCircle class="w-4 h-4 mr-1 text-blue-500" />
-            <!-- <span>{post.comments}</span>-->
-          </div>
-          <div class="flex items-center">
-            <Share2 class="w-4 h-4 mr-1 text-indigo-500" />
-            <!--<span>{post.shares}</span>-->
-          </div>
-          <Pump {meme}/>
-          <Dump {meme}/>
-        </CardFooter>
-      </Card>
-    </Link>
+            </div>
+          </CardContent>
+          <CardFooter
+            class="flex justify-between text-sm text-gray-500 bg-blue-50"
+          >
+            <div class="flex items-center">
+              <BarChart3 class="w-4 h-4 mr-1 text-blue-500" />
+              <span>${meme.Analytics.MarketCap}</span>
+            </div>
+            <div class="flex items-center">
+              <TrendingUp class="w-4 h-4 mr-1 text-green-500" />
+              <span>${meme.Analytics.Price}</span>
+            </div>
+            <div class="flex items-center">
+              <MessageCircle class="w-4 h-4 mr-1 text-blue-500" />
+              <!-- <span>{post.comments}</span>-->
+            </div>
+            <div class="flex items-center">
+              <Share2 class="w-4 h-4 mr-1 text-indigo-500" />
+              <!--<span>{post.shares}</span>-->
+            </div>
+            <Pump {meme} />
+            <Dump {meme} />
+          </CardFooter>
+        </Card>
+      </Link>
     {/each}
   </div>
 </div>
