@@ -198,11 +198,8 @@ export const relay = async (owner: string): Promise<string> => {
         let message = Relay(owner);
         let result = await read(INDEXER_ID(), message);
         if (result == undefined) throw("404");
-        for (var tag in result.Tags) {
-            let _tag = result.Tags[tag]
-            if (_tag.name == "Relay") _relay = _tag.value;
-        };
-        console.log(_relay);
+        console.log(result);
+        return result.Data
     } catch (e) {
         console.log(e);
     }
@@ -219,11 +216,7 @@ export const relays = async (page: string, size: string) => {
         console.log(result);
         let json = JSON.parse(result.Data);
         console.log(json);
-        for (const key in json) {
-            _relays.push(json[key]);
-            console.log(json[key]);
-        }
-        feedPosts.set(_relays)
+        return json
     } catch (e) {
         console.log(e);
     }
