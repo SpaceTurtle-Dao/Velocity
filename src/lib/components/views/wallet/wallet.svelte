@@ -4,7 +4,7 @@
         walletAddress,
         setWalletAddress,
         clearWalletAddress,
-    } from "../../stores/walletStore";
+    } from "../../../../stores/walletStore";
     import SmallSpinner from "$lib/components/views/xyz/smallSpinner.svelte";
 
     export let buttonClass = "";

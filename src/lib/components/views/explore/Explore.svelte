@@ -17,13 +17,10 @@
   import type { Meme } from "$lib/models/Meme";
   import { feedPosts } from "../../../../stores/feedpage.store";
   // import { fetchMemes } from "$lib/ao/relay";
-  import Pump from "../../Pump.svelte";
-  import Dump from "../../Dump.svelte";
-  import Spinner from "../../Spinner.svelte";
-  import { fetchMemes } from "$lib/ao/relay";
   import Pump from "../xyz/Pump.svelte";
   import Dump from "../xyz/Dump.svelte";
   import Spinner from "../xyz/Spinner.svelte";
+  import { fetchMemes } from "$lib/ao/";
 
   let memes: Meme[] = [];
   let loading = true;
