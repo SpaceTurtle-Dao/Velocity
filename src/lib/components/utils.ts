@@ -14,6 +14,24 @@ type FlyAndScaleParams = {
 	duration?: number;
 };
 
+export function getTagValue(tags: string[][], key: string): string | undefined {
+	return tags.find(tag => tag[0] === key)?.[1];
+}
+
+
+export function formatTime(timestamp: number): string {
+	const now = Date.now();
+	const diff = now - timestamp * 1000; // Convert seconds to milliseconds
+	const minutes = Math.floor(diff / 60000);
+	const hours = Math.floor(minutes / 60);
+	const days = Math.floor(hours / 24);
+	if (days > 0) return `${days}d`;
+	if (hours > 0) return `${hours}h`;
+	if (minutes > 0) return `${minutes}m`;
+	return "Just now";
+}
+
+
 export const flyAndScale = (
 	node: Element,
 	params: FlyAndScaleParams = { y: -8, x: 0, start: 0.95, duration: 150 }
