@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  import Tweet from "$lib/components/TweetVideoNip.svelte";
+  import Post from "$lib/components/PostVideo.svelte";
 // =======
-//   import Tweet from "$lib/components/Tweet.svelte";
+//   import Post from "$lib/components/Post.svelte";
 //   import { fetchMemes } from "$lib/ao/relay";
 //   import type { Meme } from "$lib/models/Meme";
 // >>>>>>> development
@@ -40,7 +40,7 @@
   {:else}
     <div class="space-y-6">
       {#each events as event (event.id)}
-        <Tweet {event} />
+        <Post {event} />
       {/each}
     </div>
   {/if}

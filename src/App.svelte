@@ -2,7 +2,6 @@
   import { Router, Route } from "svelte-routing";
   import "./app.css";
   import Navbar from "$lib/components/Navbar.svelte";
-  import ProfileView from "$lib/components/views/profile/ProfileView.svelte";
   import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
   import CreatePostModal from "$lib/components/CreateMeme.svelte";
   import Feed from "$lib/components/Feed.svelte";
@@ -19,7 +18,7 @@
     Edit
   } from "lucide-svelte";
   import RepliesPage from "$lib/components/RepliesPage.svelte";
-  import ProfileNip from "$lib/components/views/profile/ProfileNip.svelte";
+  import Profile from "$lib/components/views/profile/Profile.svelte";
   import { currentUser } from "./stores/profile.store";
   import {
     Avatar,
@@ -32,16 +31,13 @@
   export let url = "";
 
   let isCreatePostModalOpen = false;
-  let profile: any;
+ 
   function toUrl(tx: string) {
     return (
       "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
       tx
     );
   }
-  currentUser.subscribe((value) => {
-    profile = value;
-  });
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
     //{ icon: Search, label: "Explore", href: "/explore" },
@@ -61,9 +57,9 @@
 </script>
 
 <Router {url}>
-  <div class="flex h-screen overflow-hidden">
+  <div class="flex h-screen overflow-hidden bg-background">
     <aside
-      class="w-64 bg-background-500 shadow-lg flex flex-col justify-between p-4"
+      class=" shadow-lg flex flex-col justify-between p-4"
     >
       <div class="space-y-4 pt-16">
         <nav>
@@ -76,9 +72,9 @@
                 >
                   <svelte:component
                     this={item.icon}
-                    class="w-6 h-6 mr-4 text-primary-50"
+                    class="w-6 h-6 mr-4 text-primary"
                   />
-                  <span class="text-lg font-medium text-white"
+                  <span class="text-lg font-medium text-primary"
                     >{item.label}</span
                   >
                 </a>
@@ -89,15 +85,15 @@
                 on:click={toggleCreatePostModal}
                 class="flex items-center p-2 px-5 rounded-full hover:bg-background-700 transition-colors duration-200"
               >
-                <MoreHorizontal class="w-6 h-6 mr-4 text-white" />
-                <span class="text-lg font-medium text-white">More</span>
+                <MoreHorizontal class="w-6 h-6 mr-4 text-primary" />
+                <span class="text-lg font-medium text-primary">More</span>
               </button>
             </li>
           </ul>
         </nav>
         <button
           on:click={toggleCreatePostModal}
-          class="w-full bg-background-700 text-white rounded-full py-3 font-bold text-lg hover:bg-primary-50 transition-colors duration-200 flex items-center justify-center"
+          class="w-full bg-foreground text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
         >
           <Plus class="w-5 h-5 mr-2" />
           Post
@@ -108,11 +104,11 @@
       </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto bg-background-500">
+    <main class="flex-1 overflow-y-auto">
       <Navbar />
       <div class="container mx-auto px-4 pt-16">
         <Route path="/feed" component={Feed} />
-        <Route path="/profile" component={ProfileNip} />
+        <Route path="/profile" component={Profile} />
         <Route path="/" component={Feed} />
         <!--<Route path="/explore" component={Explore} />-->
         <Route path="/UserProfile" component={UserProfile} />

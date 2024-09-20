@@ -8,10 +8,10 @@
     export let userRelay: string;
     export let token: string;
     export let quantity: string;
-    let _isSubscribed: boolean;
+    let _isSubscribed: boolean = false;
 
     onMount(async () => {
-        _isSubscribed = await isSubscribed(userRelay, relay);
+        //_isSubscribed = await isSubscribed(userRelay, relay);
     });
 
     async function _subscribe() {
@@ -30,11 +30,11 @@
 </script>
 
 {#if _isSubscribed}
-    <Button size="sm" class="bg-pink-500 text-white" on:click={_unsubscribe}>
+    <Button size="sm" class="bg-foreground text-secondary" on:click={_unsubscribe}>
         Unsubscribe
     </Button>
 {:else if _isSubscribed == false}
-    <Button size="sm" class="bg-pink-500 text-white" on:click={_subscribe}>
+    <Button size="sm" class="bg-foreground text-secondary" on:click={_subscribe}>
         Subscribe
     </Button>
 {/if}

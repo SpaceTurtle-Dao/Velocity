@@ -2,7 +2,7 @@
   //@ts-nocheck
   import { onMount } from "svelte";
   // import { fetchMemesByIds, fetchReplies, getMeme } from "$lib/ao/relay";
-  import Tweet from "$lib/components/Tweet.svelte";
+  import Tweet from "$lib/components/Post.svelte";
   import { Link } from "svelte-routing";
   import { Button } from "$lib/components/ui/button";
   import CreatePost from "$lib/components/CreateMeme.svelte";
