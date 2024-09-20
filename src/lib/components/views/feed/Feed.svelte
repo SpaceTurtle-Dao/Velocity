@@ -1,15 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  import Tweet from "$lib/components/TweetVideoNip.svelte";
-// =======
-//   import Tweet from "$lib/components/Tweet.svelte";
-//   import { fetchMemes } from "$lib/ao/relay";
-//   import type { Meme } from "$lib/models/Meme";
-// >>>>>>> development
+  import Tweet from "$lib/components/views/feed/Tweet.svelte";
   import Spinner from "$lib/components/views/xyz/Spinner.svelte";
-  import type { Event } from "../../../../stores/events.store"; // Define your Event model here or import it
-
+  import type { Event } from "../../../models/Event"; // Define your Event model here or import it
   let events: Event[] = [];
   let loading = true;
 
@@ -24,14 +18,20 @@
         content: "Check out this cool video about Svelte!",
         tags: [
           ["title", "Svelte Introduction"],
-          ["thumb", "https://arweave.net/Ov0Xea2kWa5GS1DCEmeF0aoct8rbJwDmizmTo9bQrtY"],
+          [
+            "thumb",
+            "https://arweave.net/Ov0Xea2kWa5GS1DCEmeF0aoct8rbJwDmizmTo9bQrtY",
+          ],
           ["published_at", "1684312352"],
-          ["url", "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"],
+          [
+            "url",
+            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          ],
           ["m", "video/mp4"],
           ["size", "1048576"],
           ["duration", "180"],
-          ["dim", "1280x720"]
-        ]
+          ["dim", "1280x720"],
+        ],
       },
       {
         id: "9f8e762bc2d4b859443e1a05bbd29cf4",
@@ -41,15 +41,21 @@
         content: "A deep dive into web development trends.",
         tags: [
           ["title", "Web Development Trends 2024"],
-          ["thumb", "https://arweave.net/Ive8YUyCU0FQEBSc8UjfTlQYFZY5s8t45gqsNf3uJMw"],
+          [
+            "thumb",
+            "https://arweave.net/Ive8YUyCU0FQEBSc8UjfTlQYFZY5s8t45gqsNf3uJMw",
+          ],
           ["published_at", "1685312452"],
-          ["url", "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"],
+          [
+            "url",
+            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          ],
           ["m", "video/mp4"],
           ["size", "2097152"],
           ["duration", "240"],
-          ["dim", "1920x1080"]
-        ]
-      }
+          ["dim", "1920x1080"],
+        ],
+      },
     ];
   }
 

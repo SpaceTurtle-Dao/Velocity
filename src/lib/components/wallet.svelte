@@ -5,7 +5,7 @@
         setWalletAddress,
         clearWalletAddress,
     } from "../../stores/walletStore";
-    import SmallSpinner from "$lib/components/smallSpinner.svelte";
+    import SmallSpinner from "$lib/components/views/xyz/smallSpinner.svelte";
     import { relay, info } from "$lib/ao/relay";
     import { currentUser, userRelay } from "../../stores/profile.store";
 
