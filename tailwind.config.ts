@@ -115,38 +115,38 @@ const config: Config = {
 		},
 		extend: {
 			colors: {
-				border: "hsl(var(--border) / <alpha-value>)",
-				input: "hsl(var(--input) / <alpha-value>)",
+				border: "hsl(var(--border) / 100%)",
+				input: "hsl(var(--input) / 100%)",
 				ring: "hsl(var(--ring))",
-				background: "hsl(var(--background) / <alpha-value>)",
-				foreground: "hsl(var(--foreground) / <alpha-value>)",
+				background: "hsl(var(--background) / 100%)",
+				foreground: "hsl(var(--foreground) / 100%)",
 				primary: {
-					DEFAULT: "hsl(var(--primary) / <alpha-value>)",
-					foreground: "hsl(var(--primary-foreground) / <alpha-value>)",
+					DEFAULT: "hsl(var(--primary) / 100%)",
+					foreground: "hsl(var(--primary-foreground) / 100%)",
 				},
 				secondary: {
-					DEFAULT: "hsl(var(--secondary) / <alpha-value>)",
-					foreground: "hsl(var(--secondary-foreground) / <alpha-value>)",
+					DEFAULT: "hsl(var(--secondary) / 100%)",
+					foreground: "hsl(var(--secondary-foreground) / 100%)",
 				},
 				destructive: {
-					DEFAULT: "hsl(var(--destructive) / <alpha-value>)",
-					foreground: "hsl(var(--destructive-foreground) / <alpha-value>)",
+					DEFAULT: "hsl(var(--destructive) / 100%)",
+					foreground: "hsl(var(--destructive-foreground) / 100%)",
 				},
 				muted: {
-					DEFAULT: "hsl(var(--muted) / <alpha-value>)",
-					foreground: "hsl(var(--muted-foreground) / <alpha-value>)",
+					DEFAULT: "hsl(var(--muted) / 100%)",
+					foreground: "hsl(var(--muted-foreground) / 100%)",
 				},
 				accent: {
-					DEFAULT: "hsl(var(--accent) / <alpha-value>)",
-					foreground: "hsl(var(--accent-foreground) / <alpha-value>)",
+					DEFAULT: "hsl(var(--accent) / 100%)",
+					foreground: "hsl(var(--accent-foreground) / 100%)",
 				},
 				popover: {
-					DEFAULT: "hsl(var(--popover) / <alpha-value>)",
-					foreground: "hsl(var(--popover-foreground) / <alpha-value>)",
+					DEFAULT: "hsl(var(--popover) / 100%)",
+					foreground: "hsl(var(--popover-foreground) / 100%)",
 				},
 				card: {
-					DEFAULT: "hsl(var(--card) / <alpha-value>)",
-					foreground: "hsl(var(--card-foreground) / <alpha-value>)",
+					DEFAULT: "hsl(var(--card) / 100%)",
+					foreground: "hsl(var(--card-foreground) / 100%)",
 				},
 			},
 			borderRadius: {
