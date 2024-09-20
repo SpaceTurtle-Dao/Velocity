@@ -1,10 +1,11 @@
 <script lang="ts">
     import { info, relay, relays, spawnRelay } from "$lib/ao/relay";
-    import type { string } from "zod";
     import { userRelay } from "../../stores/profile.store";
     import { walletAddress } from '../../stores/walletStore';
     import { Zap, Cpu, Copy } from 'lucide-svelte';
     import { INDEXER_ID } from "$lib/constants";
+    import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
+    import { Button } from "$lib/components/ui/button";
 
     let relayResult: string;
     let spawnRelayResult: any = null;
@@ -57,57 +58,56 @@
     };
 </script>
 
-<div class="flex flex-col space-y-6 p-6 bg-background-700 rounded-lg shadow-lg mt-4">
-    <h2 class="text-2xl font-bold text-primary-50 mb-4">Relay Operations</h2>
-    
-    {#if relayResult}
-        <div class="bg-background-800 rounded-lg p-4 flex items-center justify-between">
-            <div>
-                <span class="text-primary-200 text-sm">Your relay ID is</span>
-                <p class="text-primary-50 font-mono text-lg break-all">{relayResult}</p>
+<Card class="mt-4">
+    <CardHeader>
+        <CardTitle>Relay Operations</CardTitle>
+    </CardHeader>
+    <CardContent class="space-y-6">
+        {#if relayResult}
+            <div class="bg-background rounded-lg p-4 flex items-center justify-between">
+                <div>
+                    <span class="text-muted-foreground text-sm">Your relay ID is</span>
+                    <p class="text-foreground font-mono text-lg break-all">{relayResult}</p>
+                </div>
+                <Button variant="ghost" size="icon" on:click={copyAddress} title="Copy address">
+                    <Copy class="w-5 h-5" />
+                </Button>
             </div>
-            <button
-                on:click={copyAddress}
-                class="ml-2 p-2 rounded-full bg-background-600 hover:bg-background-500 transition-colors duration-300"
-                title="Copy address"
-            >
-                <Copy class="w-5 h-5 text-primary-50" />
-            </button>
-        </div>
-        {#if copySuccess}
-            <div class="text-green-400 text-sm">Address copied to clipboard!</div>
+            {#if copySuccess}
+                <div class="text-green-500 text-sm">Address copied to clipboard!</div>
+            {/if}
+        {:else}
+            <div class="bg-background rounded-lg p-4 text-muted-foreground">
+                Please connect your wallet to view your relay ID.
+            </div>
         {/if}
-    {:else}
-        <div class="bg-background-800 rounded-lg p-4 text-primary-200">
-            Please connect your wallet to view your relay ID.
-        </div>
-    {/if}
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <button
-            on:click={handleRelay}
-            class="flex items-center justify-center px-6 py-3 text-lg font-semibold rounded-full bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-300 shadow-md"
-            disabled={!$walletAddress || isRelayLoading}
-        >
-            <Zap class="w-6 h-6 mr-2" />
-            {#if isRelayLoading}
-                <span class="animate-pulse">Relaying...</span>
-            {:else}
-                Relay
-            {/if}
-        </button>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Button
+                on:click={handleRelay}
+                class="bg-blue-500 hover:bg-blue-600"
+                disabled={!$walletAddress || isRelayLoading}
+            >
+                <Zap class="w-6 h-6 mr-2" />
+                {#if isRelayLoading}
+                    <span class="animate-pulse">Relaying...</span>
+                {:else}
+                    Relay
+                {/if}
+            </Button>
 
-        <button
-            on:click={handleSpawnRelay}
-            class="flex items-center justify-center px-6 py-3 text-lg font-semibold rounded-full bg-green-500 text-white hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-300 shadow-md"
-            disabled={isSpawnRelayLoading}
-        >
-            <Cpu class="w-6 h-6 mr-2" />
-            {#if isSpawnRelayLoading}
-                <span class="animate-pulse">Spawning Relay...</span>
-            {:else}
-                Spawn Relay
-            {/if}
-        </button>
-    </div>
-</div>
+            <Button
+                on:click={handleSpawnRelay}
+                class="bg-green-500 hover:bg-green-600"
+                disabled={isSpawnRelayLoading}
+            >
+                <Cpu class="w-6 h-6 mr-2" />
+                {#if isSpawnRelayLoading}
+                    <span class="animate-pulse">Spawning Relay...</span>
+                {:else}
+                    Spawn Relay
+                {/if}
+            </Button>
+        </div>
+    </CardContent>
+</Card>
