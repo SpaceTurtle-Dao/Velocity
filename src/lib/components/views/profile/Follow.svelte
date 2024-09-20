@@ -30,11 +30,11 @@
 </script>
 
 {#if _isSubscribed}
-    <Button size="sm" class="bg-foreground text-secondary" on:click={_unsubscribe}>
+    <Button variant="outline" size="sm" class="text-primary rounded" on:click={_unsubscribe}>
         Unsubscribe
     </Button>
 {:else if _isSubscribed == false}
-    <Button size="sm" class="bg-foreground text-secondary" on:click={_subscribe}>
+    <Button variant="outline" size="sm" class="text-primary rounded" on:click={_subscribe}>
         Subscribe
     </Button>
 {/if}
