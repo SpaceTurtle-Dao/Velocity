@@ -3,7 +3,7 @@
   import { z } from 'zod';
   import type { Event } from '$lib/models/Event';
   import type { Profile, UserInfo } from '$lib/models/Profile';
-  import { currentUser, userRelay } from '../../../../stores/profile.store';
+  import { currentUser, userRelay } from '../../../stores/profile.store';
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";

@@ -1,5 +1,137 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
+  import { Button } from "$lib/components/ui/button";
+  import { Image, XCircle } from "lucide-svelte";
+
+  export let isOpen = false;
+  let content = "";
+  let fileInput: HTMLInputElement | null = null;
+  let selectedMedia: File | null = null;
+  let mediaPreviewUrl: string | null = null;
+  let isLoading = false;
+
+  const dispatch = createEventDispatcher();
+
+  function closeModal() {
+    dispatch("close");
+  }
+
+  function handleMediaButtonClick() {
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  function handleFileChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+      selectedMedia = target.files[0];
+      mediaPreviewUrl = URL.createObjectURL(selectedMedia);
+    }
+  }
+
+  function removeSelectedMedia() {
+    selectedMedia = null;
+    mediaPreviewUrl = null;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  }
+
+  function handleSubmit() {
+    // Implement post creation logic here
+    isLoading = true;
+    // Simulating API call
+    setTimeout(() => {
+      isLoading = false;
+      closeModal();
+    }, 1000);
+  }
+
+  onMount(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  });
+</script>
+
+{#if isOpen}
+  <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold text-gray-900">Create Post</h2>
+        <Button variant="ghost" on:click={closeModal} class="text-gray-600 hover:text-gray-900">
+          <XCircle size={24} />
+        </Button>
+      </div>
+
+      <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+        <textarea
+          bind:value={content}
+          placeholder="What's happening?!"
+          class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          rows="4"
+        ></textarea>
+
+        {#if mediaPreviewUrl}
+          <div class="relative">
+            {#if selectedMedia && selectedMedia.type.startsWith('video')}
+              <!-- svelte-ignore a11y-media-has-caption -->
+              <video src={mediaPreviewUrl} controls class="w-full h-48 object-cover rounded-md"></video>
+            {:else}
+              <img src={mediaPreviewUrl} alt="Selected media" class="w-full h-48 object-cover rounded-md" />
+            {/if}
+            <Button
+              type="button"
+              variant="ghost"
+              on:click={removeSelectedMedia}
+              class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+            >
+              <XCircle size={20} />
+            </Button>
+          </div>
+        {:else}
+          <div class="flex items-center space-x-2">
+            <Button
+              type="button"
+              variant="ghost"
+              on:click={handleMediaButtonClick}
+              class="text-blue-600 hover:bg-blue-50 p-2 rounded-full"
+            >
+              <Image size={24} />
+            </Button>
+            <span class="text-sm text-gray-600">Add photo or video</span>
+          </div>
+        {/if}
+
+        <input
+          type="file"
+          accept="image/*, video/*"
+          bind:this={fileInput}
+          class="hidden"
+          on:change={handleFileChange}
+        />
+
+        <Button
+          type="submit"
+          class="w-full py-2 px-4 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition duration-200"
+          disabled={isLoading || (!content && !selectedMedia)}
+        >
+          {isLoading ? "Posting..." : "Post"}
+        </Button>
+      </form>
+    </div>
+  </div>
+{/if}
+
+
+
+
+<!-- <script lang="ts">
+  import { createEventDispatcher, onMount } from "svelte";
   import { z } from "zod";
   // import { meme } from "$lib/ao/relay";
   import { Button } from "$lib/components/ui/button";
@@ -242,7 +374,7 @@
                 />
               {/if} -->
 
-              <Button
+              <!-- <Button
                 type="button"
                 variant="ghost"
                 on:click={removeSelectedImage}
@@ -298,4 +430,4 @@
     <CheckCircle class="w-6 h-6" />
     <span>Meme created successfully!</span>
   </div>
-{/if}
+{/if} --> -->

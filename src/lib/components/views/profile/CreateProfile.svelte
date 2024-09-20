@@ -2,26 +2,14 @@
   import { createEventDispatcher } from 'svelte';
   import { z } from 'zod';
   import type { Event } from '$lib/models/Event';
-  import type { UserInfo } from '$lib/models/Profile';
-  import { currentUser } from '../../../../stores/profile.store';
-  import { Button } from "$lib/components/ui/button";
-  import { Input } from "$lib/components/ui/input";
-  import { Label } from "$lib/components/ui/label";
-  import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
+  import type { Profile, UserInfo } from '$lib/models/Profile';
+  import { currentUser, userRelay } from '../../../stores/profile.store';
+  import { Button, Card } from 'flowbite-svelte';
+  import { CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+  import { Label } from 'bits-ui';
+  import Input from '$lib/components/ui/input/input.svelte';
 
-  // Zod schema for initial profile validation
-  const initialProfileSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    display_name: z.string().min(1, "Display Name is required"),
-  });
-
-  type InitialProfileSchemaType = z.infer<typeof initialProfileSchema>;
-
-  let profile: InitialProfileSchemaType = {
-    name: '',
-    display_name: '',
-  };
-
+  let profile: Profile;
   let userInfo: UserInfo;
   let errors: Partial<Record<keyof InitialProfileSchemaType, string>> = {};
 

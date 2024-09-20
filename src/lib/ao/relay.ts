@@ -17,10 +17,10 @@ import {
 import { INDEXER_ID, WAR_TOKEN } from "$lib/constants";
 import { upload } from "$lib/ao/uploader";
 
-import { currentUser } from "../../stores/profile.store";
-import { feedPosts, replies } from "../../stores/feedpage.store";
+import { currentUser } from "../stores/profile.store";
+import { feedPosts, replies } from "../stores/feedpage.store";
 import type { Swap } from "$lib/models/Swap";
-import { swapsStore } from "../../stores/pool.store";
+import { swapsStore } from "../stores/pool.store";
 import { ta } from "date-fns/locale";
 
 

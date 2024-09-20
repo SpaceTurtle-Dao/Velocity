@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import Post from "$lib/components/PostVideo.svelte";
+
+  import Post from "$lib/components/PostMedia.svelte";
 // =======
 //   import Post from "$lib/components/Post.svelte";
 //   import { fetchMemes } from "$lib/ao/relay";
@@ -76,36 +77,7 @@
   {:else}
     <div class="space-y-6">
       {#each events as event (event.id)}
-        <Card class="w-full">
-          <CardHeader class="flex flex-row items-center space-x-4 pb-2">
-            <Avatar>
-              <AvatarImage src={getTagValue(event, 'avatar')} alt={getTagValue(event, 'author')} />
-              <AvatarFallback>{getTagValue(event, 'author')[0]}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 class="text-lg font-semibold">{getTagValue(event, 'author')}</h3>
-              <p class="text-sm text-muted-foreground">{getTagValue(event, 'handle')}</p>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p class="mb-4">{event.content}</p>
-            <img src={getTagValue(event, 'image')} alt="Meme" class="w-full rounded-md" />
-          </CardContent>
-          <CardFooter class="flex justify-between">
-            <Button variant="ghost" size="sm">
-              <Heart class="w-5 h-5 mr-2" />
-              0
-            </Button>
-            <Button variant="ghost" size="sm">
-              <MessageCircle class="w-5 h-5 mr-2" />
-              0
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Repeat class="w-5 h-5 mr-2" />
-              0
-            </Button>
-          </CardFooter>
-        </Card>
+        <!--<Post {event} />-->
       {/each}
     </div>
   {/if}

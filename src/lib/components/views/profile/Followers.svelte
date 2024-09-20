@@ -2,7 +2,7 @@
   import * as Avatar from "$lib/components/ui/avatar/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
-  import { subscribers } from "../../../../stores/profile.store";
+  import { subscribers } from "../../../stores/profile.store";
   import { profileFromEvent, type UserInfo } from "$lib/models/Profile";
   import Follow from "./Follow.svelte";
 
@@ -33,7 +33,6 @@
       tx
     );
   }
-
 </script>
 
 <!--<div class="events-list">
@@ -61,27 +60,34 @@
   </ul>
 </div>-->
 
-<Card.Root
-  data-x-chunk-name="dashboard-01-chunk-5"
-  data-x-chunk-description="A card showing a list of recent sales with customer names and email addresses."
-  class="border-border"
->
-  <Card.Header>
-    <Card.Title>Subscribers</Card.Title>
-  </Card.Header>
-  <Card.Content class="grid gap-8">
-      {#each _subscribers as subscriber}
-      <div class="flex items-center gap-4">
+<div class="border border-border pl-5 pt-5 pr-5">
+  {#each _subscribers as subscriber}
+    <div class="flex justify-between ">
+      <div class="flex space-x-2">
         <Avatar.Root class="hidden h-9 w-9 sm:flex">
-          <Avatar.Image src={toUrl(profileFromEvent(subscriber.Profile).picture)} alt="Avatar" />
+          <Avatar.Image
+            src={toUrl(profileFromEvent(subscriber.Profile).picture)}
+            alt="Avatar"
+          />
           <Avatar.Fallback>OM</Avatar.Fallback>
         </Avatar.Root>
-        <div class="grid gap-1">
-          <p class="text-sm font-medium leading-none">{profileFromEvent(subscriber.Profile).name}</p>
-          <p class="text-muted-foreground text-sm">{subscriber.Profile.pubkey}</p>
+        <div>
+          <p class="text-sm font-medium leading-none text-primary">
+            {profileFromEvent(subscriber.Profile).name}
+          </p>
+          <p class="text-muted-foreground text-sm text-secondary">
+            {profileFromEvent(subscriber.Profile).name}
+          </p>
         </div>
-        <Follow {relay} {userRelay} {token} {quantity} />
       </div>
-      {/each}
-  </Card.Content>
-</Card.Root>
+      <Follow {relay} {userRelay} {token} {quantity} />
+    </div>
+    <article class="pl-11 pb-6 pt-1 text-primary text-wrap ...">
+      <p>
+        New Yorkers are facing the winter chill with less warmth this year
+        as the city's most revered soup stand unexpectedly shutters,
+        following a series of events that have left the community puzzled.
+      </p>
+    </article>
+  {/each}
+</div>

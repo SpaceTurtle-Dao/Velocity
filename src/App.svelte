@@ -14,25 +14,24 @@
     User,
     MoreHorizontal,
     Plus,
-    Zap,
+    Zap, // New icon for Relay
     Edit,
-    Upload
   } from "lucide-svelte";
   import RepliesPage from "$lib/components/RepliesPage.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
-  import { currentUser } from "./stores/profile.store";
+  import { currentUser } from "./lib/stores/profile.store";
   import {
     Avatar,
     AvatarFallback,
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
-  import RelayButtons from '$lib/components/Relay.svelte';
+  import RelayButtons from "$lib/components/Relay.svelte";
 
   export let url = "";
 
   let isCreatePostModalOpen = false;
- 
+
   function toUrl(tx: string) {
     return (
       "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
@@ -44,7 +43,6 @@
     { icon: User, label: "Profile", href: "/profile" },
     { icon: Zap, label: "Relay", href: "/relay" },
     { icon: Edit, label: "Create Profile", href: "/create-profile" },
-    { icon: Upload, label: "Update User Profile", href: "/update"}
   ];
 
   function toggleCreatePostModal() {
@@ -57,12 +55,11 @@
   }
 </script>
 
-<div class="bg-background min-h-screen">
+<div class="bg-background h-screen">
   <Router {url}>
-    <div class="container mx-auto flex">
-      <!-- Sidebar -->
-      <div class="w-64 flex-shrink-0 p-4">
-        <div class="space-y-4 pt-16 fixed">
+    <div class="flex justify-center w-full bg-background">
+      <div class="flex flex-col justify-between p-4">
+        <div class="space-y-4 pt-16">
           <nav>
             <ul class="space-y-2">
               {#each menuItems as item}
@@ -103,8 +100,7 @@
         </div>
       </div>
 
-      <!-- Main Content -->
-      <div class="flex-grow p-4">
+      <div class="w-1/3">
         <Route path="/feed" component={Feed} />
         <Route path="/profile" component={Profile} />
         <Route path="/" component={Feed} />
