@@ -9,6 +9,7 @@
         type UserInfo,
     } from "$lib/models/Profile";
     import type { Event } from "$lib/models/Event";
+    import Nip92 from "$lib/handlers/NIP92.svelte";
 
     let _profileJson: Profile = {
         name: "Charazard",
@@ -80,11 +81,9 @@
         </div>
     </div>
     {#if event.kind == 1}
-        <article class="pl-11 pb-6 pt-1 text-primary text-wrap ...">
-            <p>
-                {event.content}
-            </p>
-        </article>
+        <div>
+            <Nip92 {event}/>
+        </div>
     {/if}
     <div class="flex justify-between">
         <Button variant="link" size="icon" class="text-primary">
