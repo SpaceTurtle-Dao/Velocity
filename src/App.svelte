@@ -56,57 +56,56 @@
   }
 </script>
 
-<Router {url}>
-  <div class="flex h-screen overflow-hidden bg-background">
-    <aside
-      class=" shadow-lg flex flex-col justify-between p-4"
-    >
-      <div class="space-y-4 pt-16">
-        <nav>
-          <ul class="space-y-2">
-            {#each menuItems as item}
-              <li>
-                <a
-                  href={item.href}
-                  class="flex items-center p-2 px-2 rounded-full hover:bg-background-700 transition-colors duration-200"
-                >
-                  <svelte:component
-                    this={item.icon}
-                    class="w-6 h-6 mr-4 text-primary"
-                  />
-                  <span class="text-lg font-medium text-primary"
-                    >{item.label}</span
+<div class="bg-background">
+  <Router {url} >
+    <div class="flex justify-center w-full h-screen">
+      <div
+        class="flex flex-col justify-between p-4"
+      >
+        <div class="space-y-4 pt-16">
+          <nav>
+            <ul class="space-y-2">
+              {#each menuItems as item}
+                <li>
+                  <a
+                    href={item.href}
+                    class="flex items-center p-2 px-2 rounded-full hover:bg-background-700 transition-colors duration-200"
                   >
-                </a>
+                    <svelte:component
+                      this={item.icon}
+                      class="w-6 h-6 mr-4 text-primary"
+                    />
+                    <span class="text-lg font-medium text-primary"
+                      >{item.label}</span
+                    >
+                  </a>
+                </li>
+              {/each}
+              <li>
+                <button
+                  on:click={toggleCreatePostModal}
+                  class="flex items-center p-2 px-5 rounded-full hover:bg-background-700 transition-colors duration-200"
+                >
+                  <MoreHorizontal class="w-6 h-6 mr-4 text-primary" />
+                  <span class="text-lg font-medium text-primary">More</span>
+                </button>
               </li>
-            {/each}
-            <li>
-              <button
-                on:click={toggleCreatePostModal}
-                class="flex items-center p-2 px-5 rounded-full hover:bg-background-700 transition-colors duration-200"
-              >
-                <MoreHorizontal class="w-6 h-6 mr-4 text-primary" />
-                <span class="text-lg font-medium text-primary">More</span>
-              </button>
-            </li>
-          </ul>
-        </nav>
-        <button
-          on:click={toggleCreatePostModal}
-          class="w-full bg-foreground text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
-        >
-          <Plus class="w-5 h-5 mr-2" />
-          Post
-        </button>
+            </ul>
+          </nav>
+          <button
+            on:click={toggleCreatePostModal}
+            class="w-full bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
+          >
+            <Plus class="w-5 h-5 mr-2" />
+            Post
+          </button>
+        </div>
+        <div class="p-4">
+          <LowerProfile />
+        </div>
       </div>
-      <div class="p-4">
-        <LowerProfile />
-      </div>
-    </aside>
-
-    <main class="flex-1 overflow-y-auto">
-      <Navbar />
-      <div class="container mx-auto px-4 pt-16">
+  
+      <div class="w-1/3">
         <Route path="/feed" component={Feed} />
         <Route path="/profile" component={Profile} />
         <Route path="/" component={Feed} />
@@ -119,9 +118,9 @@
         <Route path="/relay" component={RelayButtons} />
         <Route path="/create-profile" component={ProfileCreation} />
       </div>
-    </main>
-  </div>
-</Router>
+    </div>
+  </Router>
+</div>
 
 <CreatePostModal
   isOpen={isCreatePostModalOpen}
