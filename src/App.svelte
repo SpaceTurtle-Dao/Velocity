@@ -16,6 +16,7 @@
     Plus,
     Zap, // New icon for Relay
     Edit,
+    LayoutDashboard,
   } from "lucide-svelte";
   import RepliesPage from "$lib/components/RepliesPage.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
@@ -27,6 +28,7 @@
   } from "$lib/components/ui/avatar";
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
   import RelayButtons from "$lib/components/Relay.svelte";
+  import Dashboard from "$lib/components/views/dashboard/dashboard.svelte";
 
   export let url = "";
 
@@ -88,6 +90,18 @@
                   <span class="text-lg font-medium text-primary">More</span>
                 </button>
               </li>
+              <li>
+                <a
+                  href={"/dash"}
+                  class="flex items-center p-2 px-2 rounded-full hover:bg-background-700 transition-colors duration-200"
+                >
+                  <svelte:component
+                    this={LayoutDashboard}
+                    class="w-6 h-6 mr-4 text-primary"
+                  />
+                  <span class="text-lg font-medium text-primary">{"Dash"}</span>
+                </a>
+              </li>
             </ul>
           </nav>
           <button
@@ -110,6 +124,7 @@
         <!--<Route path="/explore" component={Explore} />-->
         <Route path="/UserProfile" component={UserProfile} />
         <Route path="/Feed" component={Feed} />
+        <Route path="/dash" component={Dashboard} />
         <Route path="/Feed/:id" let:params>
           <RepliesPage memeId={params.id} />
         </Route>
