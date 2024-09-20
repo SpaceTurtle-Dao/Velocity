@@ -5,8 +5,8 @@
   import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
   import CreatePostModal from "$lib/components/CreateMeme.svelte";
   import Feed from "$lib/components/Feed.svelte";
-  //import Explore from "$lib/components/views/explore/Explore.svelte";
   import ProfileCreation from "$lib/components/views/profile/CreateProfile.svelte";
+  import UpdateUserProfile from "$lib/components/views/profile/UpdateUserProfile.svelte";
   import {
     Home as HomeIcon,
     Search,
@@ -14,8 +14,9 @@
     User,
     MoreHorizontal,
     Plus,
-    Zap, // New icon for Relay
-    Edit
+    Zap,
+    Edit,
+    Upload
   } from "lucide-svelte";
   import RepliesPage from "$lib/components/RepliesPage.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
@@ -40,10 +41,10 @@
   }
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
-    //{ icon: Search, label: "Explore", href: "/explore" },
     { icon: User, label: "Profile", href: "/profile" },
     { icon: Zap, label: "Relay", href: "/relay" },
-    { icon: Edit, label: "Create Profile", href: "/create-profile" }
+    { icon: Edit, label: "Create Profile", href: "/create-profile" },
+    { icon: Upload, label: "Update User Profile", href: "/update"}
   ];
 
   function toggleCreatePostModal() {
@@ -56,13 +57,12 @@
   }
 </script>
 
-<div class="bg-background">
-  <Router {url} >
-    <div class="flex justify-center w-full h-screen">
-      <div
-        class="flex flex-col justify-between p-4"
-      >
-        <div class="space-y-4 pt-16">
+<div class="bg-background min-h-screen">
+  <Router {url}>
+    <div class="container mx-auto flex">
+      <!-- Sidebar -->
+      <div class="w-64 flex-shrink-0 p-4">
+        <div class="space-y-4 pt-16 fixed">
           <nav>
             <ul class="space-y-2">
               {#each menuItems as item}
@@ -75,9 +75,7 @@
                       this={item.icon}
                       class="w-6 h-6 mr-4 text-primary"
                     />
-                    <span class="text-lg font-medium text-primary"
-                      >{item.label}</span
-                    >
+                    <span class="text-lg font-medium text-primary">{item.label}</span>
                   </a>
                 </li>
               {/each}
@@ -100,16 +98,16 @@
             Post
           </button>
         </div>
-        <div class="p-4">
+        <div class="mt-auto fixed bottom-4">
           <LowerProfile />
         </div>
       </div>
-  
-      <div class="w-1/3">
+
+      <!-- Main Content -->
+      <div class="flex-grow p-4">
         <Route path="/feed" component={Feed} />
         <Route path="/profile" component={Profile} />
         <Route path="/" component={Feed} />
-        <!--<Route path="/explore" component={Explore} />-->
         <Route path="/UserProfile" component={UserProfile} />
         <Route path="/Feed" component={Feed} />
         <Route path="/Feed/:id" let:params>
@@ -117,6 +115,7 @@
         </Route>
         <Route path="/relay" component={RelayButtons} />
         <Route path="/create-profile" component={ProfileCreation} />
+        <Route path="/update-profile" component={UpdateUserProfile} />
       </div>
     </div>
   </Router>
