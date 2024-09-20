@@ -17,7 +17,7 @@ import {
 import { INDEXER_ID, WAR_TOKEN } from "$lib/common/constants";
 import { upload } from "$lib/ao/uploader";
 
-import { profileMemes, currentUser } from "../../stores/profile.store";
+import { currentUser } from "../../stores/profile.store";
 import { feedPosts, replies } from "../../stores/feedpage.store";
 import type { Swap } from "$lib/models/Swap";
 import { swapsStore } from "../../stores/pool.store";

@@ -70,7 +70,7 @@
   {#if userInfo}
   <!-- Show Profile Info if connected and profile exists -->
   <button class="flex items-center space-x-4">
-    <Avatar class="h-12 w-12 ring-4 ring-primary">
+    <Avatar class="h-12 w-12 ring-4">
       <AvatarImage src={toUrl(userProfile.picture)} alt={userProfile.name} />
       <AvatarFallback>{userProfile.name}</AvatarFallback>
     </Avatar>
