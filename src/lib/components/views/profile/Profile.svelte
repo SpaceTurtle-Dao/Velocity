@@ -61,7 +61,7 @@
   }
 </script>
 
-<div class="max-w-4xl mx-auto p-4">
+<div class="">
   <Card
     class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border"
   >
@@ -127,7 +127,7 @@
     
   </div>
 
-  <Tabs.Root value="post" class="w-full">
+  <Tabs.Root value="post" class="">
     <Tabs.List class="grid grid-cols-4">
       <Tabs.Trigger class="underline-tabs-trigger" value="post"
         >Post</Tabs.Trigger
@@ -138,14 +138,14 @@
     </Tabs.List>
     <Tabs.Content value="post">
       <Card
-        class="overflow-hidden transition-all hover:shadow-lg w-full border-border"
+        class="overflow-hidden transition-all hover:shadow-lg  border-border"
       >
-        <CardHeader class="px-6">
-          <div class="flex flex-col space-y-4">
+        <CardHeader class="">
+          <div class="space-y-4">
             {#each events as event}
               <Post {event} />
               {#if event.id != events[events.length - 1].id}
-                <Separator class="w-screen self-center " />
+                <Separator/>
               {/if}
             {/each}
           </div>
