@@ -15,23 +15,23 @@
     MoreHorizontal,
     Plus,
     Zap, // New icon for Relay
-    Edit
+    Edit,
   } from "lucide-svelte";
   import RepliesPage from "$lib/components/RepliesPage.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
-  import { currentUser } from "./stores/profile.store";
+  import { currentUser } from "./lib/stores/profile.store";
   import {
     Avatar,
     AvatarFallback,
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
-  import RelayButtons from '$lib/components/Relay.svelte';
+  import RelayButtons from "$lib/components/Relay.svelte";
 
   export let url = "";
 
   let isCreatePostModalOpen = false;
- 
+
   function toUrl(tx: string) {
     return (
       "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
@@ -43,7 +43,7 @@
     //{ icon: Search, label: "Explore", href: "/explore" },
     { icon: User, label: "Profile", href: "/profile" },
     { icon: Zap, label: "Relay", href: "/relay" },
-    { icon: Edit, label: "Create Profile", href: "/create-profile" }
+    { icon: Edit, label: "Create Profile", href: "/create-profile" },
   ];
 
   function toggleCreatePostModal() {
@@ -56,12 +56,10 @@
   }
 </script>
 
-<div class="bg-background">
-  <Router {url} >
-    <div class="flex justify-center w-full h-screen">
-      <div
-        class="flex flex-col justify-between p-4"
-      >
+<div class="bg-background h-screen">
+  <Router {url}>
+    <div class="flex justify-center w-full bg-background">
+      <div class="flex flex-col justify-between p-4">
         <div class="space-y-4 pt-16">
           <nav>
             <ul class="space-y-2">
@@ -104,7 +102,7 @@
           <LowerProfile />
         </div>
       </div>
-  
+
       <div class="w-1/3">
         <Route path="/feed" component={Feed} />
         <Route path="/profile" component={Profile} />

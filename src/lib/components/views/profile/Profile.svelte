@@ -24,11 +24,10 @@
     currentUser,
     userEvents,
     user,
-  } from "../../../../stores/profile.store";
+  } from "../../../stores/profile.store";
   import type { Event } from "$lib/models/Event";
   import Post from "../../Post.svelte";
   import Followers from "./Followers.svelte";
-  import Following from "./Following.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
@@ -61,7 +60,7 @@
   }
 </script>
 
-<div class="">
+<div>
   <Card
     class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border"
   >
@@ -91,42 +90,8 @@
       
     </CardContent>
   </Card>
-  <div class="flex mt-6 mb-6 space-x-4">
-    <Card
-      data-x-chunk-name="dashboard-01-chunk-1"
-      data-x-chunk-description="A card showing the total subscriptions and the percentage difference from last month."
-      class="border-border"
-    >
-      <CardHeader
-        class="flex flex-row items-center justify-between space-y-0 pb-2"
-      >
-        <CardTitle class="text-sm font-medium">Subscriptions</CardTitle>
-        <Users class="text-muted-foreground h-4 w-4" />
-      </CardHeader>
-      <CardContent>
-        <div class="text-2xl font-bold">+2350</div>
-        <p class="text-muted-foreground text-xs">+180.1% from last month</p>
-      </CardContent>
-    </Card>
-    <Card
-      data-x-chunk-name="dashboard-01-chunk-1"
-      data-x-chunk-description="A card showing the total subscriptions and the percentage difference from last month."
-      class="border-border"
-    >
-      <CardHeader
-        class="flex flex-row items-center justify-between space-y-0 pb-2"
-      >
-        <CardTitle class="text-sm font-medium">Subscribers</CardTitle>
-        <LucideUserPlus class="text-muted-foreground h-4 w-4" />
-      </CardHeader>
-      <CardContent>
-        <div class="text-2xl font-bold">+2350</div>
-        <p class="text-muted-foreground text-xs">+180.1% from last month</p>
-      </CardContent>
-    </Card>
-    
-  </div>
 
+ 
   <Tabs.Root value="post" class="">
     <Tabs.List class="grid grid-cols-4">
       <Tabs.Trigger class="underline-tabs-trigger" value="post"
@@ -137,25 +102,22 @@
       <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
     </Tabs.List>
     <Tabs.Content value="post">
-      <Card
-        class="overflow-hidden transition-all hover:shadow-lg  border-border"
-      >
-        <CardHeader class="">
-          <div class="space-y-4">
-            {#each events as event}
-              <Post {event} />
-              {#if event.id != events[events.length - 1].id}
-                <Separator/>
-              {/if}
-            {/each}
-          </div>
-        </CardHeader>
-        <CardFooter></CardFooter>
-      </Card>
+      <div class="">
+        {#each events as event}
+        <div class="border border-border p-5">
+          <Post {event} />
+        </div>
+        {/each}
+      </div>
     </Tabs.Content>
     <Tabs.Content value="media"></Tabs.Content>
     <Tabs.Content value="following">
-      <Following />
+      <Followers
+        relay={$user.Profile.pubkey}
+        userRelay={$currentUser.Profile.pubkey}
+        token={$user.Token}
+        quantity={$user.SubscriptionCost.toString()}
+      />
     </Tabs.Content>
     <Tabs.Content value="followers">
       <Followers

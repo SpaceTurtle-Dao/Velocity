@@ -2,7 +2,7 @@
   import { writable } from 'svelte/store';
   import type { Event } from '$lib/models/Event';
   import type { Profile, UserInfo } from '$lib/models/Profile';
-  import { currentUser, userRelay } from '../../../../stores/profile.store';
+  import { currentUser, userRelay } from '../../../stores/profile.store';
 
   let profile: Profile;
   let userInfo: UserInfo;
