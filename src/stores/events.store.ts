@@ -1,14 +1,5 @@
 import { writable } from 'svelte/store';
-
-
-export interface Event {
-  id: string;
-  pubkey: string;
-  created_at: number;
-  kind: number;
-  tags: [string[]];
-  content: string;
-}
+import type { Event } from "$lib/models/Event"
 
 interface EventStore {
        events: Event[];

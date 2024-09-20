@@ -15,6 +15,7 @@
         MoreHorizontal,
         Plus,
         Zap, // New icon for Relay
+        LayoutDashboard,
     } from "lucide-svelte";
     import Feedpage from "$lib/components/views/feed/Feedpage.svelte";
     import RepliesPage from "$lib/components/views/feed/RepliesPage.svelte";
@@ -27,6 +28,7 @@
     } from "$lib/components/ui/avatar";
     import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
     import RelayButtons from "$lib/components/views/dashboard/Relay.svelte";
+    import Dashboard from "$lib/components/views/dashboard/Dashboard.svelte";
 
     export let url = "";
 
@@ -97,6 +99,20 @@
                                 >
                             </button>
                         </li>
+                        <li>
+                            <a
+                                href={"/dash"}
+                                class="flex items-center p-2 px-2 rounded-full hover:bg-background-700 transition-colors duration-200"
+                            >
+                                <svelte:component
+                                    this={LayoutDashboard}
+                                    class="w-6 h-6 mr-4 text-primary-50"
+                                />
+                                <span class="text-lg font-medium text-white"
+                                    >{"Dash"}</span
+                                >
+                            </a>
+                        </li>
                     </ul>
                 </nav>
                 <button
@@ -121,7 +137,7 @@
                 <Route path="/explore" component={Explore} />
                 <Route path="/UserProfile" component={UserProfile} />
                 <Route path="/Feed" component={Feedpage} />
-                <Route path="/Dash" component={Feedpage} />
+                <Route path="/dash" component={Dashboard} />
                 <Route path="/Feed/:id" let:params>
                     <RepliesPage memeId={params.id} />
                 </Route>
