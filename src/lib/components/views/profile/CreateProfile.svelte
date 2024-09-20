@@ -1,102 +1,223 @@
 <script lang="ts">
-  import { writable } from 'svelte/store';
+  import { createEventDispatcher } from 'svelte';
+  import { z } from 'zod';
   import type { Event } from '$lib/models/Event';
   import type { Profile, UserInfo } from '$lib/models/Profile';
   import { currentUser, userRelay } from '../../../../stores/profile.store';
+  import { Button } from "$lib/components/ui/button";
+  import { Input } from "$lib/components/ui/input";
+  import { Label } from "$lib/components/ui/label";
+  import { Textarea } from "$lib/components/ui/textarea";
+  import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
+  import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
 
-  let profile: Profile;
+  // Zod schema for profile validation
+  const profileSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    display_name: z.string().min(1, "Display Name is required"),
+    about: z.string().optional(),
+    picture: z.string().optional(),
+    website: z.string().url().optional().or(z.literal('')),
+    banner: z.string().optional(),
+    bot: z.boolean().optional(),
+  });
+
+  type ProfileSchemaType = z.infer<typeof profileSchema>;
+
+  let profile: ProfileSchemaType = {
+    name: '',
+    display_name: '',
+    about: '',
+    picture: '',
+    website: '',
+    banner: '',
+    bot: false,
+  };
+
   let userInfo: UserInfo;
+  let errors: Partial<Record<keyof ProfileSchemaType, string>> = {};
 
   currentUser.subscribe(value => {
     userInfo = value;
-    if (userInfo.Profile && userInfo.Profile.kind === 0) {
-      profile = JSON.parse(userInfo.Profile.content);
-    } else {
-      profile = {
-        name: '',
-        about: '',
-        picture: '',
-        display_name: '',
-        website: '',
-        banner: '',
-        bot: false,
-      };
-    }
   });
 
-  async function updateProfile() {
-    const event: Omit<Event, 'id'> = {
-      pubkey: userInfo.Token,
-      created_at: Math.floor(Date.now() / 1000),
-      kind: 0,
-      tags: [],
-      content: JSON.stringify(profile)
-    };
+  let pictureFile: File | null = null;
+  let bannerFile: File | null = null;
 
-    const serialized = JSON.stringify([
-      0,
-      event.pubkey,
-      event.created_at,
-      event.kind,
-      event.tags,
-      event.content
-    ]);
+  const dispatch = createEventDispatcher();
 
-    const eventId = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(serialized));
-    const idHex = Array.from(new Uint8Array(eventId))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
+  function handleFileChange(event: Event, type: 'picture' | 'banner') {
+    //@ts-ignore
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (file) {
+      if (type === 'picture') {
+        pictureFile = file;
+      } else {
+        bannerFile = file;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        profile[type] = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
 
-    const fullEvent: Event = {
-      ...event,
-      id: idHex
-    };
+  async function createProfile() {
+    try {
+      // Validate the profile data
+      profileSchema.parse(profile);
+      errors = {};
 
-    console.log('Profile update event:', fullEvent);
+      // Handle file uploads here (e.g., to a server or IPFS)
+      if (pictureFile) {
+        // Simulating file upload and getting a URL
+        profile.picture = URL.createObjectURL(pictureFile);
+      }
+      if (bannerFile) {
+        // Simulating file upload and getting a URL
+        profile.banner = URL.createObjectURL(bannerFile);
+      }
 
-    userInfo.Profile = fullEvent;
-    currentUser.set(userInfo);
+      // Prepare the content for the event
+      const content = JSON.stringify({
+        name: profile.name,
+        display_name: profile.display_name,
+        about: profile.about,
+        picture: profile.picture,
+        website: profile.website,
+        banner: profile.banner,
+        bot: profile.bot,
+      });
 
-    // if ($userRelay) {
-    //   const relayConnection = await connectToRelay($userRelay);
-    //   await relayConnection.publish(fullEvent);
-    // }
+      const event: Omit<Event, 'id'> = {
+        pubkey: userInfo.Token,
+        created_at: Math.floor(Date.now() / 1000),
+        kind: 0, // Kind 0 is for metadata events in Nostr
+        tags: [], // Metadata events typically don't have tags
+        content: content
+      };
+
+      const serialized = JSON.stringify([
+        0,
+        event.pubkey,
+        event.created_at,
+        event.kind,
+        event.tags,
+        event.content
+      ]);
+
+      const eventId = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(serialized));
+      const idHex = Array.from(new Uint8Array(eventId))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+      const fullEvent: Event = {
+        ...event,
+        id: idHex
+      };
+
+      console.log('Profile creation event:', fullEvent);
+
+      //Backend thing to be implemented 😅
+      try {
+        // Simulating backend call using fetch API
+        const response = await fetch('/api/create-profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(fullEvent),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create profile');
+        }
+
+        const result = await response.json();
+        console.log('Profile created successfully:', result);
+
+        dispatch('profileCreated', profile);
+      } catch (error) {
+        console.error('Error creating profile:', error);
+        // Handle error (e.g., show error message to user)
+      }
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        errors = err.flatten().fieldErrors as Partial<Record<keyof ProfileSchemaType, string>>;
+      } else {
+        console.error('Unexpected error:', err);
+      }
+    }
   }
 </script>
 
-<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-  <h2 class="text-2xl font-bold mb-6 text-gray-800">Update Your Profile</h2>
-  <form on:submit|preventDefault={updateProfile} class="space-y-4">
-    <div>
-      <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-      <input type="text" id="name" bind:value={profile.name} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-    </div>
-    <div>
-      <label for="display_name" class="block text-sm font-medium text-gray-700">Display Name</label>
-      <input type="text" id="display_name" bind:value={profile.display_name} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-    </div>
-    <div>
-      <label for="about" class="block text-sm font-medium text-gray-700">About</label>
-      <textarea id="about" bind:value={profile.about} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" rows="3"></textarea>
-    </div>
-    <div>
-      <label for="picture" class="block text-sm font-medium text-gray-700">Picture URL</label>
-      <input type="url" id="picture" bind:value={profile.picture} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-    </div>
-    <div>
-      <label for="website" class="block text-sm font-medium text-gray-700">Website</label>
-      <input type="url" id="website" bind:value={profile.website} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-    </div>
-    <div>
-      <label for="banner" class="block text-sm font-medium text-gray-700">Banner URL</label>
-      <input type="url" id="banner" bind:value={profile.banner} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-    </div>
-    <div class="flex items-center">
-      <input type="checkbox" id="bot" bind:checked={profile.bot} class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
-      <label for="bot" class="ml-2 block text-sm text-gray-900">Bot</label>
-    </div>
-    <button type="submit" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-      Update Profile
-    </button>
-  </form>
+<div class="container mx-auto max-w-2xl p-4">
+  <Card class="w-full">
+    <CardHeader>
+      <CardTitle>Create Your Profile</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <form on:submit|preventDefault={createProfile} class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <Label for="picture">Profile Picture</Label>
+            <div class="flex items-center space-x-4">
+              <Avatar class="w-16 h-16">
+                <AvatarImage src={profile.picture} alt={profile.name} />
+                <AvatarFallback>{profile.name ? profile.name[0].toUpperCase() : 'U'}</AvatarFallback>
+              </Avatar>
+              <Input id="picture" type="file" accept="image/*" on:change={(e) => 
+              //@ts-ignore
+              handleFileChange(e, 'picture')} />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <Label for="banner">Banner Image</Label>
+            <Input id="banner" type="file" accept="image/*" on:change={(e) => 
+            //@ts-ignore
+            handleFileChange(e, 'banner')} />
+            {#if profile.banner}
+              <img src={profile.banner} alt="Banner" class="w-full h-32 object-cover rounded" />
+            {/if}
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <Label for="name">Name *</Label>
+            <Input id="name" bind:value={profile.name} />
+            {#if errors.name}
+              <p class="text-red-500 text-sm">{errors.name}</p>
+            {/if}
+          </div>
+
+          <div class="space-y-2">
+            <Label for="display_name">Display Name *</Label>
+            <Input id="display_name" bind:value={profile.display_name} />
+            {#if errors.display_name}
+              <p class="text-red-500 text-sm">{errors.display_name}</p>
+            {/if}
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <Label for="about">About</Label>
+          <Textarea id="about" bind:value={profile.about} rows="3" />
+        </div>
+
+        <div class="space-y-2">
+          <Label for="website">Website</Label>
+          <Input id="website" type="url" bind:value={profile.website} />
+          {#if errors.website}
+            <p class="text-red-500 text-sm">{errors.website}</p>
+          {/if}
+        </div>
+
+        <Button type="submit" class="w-full">Create Profile</Button>
+      </form>
+    </CardContent>
+  </Card>
 </div>
