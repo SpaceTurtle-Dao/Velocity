@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  import Post from "$lib/components/PostVideo.svelte";
+  import Post from "$lib/components/PostMedia.svelte";
 // =======
 //   import Post from "$lib/components/Post.svelte";
 //   import { fetchMemes } from "$lib/ao/relay";
@@ -40,7 +40,7 @@
   {:else}
     <div class="space-y-6">
       {#each events as event (event.id)}
-        <Post {event} />
+        <!--<Post {event} />-->
       {/each}
     </div>
   {/if}

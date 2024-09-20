@@ -13,7 +13,7 @@
   } from "lucide-svelte";
   import UserProfile from "./views/profile/UserProfile.svelte";
   import Feed from "$lib/Feed.svelte";
-  import { currentUser } from "../../stores/profile.store";
+  import { currentUser } from "$lib/stores/profile.store";
   import type { Profile } from "$lib/models/Profile";
   import {
     Avatar,
