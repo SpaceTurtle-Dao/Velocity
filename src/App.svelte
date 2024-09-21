@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { Router, Route } from "svelte-routing";
   import "./app.css";
   import Navbar from "$lib/components/Navbar.svelte";
@@ -19,7 +20,7 @@
   } from "lucide-svelte";
   import RepliesPage from "$lib/components/RepliesPage.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
-  import { currentUser } from "./lib/stores/profile.store";
+  import { currentUser, userRelay, isConnected } from "./lib/stores/profile.store";
   import {
     Avatar,
     AvatarFallback,
@@ -27,10 +28,24 @@
   } from "$lib/components/ui/avatar";
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
   import RelayButtons from "$lib/components/Relay.svelte";
-
+  import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
+  import ConnectWalletButton from "$lib/components/wallet.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+    import { relay } from "$lib/ao/relay";
   export let url = "";
 
   let isCreatePostModalOpen = false;
+  let _isConnected = false;
+  let _relay:string = "";
+
+  userRelay.subscribe((value) => {
+    console.log("got relay")
+    console.log(value)
+    _relay = value
+  })
+  isConnected.subscribe((value) => {
+    _isConnected = value
+  })
 
   function toUrl(tx: string) {
     return (
@@ -38,11 +53,38 @@
       tx
     );
   }
+
+  // Function to check wallet connection status
+  async function checkWalletConnection() {
+    // @ts-ignore
+    if (window.arweaveWallet) {
+      try {
+        // @ts-ignore
+        const address = await window.arweaveWallet.getActiveAddress();
+        if (address) {
+          console.log(address)
+          console.log(_isConnected)
+          _isConnected = true;
+          let _userRelay = await relay(address);
+          if(_userRelay){
+            userRelay.set(_userRelay)
+          }
+        }
+      } catch (error) {
+        console.log(_isConnected)
+        console.error("Failed to get active address:", error);
+      }
+    }
+  }
+
+  onMount(async () => {
+    await checkWalletConnection();
+  });
+
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
     { icon: User, label: "Profile", href: "/profile" },
     { icon: Zap, label: "Relay", href: "/relay" },
-    { icon: Edit, label: "Create Profile", href: "/create-profile" },
   ];
 
   function toggleCreatePostModal() {
@@ -58,7 +100,7 @@
 <div class="bg-background h-screen">
   <Router {url}>
     <div class="flex justify-center w-full bg-background">
-      <div class="flex flex-col justify-between p-4">
+      <div class="flex flex-col space-y-10 p-4">
         <div class="space-y-4 pt-16">
           <nav>
             <ul class="space-y-2">
@@ -87,17 +129,26 @@
               </li>
             </ul>
           </nav>
-          <button
-            on:click={toggleCreatePostModal}
-            class="w-full bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
-          >
-            <Plus class="w-5 h-5 mr-2" />
-            Post
-          </button>
+          {#if !_isConnected}
+            <ConnectWalletButton />
+          {:else if _relay == null || _relay == undefined}
+            <CreateProfile />
+          {:else}
+            <Button
+              on:click={toggleCreatePostModal}
+              class="w-44 h-12 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
+            >
+              <Plus class="w-5 h-5 mr-2" />
+              Post
+            </Button>
+            <!-- svelte-ignore missing-declaration -->
+          {/if}
         </div>
-        <div class="mt-auto fixed bottom-4">
-          <LowerProfile />
-        </div>
+        {#if _relay}
+          <div class="p-4">
+            <LowerProfile />
+          </div>
+        {/if}
       </div>
 
       <div class="w-1/3">
@@ -110,8 +161,6 @@
           <RepliesPage memeId={params.id} />
         </Route>
         <Route path="/relay" component={RelayButtons} />
-        <Route path="/create-profile" component={ProfileCreation} />
-        <Route path="/update-profile" component={UpdateUserProfile} />
       </div>
     </div>
   </Router>

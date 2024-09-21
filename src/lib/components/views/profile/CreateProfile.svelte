@@ -1,20 +1,80 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-  import { z } from 'zod';
-  import type { Event } from '$lib/models/Event';
-  import type { Profile, UserInfo } from '$lib/models/Profile';
-  import { currentUser, userRelay } from '../../../stores/profile.store';
+  import { createEventDispatcher } from "svelte";
+  import { z } from "zod";
+  import type { Event } from "$lib/models/Event";
+  import type { UserInfo } from "$lib/models/Profile";
+  import { currentUser } from "$lib/stores/profile.store";
+  import { Input } from "$lib/components/ui/input";
+  import { Label } from "$lib/components/ui/label";
+  import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+  } from "$lib/components/ui/card";
+  import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
+  import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { spawnRelay, relay, event as _event, info, getOwner } from "$lib/ao/relay";
+  import { walletAddress } from "$lib/stores/walletStore";
+    import { add } from "date-fns/fp/add";
 
-  let profile: Profile;
+  // Zod schema for initial profile validation
+  const initialProfileSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    display_name: z.string().min(1, "Display Name is required"),
+  });
+
+  type InitialProfileSchemaType = z.infer<typeof initialProfileSchema>;
+
+  let profile: InitialProfileSchemaType = {
+    name: "",
+    display_name: "",
+  };
+
+  // display greeting every 3 seconds
+  let spawnInterval: any;
+  let evalInterval: any;
+  let address:string;
+  let _relay:string;
+  let profileEvent:string;
+
   let userInfo: UserInfo;
   let errors: Partial<Record<keyof InitialProfileSchemaType, string>> = {};
 
-  currentUser.subscribe(value => {
+  currentUser.subscribe((value) => {
     userInfo = value;
   });
 
-  const dispatch = createEventDispatcher();
+  function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
+  async function checkEvaluated() {
+    let owner = await getOwner(_relay);
+    console.log(owner);
+    console.log(address);
+    if(owner == address){
+      clearInterval(evalInterval);
+      console.log("evaluated");
+      await _event(profileEvent, _relay!);
+      //done
+    }else{
+      console.log("polling for eval")
+    }
+  }
+
+  async function checkSpawned() {
+    let __relay = await relay(address);
+    if (__relay) {
+      _relay = __relay
+      clearInterval(spawnInterval);
+      console.log("relay");
+      console.log(_relay);
+      evalInterval = setInterval(checkEvaluated, 1000);
+    }else{
+      console.log("polling for relay")
+    }
+  }
   async function createProfile() {
     try {
       // Validate the profile data
@@ -27,94 +87,71 @@
         display_name: profile.display_name,
       });
 
-      const event: Omit<Event, 'id'> = {
-        pubkey: userInfo.Token,
-        created_at: Math.floor(Date.now() / 1000),
+      const event = {
         kind: 0, // Kind 0 is for metadata events in Nostr
         tags: [], // Metadata events typically don't have tags
-        content: content
+        content: content,
       };
 
-      const serialized = JSON.stringify([
-        0,
-        event.pubkey,
-        event.created_at,
-        event.kind,
-        event.tags,
-        event.content
-      ]);
-
-      const eventId = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(serialized));
-      const idHex = Array.from(new Uint8Array(eventId))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-
-      const fullEvent: Event = {
-        ...event,
-        id: idHex
-      };
-
-      console.log('Profile creation event:', fullEvent);
-
+      profileEvent = JSON.stringify(event);
       try {
-        // Simulating backend call using fetch API
-        const response = await fetch('/api/create-profile', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(fullEvent),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to create profile');
-        }
-
-        const result = await response.json();
-        console.log('Profile created successfully:', result);
-
-        dispatch('profileCreated', profile);
+        //display some loading indicator and UI informing the user that we are waiting
+        address = await window.arweaveWallet.getActiveAddress();
+        await spawnRelay();
+        //wait sometime to fetch relay
+        spawnInterval = setInterval(checkSpawned, 1000);
       } catch (error) {
-        console.error('Error creating profile:', error);
+        console.error("Error creating profile:", error);
         // Handle error (e.g., show error message to user)
       }
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        errors = err.flatten().fieldErrors as Partial<Record<keyof InitialProfileSchemaType, string>>;
-      } else {
-        console.error('Unexpected error:', err);
-      }
-    }
+    } catch (err) {}
   }
 </script>
 
-<div class="container mx-auto max-w-md p-4">
-  <Card class="w-full">
-    <CardHeader>
-      <CardTitle class="text-2xl font-bold text-center">Create Your Profile</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <form on:submit|preventDefault={createProfile} class="space-y-6">
-        <div class="space-y-2">
-          <Label for="name" class="text-lg font-medium">Name *</Label>
-          <Input id="name" bind:value={profile.name} placeholder="Enter your name" class="w-full p-2 border rounded" />
-          {#if errors.name}
-            <p class="text-red-500 text-sm">{errors.name}</p>
-          {/if}
-        </div>
+<Dialog.Root>
+  <Dialog.Trigger>
+    <Button
+      class="w-44 h-12 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center "
+      >Create Profile</Button
+    >
+  </Dialog.Trigger>
+  <Dialog.Content class="sm:max-w-[425px]">
+    <Dialog.Header>
+      <Dialog.Title class="text-primary">Create Your Profile</Dialog.Title>
+    </Dialog.Header>
+    <form on:submit|preventDefault={createProfile} class="space-y-6">
+      <div class="space-y-2">
+        <Label for="name" class="text-lg font-medium text-primary">Name</Label>
+        <Input
+          id="name"
+          bind:value={profile.name}
+          placeholder="Enter your name"
+          class="w-full p-2 border rounded text-primary"
+        />
+        {#if errors.name}
+          <p class="text-red-500 text-sm">{errors.name}</p>
+        {/if}
+      </div>
 
-        <div class="space-y-2">
-          <Label for="display_name" class="text-lg font-medium">Display Name *</Label>
-          <Input id="display_name" bind:value={profile.display_name} placeholder="Enter your display name" class="w-full p-2 border rounded" />
-          {#if errors.display_name}
-            <p class="text-red-500 text-sm">{errors.display_name}</p>
-          {/if}
+      <div class="space-y-2">
+        <Label for="display_name" class="text-lg font-medium text-primary"
+          >Display Name</Label
+        >
+        <Input
+          id="display_name"
+          bind:value={profile.display_name}
+          placeholder="Enter your display name"
+          class="w-full p-2 border rounded text-primary"
+        />
+        {#if errors.display_name}
+          <p class="text-red-500 text-sm">{errors.display_name}</p>
+        {/if}
+      </div>
+      <Dialog.Footer>
+        <div class="flex w-full justify-center">
+          <Button class="w-48 self-center" type="submit">Create Profile</Button>
         </div>
-
-        <Button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300">
-          Create Profile
-        </Button>
-      </form>
-    </CardContent>
-  </Card>
-</div>
+      </Dialog.Footer>
+    </form></Dialog.Content
+  >
+</Dialog.Root>
