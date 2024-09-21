@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { eventStore } from "../stores/events.store"; // Import the store
+  import Tweet from "./TweetVideoNip.svelte";
+  import Repost from "./Repost.svelte";
+  // import Spinner from "$lib/components/Spinner.svelte";
+  import type { Event } from "$lib/models/Event"; 
   import { onMount } from "svelte";
 
   import Post from "$lib/components/PostMedia.svelte";
@@ -8,28 +13,23 @@
 //   import type { Meme } from "$lib/models/Meme";
 // >>>>>>> development
   import Spinner from "$lib/components/Spinner.svelte";
-  import type { Event } from "$lib/models/Event"; // Define your Event model here or import it
+  // import type { Event } from "$lib/models/Event"; // Define your Event model here or import it
 
   let events: Event[] = [];
-  let loading = true;
+  let loading = false;
 
-  // Simulating the fetchEvents function with dummy data
-  async function fetchEvents(): Promise<Array<Event>> {
-    return [
-      
-    ];
-  }
-
-  // Fetching the events when the component mounts
-  onMount(async () => {
-    try {
-      events = await fetchEvents();
-    } catch (error) {
-      console.error("Error fetching events:", error);
-    } finally {
-      loading = false;
-    }
+  // Subscribe to the store to pull events and loading state
+  eventStore.subscribe(store => {
+    events = store.events;
+    loading = store.loading;
   });
+
+  // Optionally, if you want to simulate adding new events on mount
+  onMount(() => {
+    // Any additional logic on mount can go here
+  });
+
+
 </script>
 
 <div class="max-w-4xl mx-auto p-4 bg-background-500">
@@ -40,12 +40,8 @@
   {:else}
     <div class="space-y-6">
       {#each events as event (event.id)}
-        <!--<Post {event} />-->
+        <Tweet {event} />
       {/each}
     </div>
   {/if}
 </div>
-
-<style>
-/* Add custom styles here if needed */
-</style>
