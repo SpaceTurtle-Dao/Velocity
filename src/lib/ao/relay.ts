@@ -4,6 +4,7 @@ import {
     Subscribe,
     UnSubscribe,
     SetOwner,
+    GetOwner,
     Info,
     Subs,
     Subscriptions,
@@ -87,7 +88,7 @@ export const spawnRelay = async () => {
         // @ts-ignore
         let message = Request();
         let result = await send(INDEXER_ID(), message, null);
-        console.log(result);
+        //console.log(result);
     } catch (e) {
         console.log(e);
     }
@@ -190,20 +191,36 @@ export const isSubscribed = async (process: string, relay: string) => {
     }
 };
 
-export const info = async (process: string) => {
+export const info = async (process: string):Promise<any | null> => {
+    let _info = null;
     try {
         // @ts-ignore
         let message = Info();
         let result = await read(process, message);
-        if (result == undefined) throw (404);
         console.log(result);
         let json = JSON.parse(result.Data);
         console.log(json);
-        return json
+        _info = json
     } catch (e) {
         console.log(e);
     }
+    return _info
 };
+
+export const getOwner = async (process: string):Promise<string> => {
+    let owner = ""
+    try {
+        // @ts-ignore
+        let message = GetOwner();
+        let result = await read(process, message);
+        console.log(result);
+        owner = result.Data
+    } catch (e) {
+        console.log(e);
+    }
+    return owner
+};
+
 
 export const relay = async (owner: string): Promise<string | null> => {
     let _relay = null;
