@@ -14,8 +14,9 @@
   } from "$lib/components/ui/card";
   import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
-  import { spawnRelay, relay, event as _event } from "$lib/ao/relay";
+  import { spawnRelay, relay, event as _event, info, getOwner } from "$lib/ao/relay";
   import { walletAddress } from "$lib/stores/walletStore";
+    import { add } from "date-fns/fp/add";
 
   // Zod schema for initial profile validation
   const initialProfileSchema = z.object({
@@ -30,6 +31,13 @@
     display_name: "",
   };
 
+  // display greeting every 3 seconds
+  let spawnInterval: any;
+  let evalInterval: any;
+  let address:string;
+  let _relay:string;
+  let profileEvent:string;
+
   let userInfo: UserInfo;
   let errors: Partial<Record<keyof InitialProfileSchemaType, string>> = {};
 
@@ -41,6 +49,32 @@
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  async function checkEvaluated() {
+    let owner = await getOwner(_relay);
+    console.log(owner);
+    console.log(address);
+    if(owner == address){
+      clearInterval(evalInterval);
+      console.log("evaluated");
+      await _event(profileEvent, _relay!);
+      //done
+    }else{
+      console.log("polling for eval")
+    }
+  }
+
+  async function checkSpawned() {
+    let __relay = await relay(address);
+    if (__relay) {
+      _relay = __relay
+      clearInterval(spawnInterval);
+      console.log("relay");
+      console.log(_relay);
+      evalInterval = setInterval(checkEvaluated, 1000);
+    }else{
+      console.log("polling for relay")
+    }
+  }
   async function createProfile() {
     try {
       // Validate the profile data
@@ -59,18 +93,13 @@
         content: content,
       };
 
-      const serialized = JSON.stringify(event);
-
+      profileEvent = JSON.stringify(event);
       try {
+        //display some loading indicator and UI informing the user that we are waiting
+        address = await window.arweaveWallet.getActiveAddress();
         await spawnRelay();
         //wait sometime to fetch relay
-        await sleep(5000);
-        const address = await window.arweaveWallet.getActiveAddress();
-        let _relay = await relay(address);
-        console.log(address)
-        console.log("relay")
-        console.log(_relay)
-        await _event(serialized, _relay!);
+        spawnInterval = setInterval(checkSpawned, 1000);
       } catch (error) {
         console.error("Error creating profile:", error);
         // Handle error (e.g., show error message to user)
