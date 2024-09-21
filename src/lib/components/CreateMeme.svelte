@@ -12,13 +12,14 @@
   let amount = "";
   let tags = "[]";
   let content = "";
-  export let parent: string | null = null;
   let error = "";
   let fileInput: HTMLInputElement | null = null;
   let selectedImage: File;
   let imagePreviewUrl: string | null = null;
   let isLoading = false;
   let showSuccessMessage = false;
+
+  export let parent: string | null = null;
 
   const dispatch = createEventDispatcher();
 

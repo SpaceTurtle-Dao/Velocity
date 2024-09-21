@@ -20,11 +20,8 @@
     type Profile,
     type UserInfo,
   } from "$lib/models/Profile";
-  import {
-    currentUser,
-    userEvents,
-    user,
-  } from "../../../stores/profile.store";
+
+  import { currentUser, userEvents, user } from "../../../stores/profile.store";
   import type { Event } from "$lib/models/Event";
   import Post from "../../Post.svelte";
   import Followers from "./Followers.svelte";
@@ -32,7 +29,7 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Separator } from "$lib/components/ui/separator";
-  import {Users, LucideUserPlus} from "lucide-svelte/icons";
+  import { Users, LucideUserPlus } from "lucide-svelte/icons";
 
   let activeTab: string = "posts";
   let userInfo: UserInfo;
@@ -86,12 +83,10 @@
     </div>
 
     <!-- Card Content with Blur Effect -->
-    <CardContent class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg">
-      
-    </CardContent>
+    <CardContent class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg"
+    ></CardContent>
   </Card>
 
- 
   <Tabs.Root value="post" class="">
     <Tabs.List class="grid grid-cols-4">
       <Tabs.Trigger class="underline-tabs-trigger" value="post"
@@ -104,9 +99,9 @@
     <Tabs.Content value="post">
       <div class="">
         {#each events as event}
-        <div class="border border-border p-5">
-          <Post {event} />
-        </div>
+          <div class="border border-border p-5">
+            <Post {event} />
+          </div>
         {/each}
       </div>
     </Tabs.Content>

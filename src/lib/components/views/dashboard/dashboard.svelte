@@ -7,9 +7,93 @@
        import type { Profile } from "$lib/models/Profile";
        import * as Table from "$lib/components/ui/ui/table/index";
        import { Badge } from "$lib/components/ui/ui/badge/index.js";
+       import { postsStore, profilesStore } from "$lib/stores/dashboard.store";
+       import { onMount } from "svelte";
+       import { subscribe } from "diagnostics_channel";
+       import type { Post } from "$lib/models/Meme";
 
-       let profiles: Profile[] = [];
        let selectedProfileId: number | null = null;
+
+       function getPosts() {
+              postsStore.addPost({
+                     Tags: ["e"],
+                     Content: "0",
+                     Kind: "image",
+              });
+              postsStore.addPost({
+                     Tags: ["e"],
+                     Content: "0",
+                     Kind: "image",
+              });
+              postsStore.addPost({
+                     Tags: ["e"],
+                     Content: "0",
+                     Kind: "image",
+              });
+              postsStore.addPost({
+                     Tags: ["e"],
+                     Content: "0",
+                     Kind: "image",
+              });
+       }
+
+       function getProfiles() {
+              profilesStore.addProfile({
+                     name: "Liam Johnson",
+                     about: "dsd89sdf89sdf",
+                     picture: "https://avatars.githubusercontent.com/u/1?v=4",
+                     display_name: "Liam Johnson",
+                     website: "https://liamjohnson.dev",
+                     banner: "https://avatars.githubusercontent.com/u/1?v=4",
+                     bot: false,
+              });
+
+              profilesStore.addProfile({
+                     name: "Liam Johnson",
+                     about: "dsd89sdf89sdf",
+                     picture: "https://avatars.githubusercontent.com/u/1?v=4",
+                     display_name: "Liam Johnson",
+                     website: "https://liamjohnson.dev",
+                     banner: "https://avatars.githubusercontent.com/u/1?v=4",
+                     bot: false,
+              });
+
+              profilesStore.addProfile({
+                     name: "Liam Johnson",
+                     about: "dsd89sdf89sdf",
+                     picture: "https://avatars.githubusercontent.com/u/1?v=4",
+                     display_name: "Liam Johnson",
+                     website: "https://liamjohnson.dev",
+                     banner: "https://avatars.githubusercontent.com/u/1?v=4",
+                     bot: false,
+              });
+
+              profilesStore.addProfile({
+                     name: "Liam Johnson",
+                     about: "dsd89sdf89sdf",
+                     picture: "https://avatars.githubusercontent.com/u/1?v=4",
+                     display_name: "Liam Johnson",
+                     website: "https://liamjohnson.dev",
+                     banner: "https://avatars.githubusercontent.com/u/1?v=4",
+                     bot: false,
+              });
+       }
+
+       onMount(() => {
+              getPosts();
+              getProfiles();
+       });
+
+       let relays: Array<Profile> = [];
+       let posts: Array<Post> = [];
+
+       profilesStore.subscribe((value) => {
+              relays = value;
+       });
+
+       postsStore.subscribe((value) => {
+              posts = value;
+       });
 </script>
 
 <div class="flex min-h-screen w-full flex-col py-20">
@@ -26,7 +110,9 @@
                                    <Zap class="text-muted-foreground h-4 w-4" />
                             </Card.Header>
                             <Card.Content>
-                                   <div class="text-2xl font-bold">12</div>
+                                   <div class="text-2xl font-bold">
+                                          {profilesStore.subscribe.length}
+                                   </div>
                                    <p class="text-white text-xs">+20% today</p>
                             </Card.Content>
                      </Card.Root>
@@ -96,40 +182,43 @@
                                           </Table.Row>
                                    </Table.Header>
                                    <Table.Body>
-                                          <Table.Row class="bg-accent">
-                                                 <Table.Cell>
-                                                        <div
-                                                               class="font-medium"
+                                          {#each relays as profile}
+                                                 <Table.Row class="bg-accent">
+                                                        <Table.Cell>
+                                                               <div
+                                                                      class="font-medium"
+                                                               >
+                                                                      {profile.name}
+                                                               </div>
+                                                               <div
+                                                                      class="text-muted-foreground hidden text-sm md:inline"
+                                                               >
+                                                                      {profile.about}
+                                                               </div>
+                                                        </Table.Cell>
+                                                        <Table.Cell
+                                                               class="hidden sm:table-cell"
+                                                               >{profile.website}</Table.Cell
                                                         >
-                                                               Liam Johnson
-                                                        </div>
-                                                        <div
-                                                               class="text-muted-foreground hidden text-sm md:inline"
+                                                        <Table.Cell
+                                                               class="hidden sm:table-cell"
                                                         >
-                                                               dsd89sdf89sdf
-                                                        </div>
-                                                 </Table.Cell>
-                                                 <Table.Cell
-                                                        class="hidden sm:table-cell"
-                                                        >Sale</Table.Cell
-                                                 >
-                                                 <Table.Cell
-                                                        class="hidden sm:table-cell"
-                                                 >
-                                                        <Badge
-                                                               class="text-xs"
-                                                               variant="secondary"
-                                                               >Fulfilled</Badge
+                                                               <Badge
+                                                                      class="text-xs"
+                                                                      variant="secondary"
+                                                                      >Fulfilled</Badge
+                                                               >
+                                                        </Table.Cell>
+                                                        <Table.Cell
+                                                               class="hidden md:table-cell"
+                                                               >2023-06-23</Table.Cell
                                                         >
-                                                 </Table.Cell>
-                                                 <Table.Cell
-                                                        class="hidden md:table-cell"
-                                                        >2023-06-23</Table.Cell
-                                                 >
-                                                 <Table.Cell class="text-right"
-                                                        >$250.00</Table.Cell
-                                                 >
-                                          </Table.Row>
+                                                        <Table.Cell
+                                                               class="text-right"
+                                                               >$250.00</Table.Cell
+                                                        >
+                                                 </Table.Row>
+                                          {/each}
                                    </Table.Body>
                             </Table.Root>
                      </Card.Content>
