@@ -74,6 +74,7 @@ let _userInfo: UserInfo = {
   Subscriptions: 0
 }
 export const userRelay = writable<string>();
+export const isConnected = writable<boolean>(false);
 export const currentUser = writable<UserInfo>(_userInfo);
 export const user = writable<UserInfo>(_userInfo);
 export const subscribers = writable<Array<UserInfo>>([_userInfo, _userInfo, _userInfo, _userInfo]);
