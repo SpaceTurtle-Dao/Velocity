@@ -40,7 +40,7 @@
   }
 
   currentUser.subscribe((value) => {
-    profile = value;
+    // profile = value;
   });
 </script>
 

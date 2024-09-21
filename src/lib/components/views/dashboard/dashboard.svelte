@@ -8,8 +8,6 @@
        import * as Table from "$lib/components/ui/ui/table/index";
        import { Badge } from "$lib/components/ui/ui/badge/index.js";
 
-       // import * as Table from "$lib/registry/default/ui/table/index.js";
-
        let profiles: Profile[] = [];
        let selectedProfileId: number | null = null;
 </script>
