@@ -6,11 +6,11 @@
   import ConnectWalletButton from "$lib/components/wallet.svelte";
   import { navigate } from "svelte-routing";
   import { profileFromEvent, type Profile, type UserInfo } from "$lib/models/Profile";
+  import CreateProfile from "./CreateProfile.svelte";
 
   let userInfo: UserInfo;
   let userProfile: Profile;
   let isConnected = false;
-  let isWalletConnected = false;
 
   // Check if the wallet is connected on mount
   onMount(async () => {
@@ -42,7 +42,6 @@
         const address = await window.arweaveWallet.getActiveAddress();
         if (address) {
           isConnected = true;
-          isWalletConnected = true; // Mark wallet as connected
           await fetchProfile();
         }
       } catch (error) {
@@ -59,26 +58,14 @@
   }
 </script>
 
-<!-- UI Logic -->
-{#if !isWalletConnected}
-  <!-- Show Connect Wallet Button if not connected -->
-  <ConnectWalletButton />
-{:else if !isConnected}
-  <!-- Redirect to CreateProfile if connected but no profile exists -->
-  <p>Redirecting to create profile...</p>
-{:else}
-  {#if userInfo}
-  <!-- Show Profile Info if connected and profile exists -->
-  <button class="flex items-center space-x-4">
-    <Avatar class="h-12 w-12 ring-4">
-      <AvatarImage src={toUrl(userProfile.picture)} alt={userProfile.name} />
-      <AvatarFallback>{userProfile.name}</AvatarFallback>
-    </Avatar>
-    <div class="flex-grow text-left">
-      <p class="font-semibold text-white">{userProfile.name}</p>
-      <p class="text-sm text-white">@{userInfo.Profile.pubkey.slice(0, 12)}</p>
-    </div>
-    <MoreHorizontal class="w-5 h-5 text-white" />
-  </button>
-  {/if}
-{/if}
+<button class="flex items-center space-x-4">
+  <Avatar class="h-12 w-12 ring-4">
+    <AvatarImage src={toUrl(userProfile.picture)} alt={userProfile.name} />
+    <AvatarFallback>{userProfile.name}</AvatarFallback>
+  </Avatar>
+  <div class="flex-grow text-left">
+    <p class="font-semibold text-white">{userProfile.name}</p>
+    <p class="text-sm text-white">@{userInfo.Profile.pubkey.slice(0, 12)}</p>
+  </div>
+  <MoreHorizontal class="w-5 h-5 text-white" />
+</button>

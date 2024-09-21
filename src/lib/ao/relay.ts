@@ -30,7 +30,7 @@ export const event = async (
 ) => {
     try {
         // @ts-ignore
-        let message = Event(quantity, amount, kind, tags, content, parent);
+        let message = Event();
         let result = await send(relay, message, value);
         console.log(result);
     } catch (e) {
@@ -75,7 +75,7 @@ export const setOwner = async (
     try {
         // @ts-ignore
         let message = SetOwner(owner);
-        let result = await send(relay, message,null);
+        let result = await send(relay, message, null);
         console.log(result);
     } catch (e) {
         console.log(e);
@@ -86,7 +86,7 @@ export const spawnRelay = async () => {
     try {
         // @ts-ignore
         let message = Request();
-        let result = await send(INDEXER_ID(), message,null);
+        let result = await send(INDEXER_ID(), message, null);
         console.log(result);
     } catch (e) {
         console.log(e);
@@ -177,12 +177,12 @@ export const subscriptions = async (relay: string, page: string, size: string) =
     return _subs;
 };
 
-export const isSubscribed = async (process: string,relay:string) => {
+export const isSubscribed = async (process: string, relay: string) => {
     try {
         // @ts-ignore
         let message = IsSubscribed(relay);
         let result = await read(process, message);
-        if (result == undefined) throw(404);
+        if (result == undefined) throw (404);
         console.log(result);
         return result.Data
     } catch (e) {
@@ -195,7 +195,7 @@ export const info = async (process: string) => {
         // @ts-ignore
         let message = Info();
         let result = await read(process, message);
-        if (result == undefined) throw(404);
+        if (result == undefined) throw (404);
         console.log(result);
         let json = JSON.parse(result.Data);
         console.log(json);
@@ -205,15 +205,16 @@ export const info = async (process: string) => {
     }
 };
 
-export const relay = async (owner: string): Promise<string> => {
-    let _relay = "";
+export const relay = async (owner: string): Promise<string | null> => {
+    let _relay = null;
     try {
         // @ts-ignore
         let message = Relay(owner);
         let result = await read(INDEXER_ID(), message);
-        if (result == undefined) throw(404);
-        console.log(result);
-        return result.Data
+        if (result) {
+            console.log(result);
+            _relay = result.Data
+        }
     } catch (e) {
         console.log(e);
     }
