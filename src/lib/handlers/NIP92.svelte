@@ -1,65 +1,86 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import type { Event } from "$lib/models/Event";
-  
-    export let event: Event;
-  
-    let parsedTags: { key: string; value: string; extra?: string }[] = [];
-    let imetaTag: { [key: string]: string } = {};
-    let hasRequiredTags = false;
-  
-    const REQUIRED_KEYS = ['imeta', 'url'];
-    const POSSIBLE_KEYS = [...REQUIRED_KEYS, 'm', 'blurhash', 'dim', 'alt', 'x'];
-  
-    onMount(() => {
-      parseTags();
-      checkRequiredTags();
-    });
-  
-    function parseTags() {
-      parsedTags = event.tags
-        .filter(tag => POSSIBLE_KEYS.includes(tag[0]))
-        .map(tag => ({
-          key: tag[0],
-          value: tag[1],
-          extra: tag[2]
-        }));
-  
-      imetaTag = Object.fromEntries(
-        parsedTags
-          .filter(tag => tag.key !== 'imeta')
-          .map(tag => [tag.key, tag.value])
-      );
+  import { onMount } from "svelte";
+  import type { Event } from "$lib/models/Event";
+  import { Video } from "flowbite-svelte";
+  import { Button } from "$lib/components/ui/button/index.js";
+  export let event: Event;
+  let inlineUrl: string;
+  let media: string;
+  let mimeType: string;
+  let thumb: string;
+
+  function toUrl(tx: string) {
+    return (
+      "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
+      tx
+    );
+  }
+
+  function convert() {
+    var text = document.getElementById("url")!.innerHTML;
+    var exp =
+      /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    var text1 = text.replace(exp, "<a href='$1'>$1</a>");
+    var exp2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+    document.getElementById("converted_url")!.innerHTML = text1.replace(
+      exp2,
+      '$1<a target="_blank" href="http://$2">$2</a>',
+    );
+  }
+
+  function parseTags() {
+    let isImeta = false;
+    inlineUrl = event.content.match(/https?:\/\/[^\s]+/)![0];
+    let tags = event.tags[0];
+    console.log(tags);
+    for (var i in tags) {
+      let tag = tags[i];
+      console.log(tag);
+      if (tag == "imeta") {
+        isImeta = true;
+      }
     }
-  
-    function checkRequiredTags() {
-      hasRequiredTags = REQUIRED_KEYS.every(key => 
-        parsedTags.some(tag => tag.key === key)
-      );
+    if (isImeta) {
+      for (var i in tags) {
+        let tag = tags[i];
+        console.log(tag.split(" "));
+        if (tag.split(" ")[0] == "url" && inlineUrl == tag.split(" ")[1]) {
+          media = tag.split(" ")[1];
+        }
+        if (tag.split(" ")[0] == "m") {
+          mimeType = tag.split(" ")[1];
+        }
+        if (tag.split(" ")[0] == "thumb") {
+          thumb = tag.split(" ")[1];
+        }
+      }
     }
-  </script>
-  
-  <div class="tag-container p-4 bg-gray-100 rounded-lg">
-    {#if hasRequiredTags}
-      <h3 class="text-xl font-bold mb-2">Image Metadata (imeta):</h3>
-      <ul class="list-disc pl-5 mb-4">
-        {#each Object.entries(imetaTag) as [key, value]}
-          <li class="mb-1"><strong>{key}:</strong> {value}</li>
-        {/each}
-      </ul>
-    {:else}
-      <p class="error text-red-500 mb-4">Error: Missing required tags (imeta and url)</p>
-    {/if}
-  
-    <h3 class="text-xl font-bold mb-2">All Tags:</h3>
-    <ul class="list-disc pl-5">
-      {#each parsedTags as tag}
-        <li class="mb-1">
-          <strong>{tag.key}:</strong> {tag.value}
-          {#if tag.extra}
-            <span class="text-gray-600">(Extra: {tag.extra})</span>
-          {/if}
-        </li>
-      {/each}
-    </ul>
-  </div>
+    console.log(media);
+    console.log(mimeType);
+    console.log(thumb);
+  }
+
+  onMount(() => {
+    parseTags();
+  });
+</script>
+
+{#if mimeType && media && inlineUrl}
+  <article class="pl-11 pb-6 pt-1 text-primary text-wrap ...">
+    <p>{event.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
+  </article>
+  {#if mimeType.startsWith("image/")}
+    <img alt="The project logo" src={media} />
+  {:else}
+    <Video src={media} controls />
+  {/if}
+{:else if inlineUrl}
+  <article class="pl-11 pt-1 justify-left text-primary text-wrap ...">
+    <p>{event.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
+  </article>
+  <Button href={inlineUrl} variant="link" class="pl-11 pb-6 text-blue-500">{inlineUrl}</Button>
+{:else}
+  <article class="pl-11 pb-6 pt-1 text-primary text-wrap ...">
+    <p>{event.content}</p>
+  </article>
+{/if}

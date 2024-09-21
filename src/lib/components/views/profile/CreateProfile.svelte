@@ -4,10 +4,6 @@
   import type { Event } from '$lib/models/Event';
   import type { Profile, UserInfo } from '$lib/models/Profile';
   import { currentUser, userRelay } from '../../../stores/profile.store';
-  import { Button, Card } from 'flowbite-svelte';
-  import { CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-  import { Label } from 'bits-ui';
-  import Input from '$lib/components/ui/input/input.svelte';
 
   let profile: Profile;
   let userInfo: UserInfo;

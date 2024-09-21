@@ -3,7 +3,7 @@
   import "./app.css";
   import Navbar from "$lib/components/Navbar.svelte";
   import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
-  import CreatePostModal from "$lib/components/CreateMeme.svelte";
+  import CreatePostModal from "$lib/components/CreatePost.svelte";
   import Feed from "$lib/components/Feed.svelte";
   import ProfileCreation from "$lib/components/views/profile/CreateProfile.svelte";
   import UpdateUserProfile from "$lib/components/views/profile/UpdateUserProfile.svelte";
