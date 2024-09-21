@@ -34,6 +34,13 @@
 		return _tags;
 	};
 
+	export const GetOwner = () => {
+		let _tags = [
+			{ name: "Action", value: "GetOwner" },
+		];
+		return _tags;
+	};
+
 	export const Info = () => {
 		let _tags = [{ name: "Action", value: "Info" }];
 		return _tags;

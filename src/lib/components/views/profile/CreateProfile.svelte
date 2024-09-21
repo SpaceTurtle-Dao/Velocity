@@ -1,155 +1,163 @@
 <script lang="ts">
-  import { writable } from "svelte/store";
+  import { createEventDispatcher } from "svelte";
+  import { z } from "zod";
   import type { Event } from "$lib/models/Event";
-  import type { Profile, UserInfo } from "$lib/models/Profile";
-  import { currentUser, userRelay } from "../../../stores/profile.store";
+  import type { UserInfo } from "$lib/models/Profile";
+  import { currentUser } from "$lib/stores/profile.store";
+  import { Input } from "$lib/components/ui/input";
+  import { Label } from "$lib/components/ui/label";
+  import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+  } from "$lib/components/ui/card";
+  import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
+  import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import {
+    spawnRelay,
+    relay,
+    event as _event,
+    info,
+    getOwner,
+  } from "$lib/ao/relay";
+  import { walletAddress } from "$lib/stores/walletStore";
+  import { add } from "date-fns/fp/add";
 
-  let profile: Profile;
+  // Zod schema for initial profile validation
+  const initialProfileSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    display_name: z.string().min(1, "Display Name is required"),
+  });
+
+  type InitialProfileSchemaType = z.infer<typeof initialProfileSchema>;
+
+  let profile: InitialProfileSchemaType = {
+    name: "",
+    display_name: "",
+  };
+
+  // display greeting every 3 seconds
+  let spawnInterval: any;
+  let evalInterval: any;
+  let address: string;
+  let _relay: string;
+  let profileEvent: string;
+
   let userInfo: UserInfo;
+  let errors: Partial<Record<keyof InitialProfileSchemaType, string>> = {};
 
   currentUser.subscribe((value) => {
     userInfo = value;
-    if (userInfo.Profile && userInfo.Profile.kind === 0) {
-      profile = JSON.parse(userInfo.Profile.content);
-    } else {
-      profile = {
-        name: "",
-        about: "",
-        picture: "",
-        display_name: "",
-        website: "",
-        banner: "",
-        bot: false,
-      };
-    }
   });
 
-  async function updateProfile() {
-    const event: Omit<Event, "id"> = {
-      pubkey: userInfo.Token,
-      created_at: Math.floor(Date.now() / 1000),
-      kind: 0,
-      tags: [],
-      content: JSON.stringify(profile),
-    };
+  function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
-    const serialized = JSON.stringify([
-      0,
-      event.pubkey,
-      event.created_at,
-      event.kind,
-      event.tags,
-      event.content,
-    ]);
+  async function checkEvaluated() {
+    let owner = await getOwner(_relay);
+    console.log(owner);
+    console.log(address);
+    if (owner == address) {
+      clearInterval(evalInterval);
+      console.log("evaluated");
+      await _event(profileEvent, _relay!);
+      //done
+    } else {
+      console.log("polling for eval");
+    }
+  }
 
-    const eventId = await crypto.subtle.digest(
-      "SHA-256",
-      new TextEncoder().encode(serialized),
-    );
-    const idHex = Array.from(new Uint8Array(eventId))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
+  async function checkSpawned() {
+    let __relay = await relay(address);
+    if (__relay) {
+      _relay = __relay;
+      clearInterval(spawnInterval);
+      console.log("relay");
+      console.log(_relay);
+      evalInterval = setInterval(checkEvaluated, 1000);
+    } else {
+      console.log("polling for relay");
+    }
+  }
+  async function createProfile() {
+    try {
+      // Validate the profile data
+      initialProfileSchema.parse(profile);
+      errors = {};
 
-    const fullEvent: Event = {
-      ...event,
-      id: idHex,
-    };
+      // Prepare the content for the event
+      const content = JSON.stringify({
+        name: profile.name,
+        display_name: profile.display_name,
+      });
 
-    console.log("Profile update event:", fullEvent);
+      const event = {
+        kind: 0, // Kind 0 is for metadata events in Nostr
+        tags: [], // Metadata events typically don't have tags
+        content: content,
+      };
 
-    userInfo.Profile = fullEvent;
-    currentUser.set(userInfo);
-
-    // if ($userRelay) {
-    //   const relayConnection = await connectToRelay($userRelay);
-    //   await relayConnection.publish(fullEvent);
-    // }
+      profileEvent = JSON.stringify(event);
+      try {
+        //display some loading indicator and UI informing the user that we are waiting
+        address = await window.arweaveWallet.getActiveAddress();
+        await spawnRelay();
+        //wait sometime to fetch relay
+        spawnInterval = setInterval(checkSpawned, 1000);
+      } catch (error) {
+        console.error("Error creating profile:", error);
+        // Handle error (e.g., show error message to user)
+      }
+    } catch (err) {}
   }
 </script>
 
-<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-  <h2 class="text-2xl font-bold mb-6 text-gray-800">Update Your Profile</h2>
-  <form on:submit|preventDefault={updateProfile} class="space-y-4">
-    <div>
-      <label for="name" class="block text-sm font-medium text-gray-700"
-        >Name</label
-      >
-      <input
-        type="text"
-        id="name"
-        bind:value={profile.name}
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-      />
-    </div>
-    <div>
-      <label for="display_name" class="block text-sm font-medium text-gray-700"
-        >Display Name</label
-      >
-      <input
-        type="text"
-        id="display_name"
-        bind:value={profile.display_name}
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-      />
-    </div>
-    <div>
-      <label for="about" class="block text-sm font-medium text-gray-700"
-        >About</label
-      >
-      <textarea
-        id="about"
-        bind:value={profile.about}
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-        rows="3"
-      ></textarea>
-    </div>
-    <div>
-      <label for="picture" class="block text-sm font-medium text-gray-700"
-        >Picture URL</label
-      >
-      <input
-        type="url"
-        id="picture"
-        bind:value={profile.picture}
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-      />
-    </div>
-    <div>
-      <label for="website" class="block text-sm font-medium text-gray-700"
-        >Website</label
-      >
-      <input
-        type="url"
-        id="website"
-        bind:value={profile.website}
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-      />
-    </div>
-    <div>
-      <label for="banner" class="block text-sm font-medium text-gray-700"
-        >Banner URL</label
-      >
-      <input
-        type="url"
-        id="banner"
-        bind:value={profile.banner}
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-      />
-    </div>
-    <div class="flex items-center">
-      <input
-        type="checkbox"
-        id="bot"
-        bind:checked={profile.bot}
-        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-      />
-      <label for="bot" class="ml-2 block text-sm text-gray-900">Bot</label>
-    </div>
-    <button
-      type="submit"
-      class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+<Dialog.Root>
+  <Dialog.Trigger>
+    <Button
+      class="w-44 h-12 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center "
+      >Create Profile</Button
     >
-      Update Profile
-    </button>
-  </form>
-</div>
+  </Dialog.Trigger>
+  <Dialog.Content class="sm:max-w-[425px]">
+    <Dialog.Header>
+      <Dialog.Title class="text-primary">Create Your Profile</Dialog.Title>
+    </Dialog.Header>
+    <form on:submit|preventDefault={createProfile} class="space-y-6">
+      <div class="space-y-2">
+        <Label for="name" class="text-lg font-medium text-primary">Name</Label>
+        <Input
+          id="name"
+          bind:value={profile.name}
+          placeholder="Enter your name"
+          class="w-full p-2 border rounded text-primary"
+        />
+        {#if errors.name}
+          <p class="text-red-500 text-sm">{errors.name}</p>
+        {/if}
+      </div>
+
+      <div class="space-y-2">
+        <Label for="display_name" class="text-lg font-medium text-primary"
+          >Display Name</Label
+        >
+        <Input
+          id="display_name"
+          bind:value={profile.display_name}
+          placeholder="Enter your display name"
+          class="w-full p-2 border rounded text-primary"
+        />
+        {#if errors.display_name}
+          <p class="text-red-500 text-sm">{errors.display_name}</p>
+        {/if}
+      </div>
+      <Dialog.Footer>
+        <div class="flex w-full justify-center">
+          <Button class="w-48 self-center" type="submit">Create Profile</Button>
+        </div>
+      </Dialog.Footer>
+    </form></Dialog.Content
+  >
+</Dialog.Root>
