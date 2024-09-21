@@ -9,7 +9,6 @@
        import { Badge } from "$lib/components/ui/ui/badge/index.js";
        import { postsStore, profilesStore } from "$lib/stores/dashboard.store";
        import { onMount } from "svelte";
-       import { subscribe } from "diagnostics_channel";
        import type { Post } from "$lib/models/Meme";
 
        let selectedProfileId: number | null = null;
