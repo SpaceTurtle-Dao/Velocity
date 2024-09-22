@@ -34,7 +34,6 @@
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
   import RelayButtons from "$lib/components/Relay.svelte";
   import Dashboard from "$lib/components/views/dashboard/dashboard.svelte";
-
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
   import ConnectWalletButton from "$lib/components/wallet.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
