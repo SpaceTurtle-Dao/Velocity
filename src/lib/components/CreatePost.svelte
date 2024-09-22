@@ -2,7 +2,7 @@
     import { createEventDispatcher, onMount } from "svelte";
     import { Button } from "$lib/components/ui/button";
     import { Image, X } from "lucide-svelte";
-    import type { Event as _Event } from "$lib/models/Event";
+    import type { EventRequest } from "$lib/models/Event";
     import { Textarea } from "./ui/textarea";
   
     export let isOpen = false;
@@ -12,7 +12,7 @@
     let mediaPreviewUrl: string | null = null;
     let isLoading = false;
   
-    let events: Array<Event> = [];
+    let event:EventRequest;
   
     const dispatch = createEventDispatcher();
   
@@ -43,7 +43,19 @@
     }
   
     function handleSubmit() {
+      let imeta = "imeta"
+      let mimetype = ""
+      let dimisions = "" //"3024x4032"
+      let _url = "" // actual url
+      let url = "url "+_url
+      let m = "m "+mimetype
+      let dim = "dim "+dimisions
       isLoading = true;
+      event = {
+        kind: 1,
+        tags: [[imeta,url,m,dim]],
+        content: content + " "+url
+      }
       setTimeout(() => {
         isLoading = false;
         closeModal();
