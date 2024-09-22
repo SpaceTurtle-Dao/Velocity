@@ -2,6 +2,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import { Image, XCircle } from "lucide-svelte";
+  import type { Event } from "$lib/models/Event";
 
   export let isOpen = false;
   let content = "";
@@ -9,6 +10,8 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
   let isLoading = false;
+
+  let events: Array<Event> = [];
 
   const dispatch = createEventDispatcher();
 
@@ -39,9 +42,7 @@
   }
 
   function handleSubmit() {
-    // Implement post creation logic here
     isLoading = true;
-    // Simulating API call
     setTimeout(() => {
       isLoading = false;
       closeModal();
@@ -59,11 +60,11 @@
 </script>
 
 {#if isOpen}
-  <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg">
+  <div class="fixed inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="bg-background rounded-xl p-6 w-full max-w-lg shadow-lg">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-semibold text-gray-900">Create Post</h2>
-        <Button variant="ghost" on:click={closeModal} class="text-gray-600 hover:text-gray-900">
+        <h2 class="text-2xl font-semibold text-foreground">Create Post</h2>
+        <Button variant="ghost" on:click={closeModal} class="text-muted-foreground hover:text-foreground">
           <XCircle size={24} />
         </Button>
       </div>
@@ -72,7 +73,7 @@
         <textarea
           bind:value={content}
           placeholder="What's happening?!"
-          class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          class="w-full p-3 rounded-lg border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
           rows="4"
         ></textarea>
 
@@ -86,9 +87,9 @@
             {/if}
             <Button
               type="button"
-              variant="ghost"
+              variant="destructive"
               on:click={removeSelectedMedia}
-              class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+              class="absolute top-2 right-2 p-1 rounded-full"
             >
               <XCircle size={20} />
             </Button>
@@ -99,11 +100,11 @@
               type="button"
               variant="ghost"
               on:click={handleMediaButtonClick}
-              class="text-blue-600 hover:bg-blue-50 p-2 rounded-full"
+              class="text-primary hover:bg-primary/10 p-2 rounded-full"
             >
               <Image size={24} />
             </Button>
-            <span class="text-sm text-gray-600">Add photo or video</span>
+            <span class="text-sm text-muted-foreground">Add photo or video</span>
           </div>
         {/if}
 
@@ -117,7 +118,7 @@
 
         <Button
           type="submit"
-          class="w-full py-2 px-4 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition duration-200"
+          class="w-full py-2 px-4 bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition duration-200"
           disabled={isLoading || (!content && !selectedMedia)}
         >
           {isLoading ? "Posting..." : "Post"}
@@ -126,8 +127,6 @@
     </div>
   </div>
 {/if}
-
-
 
 
 <!-- <script lang="ts">
