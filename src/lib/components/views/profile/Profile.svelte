@@ -20,11 +20,7 @@
     type Profile,
     type UserInfo,
   } from "$lib/models/Profile";
-  import {
-    currentUser,
-    userEvents,
-    user,
-  } from "../../../stores/profile.store";
+  import { currentUser, userEvents, user } from "../../../stores/profile.store";
   import type { Event } from "$lib/models/Event";
   import Post from "../../Post.svelte";
   import Followers from "./Followers.svelte";
@@ -32,20 +28,42 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Separator } from "$lib/components/ui/separator";
-  import {Users, LucideUserPlus} from "lucide-svelte/icons";
+  import { Users, LucideUserPlus } from "lucide-svelte/icons";
+  import { onMount } from "svelte";
+  import { fetchEvents } from "$lib/ao/relay";
 
   let activeTab: string = "posts";
   let userInfo: UserInfo;
   let userProfile: Profile;
   let events: Array<Event> = [];
+  let filters: Array<any> = [];
 
   user.subscribe((value) => {
-    userInfo = value;
-    userProfile = profileFromEvent(userInfo.Profile);
+    if (value) {
+      let filter = {
+        ids:[],
+        authors:[],
+        kinds:[1],
+        since:1663905355000,
+        until:1727049355000,
+        limit:100
+      };
+      filters.push(filter)
+      userInfo = value;
+      userProfile = profileFromEvent(userInfo.Profile);
+      let _filters = JSON.stringify(filters);
+      if (userInfo) {
+        console.log("///FETCHING EVENTS///");
+        fetchEvents(userInfo.Profile.pubkey, _filters);
+      }
+    }
   });
 
   userEvents.subscribe((value) => {
-    events = value;
+    if (value.length > 0) {
+      console.log("///GOT EVENTS///");
+      events = value;
+    }
   });
 
   function toUrl(tx: string) {
@@ -58,74 +76,81 @@
   function setActiveTab(tab: string) {
     activeTab = tab;
   }
+
+  onMount(async () => {});
 </script>
 
-<div>
-  <Card
-    class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border"
-  >
-    <!-- Gradient Header -->
-    <div class="p-8">
-      <div class="flex items-center space-x-6">
-        <!-- Avatar with Border -->
-        <Avatar class="h-28 w-28 rounded-full ring-4 ring-white shadow-lg">
-          <AvatarImage
-            src={toUrl(userProfile.picture)}
-            alt={userProfile.name}
-          />
-          <AvatarFallback>{userProfile.name}</AvatarFallback>
-        </Avatar>
-        <!-- Profile Info -->
-        <div>
-          <h1 class="text-4xl font-extrabold text-white leading-tight">
-            {userProfile.name}
-          </h1>
-          <p class="text-lg text-pink-100">@{userProfile.name}</p>
+{#if userInfo}
+  <div>
+    <Card
+      class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border"
+    >
+      <!-- Gradient Header -->
+      <div class="p-8">
+        <div class="flex items-center space-x-6">
+          <!-- Avatar with Border -->
+          <Avatar class="h-28 w-28 rounded-full ring-4 ring-white shadow-lg">
+            {#if userProfile.picture}
+              <AvatarImage
+                src={toUrl(userProfile.picture)}
+                alt={userProfile.name}
+              />
+            {/if}
+            <AvatarFallback>{userProfile.name}</AvatarFallback>
+          </Avatar>
+          <!-- Profile Info -->
+          <div>
+            <h1 class="text-4xl font-extrabold text-white leading-tight">
+              {userProfile.name}
+            </h1>
+            <p class="text-lg text-pink-100">@{userProfile.name}</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Card Content with Blur Effect -->
-    <CardContent class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg">
-      
-    </CardContent>
-  </Card>
+      <!-- Card Content with Blur Effect -->
+      <CardContent class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg"
+      ></CardContent>
+    </Card>
 
- 
-  <Tabs.Root value="post" class="">
-    <Tabs.List class="grid grid-cols-4">
-      <Tabs.Trigger class="underline-tabs-trigger" value="post"
-        >Post</Tabs.Trigger
-      >
-      <Tabs.Trigger value="media">Media</Tabs.Trigger>
-      <Tabs.Trigger value="following">Following</Tabs.Trigger>
-      <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
-    </Tabs.List>
-    <Tabs.Content value="post">
-      <div class="">
-        {#each events as event}
-        <div class="border border-border p-5">
-          <Post {event} />
+    <Tabs.Root value="post" class="">
+      <Tabs.List class="grid grid-cols-4">
+        <Tabs.Trigger class="underline-tabs-trigger" value="post"
+          >Post</Tabs.Trigger
+        >
+        <Tabs.Trigger value="media">Media</Tabs.Trigger>
+        <Tabs.Trigger value="following">Following</Tabs.Trigger>
+        <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="post">
+        <div class="">
+          {#each events as event}
+            <div class="border border-border p-5">
+              <Post {event} />
+            </div>
+          {/each}
         </div>
-        {/each}
-      </div>
-    </Tabs.Content>
-    <Tabs.Content value="media"></Tabs.Content>
-    <Tabs.Content value="following">
-      <Followers
-        relay={$user.Profile.pubkey}
-        userRelay={$currentUser.Profile.pubkey}
-        token={$user.Token}
-        quantity={$user.SubscriptionCost.toString()}
-      />
-    </Tabs.Content>
-    <Tabs.Content value="followers">
-      <Followers
-        relay={$user.Profile.pubkey}
-        userRelay={$currentUser.Profile.pubkey}
-        token={$user.Token}
-        quantity={$user.SubscriptionCost.toString()}
-      />
-    </Tabs.Content>
-  </Tabs.Root>
-</div>
+      </Tabs.Content>
+      <Tabs.Content value="media"></Tabs.Content>
+      <Tabs.Content value="following">
+        <Followers
+          relay={$user.Profile.pubkey}
+          userRelay={$currentUser.Profile.pubkey}
+          token={$user.Token}
+          quantity={$user.SubscriptionCost.toString()}
+        />
+      </Tabs.Content>
+      <Tabs.Content value="followers">
+        <Followers
+          relay={$user.Profile.pubkey}
+          userRelay={$currentUser.Profile.pubkey}
+          token={$user.Token}
+          quantity={$user.SubscriptionCost.toString()}
+        />
+      </Tabs.Content>
+    </Tabs.Root>
+  </div>
+{:else}
+  <!--Some loading UI-->
+  <div>Loading</div>
+{/if}

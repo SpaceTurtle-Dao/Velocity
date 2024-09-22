@@ -2,7 +2,7 @@
     import * as Avatar from "$lib/components/ui/avatar/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Card from "$lib/components/ui/card/index.js";
-    import { MessageCircle, Repeat2, Heart, Share} from 'lucide-svelte';
+    import { MessageCircle, Repeat2, Heart, Share } from "lucide-svelte";
     import {
         profileFromEvent,
         type Profile,
@@ -64,10 +64,12 @@
     <div class="flex justify-between">
         <div class="flex space-x-2">
             <Avatar.Root class="hidden h-9 w-9 sm:flex">
-                <Avatar.Image
-                    src={toUrl(profileFromEvent(_user.Profile).picture)}
-                    alt="Avatar"
-                />
+                {#if profileFromEvent(_user.Profile).name}
+                    <Avatar.Image
+                        src={toUrl(profileFromEvent(_user.Profile).picture)}
+                        alt="Avatar"
+                    />
+                {/if}
                 <Avatar.Fallback>OM</Avatar.Fallback>
             </Avatar.Root>
             <div class="flex space-x-1">
@@ -82,7 +84,7 @@
     </div>
     {#if event.kind == 1}
         <div>
-            <Nip92 {event}/>
+            <Nip92 {event} />
         </div>
     {/if}
     <div class="flex justify-between">

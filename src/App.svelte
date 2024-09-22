@@ -19,7 +19,12 @@
     Edit,
   } from "lucide-svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
-  import { currentUser, userRelay, isConnected } from "./lib/stores/profile.store";
+  import {
+    currentUser,
+    userRelay,
+    isConnected,
+    user,
+  } from "./lib/stores/profile.store";
   import {
     Avatar,
     AvatarFallback,
@@ -30,21 +35,21 @@
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
   import ConnectWalletButton from "$lib/components/wallet.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-    import { relay } from "$lib/ao/relay";
+  import { info, relay } from "$lib/ao/relay";
   export let url = "";
 
   let isCreatePostModalOpen = false;
   let _isConnected = false;
-  let _relay:string = "";
+  let _relay: string = "";
 
   userRelay.subscribe((value) => {
-    console.log("got relay")
-    console.log(value)
-    _relay = value
-  })
+    console.log("got relay");
+    console.log(value);
+    _relay = value;
+  });
   isConnected.subscribe((value) => {
-    _isConnected = value
-  })
+    _isConnected = value;
+  });
 
   function toUrl(tx: string) {
     return (
@@ -61,16 +66,19 @@
         // @ts-ignore
         const address = await window.arweaveWallet.getActiveAddress();
         if (address) {
-          console.log(address)
-          console.log(_isConnected)
+          console.log(address);
+          console.log(_isConnected);
           _isConnected = true;
           let _userRelay = await relay(address);
-          if(_userRelay){
-            userRelay.set(_userRelay)
+          if (_userRelay) {
+            userRelay.set(_userRelay);
+            let _currentUser = await info(_relay)
+            currentUser.set(_currentUser)
+            user.set(_currentUser)
           }
         }
       } catch (error) {
-        console.log(_isConnected)
+        console.log(_isConnected);
         console.error("Failed to get active address:", error);
       }
     }
@@ -167,6 +175,7 @@
 </div>
 
 <CreatePostModal
+  relay={_relay}
   isOpen={isCreatePostModalOpen}
   on:close={toggleCreatePostModal}
   on:submit={handlePostSubmit}

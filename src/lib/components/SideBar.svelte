@@ -105,10 +105,12 @@
       <div class="p-4">
         <div class="bg-gradient-to-r from-secondary-500 to-pink-500 p-6">
           <div class="flex items-center space-x-4">
-            <Avatar class="h-24 w-24 ring-4 ring-white">
-              <AvatarImage src={toUrl(profile.picture)} alt={profile.name} />
-              <AvatarFallback>{profile.name}</AvatarFallback>
-            </Avatar>
+            {#if profile.picture}
+              <Avatar class="h-24 w-24 ring-4 ring-white">
+                <AvatarImage src={toUrl(profile.picture)} alt={profile.name} />
+                <AvatarFallback>{profile.name}</AvatarFallback>
+              </Avatar>
+            {/if}
             <div>
               <h1 class="text-3xl font-extrabold text-white">
                 {profile.name}

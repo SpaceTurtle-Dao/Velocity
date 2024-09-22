@@ -18,7 +18,7 @@ import {
 import { INDEXER_ID, WAR_TOKEN } from "$lib/constants";
 import { upload } from "$lib/ao/uploader";
 
-import { currentUser } from "../stores/profile.store";
+import { currentUser, userEvents } from "../stores/profile.store";
 import { feedPosts, replies } from "../stores/feedpage.store";
 import type { Swap } from "$lib/models/Swap";
 import { swapsStore } from "../stores/pool.store";
@@ -116,24 +116,23 @@ export const fetchFeed = async (relay: string, filters: string) => {
 };
 
 export const fetchEvents = async (relay: string, filters: string) => {
-    let _events: Array<any> = [];
+    console.log("/////RELAY//////")
+    console.log(relay)
+    console.log("/////Filters//////")
+    console.log({_filters:filters})
     try {
         // @ts-ignore
         let message = FetchEvents(filters);
         let result = await read(relay, message);
-        if (result == undefined) return _events;
-        console.log(result);
-        let json = JSON.parse(result.Data);
-        console.log(json);
-        for (const key in json) {
-            _events.push(json[key]);
-            console.log(json[key]);
-        }
-        feedPosts.set(_events)
+        if (result) {
+            console.log(result);
+            let json = JSON.parse(result.Data);
+            console.log(json);
+            userEvents.set(json)
+        };
     } catch (e) {
         console.log(e);
     }
-    return _events;
 };
 
 export const subs = async (relay: string, page: string, size: string) => {

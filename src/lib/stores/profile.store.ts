@@ -75,11 +75,11 @@ let _userInfo: UserInfo = {
 }
 export const userRelay = writable<string>();
 export const isConnected = writable<boolean>(false);
-export const currentUser = writable<UserInfo>(_userInfo);
-export const user = writable<UserInfo>(_userInfo);
+export const currentUser = writable<UserInfo>();
+export const user = writable<UserInfo>();
 export const subscribers = writable<Array<UserInfo>>([_userInfo, _userInfo, _userInfo, _userInfo]);
 export const subscriptions = writable<Array<UserInfo>>([_userInfo, _userInfo, _userInfo, _userInfo]);
-export const userEvents = writable<Array<Event>>([event1, event2, event3]);
+export const userEvents = writable<Array<Event>>([]);
 
 
 // User Data Store
