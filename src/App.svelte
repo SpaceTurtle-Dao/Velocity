@@ -4,7 +4,7 @@
   import "./app.css";
   import Navbar from "$lib/components/Navbar.svelte";
   import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
-  import CreatePostModal from "$lib/components/CreateMeme.svelte";
+  import CreatePostModal from "$lib/components/CreatePost.svelte";
   import Feed from "$lib/components/Feed.svelte";
   //import Explore from "$lib/components/views/explore/Explore.svelte";
   import ProfileCreation from "$lib/components/views/profile/CreateProfile.svelte";
@@ -18,7 +18,6 @@
     Zap, // New icon for Relay
     Edit,
   } from "lucide-svelte";
-  import RepliesPage from "$lib/components/RepliesPage.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
   import { currentUser, userRelay, isConnected } from "./lib/stores/profile.store";
   import {
@@ -161,9 +160,6 @@
         <!--<Route path="/explore" component={Explore} />-->
         <Route path="/UserProfile" component={UserProfile} />
         <Route path="/Feed" component={Feed} />
-        <Route path="/Feed/:id" let:params>
-          <RepliesPage memeId={params.id} />
-        </Route>
         <Route path="/relay" component={RelayButtons} />
       </div>
     </div>
