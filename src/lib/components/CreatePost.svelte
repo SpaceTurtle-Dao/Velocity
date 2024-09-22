@@ -4,6 +4,7 @@
     import { Image, X } from "lucide-svelte";
     import type { EventRequest } from "$lib/models/Event";
     import { Textarea } from "./ui/textarea";
+    import { event } from "$lib/ao/relay";
   
     export let isOpen = false;
     let content = "";
@@ -11,8 +12,8 @@
     let selectedMedia: File | null = null;
     let mediaPreviewUrl: string | null = null;
     let isLoading = false;
-  
-    let event:EventRequest;
+    let relay = ""
+    let _event:EventRequest;
   
     const dispatch = createEventDispatcher();
   
@@ -42,7 +43,7 @@
       }
     }
   
-    function handleSubmit() {
+    async function handleSubmit() {
       let imeta = "imeta"
       let mimetype = ""
       let dimisions = "" //"3024x4032"
@@ -50,16 +51,21 @@
       let url = "url "+_url
       let m = "m "+mimetype
       let dim = "dim "+dimisions
+      
       isLoading = true;
-      event = {
+      _event = {
         kind: 1,
         tags: [[imeta,url,m,dim]],
         content: content + " "+url
       }
-      setTimeout(() => {
+      let json = JSON.stringify(_event)
+      console.log("///////This is the event to be posted////////")
+      console.log(json)
+      //await event(json,relay)
+      /*setTimeout(() => {
         isLoading = false;
         closeModal();
-      }, 1000);
+      }, 1000);*/
     }
   
     onMount(() => {
