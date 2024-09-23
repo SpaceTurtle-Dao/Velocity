@@ -30,7 +30,9 @@
 
   function parseTags() {
     let isImeta = false;
-    inlineUrl = event.content.match(/https?:\/\/[^\s]+/)![0];
+    let match = event.content.match(/https?:\/\/[^\s]+/);
+    if(match == null) return
+    inlineUrl = match[0];
     let tags = event.tags[0];
     console.log(tags);
     for (var i in tags) {

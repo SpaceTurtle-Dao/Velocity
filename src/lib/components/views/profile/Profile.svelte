@@ -39,14 +39,16 @@
   let filters: Array<any> = [];
 
   user.subscribe((value) => {
+    let _key = {
+      "#":"imeta"
+    }
     if (value) {
       let filter = {
-        ids:[],
-        authors:[],
         kinds:[1],
         since:1663905355000,
-        until:1727049355000,
-        limit:100
+        until:Date.now(),
+        limit:100,
+        "#m":["m image/apng", "m image/avif", "m image/gif", "m image/jpeg", "m image/png", "m image/svg+xml", "m image/webp", "m video/x-msvideo","m video/mp4","m video/mpeg","m video/ogg","m video/webm"]
       };
       filters.push(filter)
       userInfo = value;
@@ -57,11 +59,33 @@
         fetchEvents(userInfo.Profile.pubkey, _filters);
       }
     }
+    filters = []
   });
+
+  async function fetchMedia() {
+    console.log("//////FETHCING MEDIA////////")
+    if (userInfo) {
+      let filter = {
+        kinds:[1],
+        since:1663905355000,
+        until:Date.now(),
+        limit:100,
+        "#imeta":["m image/apng", "m image/avif", "m image/gif", "m image/jpeg", "m image/png", "m image/svg+xml", "m image/webp", "m video/x-msvideo","m video/mp4","m video/mpeg","m video/ogg","m video/webm"]
+      };
+      filters.push(filter)
+      let _filters = JSON.stringify(filters);
+      if (userInfo) {
+        console.log("///FETCHING EVENTS///");
+        fetchEvents(userInfo.Profile.pubkey, _filters);
+      }
+    }
+    filters = []
+  }
 
   userEvents.subscribe((value) => {
     if (value.length > 0) {
       console.log("///GOT EVENTS///");
+      console.log(events)
       events = value;
     }
   });
@@ -118,7 +142,7 @@
         <Tabs.Trigger class="underline-tabs-trigger" value="post"
           >Post</Tabs.Trigger
         >
-        <Tabs.Trigger value="media">Media</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
         <Tabs.Trigger value="following">Following</Tabs.Trigger>
         <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
       </Tabs.List>
@@ -131,7 +155,15 @@
           {/each}
         </div>
       </Tabs.Content>
-      <Tabs.Content value="media"></Tabs.Content>
+      <Tabs.Content value="media">
+        <div class="">
+          {#each events as event}
+            <div class="border border-border p-5">
+              <Post {event} />
+            </div>
+          {/each}
+        </div>
+      </Tabs.Content>
       <Tabs.Content value="following">
         <Followers
           relay={$user.Profile.pubkey}

@@ -119,7 +119,7 @@ export const fetchEvents = async (relay: string, filters: string) => {
     console.log("/////RELAY//////")
     console.log(relay)
     console.log("/////Filters//////")
-    console.log({_filters:filters})
+    console.log(JSON.parse(filters))
     try {
         // @ts-ignore
         let message = FetchEvents(filters);
