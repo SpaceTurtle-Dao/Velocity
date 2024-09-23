@@ -88,7 +88,7 @@ export const spawnRelay = async () => {
         // @ts-ignore
         let message = Request();
         let result = await send(INDEXER_ID(), message, null);
-        //console.log(result);
+        console.log(result);
     } catch (e) {
         console.log(e);
     }
@@ -191,7 +191,7 @@ export const isSubscribed = async (process: string, relay: string) => {
     }
 };
 
-export const info = async (process: string):Promise<any | null> => {
+export const info = async (process: string): Promise<any | null> => {
     let _info = null;
     try {
         // @ts-ignore
@@ -207,7 +207,7 @@ export const info = async (process: string):Promise<any | null> => {
     return _info
 };
 
-export const getOwner = async (process: string):Promise<string> => {
+export const getOwner = async (process: string): Promise<string> => {
     let owner = ""
     try {
         // @ts-ignore

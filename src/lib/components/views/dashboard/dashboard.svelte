@@ -10,25 +10,11 @@
        import { postsStore, profilesStore } from "$lib/stores/dashboard.store";
        import { onMount } from "svelte";
        import type { Post } from "$lib/models/Meme";
+       import { relay, relays, info, getOwner } from "$lib/ao/relay";
 
        let selectedProfileId: number | null = null;
 
        function getPosts() {
-              postsStore.addPost({
-                     Tags: ["e"],
-                     Content: "0",
-                     Kind: "image",
-              });
-              postsStore.addPost({
-                     Tags: ["e"],
-                     Content: "0",
-                     Kind: "image",
-              });
-              postsStore.addPost({
-                     Tags: ["e"],
-                     Content: "0",
-                     Kind: "image",
-              });
               postsStore.addPost({
                      Tags: ["e"],
                      Content: "0",
@@ -46,53 +32,46 @@
                      banner: "https://avatars.githubusercontent.com/u/1?v=4",
                      bot: false,
               });
-
-              profilesStore.addProfile({
-                     name: "Liam Johnson",
-                     about: "dsd89sdf89sdf",
-                     picture: "https://avatars.githubusercontent.com/u/1?v=4",
-                     display_name: "Liam Johnson",
-                     website: "https://liamjohnson.dev",
-                     banner: "https://avatars.githubusercontent.com/u/1?v=4",
-                     bot: false,
-              });
-
-              profilesStore.addProfile({
-                     name: "Liam Johnson",
-                     about: "dsd89sdf89sdf",
-                     picture: "https://avatars.githubusercontent.com/u/1?v=4",
-                     display_name: "Liam Johnson",
-                     website: "https://liamjohnson.dev",
-                     banner: "https://avatars.githubusercontent.com/u/1?v=4",
-                     bot: false,
-              });
-
-              profilesStore.addProfile({
-                     name: "Liam Johnson",
-                     about: "dsd89sdf89sdf",
-                     picture: "https://avatars.githubusercontent.com/u/1?v=4",
-                     display_name: "Liam Johnson",
-                     website: "https://liamjohnson.dev",
-                     banner: "https://avatars.githubusercontent.com/u/1?v=4",
-                     bot: false,
-              });
        }
 
        onMount(() => {
-              getPosts();
-              getProfiles();
+              // getPosts();
+              // getProfiles();
+              fetchRelays();
+              // fetchRelayInfo();
        });
 
-       let relays: Array<Profile> = [];
-       let posts: Array<Post> = [];
+       let allRelays: Array<Profile> = [];
+       let allPosts: Array<Post> = [];
 
        profilesStore.subscribe((value) => {
-              relays = value;
+              allRelays = value;
        });
 
        postsStore.subscribe((value) => {
-              posts = value;
+              allPosts = value;
        });
+
+       async function fetchRelays() {
+              let _relays = await relays("1", "10");
+              console.log(_relays);
+              console.log("got relays");
+              let info: Array<any> = [];
+              for (let i = 0; i < _relays.length; i++) {
+                     console.log(_relays[i]);
+                     console.log(typeof _relays[i]);
+                     let _i = await _relayInfo(_relays[i]["owner"]);
+
+                     info.push(_i);
+              }
+              console.log(info);
+              console.log("got info");
+       }
+
+       async function _relayInfo(_owner: string) {
+              let _info = await info(_owner);
+              console.log(_info);
+       }
 </script>
 
 <div class="flex min-h-screen w-full flex-col py-20">
@@ -115,6 +94,7 @@
                                    <p class="text-white text-xs">+20% today</p>
                             </Card.Content>
                      </Card.Root>
+
                      <Card.Root>
                             <Card.Header
                                    class="flex flex-row items-center justify-between space-y-0 pb-2"
@@ -181,7 +161,7 @@
                                           </Table.Row>
                                    </Table.Header>
                                    <Table.Body>
-                                          {#each relays as profile}
+                                          {#each allRelays as profile}
                                                  <Table.Row class="bg-accent">
                                                         <Table.Cell>
                                                                <div
@@ -220,6 +200,138 @@
                                           {/each}
                                    </Table.Body>
                             </Table.Root>
+                     </Card.Content>
+              </Card.Root>
+              <script lang="ts">
+                     import * as Avatar from "$lib/registry/default/ui/avatar/index.js";
+                     import * as Card from "$lib/registry/default/ui/card/index.js";
+              </script>
+
+              <Card.Root>
+                     <Card.Header>
+                            <Card.Title>Recommended</Card.Title>
+                     </Card.Header>
+                     <Card.Content class="grid gap-8">
+                            <div class="flex items-center gap-4">
+                                   <Avatar.Root class="hidden h-9 w-9 sm:flex">
+                                          <Avatar.Image
+                                                 src="/avatars/01.png"
+                                                 alt="Avatar"
+                                          />
+                                          <Avatar.Fallback>OM</Avatar.Fallback>
+                                   </Avatar.Root>
+                                   <div class="grid gap-1">
+                                          <p
+                                                 class="text-sm font-medium leading-none"
+                                          >
+                                                 Olivia Martin
+                                          </p>
+                                          <p
+                                                 class="text-muted-foreground text-sm"
+                                          >
+                                                 olivia.martin@email.com
+                                          </p>
+                                   </div>
+                                   <div class="ml-auto font-medium">
+                                          +$1,999.00
+                                   </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                   <Avatar.Root class="hidden h-9 w-9 sm:flex">
+                                          <Avatar.Image
+                                                 src="/avatars/02.png"
+                                                 alt="Avatar"
+                                          />
+                                          <Avatar.Fallback>JL</Avatar.Fallback>
+                                   </Avatar.Root>
+                                   <div class="grid gap-1">
+                                          <p
+                                                 class="text-sm font-medium leading-none"
+                                          >
+                                                 Jackson Lee
+                                          </p>
+                                          <p
+                                                 class="text-muted-foreground text-sm"
+                                          >
+                                                 jackson.lee@email.com
+                                          </p>
+                                   </div>
+                                   <div class="ml-auto font-medium">
+                                          +$39.00
+                                   </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                   <Avatar.Root class="hidden h-9 w-9 sm:flex">
+                                          <Avatar.Image
+                                                 src="/avatars/03.png"
+                                                 alt="Avatar"
+                                          />
+                                          <Avatar.Fallback>IN</Avatar.Fallback>
+                                   </Avatar.Root>
+                                   <div class="grid gap-1">
+                                          <p
+                                                 class="text-sm font-medium leading-none"
+                                          >
+                                                 Isabella Nguyen
+                                          </p>
+                                          <p
+                                                 class="text-muted-foreground text-sm"
+                                          >
+                                                 isabella.nguyen@email.com
+                                          </p>
+                                   </div>
+                                   <div class="ml-auto font-medium">
+                                          +$299.00
+                                   </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                   <Avatar.Root class="hidden h-9 w-9 sm:flex">
+                                          <Avatar.Image
+                                                 src="/avatars/04.png"
+                                                 alt="Avatar"
+                                          />
+                                          <Avatar.Fallback>WK</Avatar.Fallback>
+                                   </Avatar.Root>
+                                   <div class="grid gap-1">
+                                          <p
+                                                 class="text-sm font-medium leading-none"
+                                          >
+                                                 William Kim
+                                          </p>
+                                          <p
+                                                 class="text-muted-foreground text-sm"
+                                          >
+                                                 will@email.com
+                                          </p>
+                                   </div>
+                                   <div class="ml-auto font-medium">
+                                          +$99.00
+                                   </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                   <Avatar.Root class="hidden h-9 w-9 sm:flex">
+                                          <Avatar.Image
+                                                 src="/avatars/05.png"
+                                                 alt="Avatar"
+                                          />
+                                          <Avatar.Fallback>SD</Avatar.Fallback>
+                                   </Avatar.Root>
+                                   <div class="grid gap-1">
+                                          <p
+                                                 class="text-sm font-medium leading-none"
+                                          >
+                                                 Sofia Davis
+                                          </p>
+                                          <p
+                                                 class="text-muted-foreground text-sm"
+                                          >
+                                                 sofia.davis@email.com
+                                          </p>
+                                   </div>
+                                   <div class="ml-auto font-medium">
+                                          +$39.00
+                                   </div>
+                            </div>
                      </Card.Content>
               </Card.Root>
        </main>

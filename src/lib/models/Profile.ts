@@ -20,7 +20,7 @@ export type Profile = {
   bot: boolean,
 }
 
-export const profileFromEvent = (event:Event) : Profile => {
+export const profileFromEvent = (event: Event): Profile => {
   if (event.kind == 0) return JSON.parse(event.content)
-  throw(400)
+  throw (400)
 }

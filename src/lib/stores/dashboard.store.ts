@@ -1,6 +1,7 @@
 import type { Post } from '$lib/models/Meme';
 import type { Profile } from '$lib/models/Profile';
 import { writable } from 'svelte/store';
+import { relay, relays, info, getOwner } from '$lib/ao/relay';
 
 
 
@@ -12,6 +13,10 @@ const createProfilesStore = () => {
               addProfile(profile: Profile) {
                      update(profiles => [...profiles, profile]);
               },
+
+              fetchProfiles() {
+                     // update(profiles => [...profiles, profile]);
+              }
               // removeProfile(id: number) {
               //        update(profiles => profiles.filter(profile => profile !== id));
               // }

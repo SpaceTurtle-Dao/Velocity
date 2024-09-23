@@ -49,6 +49,7 @@
     console.log(value);
     _relay = value;
   });
+
   isConnected.subscribe((value) => {
     _isConnected = value;
   });
