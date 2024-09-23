@@ -142,7 +142,7 @@
           {#if !_isConnected}
             <ConnectWalletButton />
           {:else if _relay == null || _relay == undefined}
-            <CreateProfile />
+            <CreateProfile/>
           {:else}
             <Button
               on:click={toggleCreatePostModal}
