@@ -38,7 +38,9 @@
     let errors: Partial<Record<keyof ProfileSchemaType, string>> = {};
   
     currentUser.subscribe(value => {
-      userInfo = value;
+      if(value){
+        userInfo = value;
+      }
     });
   
     let pictureFile: File | null = null;

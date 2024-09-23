@@ -27,8 +27,6 @@
                 const address = await window.arweaveWallet.getActiveAddress();
                 isConnected.set(true)
                 let _relay = await relay(address);
-                //let _currentUser = await info(_relay)
-                //currentUser.set(_currentUser)
                 if (_relay) {
                     userRelay.set(_relay);
                 }

@@ -8,6 +8,13 @@ export interface Event {
   tags: Array<Array<string>>;
   content: string;
 }
+
+export interface EventRequest {
+  kind: number;
+  tags: Array<Array<string>>;
+  content: string;
+}
+
 export type EventsStoresData = Array<Event>
 
 const mockData: EventsStoresData = [
