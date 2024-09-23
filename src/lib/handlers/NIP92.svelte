@@ -29,6 +29,7 @@
   }
 
   function parseTags() {
+    console.log("/////////PARSING EVENT///////////")
     let isImeta = false;
     let match = event.content.match(/https?:\/\/[^\s]+/);
     if(match == null) return
@@ -57,14 +58,13 @@
         }
       }
     }
+    console.log("/////////GOT MEDIA///////////")
     console.log(media);
     console.log(mimeType);
     console.log(thumb);
   }
 
-  onMount(() => {
-    parseTags();
-  });
+  parseTags();
 </script>
 
 {#if mimeType && media && inlineUrl}

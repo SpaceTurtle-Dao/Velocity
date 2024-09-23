@@ -39,18 +39,14 @@
   let filters: Array<any> = [];
 
   user.subscribe((value) => {
-    let _key = {
-      "#":"imeta"
-    }
     if (value) {
       let filter = {
-        kinds:[1],
-        since:1663905355000,
-        until:Date.now(),
-        limit:100,
-        "#m":["m image/apng", "m image/avif", "m image/gif", "m image/jpeg", "m image/png", "m image/svg+xml", "m image/webp", "m video/x-msvideo","m video/mp4","m video/mpeg","m video/ogg","m video/webm"]
+        kinds: [1],
+        since: 1663905355000,
+        until: Date.now(),
+        limit: 100,
       };
-      filters.push(filter)
+      filters.push(filter);
       userInfo = value;
       userProfile = profileFromEvent(userInfo.Profile);
       let _filters = JSON.stringify(filters);
@@ -59,33 +55,67 @@
         fetchEvents(userInfo.Profile.pubkey, _filters);
       }
     }
-    filters = []
+    filters = [];
   });
 
   async function fetchMedia() {
-    console.log("//////FETHCING MEDIA////////")
+    events = []
+    console.log("//////FETHCING MEDIA////////");
     if (userInfo) {
       let filter = {
-        kinds:[1],
-        since:1663905355000,
-        until:Date.now(),
-        limit:100,
-        "#imeta":["m image/apng", "m image/avif", "m image/gif", "m image/jpeg", "m image/png", "m image/svg+xml", "m image/webp", "m video/x-msvideo","m video/mp4","m video/mpeg","m video/ogg","m video/webm"]
+        kinds: [1],
+        since: 1663905355000,
+        until: Date.now(),
+        limit: 100,
+        "#imeta": [
+          "m image/apng",
+          "m image/avif",
+          "m image/gif",
+          "m image/jpeg",
+          "m image/png",
+          "m image/svg+xml",
+          "m image/webp",
+          "m video/x-msvideo",
+          "m video/mp4",
+          "m video/mpeg",
+          "m video/ogg",
+          "m video/webm",
+        ],
       };
-      filters.push(filter)
+      filters.push(filter);
       let _filters = JSON.stringify(filters);
       if (userInfo) {
         console.log("///FETCHING EVENTS///");
         fetchEvents(userInfo.Profile.pubkey, _filters);
       }
     }
-    filters = []
+    filters = [];
+  }
+
+  async function fetchPost() {
+    events = []
+    console.log("//////FETHCING MEDIA////////");
+    if (userInfo) {
+      let filter = {
+        kinds: [1],
+        since: 1663905355000,
+        until: Date.now(),
+        limit: 100,
+      };
+      filters.push(filter);
+      let _filters = JSON.stringify(filters);
+      if (userInfo) {
+        console.log("///FETCHING EVENTS///");
+        fetchEvents(userInfo.Profile.pubkey, _filters);
+      }
+    }
+    filters = [];
   }
 
   userEvents.subscribe((value) => {
     if (value.length > 0) {
       console.log("///GOT EVENTS///");
-      console.log(events)
+      console.log(events);
       events = value;
     }
   });
@@ -104,12 +134,12 @@
   onMount(async () => {});
 </script>
 
-{#if userInfo}
-  <div>
-    <Card
-      class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border"
-    >
-      <!-- Gradient Header -->
+<div>
+  <Card
+    class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border"
+  >
+    <!-- Gradient Header -->
+    {#if userInfo}
       <div class="p-8">
         <div class="flex items-center space-x-6">
           <!-- Avatar with Border -->
@@ -131,58 +161,61 @@
           </div>
         </div>
       </div>
+    {/if}
 
-      <!-- Card Content with Blur Effect -->
-      <CardContent class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg"
-      ></CardContent>
-    </Card>
+    <!-- Card Content with Blur Effect -->
+    <CardContent class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg"
+    ></CardContent>
+  </Card>
 
-    <Tabs.Root value="post" class="">
-      <Tabs.List class="grid grid-cols-4">
-        <Tabs.Trigger class="underline-tabs-trigger" value="post"
-          >Post</Tabs.Trigger
-        >
-        <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
-        <Tabs.Trigger value="following">Following</Tabs.Trigger>
-        <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
-      </Tabs.List>
-      <Tabs.Content value="post">
-        <div class="">
-          {#each events as event}
-            <div class="border border-border p-5">
-              <Post {event} />
-            </div>
-          {/each}
-        </div>
-      </Tabs.Content>
-      <Tabs.Content value="media">
-        <div class="">
-          {#each events as event}
-            <div class="border border-border p-5">
-              <Post {event} />
-            </div>
-          {/each}
-        </div>
-      </Tabs.Content>
-      <Tabs.Content value="following">
+  <Tabs.Root value="post" class="">
+    <Tabs.List class="grid grid-cols-4">
+      <Tabs.Trigger
+        class="underline-tabs-trigger"
+        on:click={fetchPost}
+        value="post">Post</Tabs.Trigger
+      >
+      <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
+      <Tabs.Trigger value="following">Following</Tabs.Trigger>
+      <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
+    </Tabs.List>
+    <Tabs.Content value="post">
+      <div class="">
+        {#each events as event}
+          <div class="border border-border p-5">
+            <Post {event} />
+          </div>
+        {/each}
+      </div>
+    </Tabs.Content>
+    <Tabs.Content value="media">
+      <div class="">
+        {#each events as event}
+          <div class="border border-border p-5">
+            <Post {event} />
+          </div>
+        {/each}
+      </div>
+    </Tabs.Content>
+    <Tabs.Content value="following">
+      {#if $user && $currentUser}
         <Followers
           relay={$user.Profile.pubkey}
           userRelay={$currentUser.Profile.pubkey}
           token={$user.Token}
           quantity={$user.SubscriptionCost.toString()}
         />
-      </Tabs.Content>
-      <Tabs.Content value="followers">
+      {/if}
+    </Tabs.Content>
+    <Tabs.Content value="followers">
+      {#if $user && $currentUser}
         <Followers
           relay={$user.Profile.pubkey}
           userRelay={$currentUser.Profile.pubkey}
           token={$user.Token}
           quantity={$user.SubscriptionCost.toString()}
         />
-      </Tabs.Content>
-    </Tabs.Root>
-  </div>
-{:else}
-  <!--Some loading UI-->
-  <div>Loading</div>
-{/if}
+      {/if}
+    </Tabs.Content>
+  </Tabs.Root>
+</div>
