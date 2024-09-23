@@ -1,22 +1,20 @@
 import type { Post } from '$lib/models/Meme';
-import type { Profile } from '$lib/models/Profile';
+import type { Profile, UserInfo } from '$lib/models/Profile';
 import { writable } from 'svelte/store';
 import { relay, relays, info, getOwner } from '$lib/ao/relay';
 
 
 
 const createProfilesStore = () => {
-       const { subscribe, set, update } = writable<Profile[]>([]);
+       const { subscribe, set, update } = writable<UserInfo[]>([]);
 
        return {
               subscribe,
-              addProfile(profile: Profile) {
+              addProfile(profile: UserInfo) {
                      update(profiles => [...profiles, profile]);
               },
 
-              fetchProfiles() {
-                     // update(profiles => [...profiles, profile]);
-              }
+
               // removeProfile(id: number) {
               //        update(profiles => profiles.filter(profile => profile !== id));
               // }
