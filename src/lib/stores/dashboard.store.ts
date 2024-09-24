@@ -15,9 +15,9 @@ const dashProfilesStore = () => {
               },
 
 
-              // removeProfile(id: number) {
-              //        update(profiles => profiles.filter(profile => profile !== id));
-              // }
+              clearProfiles(id: number) {
+                     update(profiles => []);;
+              }
        };
 };
 

@@ -51,18 +51,11 @@
        async function fetchRelays() {
               let _relays = await relays("1", "10");
               for (let i = 0; i < _relays.length; i++) {
-                     let _i = await _relayInfo(_relays[i].relay);
-                     console.log(_i);
-                     console.log("got info");
-                     if (_i) {
-                            profilesStore.addProfile(_i);
-                     }
+                     let _i = await info(_relays[i].relay);
+                     profilesStore.addProfile(_i);
               }
-       }
-
-       async function _relayInfo(_owner: string): Promise<UserInfo> {
-              let _info = await info(_owner);
-              return _info;
+              console.log("done");
+              console.log(allProfiles.length);
        }
 
        function getProfile(user: UserInfo) {
@@ -276,15 +269,19 @@
                                                  </p>
                                           </div>
                                           <div class="ml-auto font-medium">
-                                                 <Follow
-                                                        relay={$currentUser
-                                                               .Profile.pubkey}
-                                                        userRelay={profile
-                                                               .Profile.pubkey}
-                                                        token={profile.Token}
-                                                        quantity={profile.SubscriptionCost.toString()}
-                                                        >Subscribe</Follow
-                                                 >
+                                                 {#if profile }
+                                                        <Follow
+                                                               relay={$currentUser
+                                                                      .Profile
+                                                                      .pubkey}
+                                                               userRelay={profile
+                                                                      .Profile
+                                                                      .pubkey}
+                                                               token={profile.Token}
+                                                               quantity={profile.SubscriptionCost.toString()}
+                                                               >Subscribe</Follow
+                                                        >
+                                                 {/if}
                                           </div>
                                    </div>
                             {/each}

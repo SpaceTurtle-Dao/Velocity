@@ -72,9 +72,9 @@
           let _userRelay = await relay(address);
           if (_userRelay) {
             userRelay.set(_userRelay);
-            let _currentUser = await info(_relay)
-            currentUser.set(_currentUser)
-            user.set(_currentUser)
+            let _currentUser = await info(_relay);
+            currentUser.set(_currentUser);
+            user.set(_currentUser);
           }
         }
       } catch (error) {
@@ -92,6 +92,7 @@
     { icon: HomeIcon, label: "Home", href: "/feed" },
     { icon: User, label: "Profile", href: "/profile" },
     { icon: Zap, label: "Relay", href: "/relay" },
+    { icon: LayoutDashboard, label: "Dash", href: "/dash" },
   ];
 
   function toggleCreatePostModal() {
@@ -103,12 +104,13 @@
   }
 
   const routes = {
-    '/feed': Feed,
-    '/profile': Profile,
-    '/': Feed,
-    '/UserProfile': UserProfile,
-    '/relay': RelayButtons,
-  }
+    "/feed": Feed,
+    "/profile": Profile,
+    "/": Feed,
+    "/UserProfile": UserProfile,
+    "/relay": RelayButtons,
+    "/dash": Dashboard,
+  };
 </script>
 
 <div class="bg-background h-screen">
@@ -128,7 +130,9 @@
                     this={item.icon}
                     class="w-6 h-6 mr-4 text-primary"
                   />
-                  <span class="text-lg font-medium text-primary">{item.label}</span>
+                  <span class="text-lg font-medium text-primary"
+                    >{item.label}</span
+                  >
                 </a>
               </li>
             {/each}
@@ -157,6 +161,7 @@
           </Button>
         {/if}
       </div>
+
       {#if _relay}
         <div class="p-4">
           <LowerProfile />
