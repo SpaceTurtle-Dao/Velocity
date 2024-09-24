@@ -28,17 +28,17 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Separator } from "$lib/components/ui/separator";
-  import { Users, LucideUserPlus, Settings } from "lucide-svelte/icons";
+  import { Users, LucideUserPlus, Settings } from "lucide-svelte";
   import { onMount } from "svelte";
   import { fetchEvents } from "$lib/ao/relay";
-  import UserProfile from "./UpdateProfile.svelte";
+  import UpdateProfile from "./UpdateProfile.svelte";
 
   let activeTab: string = "posts";
   let userInfo: UserInfo;
   let userProfile: Profile;
   let events: Array<Event> = [];
   let filters: Array<any> = [];
-  let showUserProfile = false;
+  let showModal = false;
 
   user.subscribe((value) => {
     if (value) {
@@ -114,10 +114,6 @@
     filters = [];
   }
 
-  function toggleUserProfile() {
-    showUserProfile = !showUserProfile;
-  }
-
   userEvents.subscribe((value) => {
     if (value.length > 0) {
       console.log("///GOT EVENTS///");
@@ -137,90 +133,123 @@
     activeTab = tab;
   }
 
+  function toggleModal() {
+    showModal = !showModal;
+  }
+
   onMount(async () => {});
 </script>
 
-<div class="mt-12 max-w-4xl mx-auto">
-  <Card class="mb-8 overflow-hidden transition-all duration-300 hover:shadow-md rounded-2xl border border-opacity-20">
-    <div class="p-8 relative">
-      <Button
-        class="absolute top-4 right-4 opacity-50 hover:opacity-100"
-        variant="ghost"
-        on:click={toggleUserProfile}
-      >
-        <Settings size={20} />
-      </Button>
-      <div class="flex items-center space-x-6">
-        <Avatar class="h-24 w-24 ring-1 ring-opacity-10 shadow-sm">
-          {#if userProfile?.picture}
-            <AvatarImage src={toUrl(userProfile.picture)} alt={userProfile.name} />
-          {/if}
-          <AvatarFallback>{userProfile?.name}</AvatarFallback>
-        </Avatar>
-        <div>
-          <h1 class="text-3xl font-bold leading-tight">
-            {userProfile?.name}
-          </h1>
-          <p class="text-md opacity-70">@{userProfile?.name}</p>
+<div class="mt-10">
+  <Card
+    class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border relative"
+  >
+    <!-- Username and Settings button -->
+    {#if userInfo}
+      <div class="absolute top-2 right-2 flex items-center space-x-2">
+        <Button
+          class="bg-transparent hover:bg-white/10 text-white p-1"
+          on:click={toggleModal}
+        >
+          <Settings size={20} />
+        </Button>
+      </div>
+    {/if}
+
+    <!-- Gradient Header -->
+    {#if userInfo}
+      <div class="p-8">
+        <div class="flex items-center space-x-6">
+          <!-- Avatar with Border -->
+          <Avatar class="h-28 w-28 rounded-full ring-4 ring-white shadow-lg">
+            {#if userProfile.picture}
+              <AvatarImage
+                src={toUrl(userProfile.picture)}
+                alt={userProfile.name}
+              />
+            {/if}
+            <AvatarFallback>{userProfile.name}</AvatarFallback>
+          </Avatar>
+          <!-- Profile Info -->
+          <div>
+            <h1 class="text-4xl font-extrabold text-white leading-tight">
+              {userProfile.name}
+            </h1>
+            <p class="text-lg text-pink-100">@{userProfile.name}</p>
+          </div>
         </div>
       </div>
-    </div>
+    {/if}
+
+    <!-- Card Content with Blur Effect -->
+    <CardContent class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg">
+    </CardContent>
   </Card>
 
-  {#if showUserProfile}
-    <div transition:fly="{{ y: -50, duration: 300 }}">
-      <UserProfile />
-    </div>
-  {/if}
-
-  <Tabs.Root value="posts" class="w-full">
-    <Tabs.List class="grid w-full grid-cols-4 mb-8">
-      <Tabs.Trigger value="posts" on:click={fetchPost}>Posts</Tabs.Trigger>
-      <Tabs.Trigger value="media" on:click={fetchMedia}>Media</Tabs.Trigger>
+  <Tabs.Root value="post" class="max-w-prose">
+    <Tabs.List class="grid grid-cols-4">
+      <Tabs.Trigger
+        class="underline-tabs-trigger"
+        on:click={fetchPost}
+        value="post">Post</Tabs.Trigger
+      >
+      <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
       <Tabs.Trigger value="following">Following</Tabs.Trigger>
       <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
     </Tabs.List>
-    <Tabs.Content value="posts">
-      <div class="space-y-6 mb-5">
-        {#each events as event (event.id)}
-          <Card class="p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+    <Tabs.Content value="post">
+      <div class="">
+        {#each events as event}
+          <div class="border border-border max-w-prose">
             <Post {event} />
-          </Card>
+          </div>
         {/each}
       </div>
     </Tabs.Content>
     <Tabs.Content value="media">
-      <div class="mb-5 space-y-6">
-        {#each events as event (event.id)}
-          <Card class="p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div class="">
+        {#each events as event}
+          <div class="border border-border max-w-prose">
             <Post {event} />
-          </Card>
+          </div>
         {/each}
       </div>
     </Tabs.Content>
     <Tabs.Content value="following">
       {#if $user && $currentUser}
-        <div class="space-y-4">
-          <Followers
-            relay={$user.Profile.pubkey}
-            userRelay={$currentUser.Profile.pubkey}
-            token={$user.Token}
-            quantity={$user.SubscriptionCost.toString()}
-          />
-        </div>
+        <Followers
+          relay={$user.Profile.pubkey}
+          userRelay={$currentUser.Profile.pubkey}
+          token={$user.Token}
+          quantity={$user.SubscriptionCost.toString()}
+        />
       {/if}
     </Tabs.Content>
     <Tabs.Content value="followers">
       {#if $user && $currentUser}
-        <div class="space-y-4">
-          <Followers
-            relay={$user.Profile.pubkey}
-            userRelay={$currentUser.Profile.pubkey}
-            token={$user.Token}
-            quantity={$user.SubscriptionCost.toString()}
-          />
-        </div>
+        <Followers
+          relay={$user.Profile.pubkey}
+          userRelay={$currentUser.Profile.pubkey}
+          token={$user.Token}
+          quantity={$user.SubscriptionCost.toString()}
+        />
       {/if}
     </Tabs.Content>
   </Tabs.Root>
 </div>
+
+<!-- Modal for UpdateProfile -->
+{#if showModal}
+  <div
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    on:click={toggleModal}
+  >
+    <div
+      class="rounded-lg p-6 max-w-2xl w-full"
+      on:click|stopPropagation
+    >
+      <UpdateProfile />
+      <Button class="mt-4" on:click={toggleModal}>Close</Button>
+    </div>
+  </div>
+{/if}
