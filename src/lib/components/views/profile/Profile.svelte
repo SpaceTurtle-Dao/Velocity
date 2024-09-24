@@ -61,7 +61,7 @@
   });
 
   async function fetchMedia() {
-    events = []
+    events = [];
     console.log("//////FETHCING MEDIA////////");
     if (userInfo) {
       let filter = {
@@ -95,7 +95,7 @@
   }
 
   async function fetchPost() {
-    events = []
+    events = [];
     console.log("//////FETHCING MEDIA////////");
     if (userInfo) {
       let filter = {
@@ -157,33 +157,43 @@
     {/if}
 
     <!-- Gradient Header -->
+
     {#if userInfo}
-      <div class="p-8">
-        <div class="flex items-center space-x-6">
-          <!-- Avatar with Border -->
-          <Avatar class="h-28 w-28 rounded-full ring-4 ring-white shadow-lg">
-            {#if userProfile.picture}
-              <AvatarImage
-                src={toUrl(userProfile.picture)}
-                alt={userProfile.name}
-              />
-            {/if}
-            <AvatarFallback>{userProfile.name}</AvatarFallback>
-          </Avatar>
-          <!-- Profile Info -->
-          <div>
-            <h1 class="text-4xl font-extrabold text-white leading-tight">
-              {userProfile.name}
-            </h1>
-            <p class="text-lg text-pink-100">@{userProfile.name}</p>
+      <div class="relative mb-16">
+        <!-- Increased bottom margin -->
+        <div class="h-32 bg-gray-200 relative">
+          {#if userProfile.banner}
+            <img
+              src={userProfile.banner}
+              alt="Banner"
+              class="w-full h-full object-cover"
+            />
+          {/if}
+          <label
+            for="banner"
+            class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer"
+          >
+          </label>
+        </div>
+        <div class="absolute bottom-0 left-4 transform translate-y-1/3">
+          <!-- Changed from translate-y-1/2 to translate-y-1/3 -->
+          <div class="relative">
+            <Avatar class="w-24 h-24 border-4 border-white">
+              <AvatarImage src={toUrl(userProfile.picture)} alt={userProfile.name} />
+              <AvatarFallback
+                >{userProfile.name
+                  ? userProfile.name[0].toUpperCase()
+                  : "U"}</AvatarFallback
+              >
+            </Avatar>
           </div>
         </div>
       </div>
     {/if}
-
     <!-- Card Content with Blur Effect -->
-    <CardContent class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg">
-    </CardContent>
+    <CardContent
+      class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg"
+    ></CardContent>
   </Card>
 
   <Tabs.Root value="post" class="max-w-prose">
@@ -244,10 +254,7 @@
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     on:click={toggleModal}
   >
-    <div
-      class="rounded-lg p-6 max-w-2xl w-full"
-      on:click|stopPropagation
-    >
+    <div class="rounded-lg p-6 max-w-2xl w-full" on:click|stopPropagation>
       <UpdateProfile />
       <Button class="mt-4" on:click={toggleModal}>Close</Button>
     </div>
