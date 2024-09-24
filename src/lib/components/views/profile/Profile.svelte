@@ -28,7 +28,7 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Separator } from "$lib/components/ui/separator";
-  import { Users, LucideUserPlus, Settings } from "lucide-svelte";
+  import { Users, LucideUserPlus, Settings, Link, CalendarDays } from "lucide-svelte";
   import { onMount } from "svelte";
   import { fetchEvents } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
@@ -137,49 +137,67 @@
     showModal = !showModal;
   }
 
-  onMount(async () => {});
+  const textWithUrl = "Founder | https://x.com/allidoizcode";
+
+  // Regular expression to find URLs in the string
+  const urlPattern = /(https?:\/\/[^\s]+)/g;
+
+  onMount(async () => {
+    // Split the string into parts, keeping the URLs separate
+    const parts = textWithUrl.split(urlPattern);
+
+    // Get the <p> tag by ID
+    const pTag: HTMLElement | null = document.getElementById("dynamicLink");
+
+    // Loop over the parts and create text or links accordingly
+    parts.forEach((part) => {
+      if (pTag) {
+        if (urlPattern.test(part)) {
+          // If the part is a URL, create an <a> tag
+          const linkElement = document.createElement("a");
+          linkElement.className = "text-blue-400";
+          linkElement.href = part; // Set the href attribute
+          linkElement.textContent = part; // Set the text content
+          linkElement.target = "_blank"; // Open link in new tab
+          pTag?.appendChild(linkElement);
+        } else {
+          // If the part is not a URL, append it as plain text
+          pTag!.appendChild(document.createTextNode(part));
+        }
+      }
+    });
+  });
 </script>
 
 <div class="mt-10">
   <Card
     class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border relative"
   >
-    <!-- Username and Settings button -->
     {#if userInfo}
-      <div class="absolute top-2 right-2 flex items-center space-x-2">
-        <Button
-          class="bg-transparent hover:bg-white/10 text-white p-1"
-          on:click={toggleModal}
-        >
-          <Settings size={20} />
-        </Button>
-      </div>
-    {/if}
-
-    <!-- Gradient Header -->
-
-    {#if userInfo}
-      <div class="relative mb-16">
+      <div class="relative mb-10">
         <!-- Increased bottom margin -->
-        <div class="h-32 bg-gray-200 relative">
+        <div class="bg-gray-200 relative">
           {#if userProfile.banner}
             <img
-              src={userProfile.banner}
+              src="https://pbs.twimg.com/profile_banners/935573782286106624/1709528583/1500x500"
               alt="Banner"
               class="w-full h-full object-cover"
             />
           {/if}
-          <label
-            for="banner"
-            class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer"
-          >
-          </label>
+          <img
+            src="https://pbs.twimg.com/profile_banners/935573782286106624/1709528583/1500x500"
+            alt="Banner"
+            class="w-full h-full object-cover"
+          />
         </div>
         <div class="absolute bottom-0 left-4 transform translate-y-1/3">
           <!-- Changed from translate-y-1/2 to translate-y-1/3 -->
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
-              <AvatarImage src={toUrl(userProfile.picture)} alt={userProfile.name} />
+              <AvatarImage
+                src="https://pbs.twimg.com/profile_images/1562634687792791552/-IBdeBJE_400x400.jpg"
+                alt={userProfile.name}
+              />
               <AvatarFallback
                 >{userProfile.name
                   ? userProfile.name[0].toUpperCase()
@@ -191,9 +209,41 @@
       </div>
     {/if}
     <!-- Card Content with Blur Effect -->
-    <CardContent
-      class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg"
-    ></CardContent>
+    <CardContent>
+      <div class="flex justify-between space-x-2">
+        <p class="font-bold text-2xl">Jonathan Green</p>
+        <Button
+          variant="outline" size="sm" class="text-primary rounded rounded-full"
+          on:click={toggleModal}
+        >
+          Edit Profile
+        </Button>
+      </div>
+      <p class="font-light text-gray-400">@Jonathan Green</p>
+      <p class="pt-2.5" id="dynamicLink"></p>
+      <div class="flex flex-row space-x-5 pt-2.5">
+        <div class="flex flex-row space-x-1 justify-end items-center">
+          <Link size={16}/>
+          <a class="text-blue-400" href="https://www.ao.link"
+            >https://www.ao.link</a
+          >
+        </div>
+        <div class="flex flex-row space-x-1 justify-end items-center">
+          <CalendarDays size={16}/>
+          <p>Joined November 2017</p>
+        </div>
+      </div>
+      <div class="flex space-x-5 pt-2.5">
+        <div class="flex space-x-1">
+          <p>339</p>
+        <p class="text-gray-400">Following</p>
+        </div>
+        <div class="flex space-x-1">
+          <p>1,002</p>
+        <p class="text-gray-400">Follower</p>
+        </div>
+      </div>
+    </CardContent>
   </Card>
 
   <Tabs.Root value="post" class="max-w-prose">
