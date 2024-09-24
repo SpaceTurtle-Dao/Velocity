@@ -71,7 +71,7 @@
   <article class="pl-11 pb-6 pt-1 text-primary text-wrap ...">
     <p>{event.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
   </article>
-  <div class="flex justify-center">
+  <div class="flex justify-center pl-11">
     {#if mimeType.startsWith("image/")}
       <img alt="The project logo" src={media} />
     {:else}

@@ -168,7 +168,7 @@
     ></CardContent>
   </Card>
 
-  <Tabs.Root value="post" class="">
+  <Tabs.Root value="post" class="max-w-prose">
     <Tabs.List class="grid grid-cols-4">
       <Tabs.Trigger
         class="underline-tabs-trigger"
@@ -182,7 +182,7 @@
     <Tabs.Content value="post">
       <div class="">
         {#each events as event}
-          <div class="border border-border p-5">
+          <div class="border border-border max-w-prose">
             <Post {event} />
           </div>
         {/each}
@@ -191,7 +191,7 @@
     <Tabs.Content value="media">
       <div class="">
         {#each events as event}
-          <div class="border border-border p-5">
+          <div class="border border-border max-w-24 max-w-prose">
             <Post {event} />
           </div>
         {/each}
