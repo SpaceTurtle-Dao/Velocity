@@ -162,7 +162,7 @@
       {/if}
     </div>
 
-    <div class="w-1/3">
+    <div class="overflow-y-scroll no-scrollbar h-screen w-1/3">
       <Router {routes} />
     </div>
   </div>

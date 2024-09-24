@@ -28,7 +28,13 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Separator } from "$lib/components/ui/separator";
-  import { Users, LucideUserPlus, Settings, Link, CalendarDays } from "lucide-svelte";
+  import {
+    Users,
+    LucideUserPlus,
+    Settings,
+    Link,
+    CalendarDays,
+  } from "lucide-svelte";
   import { onMount } from "svelte";
   import { fetchEvents } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
@@ -39,7 +45,8 @@
   let events: Array<Event> = [];
   let filters: Array<any> = [];
   let showModal = false;
-
+  let offset = 0; // initial offset
+  let progress = 0; //
   user.subscribe((value) => {
     if (value) {
       let filter = {
@@ -169,7 +176,7 @@
   });
 </script>
 
-<div class="mt-10">
+<div class="mt-10 max-w-prose">
   <Card
     class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border relative"
   >
@@ -213,7 +220,9 @@
       <div class="flex justify-between space-x-2">
         <p class="font-bold text-2xl">Jonathan Green</p>
         <Button
-          variant="outline" size="sm" class="text-primary rounded rounded-full"
+          variant="outline"
+          size="sm"
+          class="text-primary rounded rounded-full"
           on:click={toggleModal}
         >
           Edit Profile
@@ -223,24 +232,24 @@
       <p class="pt-2.5" id="dynamicLink"></p>
       <div class="flex flex-row space-x-5 pt-2.5">
         <div class="flex flex-row space-x-1 justify-end items-center">
-          <Link size={16}/>
+          <Link size={16} />
           <a class="text-blue-400" href="https://www.ao.link"
             >https://www.ao.link</a
           >
         </div>
         <div class="flex flex-row space-x-1 justify-end items-center">
-          <CalendarDays size={16}/>
+          <CalendarDays size={16} />
           <p>Joined November 2017</p>
         </div>
       </div>
       <div class="flex space-x-5 pt-2.5">
         <div class="flex space-x-1">
           <p>339</p>
-        <p class="text-gray-400">Following</p>
+          <p class="text-gray-400">Following</p>
         </div>
         <div class="flex space-x-1">
           <p>1,002</p>
-        <p class="text-gray-400">Follower</p>
+          <p class="text-gray-400">Follower</p>
         </div>
       </div>
     </CardContent>
