@@ -124,6 +124,11 @@ const config: Config = {
 					DEFAULT: "hsl(var(--primary) / 100%)",
 					foreground: "hsl(var(--primary-foreground) / 100%)",
 				},
+        customColor: {
+          light: 'hsl(var(--custom-color-light) / <alpha-value>)',
+          DEFAULT: 'hsl(var(--custom-color) / <alpha-value>)',
+          dark: 'hsl(var(--custom-color-dark) / <alpha-value>)',
+        },
 				secondary: {
 					DEFAULT: "hsl(var(--secondary) / 100%)",
 					foreground: "hsl(var(--secondary-foreground) / 100%)",

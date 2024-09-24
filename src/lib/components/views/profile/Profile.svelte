@@ -28,15 +28,17 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Separator } from "$lib/components/ui/separator";
-  import { Users, LucideUserPlus } from "lucide-svelte/icons";
+  import { Users, LucideUserPlus, Settings } from "lucide-svelte";
   import { onMount } from "svelte";
   import { fetchEvents } from "$lib/ao/relay";
+  import UpdateProfile from "./UpdateProfile.svelte";
 
   let activeTab: string = "posts";
   let userInfo: UserInfo;
   let userProfile: Profile;
   let events: Array<Event> = [];
   let filters: Array<any> = [];
+  let showModal = false;
 
   user.subscribe((value) => {
     if (value) {
@@ -131,13 +133,29 @@
     activeTab = tab;
   }
 
+  function toggleModal() {
+    showModal = !showModal;
+  }
+
   onMount(async () => {});
 </script>
 
-<div>
+<div class="mt-10">
   <Card
-    class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border"
+    class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border relative"
   >
+    <!-- Username and Settings button -->
+    {#if userInfo}
+      <div class="absolute top-2 right-2 flex items-center space-x-2">
+        <Button
+          class="bg-transparent hover:bg-white/10 text-white p-1"
+          on:click={toggleModal}
+        >
+          <Settings size={20} />
+        </Button>
+      </div>
+    {/if}
+
     <!-- Gradient Header -->
     {#if userInfo}
       <div class="p-8">
@@ -164,8 +182,8 @@
     {/if}
 
     <!-- Card Content with Blur Effect -->
-    <CardContent class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg"
-    ></CardContent>
+    <CardContent class="backdrop-filter backdrop-blur-lg p-6 rounded-b-lg">
+    </CardContent>
   </Card>
 
   <Tabs.Root value="post" class="max-w-prose">
@@ -191,7 +209,7 @@
     <Tabs.Content value="media">
       <div class="">
         {#each events as event}
-          <div class="border border-border max-w-24 max-w-prose">
+          <div class="border border-border max-w-prose">
             <Post {event} />
           </div>
         {/each}
@@ -219,3 +237,19 @@
     </Tabs.Content>
   </Tabs.Root>
 </div>
+
+<!-- Modal for UpdateProfile -->
+{#if showModal}
+  <div
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    on:click={toggleModal}
+  >
+    <div
+      class="rounded-lg p-6 max-w-2xl w-full"
+      on:click|stopPropagation
+    >
+      <UpdateProfile />
+      <Button class="mt-4" on:click={toggleModal}>Close</Button>
+    </div>
+  </div>
+{/if}

@@ -39,7 +39,6 @@
   };
 
   let isOpen = false;
-  // display greeting every 3 seconds
   let spawnInterval: any;
   let evalInterval: any;
   let address: string;
@@ -67,8 +66,7 @@
       await _event(profileEvent, _relay!);
       isLoading = false;
       navigate("/profile", { replace: true });
-      isOpen=false
-      //done
+      isOpen = false; // Close the dialog
     } else {
       console.log("polling for eval");
     }
@@ -86,6 +84,7 @@
       console.log("polling for relay");
     }
   }
+
   async function createProfile() {
     isLoading = true;
     try {
@@ -107,16 +106,19 @@
 
       profileEvent = JSON.stringify(event);
       try {
-        //display some loading indicator and UI informing the user that we are waiting
         address = await window.arweaveWallet.getActiveAddress();
         await spawnRelay();
-        //wait sometime to fetch relay
         spawnInterval = setInterval(checkSpawned, 1000);
       } catch (error) {
         console.error("Error creating profile:", error);
-        // Handle error (e.g., show error message to user)
+        isLoading = false;
       }
-    } catch (err) {}
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        errors = err.flatten().fieldErrors as Partial<Record<keyof InitialProfileSchemaType, string>>;
+      }
+      isLoading = false;
+    }
   }
 
   onMount(() => {
@@ -127,15 +129,15 @@
       document.body.style.overflow = "auto";
     };
   });
-
 </script>
 
-<Dialog.Root open={isOpen}>
+<Dialog.Root bind:open={isOpen}>
   <Dialog.Trigger>
     <Button
-      class="w-44 h-12 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center "
-      >Create Profile</Button
+      class="w-44 h-12 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
     >
+      Create Profile
+    </Button>
   </Dialog.Trigger>
   <Dialog.Content class="sm:max-w-[425px]">
     <Dialog.Header>
@@ -143,8 +145,7 @@
     </Dialog.Header>
     <form on:submit|preventDefault={createProfile} class="space-y-6">
       <div class="space-y-2">
-        <Label for="name" class="text-lg font-medium text-primary">Name</Label
-        >
+        <Label for="name" class="text-lg font-medium text-primary">Name</Label>
         <Input
           id="name"
           bind:value={profile.name}
@@ -157,9 +158,7 @@
       </div>
 
       <div class="space-y-2">
-        <Label for="display_name" class="text-lg font-medium text-primary"
-          >Display Name</Label
-        >
+        <Label for="display_name" class="text-lg font-medium text-primary">Display Name</Label>
         <Input
           id="display_name"
           bind:value={profile.display_name}
@@ -176,10 +175,11 @@
             class="w-48 py-2 px-4 bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition duration-200"
             type="submit"
             disabled={isLoading}
-            >{isLoading ? "Creating Profile..." : "Create Profile"}
+          >
+            {isLoading ? "Creating Profile..." : "Create Profile"}
           </Button>
         </div>
       </Dialog.Footer>
-    </form></Dialog.Content
-  >
+    </form>
+  </Dialog.Content>
 </Dialog.Root>
