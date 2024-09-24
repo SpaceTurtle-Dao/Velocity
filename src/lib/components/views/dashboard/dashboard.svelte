@@ -181,7 +181,7 @@
                                                  >
                                                  <Table.Head
                                                         class="hidden sm:table-cell"
-                                                        >feedCost</Table.Head
+                                                        >Posts</Table.Head
                                                  >
                                                  <Table.Head
                                                         class="hidden md:table-cell"
@@ -220,7 +220,7 @@
                                                                       class="text-xs"
                                                                       variant="secondary"
                                                                >
-                                                                      {user.FeedCost}</Badge
+                                                                      ""</Badge
                                                                >
                                                         </Table.Cell>
                                                         <Table.Cell

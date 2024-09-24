@@ -5,7 +5,7 @@ import { relay, relays, info, getOwner } from '$lib/ao/relay';
 
 
 
-const createProfilesStore = () => {
+const dashProfilesStore = () => {
        const { subscribe, set, update } = writable<UserInfo[]>([]);
 
        return {
@@ -21,7 +21,7 @@ const createProfilesStore = () => {
        };
 };
 
-const createPostsStore = () => {
+const dashPostsStore = () => {
        const { subscribe, set, update } = writable<Post[]>([]);
 
        return {
@@ -35,5 +35,5 @@ const createPostsStore = () => {
        };
 };
 
-export const profilesStore = createProfilesStore();
-export const postsStore = createPostsStore();
+export const profilesStore = dashProfilesStore();
+export const postsStore = dashPostsStore();
