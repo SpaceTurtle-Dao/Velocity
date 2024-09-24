@@ -64,6 +64,7 @@
   {#each _subscribers as subscriber}
     <div class="flex justify-between ">
       <div class="flex space-x-2">
+        {#if profileFromEvent(subscriber.Profile).picture}
         <Avatar.Root class="hidden h-9 w-9 sm:flex">
           <Avatar.Image
             src={toUrl(profileFromEvent(subscriber.Profile).picture)}
@@ -71,6 +72,7 @@
           />
           <Avatar.Fallback>OM</Avatar.Fallback>
         </Avatar.Root>
+        {/if}
         <div>
           <p class="text-sm font-medium leading-none text-primary">
             {profileFromEvent(subscriber.Profile).name}

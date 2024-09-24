@@ -29,8 +29,11 @@
   }
 
   function parseTags() {
+    console.log("/////////PARSING EVENT///////////");
     let isImeta = false;
-    inlineUrl = event.content.match(/https?:\/\/[^\s]+/)![0];
+    let match = event.content.match(/https?:\/\/[^\s]+/);
+    if (match == null) return;
+    inlineUrl = match[0];
     let tags = event.tags[0];
     console.log(tags);
     for (var i in tags) {
@@ -55,30 +58,33 @@
         }
       }
     }
+    console.log("/////////GOT MEDIA///////////");
     console.log(media);
     console.log(mimeType);
     console.log(thumb);
   }
 
-  onMount(() => {
-    parseTags();
-  });
+  parseTags();
 </script>
 
 {#if mimeType && media && inlineUrl}
   <article class="pl-11 pb-6 pt-1 text-primary text-wrap ...">
     <p>{event.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
   </article>
-  {#if mimeType.startsWith("image/")}
-    <img alt="The project logo" src={media} />
-  {:else}
-    <Video src={media} controls />
-  {/if}
+  <div class="flex justify-center pl-11">
+    {#if mimeType.startsWith("image/")}
+      <img alt="The project logo" src={media} />
+    {:else}
+      <Video src={media} controls />
+    {/if}
+  </div>
 {:else if inlineUrl}
   <article class="pl-11 pt-1 justify-left text-primary text-wrap ...">
     <p>{event.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
   </article>
-  <Button href={inlineUrl} variant="link" class="pl-11 pb-6 text-blue-500">{inlineUrl}</Button>
+  <Button href={inlineUrl} variant="link" class="pl-11 pb-6 text-blue-500"
+    >{inlineUrl}</Button
+  >
 {:else}
   <article class="pl-11 pb-6 pt-1 text-primary text-wrap ...">
     <p>{event.content}</p>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { onMount } from "svelte";
   import { z } from "zod";
   import type { Event } from "$lib/models/Event";
   import type { UserInfo } from "$lib/models/Profile";
@@ -23,6 +23,7 @@
   } from "$lib/ao/relay";
   import { walletAddress } from "$lib/stores/walletStore";
   import { add } from "date-fns/fp/add";
+  import { navigate } from "svelte-routing";
 
   // Zod schema for initial profile validation
   const initialProfileSchema = z.object({
@@ -37,13 +38,14 @@
     display_name: "",
   };
 
+  let isOpen = false;
   // display greeting every 3 seconds
   let spawnInterval: any;
   let evalInterval: any;
   let address: string;
   let _relay: string;
   let profileEvent: string;
-
+  let isLoading = false;
   let userInfo: UserInfo;
   let errors: Partial<Record<keyof InitialProfileSchemaType, string>> = {};
 
@@ -63,6 +65,9 @@
       clearInterval(evalInterval);
       console.log("evaluated");
       await _event(profileEvent, _relay!);
+      isLoading = false;
+      navigate("/profile", { replace: true });
+      isOpen=false
       //done
     } else {
       console.log("polling for eval");
@@ -82,6 +87,7 @@
     }
   }
   async function createProfile() {
+    isLoading = true;
     try {
       // Validate the profile data
       initialProfileSchema.parse(profile);
@@ -112,9 +118,19 @@
       }
     } catch (err) {}
   }
+
+  onMount(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  });
+
 </script>
 
-<Dialog.Root>
+<Dialog.Root open={isOpen}>
   <Dialog.Trigger>
     <Button
       class="w-44 h-12 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center "
@@ -127,7 +143,8 @@
     </Dialog.Header>
     <form on:submit|preventDefault={createProfile} class="space-y-6">
       <div class="space-y-2">
-        <Label for="name" class="text-lg font-medium text-primary">Name</Label>
+        <Label for="name" class="text-lg font-medium text-primary">Name</Label
+        >
         <Input
           id="name"
           bind:value={profile.name}
@@ -155,7 +172,12 @@
       </div>
       <Dialog.Footer>
         <div class="flex w-full justify-center">
-          <Button class="w-48 self-center" type="submit">Create Profile</Button>
+          <Button
+            class="w-48 py-2 px-4 bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition duration-200"
+            type="submit"
+            disabled={isLoading}
+            >{isLoading ? "Creating Profile..." : "Create Profile"}
+          </Button>
         </div>
       </Dialog.Footer>
     </form></Dialog.Content

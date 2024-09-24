@@ -2,7 +2,7 @@
     import * as Avatar from "$lib/components/ui/avatar/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Card from "$lib/components/ui/card/index.js";
-    import { MessageCircle, Repeat2, Heart, Share} from 'lucide-svelte';
+    import { MessageCircle, Repeat2, Heart, Share, HandCoins } from "lucide-svelte";
     import {
         profileFromEvent,
         type Profile,
@@ -51,6 +51,9 @@
     function formatDate(dateString: number): string {
         return new Date(dateString).toLocaleTimeString();
     }
+    function stuff(){
+
+    }
 
     function toUrl(tx: string) {
         return (
@@ -64,10 +67,12 @@
     <div class="flex justify-between">
         <div class="flex space-x-2">
             <Avatar.Root class="hidden h-9 w-9 sm:flex">
-                <Avatar.Image
-                    src={toUrl(profileFromEvent(_user.Profile).picture)}
-                    alt="Avatar"
-                />
+                {#if profileFromEvent(_user.Profile).name}
+                    <Avatar.Image
+                        src={toUrl(profileFromEvent(_user.Profile).picture)}
+                        alt="Avatar"
+                    />
+                {/if}
                 <Avatar.Fallback>OM</Avatar.Fallback>
             </Avatar.Root>
             <div class="flex space-x-1">
@@ -82,21 +87,27 @@
     </div>
     {#if event.kind == 1}
         <div>
-            <Nip92 {event}/>
+            <Nip92 {event} />
         </div>
     {/if}
-    <div class="flex justify-between">
-        <Button variant="link" size="icon" class="text-primary">
-            <MessageCircle />
+    <div class="flex justify-between pl-11 py-2">
+        <Button variant="link"  size="icon" class="text-primary hover:bg-secondary rounded rounded-full">
+            <MessageCircle  strokeWidth={0.8} size={18}/>
         </Button>
-        <Button variant="link" size="icon" class="text-primary">
-            <Repeat2 />
+        <Button variant="link"  size="icon" class="text-primary hover:bg-secondary rounded rounded-full ">
+            <Repeat2  strokeWidth={0.8} size={18}/>
         </Button>
-        <Button variant="link" size="icon" class="text-primary">
-            <Heart />
+        <Button variant="link"  size="icon" class="text-primary hover:bg-secondary rounded rounded-full 2">
+            <Heart  strokeWidth={0.8} size={18}/>
         </Button>
-        <Button variant="link" size="icon" class="text-primary">
-            <Share />
+        <Button variant="link"  size="icon" class="text-primary hover:bg-secondary rounded rounded-full ">
+            <HandCoins strokeWidth={0.5} />
         </Button>
+        <Button variant="link"  size="icon" class="text-primary hover:bg-secondary rounded rounded-full ">
+            <Share  strokeWidth={0.8} on:click={stuff}/>
+        </Button>
+        
+
     </div>
 </div>
+
