@@ -38,6 +38,7 @@
   import { onMount } from "svelte";
   import { fetchEvents } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
+    import Follow from "./Follow.svelte";
 
   let activeTab: string = "posts";
   let userInfo: UserInfo;
@@ -45,8 +46,7 @@
   let events: Array<Event> = [];
   let filters: Array<any> = [];
   let showModal = false;
-  let offset = 0; // initial offset
-  let progress = 0; //
+
   user.subscribe((value) => {
     if (value) {
       let filter = {
@@ -136,6 +136,10 @@
     );
   }
 
+  function formatDate(dateString: number): string {
+    return new Date(dateString).toLocaleDateString();
+  }
+
   function setActiveTab(tab: string) {
     activeTab = tab;
   }
@@ -176,35 +180,33 @@
   });
 </script>
 
-<div class="mt-10 max-w-prose">
-  <Card
-    class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border relative"
-  >
-    {#if userInfo}
+{#if userInfo}
+  <div class="mt-10 max-w-prose">
+    <Card
+      class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border relative"
+    >
       <div class="relative mb-10">
         <!-- Increased bottom margin -->
         <div class="bg-gray-200 relative">
           {#if userProfile.banner}
             <img
-              src="https://pbs.twimg.com/profile_banners/935573782286106624/1709528583/1500x500"
+              src={userProfile.banner}
               alt="Banner"
               class="w-full h-full object-cover"
             />
+            {:else}
+            <div
+              class="w-full h-32 object-cover bg-secondary"
+            />
           {/if}
-          <img
-            src="https://pbs.twimg.com/profile_banners/935573782286106624/1709528583/1500x500"
-            alt="Banner"
-            class="w-full h-full object-cover"
-          />
         </div>
         <div class="absolute bottom-0 left-4 transform translate-y-1/3">
           <!-- Changed from translate-y-1/2 to translate-y-1/3 -->
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
-              <AvatarImage
-                src="https://pbs.twimg.com/profile_images/1562634687792791552/-IBdeBJE_400x400.jpg"
-                alt={userProfile.name}
-              />
+              {#if userProfile.picture}
+                <AvatarImage src={userProfile.picture} alt={userProfile.name} />
+              {/if}
               <AvatarFallback
                 >{userProfile.name
                   ? userProfile.name[0].toUpperCase()
@@ -214,99 +216,105 @@
           </div>
         </div>
       </div>
-    {/if}
-    <!-- Card Content with Blur Effect -->
-    <CardContent>
-      <div class="flex justify-between space-x-2">
-        <p class="font-bold text-2xl">Jonathan Green</p>
-        <Button
-          variant="outline"
-          size="sm"
-          class="text-primary rounded rounded-full"
-          on:click={toggleModal}
-        >
-          Edit Profile
-        </Button>
-      </div>
-      <p class="font-light text-gray-400">@Jonathan Green</p>
-      <p class="pt-2.5" id="dynamicLink"></p>
-      <div class="flex flex-row space-x-5 pt-2.5">
-        <div class="flex flex-row space-x-1 justify-end items-center">
-          <Link size={16} />
-          <a class="text-blue-400" href="https://www.ao.link"
-            >https://www.ao.link</a
+
+      <!-- Card Content with Blur Effect -->
+      <CardContent>
+        <div class="flex justify-between space-x-2">
+          <p class="font-bold text-2xl">{userProfile.name}</p>
+          {#if userInfo.Profile.pubkey == $currentUser.Profile.pubkey}
+          <Button
+            variant="outline"
+            size="sm"
+            class="text-primary rounded rounded-full"
+            on:click={toggleModal}
           >
+            Edit Profile
+          </Button>
+          {:else}
+          <Follow relay={userInfo.Profile.pubkey} userRelay={$currentUser.Profile.pubkey} token={userInfo.Token} quantity={userInfo.SubscriptionCost.toString()} />
+          {/if}
         </div>
-        <div class="flex flex-row space-x-1 justify-end items-center">
-          <CalendarDays size={16} />
-          <p>Joined November 2017</p>
-        </div>
-      </div>
-      <div class="flex space-x-5 pt-2.5">
-        <div class="flex space-x-1">
-          <p>339</p>
-          <p class="text-gray-400">Following</p>
-        </div>
-        <div class="flex space-x-1">
-          <p>1,002</p>
-          <p class="text-gray-400">Follower</p>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-
-  <Tabs.Root value="post" class="max-w-prose">
-    <Tabs.List class="grid grid-cols-4">
-      <Tabs.Trigger
-        class="underline-tabs-trigger"
-        on:click={fetchPost}
-        value="post">Post</Tabs.Trigger
-      >
-      <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
-      <Tabs.Trigger value="following">Following</Tabs.Trigger>
-      <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
-    </Tabs.List>
-    <Tabs.Content value="post">
-      <div class="">
-        {#each events as event}
-          <div class="border border-border max-w-prose">
-            <Post {event} />
+        <p class="font-light text-gray-400">@{userProfile.display_name}</p>
+        <p class="pt-2.5" id="dynamicLink"></p>
+        <div class="flex flex-row space-x-5 pt-2.5">
+          {#if userProfile.website}
+            <div class="flex flex-row space-x-1 justify-end items-center">
+              <Link size={16} />
+              <a class="text-blue-400" href={userProfile.website}
+                >{userProfile.website}</a
+              >
+            </div>
+          {/if}
+          <div class="flex flex-row space-x-1 justify-end items-center">
+            <CalendarDays size={16} />
+            <p>Joined {formatDate(userInfo.Profile.created_at)}</p>
           </div>
-        {/each}
-      </div>
-    </Tabs.Content>
-    <Tabs.Content value="media">
-      <div class="">
-        {#each events as event}
-          <div class="border border-border max-w-prose">
-            <Post {event} />
+        </div>
+        <div class="flex space-x-5 pt-2.5">
+          <div class="flex space-x-1">
+            <p>{userInfo.Subs}</p>
+            <p class="text-gray-400">Following</p>
           </div>
-        {/each}
-      </div>
-    </Tabs.Content>
-    <Tabs.Content value="following">
-      {#if $user && $currentUser}
-        <Followers
-          relay={$user.Profile.pubkey}
-          userRelay={$currentUser.Profile.pubkey}
-          token={$user.Token}
-          quantity={$user.SubscriptionCost.toString()}
-        />
-      {/if}
-    </Tabs.Content>
-    <Tabs.Content value="followers">
-      {#if $user && $currentUser}
-        <Followers
-          relay={$user.Profile.pubkey}
-          userRelay={$currentUser.Profile.pubkey}
-          token={$user.Token}
-          quantity={$user.SubscriptionCost.toString()}
-        />
-      {/if}
-    </Tabs.Content>
-  </Tabs.Root>
-</div>
+          <div class="flex space-x-1">
+            <p>{userInfo.Subscriptions}</p>
+            <p class="text-gray-400">Follower</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
 
+    <Tabs.Root value="post" class="max-w-prose">
+      <Tabs.List class="grid grid-cols-4">
+        <Tabs.Trigger
+          class="underline-tabs-trigger"
+          on:click={fetchPost}
+          value="post">Post</Tabs.Trigger
+        >
+        <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
+        <Tabs.Trigger value="following">Following</Tabs.Trigger>
+        <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="post">
+        <div class="">
+          {#each events as event}
+            <div class="border border-border max-w-prose">
+              <Post {event} />
+            </div>
+          {/each}
+        </div>
+      </Tabs.Content>
+      <Tabs.Content value="media">
+        <div class="">
+          {#each events as event}
+            <div class="border border-border max-w-prose">
+              <Post {event} />
+            </div>
+          {/each}
+        </div>
+      </Tabs.Content>
+      <Tabs.Content value="following">
+        {#if $user && $currentUser}
+          <Followers
+            relay={$user.Profile.pubkey}
+            userRelay={$currentUser.Profile.pubkey}
+            token={$user.Token}
+            quantity={$user.SubscriptionCost.toString()}
+          />
+        {/if}
+      </Tabs.Content>
+      <Tabs.Content value="followers">
+        {#if $user && $currentUser}
+          <Followers
+            relay={$user.Profile.pubkey}
+            userRelay={$currentUser.Profile.pubkey}
+            token={$user.Token}
+            quantity={$user.SubscriptionCost.toString()}
+          />
+        {/if}
+      </Tabs.Content>
+    </Tabs.Root>
+  </div>
+{/if}
 <!-- Modal for UpdateProfile -->
 {#if showModal}
   <div

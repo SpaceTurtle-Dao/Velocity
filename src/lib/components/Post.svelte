@@ -16,44 +16,22 @@
     } from "$lib/models/Profile";
     import type { Event } from "$lib/models/Event";
     import Nip92 from "$lib/handlers/NIP92.svelte";
-
-    let _profileJson: Profile = {
-        name: "Charazard",
-        about: "A fire pokemon",
-        picture: "-RmetHQufxWySiJact95a9ON6pb-0s56dElmyJusGwQ",
-        display_name: "Char",
-        website: "https://www.ao.link/",
-        banner: "-RmetHQufxWySiJact95a9ON6pb-0s56dElmyJusGwQ",
-        bot: false,
-    };
-
-    let _profile: Event = {
-        id: "1",
-        pubkey: "vd97vAnBhKD7zGNDTjTgl5N0WKLcl92MO8Ob3T0w6IM",
-        created_at: 1726767860000,
-        kind: 0,
-        tags: [[]],
-        content: JSON.stringify(_profileJson),
-    };
-
-    let _userInfo: UserInfo = {
-        Token: "WPyLgOqELOyN_BoTNdeEMZp5sz3RxDL19IGcs3A9IPc",
-        Events: 1,
-        Profile: _profile,
-        SubscriptionCost: 1000000,
-        FeedCost: 1000000,
-        Subs: 0,
-        Subscriptions: 0,
-    };
+    import { user } from "$lib/stores/profile.store";
 
     export let event: Event;
     let _user: UserInfo;
+    let profile: Profile;
     let event2: Event;
     let e: string;
     let p: string;
     let q: string;
     let relay: string;
-    _user = _userInfo;
+    user.subscribe((value)=> {
+        if(value){
+            _user = value;
+            profile = profileFromEvent(_user.Profile)
+        }
+    })
     function formatDate(dateString: number): string {
         return new Date(dateString).toLocaleTimeString();
     }
@@ -139,7 +117,7 @@
         <Avatar.Root class="hidden h-9 w-9 sm:flex">
             {#if profileFromEvent(_user.Profile).name}
                 <Avatar.Image
-                    src={toUrl(profileFromEvent(_user.Profile).picture)}
+                    src={profile.picture}
                     alt="Avatar"
                 />
             {/if}
@@ -148,7 +126,7 @@
         <div>
             <div class="flex space-x-1">
                 <p class="font-medium text-primary h-5">
-                    {profileFromEvent(_user.Profile).name}
+                    {profile.name}
                 </p>
                 <p class="text-gray-500">
                     {formatDate(_user.Profile.created_at)}
