@@ -3,7 +3,7 @@
   import { z } from 'zod';
   import type { Event as _Event } from '$lib/models/Event';
   import type { Profile, UserInfo } from '$lib/models/Profile';
-  import { currentUser, userRelay } from '$lib/stores/profile.store';
+  import { currentUser, user, userRelay } from '$lib/stores/profile.store';
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
@@ -11,6 +11,8 @@
   import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
   import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
   import { Camera, X } from 'lucide-svelte';
+    import { event, info } from '$lib/ao/relay';
+    import { upload } from '$lib/ao/uploader';
 
   // Zod schema for profile validation
   const profileSchema = z.object({
@@ -72,10 +74,12 @@
       errors = {};
 
       if (pictureFile) {
-        profile.picture = URL.createObjectURL(pictureFile);
+        let _pictureFile = await upload(pictureFile);
+        profile.picture = _pictureFile.url;
       }
       if (bannerFile) {
-        profile.banner = URL.createObjectURL(bannerFile);
+        let _bannerFile = await upload(bannerFile);
+        profile.banner = _bannerFile.url;
       }
 
       const content = JSON.stringify({
@@ -88,52 +92,20 @@
         bot: profile.bot,
       });
 
-      const event: Omit<_Event, 'id'> = {
-        pubkey: userInfo.Token,
-        created_at: Math.floor(Date.now() / 1000),
-        kind: 0,
-        tags: [],
-        content: content
+      const _event = {
+        kind: 0, // Kind 0 is for metadata events in Nostr
+        tags: [], // Metadata events typically don't have tags
+        content: content,
       };
 
-      const serialized = JSON.stringify([
-        0,
-        event.pubkey,
-        event.created_at,
-        event.kind,
-        event.tags,
-        event.content
-      ]);
-
-      const eventId = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(serialized));
-      const idHex = Array.from(new Uint8Array(eventId))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-
-      const fullEvent: _Event = {
-        ...event,
-        id: idHex
-      };
-
-      console.log('Profile creation event:', fullEvent);
-
+      const serialized = JSON.stringify(_event);
+      
       try {
-        const response = await fetch('/api/create-profile', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(fullEvent),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to create profile');
-        }
-
-        const result = await response.json();
+        const result = await event(serialized,$currentUser.Profile.pubkey)
+        let _currentUser = await info(userInfo.Profile.pubkey)
+        currentUser.set(_currentUser)
+        user.set(_currentUser)
         console.log('Profile created successfully:', result);
-
-        dispatch('profileCreated', profile);
       } catch (error) {
         console.error('Error creating profile:', error);
       }
@@ -144,10 +116,6 @@
         console.error('Unexpected error:', err);
       }
     }
-  }
-
-  function handleClose() {
-    dispatch('close');
   }
 </script>
 

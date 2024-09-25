@@ -21,7 +21,6 @@
   import Profile from "$lib/components/views/profile/Profile.svelte";
   import {
     currentUser,
-    userRelay,
     isConnected,
     user,
   } from "./lib/stores/profile.store";
@@ -36,16 +35,14 @@
   import ConnectWalletButton from "$lib/components/wallet.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { info, relay } from "$lib/ao/relay";
+    import type { UserInfo } from "$lib/models/Profile";
 
   let isCreatePostModalOpen = false;
   let _isConnected = false;
-  let _relay: string = "";
 
-  userRelay.subscribe((value) => {
-    console.log("got relay");
-    console.log(value);
-    _relay = value;
-  });
+  let userInfo:UserInfo;
+
+
   isConnected.subscribe((value) => {
     _isConnected = value;
   });
@@ -62,15 +59,17 @@
     if (window.arweaveWallet) {
       try {
         // @ts-ignore
+        console.log("////////GETTING WALLET/////////////")
         const address = await window.arweaveWallet.getActiveAddress();
         if (address) {
-          console.log(address);
-          console.log(_isConnected);
+          //console.log(address);
+          //console.log(_isConnected);
           _isConnected = true;
-          let _userRelay = await relay(address);
-          if (_userRelay) {
-            userRelay.set(_userRelay);
+          let _relay = await relay(address);
+          if (_relay) {
             let _currentUser = await info(_relay)
+            console.log("///////CURRENT USER/////////")
+            console.log(_currentUser)
             currentUser.set(_currentUser)
             user.set(_currentUser)
           }
@@ -143,7 +142,7 @@
         </nav>
         {#if !_isConnected}
           <ConnectWalletButton />
-        {:else if _relay == null || _relay == undefined}
+        {:else if $currentUser == null || $currentUser == undefined}
           <CreateProfile />
         {:else}
           <Button
@@ -155,7 +154,7 @@
           </Button>
         {/if}
       </div>
-      {#if _relay}
+      {#if $currentUser}
         <div class="p-4">
           <LowerProfile />
         </div>
@@ -168,9 +167,11 @@
   </div>
 </div>
 
+{#if $currentUser}
 <CreatePostModal
-  relay={_relay}
+  relay={$currentUser.Profile.pubkey}
   isOpen={isCreatePostModalOpen}
   on:close={toggleCreatePostModal}
   on:submit={handlePostSubmit}
 />
+{/if}
