@@ -112,7 +112,7 @@
 <div class="bg-background h-screen">
   <div class="flex justify-center w-full bg-background">
     <div class="flex flex-col space-y-10 p-4">
-      <div class="space-y-4 pt-16">
+      <div class="space-y-4 pt-3">
         <nav>
           <ul class="space-y-2">
             {#each menuItems as item}
@@ -162,7 +162,7 @@
       {/if}
     </div>
 
-    <div class="w-1/3">
+    <div class="overflow-y-scroll no-scrollbar h-screen w-1/3">
       <Router {routes} />
     </div>
   </div>

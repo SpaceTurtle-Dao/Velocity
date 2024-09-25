@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { z } from 'zod';
-  import type { Event } from '$lib/models/Event';
+  import type { Event as _Event } from '$lib/models/Event';
   import type { Profile, UserInfo } from '$lib/models/Profile';
   import { currentUser, userRelay } from '$lib/stores/profile.store';
   import { Button } from "$lib/components/ui/button";
@@ -88,7 +88,7 @@
         bot: profile.bot,
       });
 
-      const event: Omit<Event, 'id'> = {
+      const event: Omit<_Event, 'id'> = {
         pubkey: userInfo.Token,
         created_at: Math.floor(Date.now() / 1000),
         kind: 0,
@@ -110,7 +110,7 @@
         .map(b => b.toString(16).padStart(2, '0'))
         .join('');
 
-      const fullEvent: Event = {
+      const fullEvent: _Event = {
         ...event,
         id: idHex
       };
