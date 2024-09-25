@@ -28,6 +28,8 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import { info, relay, relays } from "$lib/ao/relay";
   import UserList from "$lib/components/UserList.svelte";
+  import type { UserInfo } from "$lib/models/Profile";
+  import { users } from "$lib/stores/main.store";
 
   let isCreatePostModalOpen = false;
   let _isConnected = false;
@@ -35,6 +37,7 @@
   isConnected.subscribe((value) => {
     _isConnected = value;
   });
+
 
   async function checkWalletConnection() {
     // @ts-ignore
@@ -44,17 +47,13 @@
         console.log("////////GETTING WALLET/////////////");
         const address = await window.arweaveWallet.getActiveAddress();
         if (address) {
-          //console.log(address);
-          //console.log(_isConnected);
-          _isConnected = true;
           let _relay = await relay(address);
           if (_relay) {
             let _currentUser = await info(_relay);
-            console.log("///////CURRENT USER/////////");
-            console.log(_currentUser);
             currentUser.set(_currentUser);
             user.set(_currentUser);
           }
+          _isConnected = true;
         }
       } catch (error) {
         console.log(_isConnected);
@@ -81,6 +80,10 @@
     "/profile": Profile,
     "/relay": RelayButtons,
   };
+
+  onMount(async () => {
+    await checkWalletConnection();
+  });
 </script>
 
 <div class="bg-background h-screen">
@@ -140,9 +143,11 @@
     <div class="overflow-y-scroll no-scrollbar h-screen w-1/3">
       <Router {routes} />
     </div>
-    <div class="pt-10 pl-10 w-1/3">
-      <UserList />
-    </div>
+    {#if _isConnected}
+      <div class="pt-10 pl-10 w-1/3">
+        <UserList />
+      </div>
+    {/if}
   </div>
 </div>
 

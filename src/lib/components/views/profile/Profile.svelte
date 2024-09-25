@@ -122,8 +122,6 @@
 
   userEvents.subscribe((value) => {
     if (value.length > 0) {
-      console.log("///GOT EVENTS///");
-      console.log(events);
       events = value;
     }
   });

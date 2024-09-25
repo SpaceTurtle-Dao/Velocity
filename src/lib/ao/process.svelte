@@ -65,7 +65,6 @@ export async function send (processId, tags, data: string | null) {
 
 // @ts-ignore
 export const read = async (processId, tags) => {
-	console.log("Sending message to: " + processId)
 	// The only 2 mandatory parameters here are process and signer
 	// connect to the extension
 	// @ts-ignore
@@ -79,9 +78,7 @@ export const read = async (processId, tags) => {
 		// Tags that the process will use as input.
 		tags: tags
 	});
-	console.log(result.Messages)
 	let message = result.Messages.pop();
-	console.log(message);
 	return message;
 	//return result
 };
@@ -123,9 +120,6 @@ const readMessage = async (messageId: string, processId: string) => {
 	}else{
 
 	}
-	console.log(Messages);
-	console.log(Output);
-	console.log(Error);
 	throw (Error)
 };
 </script>

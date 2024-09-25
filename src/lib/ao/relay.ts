@@ -122,10 +122,6 @@ export const fetchFeed = async (relay: string, filters: string) => {
 };
 
 export const fetchEvents = async (relay: string, filters: string) => {
-    console.log("/////RELAY//////")
-    console.log(relay)
-    console.log("/////Filters//////")
-    console.log(JSON.parse(filters))
     try {
         // @ts-ignore
         let message = FetchEvents(filters);
@@ -202,9 +198,7 @@ export const info = async (process: string):Promise<any | null> => {
         // @ts-ignore
         let message = Info();
         let result = await read(process, message);
-        console.log(result);
         let json = JSON.parse(result.Data);
-        console.log(json);
         _info = json
     } catch (e) {
         console.log(e);
@@ -234,7 +228,6 @@ export const relay = async (owner: string): Promise<string | null> => {
         let message = Relay(owner);
         let result = await read(INDEXER_ID(), message);
         if (result) {
-            console.log(result);
             _relay = result.Data
         }
     } catch (e) {
@@ -243,26 +236,21 @@ export const relay = async (owner: string): Promise<string | null> => {
     return _relay
 };
 
-export const relays = async (page: string, size: string): Promise<Array<UserInfo>> => {
-    let _relays: Array<Relay> = [];
-    let _users: Array<UserInfo> = [];
+export async function relays(page: string, size: string) {
+    let userProfiles: Array<UserInfo> = [];
     try {
         // @ts-ignore
         let message = Relays(page, size);
         let result = await read(INDEXER_ID(), message);
-        _relays= JSON.parse(result.Data);
-        _relays.forEach(async (value) => {
-            let result = await info(value.relay)
-            _users.push(result)
-        })
-        //users.set(_users)
+        let userRelays: Array<Relay> = JSON.parse(result.Data);
+        for (var i = 0; i < userRelays.length; i++){
+            let userProfile = await info(userRelays[i].relay)
+            userProfiles.push(userProfile)
+        }
         console.log("****USERS****")
-        console.log(page +" "+ size);
-        console.log(_users);
-        
+        console.log(userProfiles);
     } catch (e) {
         console.log(e);
     }
-
-    return _users
+    return userProfiles
 };

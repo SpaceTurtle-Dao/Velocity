@@ -29,7 +29,6 @@
                 let _relay = await relay(address);
                 if (_relay) {
                     userRelay.set(_relay);
-                    userRelay.set(_relay);
                     let _currentUser = await info(_relay)
                     console.log("///////CURRENT USER/////////")
                     console.log(_currentUser)

@@ -3,18 +3,19 @@
     import ProfileCard from "$lib/components/views/profile/ProfileCard.svelte";
     import { onMount } from "svelte";
     import { relays } from "$lib/ao/relay";
+    import { users } from "$lib/stores/main.store";
 
-    let _users: Array<UserInfo>;
-
+    let userelays: Array<UserInfo> = [];
+    
     onMount(async () => {
-        console.log("getting users");
-        _users = await relays("1", "100");
-        console.log(_users);
+        console.log("********Mounted*******");
+        userelays = await relays("1", "100");
     });
+    
 </script>
 
-{#if _users}
-    {#each _users as _user}
-        <ProfileCard {_user} />
+<div>
+    {#each userelays as userelay}
+        <ProfileCard data={userelay} />
     {/each}
-{/if}
+</div>

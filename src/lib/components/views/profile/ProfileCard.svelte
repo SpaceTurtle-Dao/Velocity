@@ -5,7 +5,7 @@
     import Follow from "./Follow.svelte";
     import { onMount } from "svelte";
 
-    export let _user: UserInfo;
+    export let data: UserInfo;
 
     function formatDate(dateString: string): string {
         return new Date(dateString).toLocaleString();
@@ -13,7 +13,7 @@
 
     onMount(async () => {
         console.log("got user")
-        console.log(_user)
+        console.log(data)
         
     });
 </script>
@@ -22,9 +22,9 @@
     <div class="flex justify-between ">
         <div class="flex space-x-2">
             <Avatar.Root class="h-12 w-12">
-                {#if profileFromEvent(_user.Profile).picture}
+                {#if profileFromEvent(data.Profile).picture}
                     <Avatar.Image
-                        src={profileFromEvent(_user.Profile).picture}
+                        src={profileFromEvent(data.Profile).picture}
                         alt="Avatar"
                     />
                 {/if}
@@ -33,23 +33,23 @@
     
             <div>
                 <p class="text-sm font-medium leading-none text-primary">
-                    {profileFromEvent(_user.Profile).name}
+                    {profileFromEvent(data.Profile).name}
                 </p>
                 <p class="text-muted-foreground text-sm text-secondary">
-                    {profileFromEvent(_user.Profile).display_name}
+                    {profileFromEvent(data.Profile).display_name}
                 </p>
             </div>
         </div>
         <Follow
-            relay={_user.Profile.pubkey}
+            relay={data.Profile.pubkey}
             userRelay={$currentUser.Profile.pubkey}
-            token={_user.Token}
-            quantity={_user.SubscriptionCost.toString()}
+            token={data.Token}
+            quantity={data.SubscriptionCost.toString()}
         />
     </div>
     <article class="pl-11 pb-6 pt-1 text-primary text-wrap ...">
-        {#if profileFromEvent(_user.Profile).about}
-            <p>{profileFromEvent(_user.Profile).about}</p>
+        {#if profileFromEvent(data.Profile).about}
+            <p>{profileFromEvent(data.Profile).about}</p>
         {/if}
     </article>
 </div>
