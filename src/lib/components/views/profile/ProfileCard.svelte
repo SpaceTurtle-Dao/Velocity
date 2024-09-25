@@ -68,6 +68,16 @@
                         <p id={data.Profile.pubkey}></p>
                     {/if}
                 </article>
+                <div class="flex space-x-5 pt-2.5">
+                    <div class="flex space-x-1">
+                      <p class="text-primary">{data.Subs}</p>
+                      <p class="text-gray-400">Following</p>
+                    </div>
+                    <div class="flex space-x-1">
+                      <p class="text-primary">{data.Subscriptions}</p>
+                      <p class="text-gray-400">Follower</p>
+                    </div>
+                  </div>
             </div>
         </div>
         <Follow

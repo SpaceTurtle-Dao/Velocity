@@ -140,11 +140,11 @@
         {/if}
       </div>
     </div>
-    <div class="overflow-y-scroll no-scrollbar h-screen w-1/3">
+    <div class="overflow-y-scroll no-scrollbar h-screen">
       <Router {routes} />
     </div>
     {#if _isConnected}
-      <div class="pt-10 pl-10 w-1/3">
+      <div class="flex justify-start pt-10 pl-10 w-1/3">
         <UserList />
       </div>
     {/if}
