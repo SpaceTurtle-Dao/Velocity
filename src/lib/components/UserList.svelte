@@ -6,12 +6,13 @@
     import { users } from "$lib/stores/main.store";
 
     let userelays: Array<UserInfo> = [];
-    
+
+    users.subscribe((value) => userelays = value);
+
     onMount(async () => {
         console.log("********Mounted*******");
-        userelays = await relays("1", "100");
+        await relays("1", "100");
     });
-    
 </script>
 
 <div>

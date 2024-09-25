@@ -47,13 +47,13 @@
         console.log("////////GETTING WALLET/////////////");
         const address = await window.arweaveWallet.getActiveAddress();
         if (address) {
+          _isConnected = true;
           let _relay = await relay(address);
           if (_relay) {
             let _currentUser = await info(_relay);
             currentUser.set(_currentUser);
             user.set(_currentUser);
           }
-          _isConnected = true;
         }
       } catch (error) {
         console.log(_isConnected);

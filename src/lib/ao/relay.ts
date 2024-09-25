@@ -249,8 +249,8 @@ export async function relays(page: string, size: string) {
         }
         console.log("****USERS****")
         console.log(userProfiles);
+        users.set(userProfiles)
     } catch (e) {
         console.log(e);
     }
-    return userProfiles
 };
