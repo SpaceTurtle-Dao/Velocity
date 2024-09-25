@@ -23,7 +23,13 @@ import { feedPosts, replies } from "../stores/feedpage.store";
 import type { Swap } from "$lib/models/Swap";
 import { swapsStore } from "../stores/pool.store";
 import { ta } from "date-fns/locale";
+import type { UserInfo } from "$lib/models/Profile";
+import { users } from "$lib/stores/main.store";
 
+type Relay = {
+    owner:string,
+    relay:string
+}
 
 export const event = async (
     value: string,
@@ -237,19 +243,26 @@ export const relay = async (owner: string): Promise<string | null> => {
     return _relay
 };
 
-export const relays = async (page: string, size: string) => {
-    let _relays: Array<any> = [];
+export const relays = async (page: string, size: string): Promise<Array<UserInfo>> => {
+    let _relays: Array<Relay> = [];
+    let _users: Array<UserInfo> = [];
     try {
         // @ts-ignore
         let message = Relays(page, size);
         let result = await read(INDEXER_ID(), message);
-        if (result == undefined) return _relays;
-        console.log(result);
-        let json = JSON.parse(result.Data);
-        console.log(json);
-        return json
+        _relays= JSON.parse(result.Data);
+        _relays.forEach(async (value) => {
+            let result = await info(value.relay)
+            _users.push(result)
+        })
+        //users.set(_users)
+        console.log("****USERS****")
+        console.log(page +" "+ size);
+        console.log(_users);
+        
     } catch (e) {
         console.log(e);
     }
-    return _relays;
+
+    return _users
 };
