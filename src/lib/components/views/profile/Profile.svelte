@@ -75,7 +75,7 @@
   });
 
   async function fetchMedia() {
-    events = [];
+    //events = [];
     if (userInfo) {
       let filter = {
         kinds: [1],
@@ -99,9 +99,7 @@
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
-      if (userInfo) {
-        fetchEvents(userInfo.Profile.pubkey, _filters);
-      }
+      fetchEvents(userInfo.Profile.pubkey, _filters);
     }
     filters = [];
   }
@@ -135,9 +133,7 @@
   }
 
   userEvents.subscribe((value) => {
-    if (value.length > 0) {
-      events = value;
-    }
+    events = value;
   });
 
   function formatDate(dateString: number): string {
@@ -267,7 +263,7 @@
     <Tabs.Root value="post" class="max-w-prose">
       <Tabs.List class="grid grid-cols-4">
         <Tabs.Trigger
-          class="underline-tabs-trigger"
+          
           on:click={fetchPost}
           value="post">Post</Tabs.Trigger
         >
