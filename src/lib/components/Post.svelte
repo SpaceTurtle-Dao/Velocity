@@ -2,7 +2,13 @@
     import * as Avatar from "$lib/components/ui/avatar/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Card from "$lib/components/ui/card/index.js";
-    import { MessageCircle, Repeat2, Heart, Share } from "lucide-svelte";
+    import {
+        MessageCircle,
+        Repeat2,
+        Heart,
+        Share,
+        HandCoins,
+    } from "lucide-svelte";
     import {
         profileFromEvent,
         type Profile,
@@ -10,43 +16,18 @@
     } from "$lib/models/Profile";
     import type { Event } from "$lib/models/Event";
     import Nip92 from "$lib/handlers/NIP92.svelte";
+    import { user } from "$lib/stores/profile.store";
+    import { onMount } from "svelte";
+    import { info } from "$lib/ao/relay";
 
-    let _profileJson: Profile = {
-        name: "Charazard",
-        about: "A fire pokemon",
-        picture: "-RmetHQufxWySiJact95a9ON6pb-0s56dElmyJusGwQ",
-        display_name: "Char",
-        website: "https://www.ao.link/",
-        banner: "-RmetHQufxWySiJact95a9ON6pb-0s56dElmyJusGwQ",
-        bot: false,
-    };
-
-    let _profile: Event = {
-        id: "1",
-        pubkey: "vd97vAnBhKD7zGNDTjTgl5N0WKLcl92MO8Ob3T0w6IM",
-        created_at: 1726767860000,
-        kind: 0,
-        tags: [[]],
-        content: JSON.stringify(_profileJson),
-    };
-
-    let _userInfo: UserInfo = {
-        Token: "WPyLgOqELOyN_BoTNdeEMZp5sz3RxDL19IGcs3A9IPc",
-        Events: 1,
-        Profile: _profile,
-        SubscriptionCost: 1000000,
-        FeedCost: 1000000,
-        Subs: 0,
-        Subscriptions: 0,
-    };
-
-    export let _user: UserInfo = _userInfo;
     export let event: Event;
-
-    function getActionFromTags(tags: string[][]): string {
-        const actionTag = tags.find((tag) => tag[0] === "Action");
-        return actionTag ? actionTag[1] : "Unknown";
-    }
+    let _user: UserInfo;
+    let profile: Profile;
+    let event2: Event;
+    let e: string;
+    let p: string;
+    let q: string;
+    let relay: string;
 
     function formatDate(dateString: number): string {
         return new Date(dateString).toLocaleTimeString();
@@ -58,47 +39,140 @@
             tx
         );
     }
+
+    function repost() {}
+    function like() {}
+    function share() {}
+    function reply() {}
+
+    function parseTags() {
+        let tags = event.tags;
+        tags.forEach((tag) => {
+            if (tag[0] == "e") {
+                e = tag[1];
+                relay = tag[2];
+            }
+            if (tag[0] == "p") {
+                p = tag[1];
+            }
+            if (tag[0] == "q") {
+                q = tag[1];
+            }
+        });
+        if (e && p && relay && q) {
+            event2 = JSON.parse(event.content);
+        } else if (e && p && relay) {
+            event2 = JSON.parse(q);
+        }
+    }
+    parseTags();
+
+    onMount(async () => {
+        console.log("post event");
+        console.log(event);
+        _user = await info(event.pubkey);
+        profile = profileFromEvent(_user.Profile);
+        console.log(_user);
+        console.log(profile);
+    });
+
+    /*
+    {#if event.kind == 6}
+        {#if e && p && relay && q}
+            <!--Quote-->
+            <div>
+                <Nip92 {event} />
+            </div>
+            <div class="border border-border rounded rounded-sm">
+                <Nip92 event={event2} />
+            </div>
+        {:else if e && p && relay}
+            <!--Repost-->
+            <div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                <Repeat2 size={16} />
+                <span>Reposted</span>
+            </div>
+            <div>
+                <Nip92 event={event2} />
+            </div>
+        {/if}
+    {/if}
+    {#if event.kind == 1}
+        <!--Quote-->
+        <div class="pl-11 pr-11 pb-5 bg-blue-400">
+            <Nip92 {event} />
+        </div>
+        <div class="border border-border rounded rounded-sm p-5">
+            <div class="pl-11 pr-11 pb-5">
+                <Nip92 {event} />
+            </div>
+        </div>
+    {/if}
+    */
 </script>
 
-<div class="pl-5 pt-5 pr-5">
-    <div class="flex justify-between">
-        <div class="flex space-x-2">
+{#if _user}
+    <div class="pl-5 pt-5 pr-5">
+        <div class="flex justify-start space-x-2">
             <Avatar.Root class="hidden h-9 w-9 sm:flex">
                 {#if profileFromEvent(_user.Profile).name}
-                    <Avatar.Image
-                        src={toUrl(profileFromEvent(_user.Profile).picture)}
-                        alt="Avatar"
-                    />
+                    <Avatar.Image src={profile.picture} alt="Avatar" />
                 {/if}
                 <Avatar.Fallback>OM</Avatar.Fallback>
             </Avatar.Root>
-            <div class="flex space-x-1">
-                <p class=" font-medium text-primary">
-                    {profileFromEvent(_user.Profile).name}
-                </p>
-                <p class="text-gray-500">
-                    {formatDate(_user.Profile.created_at)}
-                </p>
+            <div>
+                <div class="flex space-x-1">
+                    <p class="font-medium text-primary h-5">
+                        {profile.name}
+                    </p>
+                    <p class="text-gray-500">
+                        {formatDate(_user.Profile.created_at)}
+                    </p>
+                </div>
+                <Nip92 {event} />
             </div>
         </div>
-    </div>
-    {#if event.kind == 1}
-        <div>
-            <Nip92 {event} />
+
+        <div class="flex justify-between pl-8 py-2">
+            <Button
+                variant="link"
+                size="icon"
+                class="text-primary hover:bg-secondary rounded rounded-full"
+                on:click={reply}
+            >
+                <MessageCircle strokeWidth={0.8} />
+            </Button>
+            <Button
+                variant="link"
+                size="icon"
+                class="text-primary hover:bg-secondary rounded rounded-full"
+                on:click={repost}
+            >
+                <Repeat2 strokeWidth={0.8} />
+            </Button>
+            <Button
+                variant="link"
+                size="icon"
+                class="text-primary hover:bg-secondary rounded rounded-full"
+                on:click={like}
+            >
+                <Heart strokeWidth={0.8} />
+            </Button>
+            <Button
+                variant="link"
+                size="icon"
+                class="text-primary hover:bg-secondary rounded rounded-full"
+            >
+                <HandCoins strokeWidth={0.5} />
+            </Button>
+            <Button
+                variant="link"
+                size="icon"
+                class="text-primary hover:bg-secondary rounded rounded-full"
+                on:click={share}
+            >
+                <Share strokeWidth={0.8} />
+            </Button>
         </div>
-    {/if}
-    <div class="flex justify-between">
-        <Button variant="link" size="icon" class="text-primary">
-            <MessageCircle />
-        </Button>
-        <Button variant="link" size="icon" class="text-primary">
-            <Repeat2 />
-        </Button>
-        <Button variant="link" size="icon" class="text-primary">
-            <Heart />
-        </Button>
-        <Button variant="link" size="icon" class="text-primary">
-            <Share />
-        </Button>
     </div>
-</div>
+{/if}
