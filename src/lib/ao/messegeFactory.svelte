@@ -4,16 +4,10 @@
 		return _tags;
 	};
 
-	export const Subscribe = (
-		token: string,
-		quantity: string,
-		relay: string,
-	) => {
+	export const Subscribe = (relay: string) => {
 		let _tags = [
 			{ name: "Action", value: "Subscribe" },
-			{ name: "Token", value: token },
-			{ name: "Quantity", value: quantity },
-			{ name: "Relay", value: relay },
+			{ name: "Relay", value: relay }
 		];
 		return _tags;
 	};

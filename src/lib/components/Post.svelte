@@ -49,9 +49,7 @@
     function reply() {}
 
     function parseTags() {
-        console.log("/////////PARSING EVENT///////////");
         let tags = event.tags;
-        console.log(tags);
         tags.forEach((tag) => {
             if (tag[0] == "e") {
                 e = tag[1];
@@ -69,11 +67,6 @@
         } else if (e && p && relay) {
             event2 = JSON.parse(q);
         }
-        console.log("/////////GOT Repost or Quote///////////");
-        console.log(e);
-        console.log(p);
-        console.log(q);
-        console.log(relay);
     }
     parseTags();
 

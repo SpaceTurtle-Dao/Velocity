@@ -38,7 +38,7 @@
   import { onMount } from "svelte";
   import { fetchEvents } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
-    import Follow from "./Follow.svelte";
+  import Follow from "./Follow.svelte";
 
   let activeTab: string = "posts";
   let userInfo: UserInfo;
@@ -46,6 +46,9 @@
   let events: Array<Event> = [];
   let filters: Array<any> = [];
   let showModal = false;
+  let textWithUrl = "";
+  // Regular expression to find URLs in the string
+  const urlPattern = /(https?:\/\/[^\s]+)/g;
 
   user.subscribe((value) => {
     if (value) {
@@ -60,16 +63,15 @@
       userProfile = profileFromEvent(userInfo.Profile);
       let _filters = JSON.stringify(filters);
       if (userInfo) {
-        console.log("///FETCHING EVENTS///");
         fetchEvents(userInfo.Profile.pubkey, _filters);
       }
+      textWithUrl = profileFromEvent(userInfo.Profile).about;
     }
     filters = [];
   });
 
   async function fetchMedia() {
     events = [];
-    console.log("//////FETHCING MEDIA////////");
     if (userInfo) {
       let filter = {
         kinds: [1],
@@ -94,7 +96,6 @@
       filters.push(filter);
       let _filters = JSON.stringify(filters);
       if (userInfo) {
-        console.log("///FETCHING EVENTS///");
         fetchEvents(userInfo.Profile.pubkey, _filters);
       }
     }
@@ -103,7 +104,6 @@
 
   async function fetchPost() {
     events = [];
-    console.log("//////FETHCING MEDIA////////");
     if (userInfo) {
       let filter = {
         kinds: [1],
@@ -114,7 +114,6 @@
       filters.push(filter);
       let _filters = JSON.stringify(filters);
       if (userInfo) {
-        console.log("///FETCHING EVENTS///");
         fetchEvents(userInfo.Profile.pubkey, _filters);
       }
     }
@@ -123,18 +122,10 @@
 
   userEvents.subscribe((value) => {
     if (value.length > 0) {
-      console.log("///GOT EVENTS///");
-      console.log(events);
       events = value;
     }
   });
 
-  function toUrl(tx: string) {
-    return (
-      "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
-      tx
-    );
-  }
 
   function formatDate(dateString: number): string {
     return new Date(dateString).toLocaleDateString();
@@ -147,11 +138,6 @@
   function toggleModal() {
     showModal = !showModal;
   }
-
-  const textWithUrl = "Founder | https://x.com/allidoizcode";
-
-  // Regular expression to find URLs in the string
-  const urlPattern = /(https?:\/\/[^\s]+)/g;
 
   onMount(async () => {
     // Split the string into parts, keeping the URLs separate
@@ -178,26 +164,25 @@
       }
     });
   });
+  //transition-transform transform hover:scale-105 duration-300
 </script>
 
 {#if userInfo}
   <div class="mt-10 max-w-prose">
     <Card
-      class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border relative"
+      class="mb-10 overflow-hidden shadow-lg rounded-lg border-border relative"
     >
       <div class="relative mb-10">
         <!-- Increased bottom margin -->
-        <div class="bg-gray-200 relative">
+        <div class="bg-gray-200 relative ">
           {#if userProfile.banner}
             <img
               src={userProfile.banner}
               alt="Banner"
-              class="w-full h-full object-cover"
+              class="w-full max-h-48 object-cover"
             />
-            {:else}
-            <div
-              class="w-full h-32 object-cover bg-secondary"
-            />
+          {:else}
+            <div class="w-full h-32 object-cover bg-secondary" />
           {/if}
         </div>
         <div class="absolute bottom-0 left-4 transform translate-y-1/3">
@@ -222,16 +207,19 @@
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{userProfile.name}</p>
           {#if userInfo.Profile.pubkey == $currentUser.Profile.pubkey}
-          <Button
-            variant="outline"
-            size="sm"
-            class="text-primary rounded rounded-full"
-            on:click={toggleModal}
-          >
-            Edit Profile
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              class="text-primary rounded rounded-full"
+              on:click={toggleModal}
+            >
+              Edit Profile
+            </Button>
           {:else}
-          <Follow relay={userInfo.Profile.pubkey} userRelay={$currentUser.Profile.pubkey} token={userInfo.Token} quantity={userInfo.SubscriptionCost.toString()} />
+            <Follow
+              relay={userInfo.Profile.pubkey}
+              userRelay={$currentUser.Profile.pubkey}
+            />
           {/if}
         </div>
         <p class="font-light text-gray-400">@{userProfile.display_name}</p>
@@ -252,11 +240,11 @@
         </div>
         <div class="flex space-x-5 pt-2.5">
           <div class="flex space-x-1">
-            <p>{userInfo.Subs}</p>
+            <p>{userInfo.Subscriptions}</p>
             <p class="text-gray-400">Following</p>
           </div>
           <div class="flex space-x-1">
-            <p>{userInfo.Subscriptions}</p>
+            <p>{userInfo.Subs}</p>
             <p class="text-gray-400">Follower</p>
           </div>
         </div>

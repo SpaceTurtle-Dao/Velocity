@@ -3,11 +3,7 @@
   import Router from "svelte-spa-router";
   import { link } from "svelte-spa-router";
   import "./app.css";
-  import Navbar from "$lib/components/Navbar.svelte";
-  import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
   import CreatePostModal from "$lib/components/CreatePost.svelte";
-  import Feed from "$lib/components/Feed.svelte";
-  import ProfileCreation from "$lib/components/views/profile/CreateProfile.svelte";
   import {
     Home as HomeIcon,
     Search,
@@ -19,11 +15,7 @@
     Edit,
   } from "lucide-svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
-  import {
-    currentUser,
-    isConnected,
-    user,
-  } from "./lib/stores/profile.store";
+  import { currentUser, isConnected, user } from "./lib/stores/profile.store";
   import {
     Avatar,
     AvatarFallback,
@@ -34,44 +26,33 @@
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
   import ConnectWalletButton from "$lib/components/wallet.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { info, relay } from "$lib/ao/relay";
-    import type { UserInfo } from "$lib/models/Profile";
+  import { info, relay, relays } from "$lib/ao/relay";
+  import UserList from "$lib/components/UserList.svelte";
+  import type { UserInfo } from "$lib/models/Profile";
+  import { users } from "$lib/stores/main.store";
 
   let isCreatePostModalOpen = false;
   let _isConnected = false;
-
-  let userInfo:UserInfo;
-
 
   isConnected.subscribe((value) => {
     _isConnected = value;
   });
 
-  function toUrl(tx: string) {
-    return (
-      "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
-      tx
-    );
-  }
 
   async function checkWalletConnection() {
     // @ts-ignore
     if (window.arweaveWallet) {
       try {
         // @ts-ignore
-        console.log("////////GETTING WALLET/////////////")
+        console.log("////////GETTING WALLET/////////////");
         const address = await window.arweaveWallet.getActiveAddress();
         if (address) {
-          //console.log(address);
-          //console.log(_isConnected);
           _isConnected = true;
           let _relay = await relay(address);
           if (_relay) {
-            let _currentUser = await info(_relay)
-            console.log("///////CURRENT USER/////////")
-            console.log(_currentUser)
-            currentUser.set(_currentUser)
-            user.set(_currentUser)
+            let _currentUser = await info(_relay);
+            currentUser.set(_currentUser);
+            user.set(_currentUser);
           }
         }
       } catch (error) {
@@ -81,12 +62,8 @@
     }
   }
 
-  onMount(async () => {
-    await checkWalletConnection();
-  });
-
   const menuItems = [
-    { icon: HomeIcon, label: "Home", href: "/feed" },
+    { icon: HomeIcon, label: "Home", href: "/profile" },
     { icon: User, label: "Profile", href: "/profile" },
     { icon: Zap, label: "Relay", href: "/relay" },
   ];
@@ -100,20 +77,21 @@
   }
 
   const routes = {
-    '/feed': Feed,
-    '/profile': Profile,
-    '/': Feed,
-    '/UserProfile': UserProfile,
-    '/relay': RelayButtons,
-  }
+    "/profile": Profile,
+    "/relay": RelayButtons,
+  };
+
+  onMount(async () => {
+    await checkWalletConnection();
+  });
 </script>
 
 <div class="bg-background h-screen">
-  <div class="flex justify-center w-full bg-background">
-    <div class="flex flex-col space-y-10 p-4">
-      <div class="space-y-4 pt-3">
+  <div class="flex w-full bg-background justify-center">
+    <div class="flex p-4 w-1/3 justify-end">
+      <div class="space-y-8 p-4">
         <nav>
-          <ul class="space-y-2">
+          <ul class="space-y-3">
             {#each menuItems as item}
               <li>
                 <a
@@ -125,7 +103,9 @@
                     this={item.icon}
                     class="w-6 h-6 mr-4 text-primary"
                   />
-                  <span class="text-lg font-medium text-primary">{item.label}</span>
+                  <span class="text-lg font-medium text-primary"
+                    >{item.label}</span
+                  >
                 </a>
               </li>
             {/each}
@@ -147,31 +127,35 @@
         {:else}
           <Button
             on:click={toggleCreatePostModal}
-            class="w-44 h-12 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
+            class="w-full h-13 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
           >
             <Plus class="w-5 h-5 mr-2" />
             Post
           </Button>
         {/if}
+        {#if $currentUser}
+          <div class="p-4">
+            <LowerProfile />
+          </div>
+        {/if}
       </div>
-      {#if $currentUser}
-        <div class="p-4">
-          <LowerProfile />
-        </div>
-      {/if}
     </div>
-
-    <div class="overflow-y-scroll no-scrollbar h-screen w-1/3">
+    <div class="overflow-y-scroll no-scrollbar h-screen">
       <Router {routes} />
     </div>
+    {#if _isConnected}
+      <div class="flex justify-start pt-10 pl-10 w-1/3">
+        <UserList />
+      </div>
+    {/if}
   </div>
 </div>
 
 {#if $currentUser}
-<CreatePostModal
-  relay={$currentUser.Profile.pubkey}
-  isOpen={isCreatePostModalOpen}
-  on:close={toggleCreatePostModal}
-  on:submit={handlePostSubmit}
-/>
+  <CreatePostModal
+    relay={$currentUser.Profile.pubkey}
+    isOpen={isCreatePostModalOpen}
+    on:close={toggleCreatePostModal}
+    on:submit={handlePostSubmit}
+  />
 {/if}

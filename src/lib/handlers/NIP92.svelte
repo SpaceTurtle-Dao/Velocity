@@ -10,16 +10,13 @@
   let thumb: string;
 
   function parseTags() {
-    console.log("/////////PARSING EVENT///////////");
     let isImeta = false;
     let match = event.content.match(/https?:\/\/[^\s]+/);
     if (match == null) return;
     inlineUrl = match[0];
     let tags = event.tags[0];
-    console.log(tags);
     for (var i in tags) {
       let tag = tags[i];
-      console.log(tag);
       if (tag == "imeta") {
         isImeta = true;
       }
@@ -27,7 +24,6 @@
     if (isImeta) {
       for (var i in tags) {
         let tag = tags[i];
-        console.log(tag.split(" "));
         if (tag.split(" ")[0] == "url" && inlineUrl == tag.split(" ")[1]) {
           media = tag.split(" ")[1];
         }
@@ -39,10 +35,6 @@
         }
       }
     }
-    console.log("/////////GOT MEDIA///////////");
-    console.log(media);
-    console.log(mimeType);
-    console.log(thumb);
   }
 
   parseTags();

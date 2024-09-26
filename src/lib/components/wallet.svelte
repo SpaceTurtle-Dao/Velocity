@@ -6,7 +6,7 @@
         clearWalletAddress,
     } from "../stores/walletStore";
     import SmallSpinner from "$lib/components/smallSpinner.svelte";
-    import { relay, info } from "$lib/ao/relay";
+    import { relay, info, relays } from "$lib/ao/relay";
     import { currentUser, isConnected, user, userRelay } from "../stores/profile.store";
     import { Button } from "$lib/components/ui/button";
     export let buttonClass = "";
@@ -28,7 +28,6 @@
                 isConnected.set(true)
                 let _relay = await relay(address);
                 if (_relay) {
-                    userRelay.set(_relay);
                     userRelay.set(_relay);
                     let _currentUser = await info(_relay)
                     console.log("///////CURRENT USER/////////")
