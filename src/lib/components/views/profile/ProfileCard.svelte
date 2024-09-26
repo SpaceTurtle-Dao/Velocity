@@ -46,7 +46,7 @@
     });
 </script>
 
-<div class="border border-border rounded p-5 w-3/4">
+<div class="border border-border rounded p-5">
     <div class="flex justify-between">
         <div class="flex space-x-2">
             <Avatar.Root class="h-12 w-12">

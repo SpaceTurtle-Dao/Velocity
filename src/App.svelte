@@ -13,6 +13,7 @@
     Plus,
     Zap,
     Edit,
+    Mail,
   } from "lucide-svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
   import { currentUser, isConnected, user } from "./lib/stores/profile.store";
@@ -84,7 +85,7 @@
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
     { icon: User, label: "Profile", href: "/profile" },
-    { icon: Zap, label: "Relay", href: "/relay" },
+    { icon: Mail, label: "Messages", href: "/message" },
   ];
 
   function toggleCreatePostModal() {
@@ -98,7 +99,7 @@
   const routes = {
     "/feed": Feed,
     "/profile": Profile,
-    "/relay": RelayButtons,
+    "/messages": RelayButtons,
   };
 
   onMount(async () => {
