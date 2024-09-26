@@ -10,6 +10,7 @@ export const user = writable<UserInfo>();
 export const subscribers = writable<Array<UserInfo>>([]);
 export const subscriptions = writable<Array<UserInfo>>([]);
 export const userEvents = writable<Array<Event>>([]);
+export const feedEvents = writable<Array<Event>>([]);
 
 
 // User Data Store

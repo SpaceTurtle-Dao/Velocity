@@ -14,37 +14,40 @@
     }
 
     onMount(async () => {
+        if (profileFromEvent(data.Profile).about) {
+            textWithUrl = profileFromEvent(data.Profile).about;
 
-        textWithUrl = profileFromEvent(data.Profile).about;
+            // Split the string into parts, keeping the URLs separate
+            const parts = textWithUrl.split(urlPattern);
 
-        // Split the string into parts, keeping the URLs separate
-        const parts = textWithUrl.split(urlPattern);
+            // Get the <p> tag by ID
+            const pTag: HTMLElement | null = document.getElementById(
+                data.Profile.pubkey,
+            );
 
-        // Get the <p> tag by ID
-        const pTag: HTMLElement | null = document.getElementById(data.Profile.pubkey);
-
-        // Loop over the parts and create text or links accordingly
-        parts.forEach((part) => {
-            if (pTag) {
-                if (urlPattern.test(part)) {
-                    // If the part is a URL, create an <a> tag
-                    const linkElement = document.createElement("a");
-                    linkElement.className = "text-blue-400";
-                    linkElement.href = part; // Set the href attribute
-                    linkElement.textContent = part; // Set the text content
-                    linkElement.target = "_blank"; // Open link in new tab
-                    pTag?.appendChild(linkElement);
-                } else {
-                    // If the part is not a URL, append it as plain text
-                    pTag!.appendChild(document.createTextNode(part));
+            // Loop over the parts and create text or links accordingly
+            parts.forEach((part) => {
+                if (pTag) {
+                    if (urlPattern.test(part)) {
+                        // If the part is a URL, create an <a> tag
+                        const linkElement = document.createElement("a");
+                        linkElement.className = "text-blue-400";
+                        linkElement.href = part; // Set the href attribute
+                        linkElement.textContent = part; // Set the text content
+                        linkElement.target = "_blank"; // Open link in new tab
+                        pTag?.appendChild(linkElement);
+                    } else {
+                        // If the part is not a URL, append it as plain text
+                        pTag!.appendChild(document.createTextNode(part));
+                    }
                 }
-            }
-        });
+            });
+        }
     });
 </script>
 
 <div class="border border-border rounded p-5 w-3/4">
-    <div class="flex justify-between ">
+    <div class="flex justify-between">
         <div class="flex space-x-2">
             <Avatar.Root class="h-12 w-12">
                 {#if profileFromEvent(data.Profile).picture}
@@ -70,21 +73,21 @@
                 </article>
                 <div class="flex space-x-5 pt-2.5">
                     <div class="flex space-x-1">
-                      <p class="text-primary">{data.Subscriptions}</p>
-                      <p class="text-gray-400">Following</p>
+                        <p class="text-primary">{data.Subscriptions}</p>
+                        <p class="text-gray-400">Following</p>
                     </div>
                     <div class="flex space-x-1">
-                      <p class="text-primary">{data.Subs}</p>
-                      <p class="text-gray-400">Follower</p>
+                        <p class="text-primary">{data.Subs}</p>
+                        <p class="text-gray-400">Follower</p>
                     </div>
-                  </div>
+                </div>
             </div>
         </div>
         {#if $currentUser}
-        <Follow
-            relay={data.Profile.pubkey}
-            userRelay={$currentUser.Profile.pubkey}
-        />
+            <Follow
+                relay={data.Profile.pubkey}
+                userRelay={$currentUser.Profile.pubkey}
+            />
         {/if}
     </div>
 </div>

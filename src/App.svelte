@@ -26,10 +26,11 @@
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
   import ConnectWalletButton from "$lib/components/wallet.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { info, relay, relays } from "$lib/ao/relay";
+  import { fetchFeed, info, relay, relays } from "$lib/ao/relay";
   import UserList from "$lib/components/UserList.svelte";
   import type { UserInfo } from "$lib/models/Profile";
   import { users } from "$lib/stores/main.store";
+  import Feed from "$lib/components/views/feed/Feed.svelte";
 
   let isCreatePostModalOpen = false;
   let _isConnected = false;
@@ -38,6 +39,23 @@
     _isConnected = value;
   });
 
+  async function fetchPost() {
+    let filters: Array<any> = [];
+    console.log("Fetching Post");
+    if ($currentUser) {
+      let filter = {
+        kinds: [1],
+        since: 1663905355000,
+        until: Date.now(),
+        limit: 100,
+      };
+      filters.push(filter);
+      let _filters = JSON.stringify(filters);
+      if ($currentUser) {
+        fetchFeed($currentUser.Profile.pubkey, _filters);
+      }
+    }
+  }
 
   async function checkWalletConnection() {
     // @ts-ignore
@@ -53,6 +71,7 @@
             let _currentUser = await info(_relay);
             currentUser.set(_currentUser);
             user.set(_currentUser);
+            await fetchPost()
           }
         }
       } catch (error) {
@@ -63,7 +82,7 @@
   }
 
   const menuItems = [
-    { icon: HomeIcon, label: "Home", href: "/profile" },
+    { icon: HomeIcon, label: "Home", href: "/feed" },
     { icon: User, label: "Profile", href: "/profile" },
     { icon: Zap, label: "Relay", href: "/relay" },
   ];
@@ -77,6 +96,7 @@
   }
 
   const routes = {
+    "/feed": Feed,
     "/profile": Profile,
     "/relay": RelayButtons,
   };
