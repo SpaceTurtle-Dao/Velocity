@@ -80,20 +80,18 @@
 
 {#if $currentUser}
     <div class="mt-10 max-w-prose">
-        <Tabs.Root value="post" class="max-w-prose">
-            <Tabs.List class="grid grid-cols-4">
+        <Tabs.Root value="for you" class="max-w-prose">
+            <Tabs.List class="grid grid-cols-2">
                 <Tabs.Trigger
                     class="underline-tabs-trigger"
                     on:click={fetchPost}
-                    value="post">Post</Tabs.Trigger
+                    value="for you">For You</Tabs.Trigger
                 >
-                <Tabs.Trigger on:click={fetchMedia} value="media"
-                    >Media</Tabs.Trigger
+                <Tabs.Trigger on:click={fetchMedia} value="following"
+                    >Following</Tabs.Trigger
                 >
-                <Tabs.Trigger value="following">Following</Tabs.Trigger>
-                <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
             </Tabs.List>
-            <Tabs.Content value="post">
+            <Tabs.Content value="for you">
                 <div class="">
                     {#each events as event}
                         <div class="border border-border max-w-prose">
@@ -102,7 +100,7 @@
                     {/each}
                 </div>
             </Tabs.Content>
-            <Tabs.Content value="media">
+            <Tabs.Content value="following">
                 <div class="">
                     {#each events as event}
                         <div class="border border-border max-w-prose">
@@ -111,8 +109,6 @@
                     {/each}
                 </div>
             </Tabs.Content>
-            <Tabs.Content value="following"></Tabs.Content>
-            <Tabs.Content value="followers"></Tabs.Content>
         </Tabs.Root>
     </div>
 {/if}
