@@ -138,7 +138,6 @@
   <Card
     class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border"
   >
-    <!-- Gradient Header -->
     {#if userInfo}
       <div class="p-8">
         <div class="flex items-center space-x-6">
