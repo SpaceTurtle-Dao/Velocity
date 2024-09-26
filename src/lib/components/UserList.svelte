@@ -7,7 +7,7 @@
 
     let userelays: Array<UserInfo> = [];
 
-    users.subscribe((value) => userelays = value);
+    users.subscribe((value) => (userelays = value));
 
     onMount(async () => {
         console.log("********Mounted*******");
@@ -16,7 +16,9 @@
 </script>
 
 <div>
-    {#each userelays as userelay}
-        <ProfileCard data={userelay} />
-    {/each}
+    <div class="flex flex-col space-y-2">
+        {#each userelays as userelay}
+            <ProfileCard data={userelay} />
+        {/each}
+    </div>
 </div>

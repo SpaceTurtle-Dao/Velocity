@@ -16,14 +16,14 @@ import {
     Relays
 } from "$lib/ao/messegeFactory.svelte";
 import { INDEXER_ID, WAR_TOKEN } from "$lib/constants";
-import { currentUser, feedEvents, userEvents } from "../stores/profile.store";
+import { currentUser, feedEvents, followers, userEvents } from "$lib/stores/profile.store";
 import { feedPosts, replies } from "../stores/feedpage.store";
 import type { UserInfo } from "$lib/models/Profile";
 import { users } from "$lib/stores/main.store";
 
 type Relay = {
-    owner:string,
-    relay:string
+    owner: string,
+    relay: string
 }
 
 export const event = async (
@@ -131,45 +131,33 @@ export const fetchEvents = async (relay: string, filters: string) => {
 };
 
 export const subs = async (relay: string, page: string, size: string) => {
-    let _subs: Array<any> = [];
+    console.log("Fetching subs for " + relay)
     try {
         // @ts-ignore
         let message = Subs(page, size);
         let result = await read(relay, message);
-        if (result == undefined) return _subs;
         console.log(result);
         let json = JSON.parse(result.Data);
         console.log(json);
-        for (const key in json) {
-            _subs.push(json[key]);
-            console.log(json[key]);
-        }
-        feedPosts.set(_subs)
+        followers.set(json)
     } catch (e) {
         console.log(e);
     }
-    return _subs;
 };
 
 export const subscriptions = async (relay: string, page: string, size: string) => {
-    let _subs: Array<any> = [];
+    console.log("Fetching subscriptions for " + relay)
     try {
         // @ts-ignore
         let message = Subscriptions(page, size);
         let result = await read(relay, message);
-        if (result == undefined) return _subs;
         console.log(result);
         let json = JSON.parse(result.Data);
         console.log(json);
-        for (const key in json) {
-            _subs.push(json[key]);
-            console.log(json[key]);
-        }
-        feedPosts.set(_subs)
+        followers.set(json)
     } catch (e) {
         console.log(e);
     }
-    return _subs;
 };
 
 export const isSubscribed = async (process: string, relay: string) => {
@@ -186,21 +174,23 @@ export const isSubscribed = async (process: string, relay: string) => {
     }
 };
 
-export const info = async (process: string):Promise<any | null> => {
+export const info = async (process: string): Promise<any | null> => {
     let _info = null;
     try {
         // @ts-ignore
         let message = Info();
         let result = await read(process, message);
-        let json = JSON.parse(result.Data);
-        _info = json
+        if (result) {
+            let json = JSON.parse(result.Data);
+            _info = json
+        }
     } catch (e) {
         console.log(e);
     }
     return _info
 };
 
-export const getOwner = async (process: string):Promise<string> => {
+export const getOwner = async (process: string): Promise<string> => {
     let owner = ""
     try {
         // @ts-ignore
@@ -237,9 +227,11 @@ export async function relays(page: string, size: string) {
         let message = Relays(page, size);
         let result = await read(INDEXER_ID(), message);
         let userRelays: Array<Relay> = JSON.parse(result.Data);
-        for (var i = 0; i < userRelays.length; i++){
+        for (var i = 0; i < userRelays.length; i++) {
             let userProfile = await info(userRelays[i].relay)
-            userProfiles.push(userProfile)
+            if(userProfile){
+                userProfiles.push(userProfile)
+            }
         }
         console.log("****USERS****")
         console.log(userProfiles);

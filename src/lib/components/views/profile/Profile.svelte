@@ -36,7 +36,7 @@
     CalendarDays,
   } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { fetchEvents } from "$lib/ao/relay";
+  import { fetchEvents, subs, subscriptions } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
   import Follow from "./Follow.svelte";
 
@@ -44,6 +44,8 @@
   let userInfo: UserInfo;
   let userProfile: Profile;
   let events: Array<Event> = [];
+  let followers: Array<UserInfo> = [];
+  let following: Array<UserInfo> = [];
   let filters: Array<any> = [];
   let showModal = false;
   let textWithUrl = "";
@@ -65,7 +67,7 @@
       if (userInfo) {
         fetchEvents(userInfo.Profile.pubkey, _filters);
       }
-      if(profileFromEvent(userInfo.Profile).about){
+      if (profileFromEvent(userInfo.Profile).about) {
         textWithUrl = profileFromEvent(userInfo.Profile).about;
       }
     }
@@ -105,7 +107,7 @@
   }
 
   async function fetchPost() {
-    events = [];
+    //events = [];
     if (userInfo) {
       let filter = {
         kinds: [1],
@@ -122,12 +124,21 @@
     filters = [];
   }
 
+  async function fetchSubs() {
+    console.log("will get subs")
+    await subs(userInfo.Profile.pubkey, "1", "100");
+  }
+
+  async function fetchSubscriptions() {
+    console.log("will get subscriptions")
+    await subscriptions(userInfo.Profile.pubkey, "1", "100");
+  }
+
   userEvents.subscribe((value) => {
     if (value.length > 0) {
       events = value;
     }
   });
-
 
   function formatDate(dateString: number): string {
     return new Date(dateString).toLocaleDateString();
@@ -142,7 +153,6 @@
   }
 
   onMount(async () => {
-
     // Split the string into parts, keeping the URLs separate
     const parts = textWithUrl.split(urlPattern);
 
@@ -177,7 +187,7 @@
     >
       <div class="relative mb-10">
         <!-- Increased bottom margin -->
-        <div class="bg-gray-200 relative ">
+        <div class="bg-gray-200 relative">
           {#if userProfile.banner}
             <img
               src={userProfile.banner}
@@ -262,8 +272,8 @@
           value="post">Post</Tabs.Trigger
         >
         <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
-        <Tabs.Trigger value="following">Following</Tabs.Trigger>
-        <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchSubscriptions} value="following">Following</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchSubs} value="followers">Followers</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="post">
         <div class="">
@@ -285,22 +295,12 @@
       </Tabs.Content>
       <Tabs.Content value="following">
         {#if $user && $currentUser}
-          <Followers
-            relay={$user.Profile.pubkey}
-            userRelay={$currentUser.Profile.pubkey}
-            token={$user.Token}
-            quantity={$user.SubscriptionCost.toString()}
-          />
+          <Followers/>
         {/if}
       </Tabs.Content>
       <Tabs.Content value="followers">
         {#if $user && $currentUser}
-          <Followers
-            relay={$user.Profile.pubkey}
-            userRelay={$currentUser.Profile.pubkey}
-            token={$user.Token}
-            quantity={$user.SubscriptionCost.toString()}
-          />
+          <Followers />
         {/if}
       </Tabs.Content>
     </Tabs.Root>

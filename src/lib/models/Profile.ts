@@ -13,11 +13,11 @@ export type UserInfo = {
 export type Profile = {
   name: string,
   about: string,
-  picture: string,
-  display_name: string,
-  website: string,
-  banner: string,
-  bot: boolean,
+  picture: string | null,
+  display_name: string | null,
+  website: string | null,
+  banner: string | null,
+  bot: boolean | null,
 }
 
 export const profileFromEvent = (event:Event) : Profile => {

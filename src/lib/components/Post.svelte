@@ -17,6 +17,8 @@
     import type { Event } from "$lib/models/Event";
     import Nip92 from "$lib/handlers/NIP92.svelte";
     import { user } from "$lib/stores/profile.store";
+    import { onMount } from "svelte";
+    import { info } from "$lib/ao/relay";
 
     export let event: Event;
     let _user: UserInfo;
@@ -26,12 +28,7 @@
     let p: string;
     let q: string;
     let relay: string;
-    user.subscribe((value)=> {
-        if(value){
-            _user = value;
-            profile = profileFromEvent(_user.Profile)
-        }
-    })
+
     function formatDate(dateString: number): string {
         return new Date(dateString).toLocaleTimeString();
     }
@@ -70,6 +67,15 @@
     }
     parseTags();
 
+    onMount(async () => {
+        console.log("post event");
+        console.log(event);
+        _user = await info(event.pubkey);
+        profile = profileFromEvent(_user.Profile);
+        console.log(_user);
+        console.log(profile);
+    });
+
     /*
     {#if event.kind == 6}
         {#if e && p && relay && q}
@@ -105,69 +111,68 @@
     */
 </script>
 
-<div class="pl-5 pt-5 pr-5">
-    <div class="flex justify-start space-x-2">
-        <Avatar.Root class="hidden h-9 w-9 sm:flex">
-            {#if profileFromEvent(_user.Profile).name}
-                <Avatar.Image
-                    src={profile.picture}
-                    alt="Avatar"
-                />
-            {/if}
-            <Avatar.Fallback>OM</Avatar.Fallback>
-        </Avatar.Root>
-        <div>
-            <div class="flex space-x-1">
-                <p class="font-medium text-primary h-5">
-                    {profile.name}
-                </p>
-                <p class="text-gray-500">
-                    {formatDate(_user.Profile.created_at)}
-                </p>
+{#if _user}
+    <div class="pl-5 pt-5 pr-5">
+        <div class="flex justify-start space-x-2">
+            <Avatar.Root class="hidden h-9 w-9 sm:flex">
+                {#if profileFromEvent(_user.Profile).name}
+                    <Avatar.Image src={profile.picture} alt="Avatar" />
+                {/if}
+                <Avatar.Fallback>OM</Avatar.Fallback>
+            </Avatar.Root>
+            <div>
+                <div class="flex space-x-1">
+                    <p class="font-medium text-primary h-5">
+                        {profile.name}
+                    </p>
+                    <p class="text-gray-500">
+                        {formatDate(_user.Profile.created_at)}
+                    </p>
+                </div>
+                <Nip92 {event} />
             </div>
-            <Nip92 {event} />
+        </div>
+
+        <div class="flex justify-between pl-8 py-2">
+            <Button
+                variant="link"
+                size="icon"
+                class="text-primary hover:bg-secondary rounded rounded-full"
+                on:click={reply}
+            >
+                <MessageCircle strokeWidth={0.8} />
+            </Button>
+            <Button
+                variant="link"
+                size="icon"
+                class="text-primary hover:bg-secondary rounded rounded-full"
+                on:click={repost}
+            >
+                <Repeat2 strokeWidth={0.8} />
+            </Button>
+            <Button
+                variant="link"
+                size="icon"
+                class="text-primary hover:bg-secondary rounded rounded-full"
+                on:click={like}
+            >
+                <Heart strokeWidth={0.8} />
+            </Button>
+            <Button
+                variant="link"
+                size="icon"
+                class="text-primary hover:bg-secondary rounded rounded-full"
+            >
+                <HandCoins strokeWidth={0.5} />
+            </Button>
+            <Button
+                variant="link"
+                size="icon"
+                class="text-primary hover:bg-secondary rounded rounded-full"
+                on:click={share}
+            >
+                <Share strokeWidth={0.8} />
+            </Button>
         </div>
     </div>
-
-    <div class="flex justify-between pl-8 py-2">
-        <Button
-            variant="link"
-            size="icon"
-            class="text-primary hover:bg-secondary rounded rounded-full"
-            on:click={reply}
-        >
-            <MessageCircle strokeWidth={0.8} />
-        </Button>
-        <Button
-            variant="link"
-            size="icon"
-            class="text-primary hover:bg-secondary rounded rounded-full"
-            on:click={repost}
-        >
-            <Repeat2 strokeWidth={0.8} />
-        </Button>
-        <Button
-            variant="link"
-            size="icon"
-            class="text-primary hover:bg-secondary rounded rounded-full"
-            on:click={like}
-        >
-            <Heart strokeWidth={0.8} />
-        </Button>
-        <Button
-            variant="link"
-            size="icon"
-            class="text-primary hover:bg-secondary rounded rounded-full"
-        >
-            <HandCoins strokeWidth={0.5} />
-        </Button>
-        <Button
-            variant="link"
-            size="icon"
-            class="text-primary hover:bg-secondary rounded rounded-full"
-            on:click={share}
-        >
-            <Share strokeWidth={0.8} />
-        </Button>
-    </div>
-</div>
+{/if}
