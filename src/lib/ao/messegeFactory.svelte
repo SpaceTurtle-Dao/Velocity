@@ -4,15 +4,9 @@
 		return _tags;
 	};
 
-	export const Subscribe = (
-		token: string,
-		quantity: string,
-		relay: string,
-	) => {
+	export const Subscribe = (relay: string) => {
 		let _tags = [
 			{ name: "Action", value: "Subscribe" },
-			{ name: "Token", value: token },
-			{ name: "Quantity", value: quantity },
 			{ name: "Relay", value: relay },
 		];
 		return _tags;
@@ -35,9 +29,7 @@
 	};
 
 	export const GetOwner = () => {
-		let _tags = [
-			{ name: "Action", value: "GetOwner" },
-		];
+		let _tags = [{ name: "Action", value: "GetOwner" }];
 		return _tags;
 	};
 
@@ -46,13 +38,21 @@
 		return _tags;
 	};
 
-	export const Subs = () => {
-		let _tags = [{ name: "Action", value: "Subs" }];
+	export const Subs = (page: string, size: string) => {
+		let _tags = [
+			{ name: "Action", value: "Subs" },
+			{ name: "Page", value: page },
+			{ name: "Size", value: size },
+		];
 		return _tags;
 	};
 
-	export const Subscriptions = () => {
-		let _tags = [{ name: "Action", value: "Subscriptions" }];
+	export const Subscriptions = (page: string, size: string) => {
+		let _tags = [
+			{ name: "Action", value: "Subscriptions" },
+			{ name: "Page", value: page },
+			{ name: "Size", value: size },
+		];
 		return _tags;
 	};
 

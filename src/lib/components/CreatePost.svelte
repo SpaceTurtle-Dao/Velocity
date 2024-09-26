@@ -4,8 +4,9 @@
   import { Image, X } from "lucide-svelte";
   import type { EventRequest } from "$lib/models/Event";
   import { Textarea } from "./ui/textarea";
-  import { event } from "$lib/ao/relay";
+  import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
+  import { currentUser, userEvents } from "$lib/stores/profile.store";
 
   export let isOpen = false;
   export let relay: string;
@@ -45,8 +46,23 @@
     }
   }
 
+  function wait(milliseconds:number) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, milliseconds);
+    });
+  }
+
   async function handleSubmit() {
+    let filters: Array<any> = [];
     let _tags: Array<Array<string>> = [];
+    let filter = {
+      kinds: [1],
+      since: 1663905355000,
+      until: Date.now(),
+      limit: 100,
+    };
+    filters.push(filter);
+    let _filters = JSON.stringify(filters);
     let _content = content;
     if (selectedMedia) {
       let media = await upload(selectedMedia);
@@ -69,6 +85,8 @@
     console.log("///////This is the event to be posted////////");
     console.log(json);
     await event(json, relay);
+    console.log("///FETCHING EVENTS///");
+    fetchEvents($currentUser.Profile.pubkey, _filters);
     isLoading = false;
     closeModal();
   }

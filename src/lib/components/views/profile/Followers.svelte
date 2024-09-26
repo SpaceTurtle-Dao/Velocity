@@ -1,27 +1,24 @@
 <script lang="ts">
-  import * as Avatar from "$lib/components/ui/avatar/index.js";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import * as Card from "$lib/components/ui/card/index.js";
-  import { subscribers } from "../../../stores/profile.store";
+  import { followers } from "$lib/stores/profile.store";
   import { profileFromEvent, type UserInfo } from "$lib/models/Profile";
-  import Follow from "./Follow.svelte";
+  import ProfileCard from "./ProfileCard.svelte";
+  import { info } from "$lib/ao/relay";
 
-  export let relay: string;
-  export let userRelay: string;
-  export let token: string;
-  export let quantity: string;
+  let userProfiles: Array<UserInfo> = [];
 
-  let _subscribers: Array<UserInfo> = [];
-
-  //@ts-ignore
-  subscribers.subscribe((value) => {
-    _subscribers = value;
+  followers.subscribe(async (_followers) => {
+    let temp:Array<UserInfo>  = []
+    for (var i = 0; i < _followers.length; i++) {
+      console.log("getting info for");
+      console.log(_followers[i]);
+      let userInfo: UserInfo = await info(_followers[i]);
+      console.log(userInfo);
+      temp.push(userInfo);
+    }
+    userProfiles = temp;
+    console.log("got followers");
+    console.log(userProfiles);
   });
-
-  function getActionFromTags(tags: string[][]): string {
-    const actionTag = tags.find((tag) => tag[0] === "Action");
-    return actionTag ? actionTag[1] : "Unknown";
-  }
 
   function formatDate(dateString: string): string {
     return new Date(dateString).toLocaleString();
@@ -35,61 +32,8 @@
   }
 </script>
 
-<!--<div class="events-list">
-  <h1>Events</h1>
-  {#each _subscribers as subscriber}
-    <div class="event-item">
-      <h2>{getActionFromTags(subscriber.Profile.tags)}</h2>
-      <p>{subscriber.Profile.pubkey}</p>
-      <small
-        >Created at: {formatDate(subscriber.Profile.created_at.toString())} by {subscriber
-          .Profile.pubkey}</small
-      >
-    </div>
-  {/each}
-</div>
-
-<div class="p-4 bg-white rounded-lg shadow-md">
-  <h2 class="text-2xl font-bold text-purple-600 mb-4">Followers</h2>
-  <ul class="space-y-2">
-    {#each _subscribers as subscriber}
-      <li class="p-3 bg-gray-100 rounded-lg shadow-sm">
-        {subscriber.Profile.pubkey}
-      </li>
-    {/each}
-  </ul>
-</div>-->
-
-<div class="border border-border pl-5 pt-5 pr-5">
-  {#each _subscribers as subscriber}
-    <div class="flex justify-between ">
-      <div class="flex space-x-2">
-        {#if profileFromEvent(subscriber.Profile).picture}
-        <Avatar.Root class="hidden h-9 w-9 sm:flex">
-          <Avatar.Image
-            src={toUrl(profileFromEvent(subscriber.Profile).picture)}
-            alt="Avatar"
-          />
-          <Avatar.Fallback>OM</Avatar.Fallback>
-        </Avatar.Root>
-        {/if}
-        <div>
-          <p class="text-sm font-medium leading-none text-primary">
-            {profileFromEvent(subscriber.Profile).name}
-          </p>
-          <p class="text-muted-foreground text-sm text-secondary">
-            {profileFromEvent(subscriber.Profile).name}
-          </p>
-        </div>
-      </div>
-      <Follow {relay} {userRelay} {token} {quantity} />
-    </div>
-    <article class="pl-11 pb-6 pt-1 text-primary text-wrap ...">
-      <p>
-        New Yorkers are facing the winter chill with less warmth this year
-        as the city's most revered soup stand unexpectedly shutters,
-        following a series of events that have left the community puzzled.
-      </p>
-    </article>
+<div class="flex flex-col space-y-2">
+  {#each userProfiles as userProfile}
+    <ProfileCard data={userProfile} />
   {/each}
 </div>
