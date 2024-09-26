@@ -164,21 +164,22 @@
       }
     });
   });
+  //transition-transform transform hover:scale-105 duration-300
 </script>
 
 {#if userInfo}
   <div class="mt-10 max-w-prose">
     <Card
-      class="mb-10 overflow-hidden transition-transform transform hover:scale-105 duration-300 shadow-lg rounded-lg border-border relative"
+      class="mb-10 overflow-hidden shadow-lg rounded-lg border-border relative"
     >
       <div class="relative mb-10">
         <!-- Increased bottom margin -->
-        <div class="bg-gray-200 relative">
+        <div class="bg-gray-200 relative ">
           {#if userProfile.banner}
             <img
               src={userProfile.banner}
               alt="Banner"
-              class="w-full h-full object-cover"
+              class="w-full max-h-48 object-cover"
             />
           {:else}
             <div class="w-full h-32 object-cover bg-secondary" />
@@ -218,8 +219,6 @@
             <Follow
               relay={userInfo.Profile.pubkey}
               userRelay={$currentUser.Profile.pubkey}
-              token={userInfo.Token}
-              quantity={userInfo.SubscriptionCost.toString()}
             />
           {/if}
         </div>
@@ -241,11 +240,11 @@
         </div>
         <div class="flex space-x-5 pt-2.5">
           <div class="flex space-x-1">
-            <p>{userInfo.Subs}</p>
+            <p>{userInfo.Subscriptions}</p>
             <p class="text-gray-400">Following</p>
           </div>
           <div class="flex space-x-1">
-            <p>{userInfo.Subscriptions}</p>
+            <p>{userInfo.Subs}</p>
             <p class="text-gray-400">Follower</p>
           </div>
         </div>

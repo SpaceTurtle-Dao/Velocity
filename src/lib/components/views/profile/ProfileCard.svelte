@@ -70,21 +70,21 @@
                 </article>
                 <div class="flex space-x-5 pt-2.5">
                     <div class="flex space-x-1">
-                      <p class="text-primary">{data.Subs}</p>
+                      <p class="text-primary">{data.Subscriptions}</p>
                       <p class="text-gray-400">Following</p>
                     </div>
                     <div class="flex space-x-1">
-                      <p class="text-primary">{data.Subscriptions}</p>
+                      <p class="text-primary">{data.Subs}</p>
                       <p class="text-gray-400">Follower</p>
                     </div>
                   </div>
             </div>
         </div>
+        {#if $currentUser}
         <Follow
             relay={data.Profile.pubkey}
             userRelay={$currentUser.Profile.pubkey}
-            token={data.Token}
-            quantity={data.SubscriptionCost.toString()}
         />
+        {/if}
     </div>
 </div>

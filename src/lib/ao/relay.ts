@@ -46,14 +46,12 @@ export const event = async (
 };
 
 export const subscribe = async (
-    token: string,
-    quantity: string,
     subscribing_relay: string,
-    relay: string,
+    relay: string
 ) => {
     try {
         // @ts-ignore
-        let message = Subscribe(token, quantity, relay);
+        let message = Subscribe(relay);
         let result = await send(subscribing_relay, message, null);
         console.log(result);
     } catch (e) {
@@ -185,6 +183,7 @@ export const isSubscribed = async (process: string, relay: string) => {
         let message = IsSubscribed(relay);
         let result = await read(process, message);
         if (result == undefined) throw (404);
+        console.log("********IS SUBSCIRBED**********")
         console.log(result);
         return result.Data
     } catch (e) {
