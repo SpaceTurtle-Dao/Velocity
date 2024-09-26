@@ -39,7 +39,7 @@
 {#if userInfo}
   <button class="flex items-center space-x-4">
     {#if userProfile.picture}
-      <Avatar class="h-12 w-12 ring-4 ring-white">
+      <Avatar class="h-12 w-12">
         <AvatarImage src={userProfile.picture} alt={userProfile.name} />
         <AvatarFallback>{userProfile.name}</AvatarFallback>
       </Avatar>
