@@ -16,13 +16,8 @@ import {
     Relays
 } from "$lib/ao/messegeFactory.svelte";
 import { INDEXER_ID, WAR_TOKEN } from "$lib/constants";
-import { upload } from "$lib/ao/uploader";
-
-import { currentUser, userEvents } from "../stores/profile.store";
+import { currentUser, feedEvents, userEvents } from "../stores/profile.store";
 import { feedPosts, replies } from "../stores/feedpage.store";
-import type { Swap } from "$lib/models/Swap";
-import { swapsStore } from "../stores/pool.store";
-import { ta } from "date-fns/locale";
 import type { UserInfo } from "$lib/models/Profile";
 import { users } from "$lib/stores/main.store";
 
@@ -112,7 +107,7 @@ export const fetchFeed = async (relay: string, filters: string) => {
             _events.push(json[key]);
             console.log(json[key]);
         }
-        feedPosts.set(_events)
+        feedEvents.set(_events)
     } catch (e) {
         console.log(e);
     }

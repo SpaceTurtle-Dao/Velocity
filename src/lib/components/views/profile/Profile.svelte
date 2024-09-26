@@ -65,7 +65,9 @@
       if (userInfo) {
         fetchEvents(userInfo.Profile.pubkey, _filters);
       }
-      textWithUrl = profileFromEvent(userInfo.Profile).about;
+      if(profileFromEvent(userInfo.Profile).about){
+        textWithUrl = profileFromEvent(userInfo.Profile).about;
+      }
     }
     filters = [];
   });
@@ -140,6 +142,7 @@
   }
 
   onMount(async () => {
+
     // Split the string into parts, keeping the URLs separate
     const parts = textWithUrl.split(urlPattern);
 
