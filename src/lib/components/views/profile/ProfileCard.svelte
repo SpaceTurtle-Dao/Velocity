@@ -46,25 +46,6 @@
             });
         }
     });
-
-    /*
-    <div class="flex space-x-5 pt-2.5">
-                    <div class="flex space-x-1">
-                        <p class="text-primary">{data.Subscriptions}</p>
-                        <p class="text-gray-400">Following</p>
-                    </div>
-                    <div class="flex space-x-1">
-                        <p class="text-primary">{data.Subs}</p>
-                        <p class="text-gray-400">Follower</p>
-                    </div>
-                </div>
-
-                <article class="pb-6 pt-1 text-primary text-wrap ...">
-                    {#if profileFromEvent(data.Profile).about}
-                        <p id={data.Profile.pubkey}></p>
-                    {/if}
-                </article>
-    */
 </script>
 
 <div class="flex items-center gap-20">
@@ -102,7 +83,7 @@
                         <div class="space-y-1">
                             <h4 class="text-sm font-semibold">@sveltejs</h4>
                             {#if profileFromEvent(data.Profile).about}
-                                <p class="text-sm">
+                                <p id={data.Profile.pubkey} class="text-sm">
                                     {profileFromEvent(data.Profile).about}
                                 </p>
                             {/if}
