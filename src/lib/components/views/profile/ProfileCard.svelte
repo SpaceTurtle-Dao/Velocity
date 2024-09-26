@@ -4,6 +4,8 @@
     import { profileFromEvent, type UserInfo } from "$lib/models/Profile";
     import Follow from "./Follow.svelte";
     import { onMount } from "svelte";
+    import * as Card from "$lib/components/ui/card";
+    import * as HoverCard from "$lib/components/ui/hover-card";
 
     export let data: UserInfo;
     let textWithUrl = "";
@@ -46,48 +48,76 @@
     });
 </script>
 
-<div class="border border-border rounded p-5">
-    <div class="flex justify-between">
-        <div class="flex space-x-2">
-            <Avatar.Root class="h-12 w-12">
-                {#if profileFromEvent(data.Profile).picture}
-                    <Avatar.Image
-                        src={profileFromEvent(data.Profile).picture}
-                        alt="Avatar"
-                    />
-                {/if}
-                <Avatar.Fallback>OM</Avatar.Fallback>
-            </Avatar.Root>
-
-            <div>
-                <p class="text-sm font-medium leading-none text-primary">
+<div class="flex items-center gap-20">
+    <div class="flex gap-2">
+        <Avatar.Root class="hidden h-9 w-9 sm:flex">
+            {#if profileFromEvent(data.Profile).picture}
+                <Avatar.Image
+                    src={profileFromEvent(data.Profile).picture}
+                    alt="Avatar"
+                />
+            {/if}
+            <Avatar.Fallback>SD</Avatar.Fallback>
+        </Avatar.Root>
+        <div class="grid gap-1">
+            <HoverCard.Root>
+                <HoverCard.Trigger
+                    href="https://github.com/sveltejs"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    class="rounded-sm underline-offset-4 hover:underline focus-visible:outline-0 focus-visible:outline-offset-8 focus-visible:outline-transparent"
+                >
                     {profileFromEvent(data.Profile).name}
-                </p>
-                <p class="text-muted-foreground text-sm text-secondary">
-                    {profileFromEvent(data.Profile).display_name}
-                </p>
-                <article class="pb-6 pt-1 text-primary text-wrap ...">
-                    {#if profileFromEvent(data.Profile).about}
-                        <p id={data.Profile.pubkey}></p>
-                    {/if}
-                </article>
-                <div class="flex space-x-5 pt-2.5">
-                    <div class="flex space-x-1">
-                        <p class="text-primary">{data.Subscriptions}</p>
-                        <p class="text-gray-400">Following</p>
+                </HoverCard.Trigger>
+                <HoverCard.Content class="w-80 border border-border rounded">
+                    <div class="flex space-x-4">
+                        <Avatar.Root>
+                            {#if profileFromEvent(data.Profile).picture}
+                                <Avatar.Image
+                                    src={profileFromEvent(data.Profile).picture}
+                                    alt="Avatar"
+                                />
+                            {/if}
+                            <Avatar.Fallback>SD</Avatar.Fallback>
+                        </Avatar.Root>
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold">@sveltejs</h4>
+                            {#if profileFromEvent(data.Profile).about}
+                                <p id={data.Profile.pubkey} class="text-sm">
+                                    {profileFromEvent(data.Profile).about}
+                                </p>
+                            {/if}
+
+                            <div class="flex space-x-5 pt-2.5">
+                                <div class="flex space-x-1">
+                                    <p class="text-primary">
+                                        {data.Subscriptions}
+                                    </p>
+                                    <p class="text-gray-400">Following</p>
+                                </div>
+                                <div class="flex space-x-1">
+                                    <p class="text-primary">{data.Subs}</p>
+                                    <p class="text-gray-400">Follower</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center pt-2">
+                                <span class="text-muted-foreground text-xs">
+                                    Joined September 2022
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex space-x-1">
-                        <p class="text-primary">{data.Subs}</p>
-                        <p class="text-gray-400">Follower</p>
-                    </div>
-                </div>
-            </div>
+                </HoverCard.Content>
+            </HoverCard.Root>
+            <p class="text-muted-foreground text-sm">
+                @{profileFromEvent(data.Profile).display_name}
+            </p>
         </div>
-        {#if $currentUser}
-            <Follow
-                relay={data.Profile.pubkey}
-                userRelay={$currentUser.Profile.pubkey}
-            />
-        {/if}
+    </div>
+    <div class="ml-auto font-medium">
+        <Follow
+            relay={data.Profile.pubkey}
+            userRelay={$currentUser.Profile.pubkey}
+        />
     </div>
 </div>
