@@ -21,29 +21,13 @@
         }
     });
 
-    async function fetchMedia() {
-        console.log("Fetching Media");
-        events = [];
+    async function fetchFollowingEvents() {
         if ($currentUser) {
             let filter = {
                 kinds: [1],
                 since: 1663905355000,
                 until: Date.now(),
                 limit: 100,
-                "#imeta": [
-                    "m image/apng",
-                    "m image/avif",
-                    "m image/gif",
-                    "m image/jpeg",
-                    "m image/png",
-                    "m image/svg+xml",
-                    "m image/webp",
-                    "m video/x-msvideo",
-                    "m video/mp4",
-                    "m video/mpeg",
-                    "m video/ogg",
-                    "m video/webm",
-                ],
             };
             filters.push(filter);
             let _filters = JSON.stringify(filters);
@@ -54,9 +38,7 @@
         filters = [];
     }
 
-    async function fetchPost() {
-        console.log("Fetching Post");
-        events = [];
+    async function fetchFeedEvents() {
         if ($currentUser) {
             let filter = {
                 kinds: [1],
@@ -84,10 +66,10 @@
             <Tabs.List class="grid grid-cols-2">
                 <Tabs.Trigger
                     class="underline-tabs-trigger"
-                    on:click={fetchPost}
+                    on:click={fetchFeedEvents}
                     value="for you">For You</Tabs.Trigger
                 >
-                <Tabs.Trigger on:click={fetchMedia} value="following"
+                <Tabs.Trigger on:click={fetchFollowingEvents} value="following"
                     >Following</Tabs.Trigger
                 >
             </Tabs.List>

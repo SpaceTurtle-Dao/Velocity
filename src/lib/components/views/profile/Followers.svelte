@@ -7,17 +7,15 @@
   let userProfiles: Array<UserInfo> = [];
 
   followers.subscribe(async (_followers) => {
-    if (_followers.length > 0) {
-      userProfiles = [];
-    }
+    let temp:Array<UserInfo>  = []
     for (var i = 0; i < _followers.length; i++) {
       console.log("getting info for");
       console.log(_followers[i]);
       let userInfo: UserInfo = await info(_followers[i]);
       console.log(userInfo);
-      userProfiles.push(userInfo);
+      temp.push(userInfo);
     }
-    userProfiles = userProfiles;
+    userProfiles = temp;
     console.log("got followers");
     console.log(userProfiles);
   });
