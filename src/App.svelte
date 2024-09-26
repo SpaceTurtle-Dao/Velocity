@@ -34,6 +34,7 @@
   import type { UserInfo } from "$lib/models/Profile";
   import { users } from "$lib/stores/main.store";
   import Feed from "$lib/components/views/feed/Feed.svelte";
+  import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
 
   let isCreatePostModalOpen = false;
   let _isConnected = false;
