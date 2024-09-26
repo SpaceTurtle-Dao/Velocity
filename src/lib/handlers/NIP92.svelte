@@ -3,7 +3,9 @@
   import type { Event } from "$lib/models/Event";
   import { Video } from "flowbite-svelte";
   import { Button } from "$lib/components/ui/button/index.js";
+
   export let event: Event;
+
   let inlineUrl: string;
   let media: string;
   let mimeType: string;
