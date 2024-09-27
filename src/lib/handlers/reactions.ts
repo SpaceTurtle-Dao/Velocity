@@ -4,7 +4,7 @@ export interface ReactionDetails {
        // tags: string[][];
        kind: number; // 7
        content: string | null;
-       emoji: string | null; // "👍" ":thumbsUp"
+       emoji: string | null; // "👍" ":thumbsUp:"
        emojiTags: string[] | null;
 }
 

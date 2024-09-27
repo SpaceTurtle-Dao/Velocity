@@ -19,8 +19,11 @@
     import { user } from "$lib/stores/profile.store";
     import { onMount } from "svelte";
     import { info } from "$lib/ao/relay";
-    import createReaction from "$lib/handlers/reactions";
-    import ReactionDetails from "$lib/handlers/reactions";
+    import {
+        createReaction,
+        type ReactionDetails,
+    } from "$lib/handlers/reactions";
+    // import ReactionDetails from "$lib/handlers/reactions";
 
     export let event: Event;
     let _user: UserInfo;
@@ -45,14 +48,18 @@
     function repost() {}
 
     function like() {
-        let r = {
+        let r: ReactionDetails = {
             postKey: event.id,
-            relayKey: event.pubkey,
+            relaykey: event.pubkey,
             kind: 7,
+            content: null,
+            emoji: null,
+            emojiTags: null,
         };
         let x = createReaction(r);
         console.log(x);
     }
+
     function share() {}
     function reply() {}
 

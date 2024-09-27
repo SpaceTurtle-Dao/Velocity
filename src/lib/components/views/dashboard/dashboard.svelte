@@ -269,7 +269,7 @@
                                                  </p>
                                           </div>
                                           <div class="ml-auto font-medium">
-                                                 {#if profile }
+                                                 {#if profile}
                                                         <Follow
                                                                relay={$currentUser
                                                                       .Profile
