@@ -1,4 +1,4 @@
-import { send, read } from "$lib/ao/process.svelte";
+import { send, read, createProcess } from "$lib/ao/process.svelte";
 import {
     Event,
     Subscribe,
@@ -13,7 +13,10 @@ import {
     FetchEvents,
     Request,
     Relay,
-    Relays
+    Relays,
+    Eval,
+    Relay_Lua_Module,
+    SetRelay
 } from "$lib/ao/messegeFactory.svelte";
 import { INDEXER_ID, WAR_TOKEN } from "$lib/constants";
 import { currentUser, feedEvents, followers, userEvents } from "$lib/stores/profile.store";
@@ -82,15 +85,46 @@ export const setOwner = async (
     }
 };
 
-export const spawnRelay = async () => {
+export const setRelay = async (
+    relay: string
+) => {
     try {
         // @ts-ignore
-        let message = Request();
+        let message = SetRelay(relay);
         let result = await send(INDEXER_ID(), message, null);
-        //console.log(result);
+        console.log(result);
     } catch (e) {
         console.log(e);
     }
+};
+
+export const getModule = async (): Promise<string> => {
+    let module = ""
+    try {
+        // @ts-ignore
+        let message = Relay_Lua_Module();
+        let result = await read(INDEXER_ID(), message);
+        module = result.Data
+    } catch (e) {
+        console.log(e);
+    }
+    return module
+};
+
+export const spawnRelay = async () => {
+    let _relay = ""
+    try {
+        let module = await getModule()
+        let message = Eval();
+        _relay = await createProcess();
+        console.log("Got Process")
+        console.log(_relay)
+        await send(_relay,message,module)
+        return _relay
+    } catch (e) {
+        console.log(e);
+    }
+    return _relay
 };
 
 export const fetchFeed = async (relay: string, filters: string) => {

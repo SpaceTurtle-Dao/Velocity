@@ -1,7 +1,12 @@
 <script context="module" lang="ts">
+	import { RELAY_MESSAGE_ID } from "$lib/constants";
 	// @ts-ignore
-	import { connect, createDataItemSigner } from "@permaweb/aoconnect";
+	import { connect, createDataItemSigner, assign } from "@permaweb/aoconnect";
 	//import { createToast } from '$lib/utils/toastHandler.svelte';
+
+	function sleep(ms: number) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
 
 	// @ts-ignore
 	const { result, results, message, spawn, monitor, unmonitor, dryrun } =
@@ -16,7 +21,7 @@
 		console.log("tags");
 		console.log(tags);
 		console.log("data");
-		console.log(data);
+		//console.log(data);
 		console.log("Sending message to: " + processId);
 		// The only 2 mandatory parameters here are process and signer
 		// connect to the extension
@@ -86,27 +91,19 @@
 		//return result
 	};
 
-	/*export const createProcess = async (owner: string) => {
-	const processId = await spawn({
-		// The Arweave TXID of the ao Module
-		module: 'Pq2Zftrqut0hdisH_MC2pDOT6S4eQFoxGsFUzR6r350',
-		// The Arweave wallet address of a Scheduler Unit
-		scheduler: '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA',
-		// A signer function containing your wallet
-		// @ts-ignore
-		signer: createDataItemSigner(window.arweaveWallet),
-	});
-	let tags = [
-		{ name: "Action", value: "Eval" },
-	];
-	let data: string | null | undefined = 'local ao = require("ao"); Owner = "' + owner + '";';
-	var delayInMilliseconds = 5000; //1 second
-	setTimeout(async function () {
-		let messageId = await sendData(processId, tags, data)
-		console.log("Message: " + messageId)
-	}, delayInMilliseconds);
-	return processId;
-};*/
+	export const createProcess = async () => {
+		const processId = await spawn({
+			// The Arweave TXID of the ao Module
+			module: "bkjb55i07GUCUSWROtKK4HU1mBS_X0TyH3M5jMV6aPg",
+			// The Arweave wallet address of a Scheduler Unit
+			scheduler: "_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA",
+			// A signer function containing your wallet
+			// @ts-ignore
+			signer: createDataItemSigner(window.arweaveWallet),
+		});
+		await sleep(3000);
+		return processId;
+	};
 
 	// @ts-ignore
 	const readMessage = async (messageId: string, processId: string) => {

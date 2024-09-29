@@ -1,4 +1,14 @@
 <script context="module" lang="ts">
+	export const Relay_Lua_Module = () => {
+		let _tags = [{ name: "Action", value: "Relay-Module" }];
+		return _tags;
+	};
+
+	export const Eval = () => {
+		let _tags = [{ name: "Action", value: "Eval" }];
+		return _tags;
+	};
+
 	export const Event = () => {
 		let _tags = [{ name: "Action", value: "Event" }];
 		return _tags;
@@ -24,6 +34,14 @@
 		let _tags = [
 			{ name: "Action", value: "SetOwner" },
 			{ name: "_Owner", value: owner },
+		];
+		return _tags;
+	};
+
+	export const SetRelay = (relay: string) => {
+		let _tags = [
+			{ name: "Action", value: "SetRelay" },
+			{ name: "Relay", value: relay },
 		];
 		return _tags;
 	};
