@@ -119,8 +119,8 @@
   }
 </script>
 
-<div class="container mx-auto max-w-2xl p-4">
-  <Card class="w-full relative">
+<div class="mx-auto max-w-2xl p-4">
+  <Card class="w-full relative border border-border rounded">
     <CardHeader>
       <CardTitle>Update Your Profile</CardTitle>
     </CardHeader>
@@ -193,7 +193,7 @@
           {/if}
         </div>
 
-        <Button type="submit" class="w-full">Update Profile</Button>
+        <Button type="submit" class="w-full rounded">Update Profile</Button>
       </form>
     </CardContent>
   </Card>

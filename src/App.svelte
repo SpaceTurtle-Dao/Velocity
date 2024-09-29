@@ -166,7 +166,7 @@
     </div>
     {#if _isConnected}
       <div class="flex justify-start pt-10 pl-10 w-1/3">
-        <UserList />
+        <UserList title="You might like" />
       </div>
     {/if}
   </div>

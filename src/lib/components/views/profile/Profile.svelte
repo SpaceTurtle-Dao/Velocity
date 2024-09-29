@@ -39,6 +39,7 @@
   import { fetchEvents, subs, subscriptions } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
   import Follow from "./Follow.svelte";
+    import UserList from "$lib/components/UserList.svelte";
 
   let activeTab: string = "posts";
   let userInfo: UserInfo;
@@ -82,7 +83,8 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        "#imeta": [
+        "tags": [{
+          imeta:[
           "m image/apng",
           "m image/avif",
           "m image/gif",
@@ -95,7 +97,8 @@
           "m video/mpeg",
           "m video/ogg",
           "m video/webm",
-        ],
+        ]
+        }],
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
@@ -291,12 +294,12 @@
       </Tabs.Content>
       <Tabs.Content value="following">
         {#if $user && $currentUser}
-          <Followers/>
+        <UserList title={null}/>
         {/if}
       </Tabs.Content>
       <Tabs.Content value="followers">
         {#if $user && $currentUser}
-          <Followers />
+        <UserList title={null}/>
         {/if}
       </Tabs.Content>
     </Tabs.Root>
@@ -310,7 +313,7 @@
   >
     <div class="rounded-lg p-6 max-w-2xl w-full" on:click|stopPropagation>
       <UpdateProfile />
-      <Button class="mt-4" on:click={toggleModal}>Close</Button>
+      <Button class="mt-4 rounded" on:click={toggleModal}>Close</Button>
     </div>
   </div>
 {/if}
