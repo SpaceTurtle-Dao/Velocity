@@ -25,7 +25,8 @@
   import { walletAddress } from "$lib/stores/walletStore";
   import { add } from "date-fns/fp/add";
   import { navigate } from "svelte-routing";
-    import { createProcess, send } from "$lib/ao/process.svelte";
+  import { createProcess, send } from "$lib/ao/process.svelte";
+  import type { Tag } from "$lib/models/Tag";
 
   // Zod schema for initial profile validation
   const initialProfileSchema = z.object({
@@ -88,6 +89,7 @@
   }*/
 
   async function createProfile() {
+    let tags:Array<Tag> = []
     isLoading = true;
     try {
       // Validate the profile data
@@ -100,29 +102,34 @@
         display_name: profile.display_name,
       });
 
-      const event = {
-        kind: 0, // Kind 0 is for metadata events in Nostr
-        tags: [], // Metadata events typically don't have tags
-        content: content,
+      const kindTag:Tag = {
+        name:"kind", 
+        value:"0", // Kind 0 is for metadata events in Nostr
       };
-
+      const actionTag:Tag = {
+        name:"Action",
+        value:"Event"
+      }
+      tags.push(actionTag)
+      tags.push(kindTag)
       profileEvent = JSON.stringify(event);
       try {
-        _relay = await spawnRelay()
-        console.log("Got Relay "+_relay)
-        await _event(profileEvent, _relay!);
-        await setRelay(_relay!)
+        _relay = await spawnRelay();
+        console.log("Got Relay " + _relay);
+        await _event(tags,content, _relay!);
+        await setRelay(_relay!);
         isLoading = false;
         navigate("/profile", { replace: true });
         isOpen = false; // Close the dialog
-        
       } catch (error) {
         console.error("Error creating profile:", error);
         isLoading = false;
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
-        errors = err.flatten().fieldErrors as Partial<Record<keyof InitialProfileSchemaType, string>>;
+        errors = err.flatten().fieldErrors as Partial<
+          Record<keyof InitialProfileSchemaType, string>
+        >;
       }
       isLoading = false;
     }
@@ -165,7 +172,9 @@
       </div>
 
       <div class="space-y-2">
-        <Label for="display_name" class="text-lg font-medium text-primary">Display Name</Label>
+        <Label for="display_name" class="text-lg font-medium text-primary"
+          >Display Name</Label
+        >
         <Input
           id="display_name"
           bind:value={profile.display_name}

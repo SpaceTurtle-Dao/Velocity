@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
 	import { RELAY_MESSAGE_ID } from "$lib/constants";
 	// @ts-ignore
-	import { connect, createDataItemSigner, assign } from "@permaweb/aoconnect";
+	import { connect, createDataItemSigner, assign, } from "@permaweb/aoconnect";
 	//import { createToast } from '$lib/utils/toastHandler.svelte';
 
 	function sleep(ms: number) {

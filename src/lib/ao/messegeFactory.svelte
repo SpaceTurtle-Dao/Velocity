@@ -9,11 +9,6 @@
 		return _tags;
 	};
 
-	export const Event = () => {
-		let _tags = [{ name: "Action", value: "Event" }];
-		return _tags;
-	};
-
 	export const Subscribe = (relay: string) => {
 		let _tags = [
 			{ name: "Action", value: "Subscribe" },
@@ -102,7 +97,7 @@
 		return _tags;
 	};
 
-	export const Relay = (owner: string) => {
+	export const RelayMessage = (owner: string) => {
 		let _tags = [
 			{ name: "Action", value: "Relay" },
 			{ name: "_Owner", value: owner },

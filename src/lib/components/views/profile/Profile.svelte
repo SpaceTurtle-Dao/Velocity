@@ -39,7 +39,7 @@
   import { fetchEvents, subs, subscriptions } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
   import Follow from "./Follow.svelte";
-    import UserList from "$lib/components/UserList.svelte";
+  import UserList from "$lib/components/UserList.svelte";
 
   let activeTab: string = "posts";
   let userInfo: UserInfo;
@@ -83,22 +83,24 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        "tags": [{
-          imeta:[
-          "m image/apng",
-          "m image/avif",
-          "m image/gif",
-          "m image/jpeg",
-          "m image/png",
-          "m image/svg+xml",
-          "m image/webp",
-          "m video/x-msvideo",
-          "m video/mp4",
-          "m video/mpeg",
-          "m video/ogg",
-          "m video/webm",
-        ]
-        }],
+        tags: [
+          {
+            imeta: [
+              "m image/apng",
+              "m image/avif",
+              "m image/gif",
+              "m image/jpeg",
+              "m image/png",
+              "m image/svg+xml",
+              "m image/webp",
+              "m video/x-msvideo",
+              "m video/mp4",
+              "m video/mpeg",
+              "m video/ogg",
+              "m video/webm",
+            ],
+          },
+        ],
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
@@ -126,12 +128,12 @@
   }
 
   async function fetchSubs() {
-    console.log("will get subs")
+    console.log("will get subs");
     await subs(userInfo.Profile.pubkey, "1", "100");
   }
 
   async function fetchSubscriptions() {
-    console.log("will get subscriptions")
+    console.log("will get subscriptions");
     await subscriptions(userInfo.Profile.pubkey, "1", "100");
   }
 
@@ -265,14 +267,14 @@
 
     <Tabs.Root value="post" class="max-w-prose">
       <Tabs.List class="grid grid-cols-4">
-        <Tabs.Trigger
-          
-          on:click={fetchPost}
-          value="post">Post</Tabs.Trigger
-        >
+        <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
         <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchSubscriptions} value="following">Following</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchSubs} value="followers">Followers</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchSubscriptions} value="following"
+          >Following</Tabs.Trigger
+        >
+        <Tabs.Trigger on:click={fetchSubs} value="followers"
+          >Followers</Tabs.Trigger
+        >
       </Tabs.List>
       <Tabs.Content value="post">
         <div class="">
@@ -294,12 +296,12 @@
       </Tabs.Content>
       <Tabs.Content value="following">
         {#if $user && $currentUser}
-        <UserList title={null}/>
+          <UserList title={null} />
         {/if}
       </Tabs.Content>
       <Tabs.Content value="followers">
         {#if $user && $currentUser}
-        <UserList title={null}/>
+          <UserList title={null} />
         {/if}
       </Tabs.Content>
     </Tabs.Root>

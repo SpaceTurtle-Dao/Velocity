@@ -7,7 +7,7 @@
     import * as Card from "$lib/components/ui/card/index.js";
 
     let userelays: Array<UserInfo> = [];
-    export let title: string | null;
+    let title = "You might like"
 
     users.subscribe((value) => (userelays = value));
 
@@ -24,9 +24,7 @@
         class="border-border rounded"
     >
         <Card.Header>
-            {#if title}
             <Card.Title>{title}</Card.Title>
-            {/if}
         </Card.Header>
         <Card.Content class="grid gap-8">
             {#each userelays as userelay}

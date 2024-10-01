@@ -16,15 +16,15 @@
     }
 
     onMount(async () => {
-        if (profileFromEvent(data.Profile).about) {
-            textWithUrl = profileFromEvent(data.Profile).about;
+        if (data.Profile.about) {
+            textWithUrl = data.Profile.about;
 
             // Split the string into parts, keeping the URLs separate
             const parts = textWithUrl.split(urlPattern);
 
             // Get the <p> tag by ID
             const pTag: HTMLElement | null = document.getElementById(
-                data.Profile.pubkey,
+                data.Process,
             );
 
             // Loop over the parts and create text or links accordingly
@@ -51,9 +51,9 @@
 <div class="flex items-center gap-20">
     <div class="flex gap-2">
         <Avatar.Root class="hidden h-9 w-9 sm:flex">
-            {#if profileFromEvent(data.Profile).picture}
+            {#if data.Profile.picture}
                 <Avatar.Image
-                    src={profileFromEvent(data.Profile).picture}
+                    src={data.Profile.picture}
                     alt="Avatar"
                 />
             {/if}
@@ -67,14 +67,14 @@
                     rel="noreferrer noopener"
                     class="rounded-sm underline-offset-4 hover:underline focus-visible:outline-0 focus-visible:outline-offset-8 focus-visible:outline-transparent"
                 >
-                    {profileFromEvent(data.Profile).name}
+                    {data.Profile.name}
                 </HoverCard.Trigger>
                 <HoverCard.Content class="w-80 border border-border rounded">
                     <div class="flex space-x-4">
                         <Avatar.Root>
-                            {#if profileFromEvent(data.Profile).picture}
+                            {#if data.Profile.picture}
                                 <Avatar.Image
-                                    src={profileFromEvent(data.Profile).picture}
+                                    src={data.Profile.picture}
                                     alt="Avatar"
                                 />
                             {/if}
@@ -82,9 +82,9 @@
                         </Avatar.Root>
                         <div class="space-y-1">
                             <h4 class="text-sm font-semibold">@sveltejs</h4>
-                            {#if profileFromEvent(data.Profile).about}
-                                <p id={data.Profile.pubkey} class="text-sm">
-                                    {profileFromEvent(data.Profile).about}
+                            {#if data.Profile.about}
+                                <p id={data.Process} class="text-sm">
+                                    {data.Profile.about}
                                 </p>
                             {/if}
 
@@ -110,14 +110,14 @@
                 </HoverCard.Content>
             </HoverCard.Root>
             <p class="text-muted-foreground text-sm">
-                @{profileFromEvent(data.Profile).display_name}
+                @{data.Profile.display_name}
             </p>
         </div>
     </div>
     <div class="ml-auto font-medium">
         <Follow
-            relay={data.Profile.pubkey}
-            userRelay={$currentUser.Profile.pubkey}
+            relay={data.Process}
+            userRelay={$currentUser.Process}
         />
     </div>
 </div>
