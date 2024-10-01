@@ -70,7 +70,7 @@
             let _currentUser = await info(_relay);
             currentUser.set(_currentUser);
             user.set(_currentUser);
-            //await fetchPost()
+            await fetchPost()
           }
         }
       } catch (error) {
