@@ -160,7 +160,7 @@
         {/if}
       </div>
     </div>
-    <div class="overflow-y-scroll no-scrollbar h-screen w-1/3 bg-red-400">
+    <div class="overflow-y-scroll no-scrollbar h-screen w-1/3">
       <Router {routes} />
     </div>
     {#if _isConnected}
