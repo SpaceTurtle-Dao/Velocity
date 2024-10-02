@@ -6,7 +6,7 @@
   import { upload } from "$lib/ao/uploader";
   import { Video } from "flowbite-svelte";
   import mime from "mime";
-  import NIP92TagHandler from '../../handlers/NIP92TagHandler.svelte';
+  import NIP92TagHandler from '../../../handlers/NIP92TagHandler.svelte';
 
   export let isOpen = false;
   export let parent: string | null = null;

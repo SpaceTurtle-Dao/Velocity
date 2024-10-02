@@ -22,7 +22,7 @@
   } from "$lib/models/Profile";
   import { currentUser, userEvents, user } from "../../../stores/profile.store";
   import type { Event } from "$lib/models/Event";
-  import Post from "../../Post.svelte";
+  import Post from "../../posts/Post.svelte";
   import Followers from "./Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -120,6 +120,7 @@
       }
     }
     filters = [];
+    console.log("Array for posts", filters);
   }
 
   async function fetchSubs() {
@@ -304,10 +305,14 @@
 {/if}
 <!-- Modal for UpdateProfile -->
 {#if showModal}
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     on:click={toggleModal}
   >
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div class="rounded-lg p-6 max-w-2xl w-full" on:click|stopPropagation>
       <UpdateProfile />
       <Button class="mt-4" on:click={toggleModal}>Close</Button>

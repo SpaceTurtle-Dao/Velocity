@@ -3,7 +3,7 @@
   import Router from "svelte-spa-router";
   import { link } from "svelte-spa-router";
   import "./app.css";
-  import CreatePostModal from "$lib/components/CreatePost.svelte";
+  import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import {
     Home as HomeIcon,
     Search,
@@ -23,12 +23,12 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
-  import RelayButtons from "$lib/components/Relay.svelte";
+  import RelayButtons from "$lib/components/relay/Relay.svelte";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
-  import ConnectWalletButton from "$lib/components/wallet.svelte";
+  import ConnectWalletButton from "$lib/components/wallet/wallet.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import { fetchFeed, info, relay, relays } from "$lib/ao/relay";
-  import UserList from "$lib/components/UserList.svelte";
+  import UserList from "$lib/components/UserList/UserList.svelte";
   import type { UserInfo } from "$lib/models/Profile";
   import { users } from "$lib/stores/main.store";
   import Feed from "$lib/components/views/feed/Feed.svelte";
