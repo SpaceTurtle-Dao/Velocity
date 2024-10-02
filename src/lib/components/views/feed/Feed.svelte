@@ -6,7 +6,7 @@
         feedEvents,
     } from "$lib/stores/profile.store";
     import type { Event } from "$lib/models/Event";
-    import Post from "../../Post.svelte";
+    import Post from "../../posts/Post.svelte";
     import * as Tabs from "$lib/components/ui/tabs/index.js";
 
     import { onMount } from "svelte";

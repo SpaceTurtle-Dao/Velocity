@@ -3,7 +3,6 @@
   import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
   import { MoreHorizontal } from "lucide-svelte";
   import { currentUser } from "../../../stores/profile.store";
-  import ConnectWalletButton from "$lib/components/wallet.svelte";
   import { navigate } from "svelte-routing";
   import {
     profileFromEvent,

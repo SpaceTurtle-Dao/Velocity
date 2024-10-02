@@ -3,7 +3,7 @@
   import { Button } from "$lib/components/ui/button";
   import { Image, X } from "lucide-svelte";
   import type { EventRequest } from "$lib/models/Event";
-  import { Textarea } from "./ui/textarea";
+  import { Textarea } from "$lib/components/ui/textarea";
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { currentUser, userEvents } from "$lib/stores/profile.store";

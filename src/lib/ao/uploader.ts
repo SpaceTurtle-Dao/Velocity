@@ -4,7 +4,7 @@ import mime from 'mime';
 export const upload = async (file) => {
   let mimeType = mime.getType(file.name);
   let ext = mime.getExtension(mimeType!);
-  let data = await file.arrayBuffer()
+  let data = await file.arrayBuffer();
   // #1 Get the data from the POST request; encoded as base64 string.
   //const b64string = req.body.b64string
   //const buf = Buffer.from(b64string, 'base64');
