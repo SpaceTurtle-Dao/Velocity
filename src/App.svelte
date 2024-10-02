@@ -145,13 +145,7 @@
         {:else if $currentUser == null || $currentUser == undefined}
           <CreateProfile />
         {:else}
-          <Button
-            on:click={toggleCreatePostModal}
-            class="w-full h-13 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
-          >
-            <Plus class="w-5 h-5 mr-2" />
-            Post
-          </Button>
+        <CreatePostModal relay="" />
         {/if}
         {#if _currentUser}
           <div class="p-4">
@@ -170,7 +164,3 @@
     {/if}
   </div>
 </div>
-
-{#if _currentUser}
-  <CreatePostModal relay="" />
-{/if}

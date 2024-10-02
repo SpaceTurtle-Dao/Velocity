@@ -1,7 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
-  import { Image, X } from "lucide-svelte";
   import type { EventRequest } from "$lib/models/Event";
   import { Textarea } from "./ui/textarea";
   import { event, fetchEvents } from "$lib/ao/relay";
@@ -21,7 +20,16 @@
     Zap,
     Edit,
     Mail,
+    Image,
+    X,
   } from "lucide-svelte";
+  import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+  } from "$lib/components/ui/avatar";
+  import { Separator } from "$lib/components/ui/separator/index.js";
+    import DialogFooter from "./ui/dialog/dialog-footer.svelte";
 
   export let relay: string;
 
@@ -116,6 +124,12 @@
       document.body.style.overflow = "auto";
     };
   });*/
+
+
+  /*
+  
+    
+  */
 </script>
 
 <Dialog.Root>
@@ -125,34 +139,35 @@
     <Plus class="w-5 h-5 mr-2" />
     Post</Dialog.Trigger
   >
-  <Dialog.Content class="sm:max-w-[425px]">
+  <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
-      <Dialog.Title>Create Post</Dialog.Title>
+      <Dialog.Title></Dialog.Title>
+      <Dialog.Description>
+      </Dialog.Description>
     </Dialog.Header>
-    <div
-      class="fixed inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50"
-    >
-      <div class="bg-background rounded-xl p-6 w-full max-w-lg shadow-lg">
-        <div class="flex justify-between items-center mb-4">
-          <Button
-            variant="ghost"
-            on:click={closeModal}
-            size="icon"
-            class="text-muted-foreground bg-background  hover:text-foreground rounded-full"
-          >
-            <X size={24} />
-          </Button>
-        </div>
-
-        <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+    <form on:submit|preventDefault={handleSubmit}>
+      <div class="flex">
+        {#if $currentUser.Profile.picture}
+          <Avatar class="h-12 w-12">
+            <AvatarImage
+              src={$currentUser.Profile.picture}
+              alt={$currentUser.Profile.name}
+            />
+            <AvatarFallback>{$currentUser.Profile.name}</AvatarFallback>
+          </Avatar>
+        {:else}
+          <Avatar class="h-12 w-12">
+            <AvatarFallback>{$currentUser.Profile.name}</AvatarFallback>
+          </Avatar>
+        {/if}
+        <div class="w-full">
           <Textarea
             bind:value={content}
             placeholder="What's happening?!"
-            class="w-full p-3 rounded-lg border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent"
+            class="text-lg w-full bg-background border-none focus:border-none outline-none focus:outline-none focus-visible:outline-none ring-none focus:ring-none focus-visible:ring-none ring-background overflow-y-hidden"
           ></Textarea>
-
           {#if mediaPreviewUrl}
-            <div class="relative">
+            <div class="relative p-5">
               {#if selectedMedia && selectedMedia.type.startsWith("video")}
                 <!-- svelte-ignore a11y-media-has-caption -->
                 <video
@@ -170,46 +185,43 @@
               <Button
                 variant="ghost"
                 on:click={removeSelectedMedia}
-                size="icon"
-                class="text-muted-foreground bg-background  hover:text-foreground rounded-full absolute top-2 right-2 p-1"
+                class="text-muted-primary bg-muted-foreground h-18 w-18 hover:text-foreground rounded-full absolute top-2 right-2 p-1"
               >
                 <X />
               </Button>
             </div>
-          {:else}
-            <div class="flex items-center space-x-2">
-              <Button
-                type="button"
-                variant="ghost"
-                on:click={handleMediaButtonClick}
-                class="text-primary hover:bg-primary/10 p-2 rounded-full"
-              >
-                <Image size={24} />
-              </Button>
-              <span class="text-sm text-muted-foreground"
-                >Add photo or video</span
-              >
-            </div>
           {/if}
-
-          <input
-            type="file"
-            accept="image/*, video/*"
-            bind:this={fileInput}
-            class="hidden"
-            on:change={handleFileChange}
-          />
-        </form>
+        </div>
       </div>
-    </div>
+      <input
+        type="file"
+        accept="image/*, video/*"
+        bind:this={fileInput}
+        class="hidden"
+        on:change={handleFileChange}
+      />
+    </form>
+    <Separator />
     <Dialog.Footer>
-      <Button
-        type="submit"
-        class="w-full py-2 px-4 bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition duration-200"
-        disabled={isLoading || (!content && !selectedMedia)}
-      >
-        {isLoading ? "Posting..." : "Post"}
-      </Button>
+      
+      <div class="w-full flex flex-row justify-between">
+        <Button
+          type="button"
+          variant="ghost"
+          on:click={handleMediaButtonClick}
+          class="text-primary hover:bg-primary/10 rounded-full"
+        >
+          <Image size={24} />
+        </Button>
+        <Button
+          type="submit"
+          class="bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition duration-200 text-md"
+          disabled={isLoading || (!content && !selectedMedia)}
+        >
+          {isLoading ? "Posting..." : "Post"}
+        </Button>
+      </div>
+      
     </Dialog.Footer>
-  </Dialog.Content>
+  </Dialog.Content>  
 </Dialog.Root>
