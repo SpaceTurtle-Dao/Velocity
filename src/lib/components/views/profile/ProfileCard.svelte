@@ -48,6 +48,7 @@
     });
 </script>
 
+{#if $currentUser}
 <div class="flex items-center gap-20">
     <div class="flex gap-2">
         <Avatar.Root class="hidden h-9 w-9 sm:flex">
@@ -121,3 +122,5 @@
         />
     </div>
 </div>
+
+{/if}

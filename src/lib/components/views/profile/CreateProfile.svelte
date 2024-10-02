@@ -106,11 +106,6 @@
         name:"kind", 
         value:"0", // Kind 0 is for metadata events in Nostr
       };
-      const actionTag:Tag = {
-        name:"Action",
-        value:"Event"
-      }
-      tags.push(actionTag)
       tags.push(kindTag)
       profileEvent = JSON.stringify(event);
       try {

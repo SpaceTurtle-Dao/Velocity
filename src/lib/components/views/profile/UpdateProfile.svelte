@@ -92,17 +92,11 @@
         bot: profile.bot,
       });
 
-      const _event = {
-        kind: 0, // Kind 0 is for metadata events in Nostr
-        tags: [], // Metadata events typically don't have tags
-        content: content,
-      };
-
-      const serialized = JSON.stringify(_event);
+      const tags =  [{ name: "kind", value: "0" }]
       
       try {
-        const result = await event(serialized,$currentUser.Profile.pubkey)
-        let _currentUser = await info(userInfo.Profile.pubkey)
+        const result = await event(tags,content,$currentUser.Process)
+        let _currentUser = await info(userInfo.Process)
         currentUser.set(_currentUser)
         user.set(_currentUser)
         console.log('Profile created successfully:', result);

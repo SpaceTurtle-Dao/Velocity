@@ -30,7 +30,16 @@ export const event = async (
     body: string,
     relay: string
 ) => {
+    const actionTag:Tag = {
+        name:"Action",
+        value:"Event"
+      }
+    tags.push(actionTag)
     try {
+        console.log("***TAGS***")
+        console.log(tags)
+        console.log("***Content***")
+        console.log(body)
         // @ts-ignore
         let result = await send(relay, tags, body);
         console.log(result);
