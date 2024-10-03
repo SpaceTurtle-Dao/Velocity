@@ -1,6 +1,5 @@
-import { send, read } from "$lib/ao/process.svelte";
+import { send, read, createProcess, } from "$lib/ao/process.svelte";
 import {
-    Event,
     Subscribe,
     UnSubscribe,
     SetOwner,
@@ -12,28 +11,34 @@ import {
     FetchFeed,
     FetchEvents,
     Request,
-    Relay,
-    Relays
+    RelayMessage,
+    Relays,
+    Eval,
+    Relay_Lua_Module,
+    SetRelay
 } from "$lib/ao/messegeFactory.svelte";
 import { INDEXER_ID, WAR_TOKEN } from "$lib/constants";
 import { currentUser, feedEvents, followers, userEvents } from "$lib/stores/profile.store";
 import { feedPosts, replies } from "../stores/feedpage.store";
 import type { UserInfo } from "$lib/models/Profile";
 import { users } from "$lib/stores/main.store";
-
-type Relay = {
-    owner: string,
-    relay: string
-}
+import type { Tag } from "$lib/models/Tag";
+import type { Relay } from "$lib/models/Relay";
 
 export const event = async (
-    value: string,
+    tags:Array<Tag>,
     relay: string
 ) => {
+    const actionTag:Tag = {
+        name:"Action",
+        value:"Event"
+      }
+    tags.push(actionTag)
     try {
+        console.log("***TAGS***")
+        console.log(tags)
         // @ts-ignore
-        let message = Event();
-        let result = await send(relay, message, value);
+        let result = await send(relay, tags, null);
         console.log(result);
     } catch (e) {
         console.log(e);
@@ -82,15 +87,46 @@ export const setOwner = async (
     }
 };
 
-export const spawnRelay = async () => {
+export const setRelay = async (
+    relay: string
+) => {
     try {
         // @ts-ignore
-        let message = Request();
+        let message = SetRelay(relay);
         let result = await send(INDEXER_ID(), message, null);
-        //console.log(result);
+        console.log(result);
     } catch (e) {
         console.log(e);
     }
+};
+
+export const getModule = async (): Promise<string> => {
+    let module = ""
+    try {
+        // @ts-ignore
+        let message = Relay_Lua_Module();
+        let result = await read(INDEXER_ID(), message);
+        module = result.Data
+    } catch (e) {
+        console.log(e);
+    }
+    return module
+};
+
+export const spawnRelay = async () => {
+    let _relay = ""
+    try {
+        let module = await getModule()
+        let message = Eval();
+        _relay = await createProcess();
+        console.log("Got Process")
+        console.log(_relay)
+        await send(_relay,message,module)
+        return _relay
+    } catch (e) {
+        console.log(e);
+    }
+    return _relay
 };
 
 export const fetchFeed = async (relay: string, filters: string) => {
@@ -99,15 +135,9 @@ export const fetchFeed = async (relay: string, filters: string) => {
         // @ts-ignore
         let message = FetchFeed(filters);
         let result = await read(relay, message);
-        if (result == undefined) return _events;
-        console.log(result);
-        let json = JSON.parse(result.Data);
-        console.log(json);
-        for (const key in json) {
-            _events.push(json[key]);
-            console.log(json[key]);
+        if (result){
+            feedEvents.set(result)
         }
-        feedEvents.set(_events)
     } catch (e) {
         console.log(e);
     }
@@ -122,6 +152,9 @@ export const fetchEvents = async (relay: string, filters: string) => {
         if (result) {
             console.log(result);
             let json = JSON.parse(result.Data);
+            console.log("***Filters***")
+            console.log(JSON.parse(filters));
+            console.log("***Got Events***")
             console.log(json);
             userEvents.set(json)
         };
@@ -209,7 +242,7 @@ export const relay = async (owner: string): Promise<string | null> => {
     let _relay = null;
     try {
         // @ts-ignore
-        let message = Relay(owner);
+        let message = RelayMessage(owner);
         let result = await read(INDEXER_ID(), message);
         if (result) {
             _relay = result.Data

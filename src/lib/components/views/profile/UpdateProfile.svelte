@@ -1,7 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { z } from 'zod';
-  import type { Event as _Event } from '$lib/models/Event';
   import type { Profile, UserInfo } from '$lib/models/Profile';
   import { currentUser, user, userRelay } from '$lib/stores/profile.store';
   import { Button } from "$lib/components/ui/button";
@@ -92,17 +91,11 @@
         bot: profile.bot,
       });
 
-      const _event = {
-        kind: 0, // Kind 0 is for metadata events in Nostr
-        tags: [], // Metadata events typically don't have tags
-        content: content,
-      };
-
-      const serialized = JSON.stringify(_event);
+      const tags =  [{ name: "Kind", value: "0" }, { name: "Content", value: content }]
       
       try {
-        const result = await event(serialized,$currentUser.Profile.pubkey)
-        let _currentUser = await info(userInfo.Profile.pubkey)
+        const result = await event(tags,$currentUser.Process)
+        let _currentUser = await info(userInfo.Process)
         currentUser.set(_currentUser)
         user.set(_currentUser)
         console.log('Profile created successfully:', result);
@@ -119,8 +112,8 @@
   }
 </script>
 
-<div class="container mx-auto max-w-2xl p-4">
-  <Card class="w-full relative">
+<div class="mx-auto max-w-2xl p-4">
+  <Card class="w-full relative border border-border rounded">
     <CardHeader>
       <CardTitle>Update Your Profile</CardTitle>
     </CardHeader>
@@ -193,7 +186,7 @@
           {/if}
         </div>
 
-        <Button type="submit" class="w-full">Update Profile</Button>
+        <Button type="submit" class="w-full rounded">Update Profile</Button>
       </form>
     </CardContent>
   </Card>

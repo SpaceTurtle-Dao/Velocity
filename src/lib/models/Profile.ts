@@ -1,9 +1,8 @@
-import type { Event } from "$lib/models/Event"
-
 export type UserInfo = {
+  Process:string,
   Token: string,
   Events: number,
-  Profile: Event,
+  Profile: Profile,
   SubscriptionCost: number,
   FeedCost: number,
   Subs: number,
@@ -12,15 +11,15 @@ export type UserInfo = {
 
 export type Profile = {
   name: string,
-  about: string,
-  picture: string | null,
-  display_name: string | null,
-  website: string | null,
-  banner: string | null,
-  bot: boolean | null,
+  about?: string,
+  picture?: string,
+  display_name: string,
+  website?: string,
+  banner?: string,
+  bot?: boolean
 }
 
-export const profileFromEvent = (event:Event) : Profile => {
-  if (event.kind == 0) return JSON.parse(event.content)
+export const profileFromEvent = (event:any) : Profile => {
+  if (event.Kind == "0") return JSON.parse(event.Content)
   throw(400)
 }

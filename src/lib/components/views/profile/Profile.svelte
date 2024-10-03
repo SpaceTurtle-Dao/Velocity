@@ -21,7 +21,6 @@
     type UserInfo,
   } from "$lib/models/Profile";
   import { currentUser, userEvents, user } from "../../../stores/profile.store";
-  import type { Event } from "$lib/models/Event";
   import Post from "../../Post.svelte";
   import Followers from "./Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
@@ -39,20 +38,22 @@
   import { fetchEvents, subs, subscriptions } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
   import Follow from "./Follow.svelte";
+  import UserList from "$lib/components/UserList.svelte";
+  import Process from "$lib/ao/process.svelte";
 
   let activeTab: string = "posts";
   let userInfo: UserInfo;
-  let userProfile: Profile;
   let events: Array<Event> = [];
-  let followers: Array<UserInfo> = [];
-  let following: Array<UserInfo> = [];
-  let filters: Array<any> = [];
+  
   let showModal = false;
   let textWithUrl = "";
+  // Get the <p> tag by ID
+  let pTag: HTMLElement | null;
   // Regular expression to find URLs in the string
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
   user.subscribe((value) => {
+    let filters: Array<any> = [];
     if (value) {
       let filter = {
         kinds: [1],
@@ -62,74 +63,81 @@
       };
       filters.push(filter);
       userInfo = value;
-      userProfile = profileFromEvent(userInfo.Profile);
       let _filters = JSON.stringify(filters);
       if (userInfo) {
-        fetchEvents(userInfo.Profile.pubkey, _filters);
+        document.getElementById(userInfo.Process);
+        fetchEvents(userInfo.Process, _filters);
       }
-      if (profileFromEvent(userInfo.Profile).about) {
-        textWithUrl = profileFromEvent(userInfo.Profile).about;
+      if (userInfo.Profile.about) {
+        textWithUrl = userInfo.Profile.about;
       }
     }
     filters = [];
   });
 
   async function fetchMedia() {
+    let filters: Array<any> = [];
     //events = [];
-    if (userInfo) {
+    /*if (userInfo) {
       let filter = {
         kinds: [1],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        "#imeta": [
-          "m image/apng",
-          "m image/avif",
-          "m image/gif",
-          "m image/jpeg",
-          "m image/png",
-          "m image/svg+xml",
-          "m image/webp",
-          "m video/x-msvideo",
-          "m video/mp4",
-          "m video/mpeg",
-          "m video/ogg",
-          "m video/webm",
+        tags: [
+          {
+            imeta: [
+              "m image/apng",
+              "m image/avif",
+              "m image/gif",
+              "m image/jpeg",
+              "m image/png",
+              "m image/svg+xml",
+              "m image/webp",
+              "m video/x-msvideo",
+              "m video/mp4",
+              "m video/mpeg",
+              "m video/ogg",
+              "m video/webm",
+            ],
+          },
         ],
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
-      fetchEvents(userInfo.Profile.pubkey, _filters);
+      fetchEvents(userInfo.Process, _filters);
     }
-    filters = [];
+    filters = [];*/
   }
 
   async function fetchPost() {
+    let filters: Array<any> = [];
     //events = [];
     if (userInfo) {
       let filter = {
-        kinds: [1],
+        kinds: ["1"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
+        tags: []
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
       if (userInfo) {
-        fetchEvents(userInfo.Profile.pubkey, _filters);
+        fetchEvents(userInfo.Process, _filters);
       }
     }
     filters = [];
   }
 
   async function fetchSubs() {
-    console.log("will get subs")
-    await subs(userInfo.Profile.pubkey, "1", "100");
+    console.log("will get subs");
+    await subs(userInfo.Process, "1", "100");
   }
 
   async function fetchSubscriptions() {
-    console.log("will get subscriptions")
-    await subscriptions(userInfo.Profile.pubkey, "1", "100");
+    console.log("will get subscriptions");
+    await subscriptions(userInfo.Process, "1", "100");
   }
 
   userEvents.subscribe((value) => {
@@ -151,9 +159,6 @@
   onMount(async () => {
     // Split the string into parts, keeping the URLs separate
     const parts = textWithUrl.split(urlPattern);
-
-    // Get the <p> tag by ID
-    const pTag: HTMLElement | null = document.getElementById("dynamicLink");
 
     // Loop over the parts and create text or links accordingly
     parts.forEach((part) => {
@@ -184,9 +189,9 @@
       <div class="relative mb-10">
         <!-- Increased bottom margin -->
         <div class="bg-gray-200 relative">
-          {#if userProfile.banner}
+          {#if userInfo.Profile.banner}
             <img
-              src={userProfile.banner}
+              src={userInfo.Profile.banner}
               alt="Banner"
               class="w-full max-h-48 object-cover"
             />
@@ -198,12 +203,15 @@
           <!-- Changed from translate-y-1/2 to translate-y-1/3 -->
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
-              {#if userProfile.picture}
-                <AvatarImage src={userProfile.picture} alt={userProfile.name} />
+              {#if userInfo.Profile.picture}
+                <AvatarImage
+                  src={userInfo.Profile.picture}
+                  alt={userInfo.Profile.name}
+                />
               {/if}
               <AvatarFallback
-                >{userProfile.name
-                  ? userProfile.name[0].toUpperCase()
+                >{userInfo.Profile.name
+                  ? userInfo.Profile.name[0].toUpperCase()
                   : "U"}</AvatarFallback
               >
             </Avatar>
@@ -214,8 +222,8 @@
       <!-- Card Content with Blur Effect -->
       <CardContent>
         <div class="flex justify-between space-x-2">
-          <p class="font-bold text-2xl">{userProfile.name}</p>
-          {#if userInfo.Profile.pubkey == $currentUser.Profile.pubkey}
+          <p class="font-bold text-2xl">{userInfo.Profile.name}</p>
+          {#if userInfo.Process == $currentUser.Process}
             <Button
               variant="outline"
               size="sm"
@@ -225,26 +233,23 @@
               Edit Profile
             </Button>
           {:else}
-            <Follow
-              relay={userInfo.Profile.pubkey}
-              userRelay={$currentUser.Profile.pubkey}
-            />
+            <Follow relay={userInfo.Process} userRelay={$currentUser.Process} />
           {/if}
         </div>
-        <p class="font-light text-gray-400">@{userProfile.display_name}</p>
-        <p class="pt-2.5" id="dynamicLink"></p>
+        <p class="font-light text-gray-400">@{userInfo.Profile.display_name}</p>
+        <p class="pt-2.5" id={userInfo.Process}></p>
         <div class="flex flex-row space-x-5 pt-2.5">
-          {#if userProfile.website}
+          {#if userInfo.Profile.website}
             <div class="flex flex-row space-x-1 justify-end items-center">
               <Link size={16} />
-              <a class="text-blue-400" href={userProfile.website}
-                >{userProfile.website}</a
+              <a class="text-blue-400" href={userInfo.Profile.website}
+                >{userInfo.Profile.website}</a
               >
             </div>
           {/if}
           <div class="flex flex-row space-x-1 justify-end items-center">
             <CalendarDays size={16} />
-            <p>Joined {formatDate(userInfo.Profile.created_at)}</p>
+            <p>Joined</p>
           </div>
         </div>
         <div class="flex space-x-5 pt-2.5">
@@ -262,14 +267,14 @@
 
     <Tabs.Root value="post" class="max-w-prose">
       <Tabs.List class="grid grid-cols-4">
-        <Tabs.Trigger
-          
-          on:click={fetchPost}
-          value="post">Post</Tabs.Trigger
-        >
+        <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
         <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchSubscriptions} value="following">Following</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchSubs} value="followers">Followers</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchSubscriptions} value="following"
+          >Following</Tabs.Trigger
+        >
+        <Tabs.Trigger on:click={fetchSubs} value="followers"
+          >Followers</Tabs.Trigger
+        >
       </Tabs.List>
       <Tabs.Content value="post">
         <div class="">
@@ -291,12 +296,12 @@
       </Tabs.Content>
       <Tabs.Content value="following">
         {#if $user && $currentUser}
-          <Followers/>
+          <UserList />
         {/if}
       </Tabs.Content>
       <Tabs.Content value="followers">
         {#if $user && $currentUser}
-          <Followers />
+          <UserList />
         {/if}
       </Tabs.Content>
     </Tabs.Root>
@@ -310,7 +315,7 @@
   >
     <div class="rounded-lg p-6 max-w-2xl w-full" on:click|stopPropagation>
       <UpdateProfile />
-      <Button class="mt-4" on:click={toggleModal}>Close</Button>
+      <Button class="mt-4 rounded" on:click={toggleModal}>Close</Button>
     </div>
   </div>
 {/if}
