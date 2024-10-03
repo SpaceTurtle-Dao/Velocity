@@ -77,10 +77,10 @@
 
   async function fetchMedia() {
     let filters: Array<any> = [];
-    //events = [];
-    /*if (userInfo) {
+    events = [];
+    if (userInfo) {
       let filter = {
-        kinds: [1],
+        kinds: ["1"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
@@ -107,7 +107,7 @@
       let _filters = JSON.stringify(filters);
       fetchEvents(userInfo.Process, _filters);
     }
-    filters = [];*/
+    filters = [];
   }
 
   async function fetchPost() {
