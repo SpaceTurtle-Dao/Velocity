@@ -145,7 +145,7 @@
         {:else if $currentUser == null || $currentUser == undefined}
           <CreateProfile />
         {:else}
-        <CreatePostModal relay="" />
+        <CreatePostModal/>
         {/if}
         {#if _currentUser}
           <div class="p-4">

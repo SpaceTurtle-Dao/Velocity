@@ -1,7 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
-  import type { EventRequest } from "$lib/models/Event";
   import { Textarea } from "./ui/textarea";
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
@@ -29,16 +28,13 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Separator } from "$lib/components/ui/separator/index.js";
-    import DialogFooter from "./ui/dialog/dialog-footer.svelte";
-
-  export let relay: string;
+  import DialogFooter from "./ui/dialog/dialog-footer.svelte";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
   let isLoading = false;
-  let _event: EventRequest;
 
   const dispatch = createEventDispatcher();
 
@@ -78,18 +74,17 @@
     isLoading = true;
     let filters: Array<any> = [];
     let _tags: Array<Tag> = [];
-    let filter = {
+    /*let filter = {
       kinds: [1],
       since: 1663905355000,
       until: Date.now(),
       limit: 100,
     };
     filters.push(filter);
-    let _filters = JSON.stringify(filters);
+    let _filters = JSON.stringify(filters);*/
     let _content = content;
     if (selectedMedia) {
       let media = await upload(selectedMedia);
-      let imeta = "imeta";
       let dimisions = ""; //"3024x4032"
       let url = "url " + media.url;
       let m = "m " + media.mimeType;
@@ -99,19 +94,17 @@
         value: JSON.stringify([url, m, dim]),
       };
       let kind: Tag = {
-        name: "kind",
+        name: "Kind",
         value: "1",
       };
       _tags.push(_tag);
       _tags.push(kind);
       _content = _content + " " + media.url;
     }
-    let json = JSON.stringify(_event);
-    console.log("///////This is the event to be posted////////");
-    console.log(json);
-    await event(_tags, _content, relay);
+
+    await event(_tags, _content, $currentUser.Process);
     console.log("///FETCHING EVENTS///");
-    fetchEvents($currentUser.Process, _filters);
+    //fetchEvents($currentUser.Process, _filters);
     isLoading = false;
     closeModal();
   }
@@ -124,7 +117,6 @@
       document.body.style.overflow = "auto";
     };
   });*/
-
 
   /*
   
@@ -142,8 +134,7 @@
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
       <Dialog.Title></Dialog.Title>
-      <Dialog.Description>
-      </Dialog.Description>
+      <Dialog.Description></Dialog.Description>
     </Dialog.Header>
     <form on:submit|preventDefault={handleSubmit}>
       <div class="flex">
@@ -203,7 +194,6 @@
     </form>
     <Separator />
     <Dialog.Footer>
-      
       <div class="w-full flex flex-row justify-between">
         <Button
           type="button"
@@ -215,13 +205,13 @@
         </Button>
         <Button
           type="submit"
+          on:click={handleSubmit}
           class="bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition duration-200 text-md"
           disabled={isLoading || (!content && !selectedMedia)}
         >
           {isLoading ? "Posting..." : "Post"}
         </Button>
       </div>
-      
     </Dialog.Footer>
-  </Dialog.Content>  
+  </Dialog.Content>
 </Dialog.Root>

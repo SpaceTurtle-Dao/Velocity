@@ -1,7 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { z } from 'zod';
-  import type { Event as _Event } from '$lib/models/Event';
   import type { Profile, UserInfo } from '$lib/models/Profile';
   import { currentUser, user, userRelay } from '$lib/stores/profile.store';
   import { Button } from "$lib/components/ui/button";
@@ -92,7 +91,7 @@
         bot: profile.bot,
       });
 
-      const tags =  [{ name: "kind", value: "0" }]
+      const tags =  [{ name: "Kind", value: "0" }]
       
       try {
         const result = await event(tags,content,$currentUser.Process)

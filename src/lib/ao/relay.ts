@@ -154,9 +154,12 @@ export const fetchEvents = async (relay: string, filters: string) => {
         let result = await read(relay, message);
         if (result) {
             console.log(result);
-            //let json = JSON.parse(result.Data);
-            //console.log(json);
-            userEvents.set(result)
+            let json = JSON.parse(result.Data);
+            console.log("***Filters***")
+            console.log(JSON.parse(filters));
+            console.log("***Got Events***")
+            console.log(json);
+            userEvents.set(json)
         };
     } catch (e) {
         console.log(e);

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { z } from "zod";
-  import type { Event } from "$lib/models/Event";
   import type { UserInfo } from "$lib/models/Profile";
   import { currentUser } from "$lib/stores/profile.store";
   import { Input } from "$lib/components/ui/input";
@@ -103,7 +102,7 @@
       });
 
       const kindTag:Tag = {
-        name:"kind", 
+        name:"Kind", 
         value:"0", // Kind 0 is for metadata events in Nostr
       };
       tags.push(kindTag)

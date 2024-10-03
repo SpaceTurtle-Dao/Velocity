@@ -21,7 +21,6 @@
     type UserInfo,
   } from "$lib/models/Profile";
   import { currentUser, userEvents, user } from "../../../stores/profile.store";
-  import type { Event } from "$lib/models/Event";
   import Post from "../../Post.svelte";
   import Followers from "./Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
@@ -45,9 +44,7 @@
   let activeTab: string = "posts";
   let userInfo: UserInfo;
   let events: Array<Event> = [];
-  let followers: Array<UserInfo> = [];
-  let following: Array<UserInfo> = [];
-  let filters: Array<any> = [];
+  
   let showModal = false;
   let textWithUrl = "";
   // Get the <p> tag by ID
@@ -56,6 +53,7 @@
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
   user.subscribe((value) => {
+    let filters: Array<any> = [];
     if (value) {
       let filter = {
         kinds: [1],
@@ -78,8 +76,9 @@
   });
 
   async function fetchMedia() {
+    let filters: Array<any> = [];
     //events = [];
-    if (userInfo) {
+    /*if (userInfo) {
       let filter = {
         kinds: [1],
         since: 1663905355000,
@@ -108,19 +107,21 @@
       let _filters = JSON.stringify(filters);
       fetchEvents(userInfo.Process, _filters);
     }
-    filters = [];
+    filters = [];*/
   }
 
   async function fetchPost() {
+    let filters: Array<any> = [];
     //events = [];
     if (userInfo) {
       let filter = {
-        kinds: [1],
+        kinds: ["1"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
+        tags: []
       };
-      filters.push(filter);
+      //filters.push(filter);
       let _filters = JSON.stringify(filters);
       if (userInfo) {
         fetchEvents(userInfo.Process, _filters);
