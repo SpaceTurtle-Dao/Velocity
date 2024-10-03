@@ -72,16 +72,11 @@
 
   async function handleSubmit() {
     isLoading = true;
-    let filters: Array<any> = [];
-    let _tags: Array<Tag> = [];
-    /*let filter = {
-      kinds: [1],
-      since: 1663905355000,
-      until: Date.now(),
-      limit: 100,
+    let kind: Tag = {
+      name: "Kind",
+      value: "1",
     };
-    filters.push(filter);
-    let _filters = JSON.stringify(filters);*/
+    let _tags: Array<Tag> = [kind];
     let _content = content;
     if (selectedMedia) {
       let media = await upload(selectedMedia);
@@ -93,16 +88,16 @@
         name: "imeta",
         value: JSON.stringify([url, m, dim]),
       };
-      let kind: Tag = {
-        name: "Kind",
-        value: "1",
-      };
-      _tags.push(_tag);
-      _tags.push(kind);
       _content = _content + " " + media.url;
+      _tags.push(_tag);
     }
 
-    await event(_tags, _content, $currentUser.Process);
+    let contentTag: Tag = {
+      name: "Content",
+      value: _content,
+    };
+    _tags.push(contentTag);
+    await event(_tags, $currentUser.Process);
     console.log("///FETCHING EVENTS///");
     //fetchEvents($currentUser.Process, _filters);
     isLoading = false;

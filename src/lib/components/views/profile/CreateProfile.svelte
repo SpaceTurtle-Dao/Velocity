@@ -105,12 +105,18 @@
         name:"Kind", 
         value:"0", // Kind 0 is for metadata events in Nostr
       };
+
+      const contentTag:Tag = {
+        name:"Content", 
+        value:content,
+      };
       tags.push(kindTag)
+      tags.push(contentTag)
       profileEvent = JSON.stringify(event);
       try {
         _relay = await spawnRelay();
         console.log("Got Relay " + _relay);
-        await _event(tags,content, _relay!);
+        await _event(tags, _relay!);
         await setRelay(_relay!);
         isLoading = false;
         navigate("/profile", { replace: true });

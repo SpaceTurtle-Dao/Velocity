@@ -1,9 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { Event } from "$lib/models/Event";
   import { Video } from "flowbite-svelte";
   import { Button } from "$lib/components/ui/button/index.js";
-  export let event: Event;
+  export let event: any;
   let inlineUrl: string;
   let media: string;
   let mimeType: string;
@@ -11,17 +10,12 @@
 
   function parseTags() {
     let isImeta = false;
-    let match = event.content.match(/https?:\/\/[^\s]+/);
+    let match = event.Content.match(/https?:\/\/[^\s]+/);
     if (match == null) return;
     inlineUrl = match[0];
-    let tags = event.tags[0];
-    for (var i in tags) {
-      let tag = tags[i];
-      if (tag == "imeta") {
-        isImeta = true;
-      }
-    }
-    if (isImeta) {
+    if (event.imeta) {
+      let tags = JSON.parse(event.imeta)
+      isImeta = true;
       for (var i in tags) {
         let tag = tags[i];
         if (tag.split(" ")[0] == "url" && inlineUrl == tag.split(" ")[1]) {
@@ -42,7 +36,7 @@
 
 {#if mimeType && media && inlineUrl}
   <article class="pb-5 text-primary text-wrap ...">
-    <p>{event.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
+    <p>{event.Content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
   </article>
   {#if mimeType.startsWith("image/")}
     <img class="border border-border" alt="The project logo" src={media} />
@@ -51,14 +45,14 @@
   {/if}
 {:else if inlineUrl}
   <article class="justify-left text-primary text-wrap ...">
-    <p>{event.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
+    <p>{event.Content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
   </article>
   <Button href={inlineUrl} variant="link" class="pl-11 pb-6 text-blue-500"
     >{inlineUrl}</Button
   >
 {:else}
   <article class="text-primary text-wrap ...">
-    <p>{event.content}</p>
+    <p>{event.Content}</p>
   </article>
 {/if}
 

@@ -91,10 +91,10 @@
         bot: profile.bot,
       });
 
-      const tags =  [{ name: "Kind", value: "0" }]
+      const tags =  [{ name: "Kind", value: "0" }, { name: "Content", value: content }]
       
       try {
-        const result = await event(tags,content,$currentUser.Process)
+        const result = await event(tags,$currentUser.Process)
         let _currentUser = await info(userInfo.Process)
         currentUser.set(_currentUser)
         user.set(_currentUser)

@@ -1,5 +1,3 @@
-import type { Event } from "$lib/models/Event"
-
 export type UserInfo = {
   Process:string,
   Token: string,
@@ -21,7 +19,7 @@ export type Profile = {
   bot?: boolean
 }
 
-export const profileFromEvent = (event:Event) : Profile => {
-  if (event.kind == 0) return JSON.parse(event.content)
+export const profileFromEvent = (event:any) : Profile => {
+  if (event.Kind == "0") return JSON.parse(event.Content)
   throw(400)
 }

@@ -27,7 +27,6 @@ import type { Relay } from "$lib/models/Relay";
 
 export const event = async (
     tags:Array<Tag>,
-    body: string,
     relay: string
 ) => {
     const actionTag:Tag = {
@@ -38,10 +37,8 @@ export const event = async (
     try {
         console.log("***TAGS***")
         console.log(tags)
-        console.log("***Content***")
-        console.log(body)
         // @ts-ignore
-        let result = await send(relay, tags, body);
+        let result = await send(relay, tags, null);
         console.log(result);
     } catch (e) {
         console.log(e);

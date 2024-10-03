@@ -121,7 +121,7 @@
         limit: 100,
         tags: []
       };
-      //filters.push(filter);
+      filters.push(filter);
       let _filters = JSON.stringify(filters);
       if (userInfo) {
         fetchEvents(userInfo.Process, _filters);
