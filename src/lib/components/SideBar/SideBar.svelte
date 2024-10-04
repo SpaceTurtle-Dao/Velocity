@@ -12,7 +12,7 @@
     Plus,
   } from "lucide-svelte";
   import UserProfile from "../views/profile/UserProfile.svelte";
-  import Feed from "$lib/Feed.svelte";
+  import Feed from "$lib/components/views/feed/Feed.svelte";
   import { currentUser } from "$lib/stores/profile.store";
   import { profileFromEvent, type Profile } from "$lib/models/Profile";
   import {

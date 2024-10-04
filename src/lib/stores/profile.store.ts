@@ -1,6 +1,5 @@
 import type { Meme } from "$lib/models/Meme";
 import type { Profile, UserInfo } from "$lib/models/Profile";
-import type { Event } from "$lib/models/Event"
 import { writable } from "svelte/store";
 
 export const userRelay = writable<string>();

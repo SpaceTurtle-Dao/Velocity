@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { z } from "zod";
-  import type { Event } from "$lib/models/Event";
   import type { UserInfo } from "$lib/models/Profile";
   import { currentUser } from "$lib/stores/profile.store";
   import { Input } from "$lib/components/ui/input";
@@ -20,10 +19,13 @@
     event as _event,
     info,
     getOwner,
+    setRelay,
   } from "$lib/ao/relay";
   import { walletAddress } from "$lib/stores/walletStore";
   import { add } from "date-fns/fp/add";
   import { navigate } from "svelte-routing";
+  import { createProcess, send } from "$lib/ao/process.svelte";
+  import type { Tag } from "$lib/models/Tag";
 
   // Zod schema for initial profile validation
   const initialProfileSchema = z.object({
@@ -42,7 +44,7 @@
   let spawnInterval: any;
   let evalInterval: any;
   let address: string;
-  let _relay: string;
+  let _relay: string | undefined;
   let profileEvent: string;
   let isLoading = false;
   let userInfo: UserInfo;
@@ -56,7 +58,7 @@
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async function checkEvaluated() {
+  /*async function checkEvaluated() {
     let owner = await getOwner(_relay);
     console.log(owner);
     console.log(address);
@@ -83,9 +85,10 @@
     } else {
       console.log("polling for relay");
     }
-  }
+  }*/
 
   async function createProfile() {
+    let tags:Array<Tag> = []
     isLoading = true;
     try {
       // Validate the profile data
@@ -98,24 +101,35 @@
         display_name: profile.display_name,
       });
 
-      const event = {
-        kind: 0, // Kind 0 is for metadata events in Nostr
-        tags: [], // Metadata events typically don't have tags
-        content: content,
+      const kindTag:Tag = {
+        name:"Kind", 
+        value:"0", // Kind 0 is for metadata events in Nostr
       };
 
+      const contentTag:Tag = {
+        name:"Content", 
+        value:content,
+      };
+      tags.push(kindTag)
+      tags.push(contentTag)
       profileEvent = JSON.stringify(event);
       try {
-        address = await window.arweaveWallet.getActiveAddress();
-        await spawnRelay();
-        spawnInterval = setInterval(checkSpawned, 1000);
+        _relay = await spawnRelay();
+        console.log("Got Relay " + _relay);
+        await _event(tags, _relay!);
+        await setRelay(_relay!);
+        isLoading = false;
+        navigate("/profile", { replace: true });
+        isOpen = false; // Close the dialog
       } catch (error) {
         console.error("Error creating profile:", error);
         isLoading = false;
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
-        errors = err.flatten().fieldErrors as Partial<Record<keyof InitialProfileSchemaType, string>>;
+        errors = err.flatten().fieldErrors as Partial<
+          Record<keyof InitialProfileSchemaType, string>
+        >;
       }
       isLoading = false;
     }
@@ -158,7 +172,9 @@
       </div>
 
       <div class="space-y-2">
-        <Label for="display_name" class="text-lg font-medium text-primary">Display Name</Label>
+        <Label for="display_name" class="text-lg font-medium text-primary"
+          >Display Name</Label
+        >
         <Input
           id="display_name"
           bind:value={profile.display_name}

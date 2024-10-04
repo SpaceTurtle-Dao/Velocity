@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
+  import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
   import { MoreHorizontal } from "lucide-svelte";
-  import { currentUser } from "../../../stores/profile.store";
+  import { currentUser } from "$lib/stores/profile.store";
+  import ConnectWalletButton from "$lib/components/wallet/wallet.svelte";
   import { navigate } from "svelte-routing";
   import {
     profileFromEvent,
@@ -27,8 +28,10 @@
   // Subscribe to the current user store
   currentUser.subscribe((value) => {
     if (value) {
+      console.log("Got user")
+      console.log(value)
       userInfo = value;
-      userProfile = profileFromEvent(userInfo.Profile);
+      userProfile = userInfo.Profile;
     }
   });
 
@@ -45,7 +48,7 @@
     {/if}
     <div class="flex-grow text-left">
       <p class="font-semibold text-white">{userProfile.name}</p>
-      <p class="text-sm text-white">@{userInfo.Profile.pubkey.slice(0, 12)}</p>
+      <p class="text-sm text-white">@{userInfo.Process.slice(0, 12)}</p>
     </div>
     <MoreHorizontal class="w-5 h-5 text-white" />
   </button>
