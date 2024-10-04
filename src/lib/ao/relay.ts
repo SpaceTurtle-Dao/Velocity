@@ -130,13 +130,16 @@ export const spawnRelay = async () => {
 };
 
 export const fetchFeed = async (relay: string, filters: string) => {
+    console.log("**********Fetching Feed*******")
     let _events: Array<any> = [];
     try {
         // @ts-ignore
         let message = FetchFeed(filters);
         let result = await read(relay, message);
+        let json = JSON.parse(result.Data);
+        console.log(json)
         if (result){
-            feedEvents.set(result)
+            feedEvents.set(json)
         }
     } catch (e) {
         console.log(e);

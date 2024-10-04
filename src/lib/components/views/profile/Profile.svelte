@@ -84,8 +84,7 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        tags: [
-          {
+        tags: {
             imeta: [
               "m image/apng",
               "m image/avif",
@@ -101,7 +100,6 @@
               "m video/webm",
             ],
           },
-        ],
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
