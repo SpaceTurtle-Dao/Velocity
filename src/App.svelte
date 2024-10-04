@@ -18,7 +18,7 @@
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
   import ConnectWalletButton from "$lib/components/wallet.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import { fetchFeed, info, relay, relays } from "$lib/ao/relay";
+  import { fetchEvents, fetchFeed, info, relay, relays } from "$lib/ao/relay";
   import UserList from "$lib/components/UserList.svelte";
   import type { UserInfo } from "$lib/models/Profile";
   import { users } from "$lib/stores/main.store";
@@ -41,7 +41,7 @@
     console.log("Fetching Post");
     if ($currentUser) {
       let filter = {
-        kinds: [1],
+        kinds: ["1"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
@@ -50,6 +50,7 @@
       let _filters = JSON.stringify(filters);
       if ($currentUser) {
         fetchFeed($currentUser.Process, _filters);
+        fetchEvents($currentUser.Process, _filters);
       }
     }
   }
