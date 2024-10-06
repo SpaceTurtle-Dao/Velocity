@@ -82,7 +82,7 @@
                             <Avatar.Fallback>SD</Avatar.Fallback>
                         </Avatar.Root>
                         <div class="space-y-1">
-                            <h4 class="text-sm font-semibold">@sveltejs</h4>
+                            <h4 class="text-sm font-semibold">{data.Profile.name}</h4>
                             {#if data.Profile.about}
                                 <p id={data.Process} class="text-sm">
                                     {data.Profile.about}

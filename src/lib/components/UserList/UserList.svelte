@@ -13,7 +13,12 @@
 
     onMount(async () => {
         console.log("********Mounted*******");
-        await relays("1", "100");
+        
+        // Delay for 10 seconds before running the function
+        setTimeout(async () => {
+            await relays("1", "100");
+            console.log("userelays after 10 seconds:", userelays); // Log after the 10-second delay
+        }, 10000); // 10000 milliseconds = 10 seconds
     });
 </script>
 

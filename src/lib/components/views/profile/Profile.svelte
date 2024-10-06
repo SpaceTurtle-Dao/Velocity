@@ -217,7 +217,6 @@
         </div>
       </div>
 
-      <!-- Card Content with Blur Effect -->
       <CardContent>
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{userInfo.Profile.name}</p>
