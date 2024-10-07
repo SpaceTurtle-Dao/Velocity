@@ -7,7 +7,6 @@
     } from "$lib/stores/profile.store";
     import Post from "../../Post.svelte";
     import * as Tabs from "$lib/components/ui/tabs/index.js";
-
     import { onMount } from "svelte";
     import { fetchEvents, fetchFeed } from "$lib/ao/relay";
 

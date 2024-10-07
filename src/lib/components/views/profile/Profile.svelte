@@ -44,7 +44,9 @@
   let activeTab: string = "posts";
   let userInfo: UserInfo;
   let events: Array<Event> = [];
-  
+  let followers: Array<UserInfo> = [];
+  let following: Array<UserInfo> = [];
+  let filters: Array<any> = [];
   let showModal = false;
   let textWithUrl = "";
   // Get the <p> tag by ID
@@ -84,22 +86,20 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        tags: {
-            imeta: [
-              "m image/apng",
-              "m image/avif",
-              "m image/gif",
-              "m image/jpeg",
-              "m image/png",
-              "m image/svg+xml",
-              "m image/webp",
-              "m video/x-msvideo",
-              "m video/mp4",
-              "m video/mpeg",
-              "m video/ogg",
-              "m video/webm",
-            ],
-          },
+        "#imeta": [
+          "m image/apng",
+          "m image/avif",
+          "m image/gif",
+          "m image/jpeg",
+          "m image/png",
+          "m image/svg+xml",
+          "m image/webp",
+          "m video/x-msvideo",
+          "m video/mp4",
+          "m video/mpeg",
+          "m video/ogg",
+          "m video/webm",
+        ],
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
@@ -117,7 +117,6 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        tags: []
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);

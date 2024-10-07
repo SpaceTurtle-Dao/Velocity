@@ -265,7 +265,7 @@ export async function relays(page: string, size: string) {
         let userRelays: Array<Relay> = JSON.parse(result.Data);
         for (var i = 0; i < userRelays.length; i++) {
             let userProfile = await info(userRelays[i].relay)
-            if(userProfile){
+            if (userProfile) {
                 userProfiles.push(userProfile)
             }
         }

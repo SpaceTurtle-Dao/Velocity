@@ -14,7 +14,7 @@
     if (match == null) return;
     inlineUrl = match[0];
     if (event.imeta) {
-      let tags = JSON.parse(event.imeta)
+      let tags = JSON.parse(event.imeta);
       isImeta = true;
       for (var i in tags) {
         let tag = tags[i];
