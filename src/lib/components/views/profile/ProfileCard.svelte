@@ -2,7 +2,7 @@
     import * as Avatar from "$lib/components/ui/avatar/index.js";
     import { currentUser } from "$lib/stores/profile.store";
     import { profileFromEvent, type UserInfo } from "$lib/models/Profile";
-    import Follow from "./Follow.svelte";
+    import Follow from "../../Follow/Follow.svelte";
     import { onMount } from "svelte";
     import * as Card from "$lib/components/ui/card";
     import * as HoverCard from "$lib/components/ui/hover-card";

@@ -21,8 +21,8 @@
     type UserInfo,
   } from "$lib/models/Profile";
   import { currentUser, userEvents, user } from "../../../stores/profile.store";
-  import Post from "../../Post.svelte";
-  import Followers from "./Followers.svelte";
+  import Post from "../../posts/Post.svelte";
+  import Followers from "../../Followers/Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
@@ -37,8 +37,8 @@
   import { onMount } from "svelte";
   import { fetchEvents, subs, subscriptions } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
-  import Follow from "./Follow.svelte";
-  import UserList from "$lib/components/UserList.svelte";
+  import Follow from "../../Follow/Follow.svelte";
+  import UserList from "$lib/components/UserList/UserList.svelte";
   import Process from "$lib/ao/process.svelte";
 
   let activeTab: string = "posts";
