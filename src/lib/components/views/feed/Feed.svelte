@@ -5,13 +5,12 @@
         user,
         feedEvents,
     } from "$lib/stores/profile.store";
-    import type { Event } from "$lib/models/Event";
     import Post from "../../Post.svelte";
     import * as Tabs from "$lib/components/ui/tabs/index.js";
     import { onMount } from "svelte";
     import { fetchEvents, fetchFeed } from "$lib/ao/relay";
 
-    let events: Array<Event> = [];
+    let events: Array<any> = [];
     let filters: Array<any> = [];
 
     feedEvents.subscribe((value) => {
@@ -23,7 +22,7 @@
     async function fetchFollowingEvents() {
         if ($currentUser) {
             let filter = {
-                kinds: [1],
+                kinds: ["1"],
                 since: 1663905355000,
                 until: Date.now(),
                 limit: 100,
@@ -31,7 +30,7 @@
             filters.push(filter);
             let _filters = JSON.stringify(filters);
             if ($currentUser) {
-                fetchFeed($currentUser.Profile.pubkey, _filters);
+                fetchFeed($currentUser.Process, _filters);
             }
         }
         filters = [];
@@ -40,15 +39,16 @@
     async function fetchFeedEvents() {
         if ($currentUser) {
             let filter = {
-                kinds: [1],
+                kinds: ["1"],
                 since: 1663905355000,
                 until: Date.now(),
                 limit: 100,
+                tags: []
             };
             filters.push(filter);
             let _filters = JSON.stringify(filters);
             if ($currentUser) {
-                fetchFeed($currentUser.Profile.pubkey, _filters);
+                fetchFeed($currentUser.Process, _filters);
             }
         }
         filters = [];

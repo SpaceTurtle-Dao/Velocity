@@ -14,7 +14,6 @@
         type Profile,
         type UserInfo,
     } from "$lib/models/Profile";
-    import type { Event } from "$lib/models/Event";
     import Nip92 from "$lib/handlers/NIP92.svelte";
     import { user } from "$lib/stores/profile.store";
     import { onMount } from "svelte";
@@ -25,11 +24,10 @@
     } from "$lib/handlers/reactions";
     // import ReactionDetails from "$lib/handlers/reactions";
 
-    export let event: Event;
+    export let event: any;
     let _user: UserInfo;
     let profile: Profile;
     let event2: Event;
-    let e: string;
     let p: string;
     let q: string;
     let relay: string;
@@ -64,22 +62,18 @@
     function reply() {}
 
     function parseTags() {
-        let tags = event.tags;
-        tags.forEach((tag) => {
-            if (tag[0] == "e") {
-                e = tag[1];
-                relay = tag[2];
-            }
-            if (tag[0] == "p") {
-                p = tag[1];
-            }
-            if (tag[0] == "q") {
-                q = tag[1];
-            }
-        });
-        if (e && p && relay && q) {
+        if (event.Tags["e"]) {
+            relay = event.Tags["e"];
+        }
+        if (event.Tags["p"]) {
+            p = event.Tags["p"];
+        }
+        if (event.Tags["q"]) {
+            q = event.Tags["q"];
+        }
+        if (p && relay && q) {
             event2 = JSON.parse(event.content);
-        } else if (e && p && relay) {
+        } else if (p && relay) {
             event2 = JSON.parse(q);
         }
     }
@@ -88,8 +82,8 @@
     onMount(async () => {
         console.log("post event");
         console.log(event);
-        _user = await info(event.pubkey);
-        profile = profileFromEvent(_user.Profile);
+        _user = await info(event.From);
+        profile = _user.Profile;
         console.log(_user);
         console.log(profile);
     });
@@ -133,7 +127,7 @@
     <div class="pl-5 pt-5 pr-5">
         <div class="flex justify-start space-x-2">
             <Avatar.Root class="hidden h-9 w-9 sm:flex">
-                {#if profileFromEvent(_user.Profile).name}
+                {#if _user.Profile.name}
                     <Avatar.Image src={profile.picture} alt="Avatar" />
                 {/if}
                 <Avatar.Fallback>OM</Avatar.Fallback>
@@ -144,7 +138,7 @@
                         {profile.name}
                     </p>
                     <p class="text-gray-500">
-                        {formatDate(_user.Profile.created_at)}
+                        <!--{formatDate(_user.Profile.created_at)}-->
                     </p>
                 </div>
                 <Nip92 {event} />

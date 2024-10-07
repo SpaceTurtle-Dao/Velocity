@@ -1,22 +1,40 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
-  import { Image, X } from "lucide-svelte";
-  import type { EventRequest } from "$lib/models/Event";
   import { Textarea } from "./ui/textarea";
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { currentUser, userEvents } from "$lib/stores/profile.store";
-
-  export let isOpen = false;
-  export let relay: string;
+  import type { Tag } from "$lib/models/Tag";
+  import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
+  import {
+    Home as HomeIcon,
+    Search,
+    Bell,
+    User,
+    MoreHorizontal,
+    Plus,
+    Zap,
+    Edit,
+    Mail,
+    Image,
+    X,
+  } from "lucide-svelte";
+  import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+  } from "$lib/components/ui/avatar";
+  import { Separator } from "$lib/components/ui/separator/index.js";
+  import DialogFooter from "./ui/dialog/dialog-footer.svelte";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
   let isLoading = false;
-  let _event: EventRequest;
 
   const dispatch = createEventDispatcher();
 
@@ -46,141 +64,149 @@
     }
   }
 
-  function wait(milliseconds:number) {
+  function wait(milliseconds: number) {
     return new Promise((resolve) => {
       setTimeout(resolve, milliseconds);
     });
   }
 
   async function handleSubmit() {
-    let filters: Array<any> = [];
-    let _tags: Array<Array<string>> = [];
-    let filter = {
-      kinds: [1],
-      since: 1663905355000,
-      until: Date.now(),
-      limit: 100,
+    isLoading = true;
+    let kind: Tag = {
+      name: "Kind",
+      value: "1",
     };
-    filters.push(filter);
-    let _filters = JSON.stringify(filters);
+    let _tags: Array<Tag> = [kind];
     let _content = content;
     if (selectedMedia) {
       let media = await upload(selectedMedia);
-      let imeta = "imeta";
       let dimisions = ""; //"3024x4032"
       let url = "url " + media.url;
       let m = "m " + media.mimeType;
       let dim = "dim " + dimisions;
-      let _tag: Array<string> = [imeta, url, m, dim];
-      _tags.push(_tag);
+      let _tag: Tag = {
+        name: "imeta",
+        value: JSON.stringify([url, m, dim]),
+      };
       _content = _content + " " + media.url;
+      _tags.push(_tag);
     }
-    isLoading = true;
-    _event = {
-      kind: 1,
-      tags: _tags,
-      content: _content,
+
+    let contentTag: Tag = {
+      name: "Content",
+      value: _content,
     };
-    let json = JSON.stringify(_event);
-    console.log("///////This is the event to be posted////////");
-    console.log(json);
-    await event(json, relay);
+    _tags.push(contentTag);
+    await event(_tags, $currentUser.Process);
     console.log("///FETCHING EVENTS///");
-    fetchEvents($currentUser.Profile.pubkey, _filters);
+    //fetchEvents($currentUser.Process, _filters);
     isLoading = false;
     closeModal();
   }
 
-  onMount(() => {
+  /*onMount(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
     }
     return () => {
       document.body.style.overflow = "auto";
     };
-  });
+  });*/
+
+  /*
+  
+    
+  */
 </script>
 
-{#if isOpen}
-  <div
-    class="fixed inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50"
+<Dialog.Root>
+  <Dialog.Trigger
+    class="w-full h-13 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
   >
-    <div class="bg-background rounded-xl p-6 w-full max-w-lg shadow-lg">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-semibold text-foreground">Create Post</h2>
-        <Button
-          variant="ghost"
-          on:click={closeModal}
-          size="icon"
-          class="text-muted-foreground bg-background  hover:text-foreground rounded-full"
-        >
-          <X size={24} />
-        </Button>
-      </div>
-
-      <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-        <Textarea
-          bind:value={content}
-          placeholder="What's happening?!"
-          class="w-full p-3 rounded-lg border border-input bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent"
-        ></Textarea>
-
-        {#if mediaPreviewUrl}
-          <div class="relative">
-            {#if selectedMedia && selectedMedia.type.startsWith("video")}
-              <!-- svelte-ignore a11y-media-has-caption -->
-              <video
-                src={mediaPreviewUrl}
-                controls
-                class="w-full h-48 object-cover rounded-md"
-              ></video>
-            {:else}
-              <img
-                src={mediaPreviewUrl}
-                alt="Selected media"
-                class="w-full object-cover rounded-md"
-              />
-            {/if}
-            <Button
-              variant="ghost"
-              on:click={removeSelectedMedia}
-              size="icon"
-              class="text-muted-foreground bg-background  hover:text-foreground rounded-full absolute top-2 right-2 p-1"
-            >
-              <X />
-            </Button>
-          </div>
+    <Plus class="w-5 h-5 mr-2" />
+    Post</Dialog.Trigger
+  >
+  <Dialog.Content class="w-full text-primary border-border">
+    <Dialog.Header>
+      <Dialog.Title></Dialog.Title>
+      <Dialog.Description></Dialog.Description>
+    </Dialog.Header>
+    <form on:submit|preventDefault={handleSubmit}>
+      <div class="flex">
+        {#if $currentUser.Profile.picture}
+          <Avatar class="h-12 w-12">
+            <AvatarImage
+              src={$currentUser.Profile.picture}
+              alt={$currentUser.Profile.name}
+            />
+            <AvatarFallback>{$currentUser.Profile.name}</AvatarFallback>
+          </Avatar>
         {:else}
-          <div class="flex items-center space-x-2">
-            <Button
-              type="button"
-              variant="ghost"
-              on:click={handleMediaButtonClick}
-              class="text-primary hover:bg-primary/10 p-2 rounded-full"
-            >
-              <Image size={24} />
-            </Button>
-            <span class="text-sm text-muted-foreground">Add photo or video</span
-            >
-          </div>
+          <Avatar class="h-12 w-12">
+            <AvatarFallback>{$currentUser.Profile.name}</AvatarFallback>
+          </Avatar>
         {/if}
-
-        <input
-          type="file"
-          accept="image/*, video/*"
-          bind:this={fileInput}
-          class="hidden"
-          on:change={handleFileChange}
-        />
-
+        <div class="w-full">
+          <Textarea
+            bind:value={content}
+            placeholder="What's happening?!"
+            class="text-lg w-full bg-background border-none focus:border-none outline-none focus:outline-none focus-visible:outline-none ring-none focus:ring-none focus-visible:ring-none ring-background overflow-y-hidden"
+          ></Textarea>
+          {#if mediaPreviewUrl}
+            <div class="relative p-5">
+              {#if selectedMedia && selectedMedia.type.startsWith("video")}
+                <!-- svelte-ignore a11y-media-has-caption -->
+                <video
+                  src={mediaPreviewUrl}
+                  controls
+                  class="w-full h-48 object-cover rounded-md"
+                ></video>
+              {:else}
+                <img
+                  src={mediaPreviewUrl}
+                  alt="Selected media"
+                  class="w-full object-cover rounded-md"
+                />
+              {/if}
+              <Button
+                variant="ghost"
+                on:click={removeSelectedMedia}
+                class="text-muted-primary bg-muted-foreground h-18 w-18 hover:text-foreground rounded-full absolute top-2 right-2 p-1"
+              >
+                <X />
+              </Button>
+            </div>
+          {/if}
+        </div>
+      </div>
+      <input
+        type="file"
+        accept="image/*, video/*"
+        bind:this={fileInput}
+        class="hidden"
+        on:change={handleFileChange}
+      />
+    </form>
+    <Separator />
+    <Dialog.Footer>
+      <div class="w-full flex flex-row justify-between">
+        <Button
+          type="button"
+          variant="ghost"
+          on:click={handleMediaButtonClick}
+          class="text-primary hover:bg-primary/10 rounded-full"
+        >
+          <Image size={24} />
+        </Button>
         <Button
           type="submit"
-          class="w-full py-2 px-4 bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition duration-200"
+          on:click={handleSubmit}
+          class="bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition duration-200 text-md"
           disabled={isLoading || (!content && !selectedMedia)}
         >
           {isLoading ? "Posting..." : "Post"}
         </Button>
-      </form>
-    </div>
-  </div>
-{/if}
+      </div>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>
