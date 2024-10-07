@@ -114,7 +114,6 @@
             </HoverCard.Root>
             <p class="text-muted-foreground text-sm">
                 @{data.Profile.display_name}
-                @{data.Profile.display_name}
             </p>
         </div>
     </div>

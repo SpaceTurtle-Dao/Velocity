@@ -5,7 +5,7 @@
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { currentUser, userEvents } from "$lib/stores/profile.store";
-  import type { Tag } from "$lib/models/Tag";
+  import type { Tag } from "$lib/models/Tags";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
@@ -28,17 +28,24 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Separator } from "$lib/components/ui/separator/index.js";
+  import DialogFooter from "$lib/components/ui/dialog/dialog-footer.svelte";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
   let isLoading = false;
+  let dialogOpen = false;
 
   const dispatch = createEventDispatcher();
 
-  function closeModal() {
-    dispatch("close");
+  function clearFields() {
+    content = "";
+    selectedMedia = null;
+    mediaPreviewUrl = null;
+    if (fileInput) {
+      fileInput.value = "";
+    }
   }
 
   function handleMediaButtonClick() {
@@ -61,12 +68,6 @@
     if (fileInput) {
       fileInput.value = "";
     }
-  }
-
-  function wait(milliseconds: number) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, milliseconds);
-    });
   }
 
   async function handleSubmit() {
@@ -100,35 +101,25 @@
     console.log("///FETCHING EVENTS///");
     //fetchEvents($currentUser.Process, _filters);
     isLoading = false;
-    closeModal();
+    dialogOpen = false;
   }
 
-  /*onMount(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  });*/
-
-  /*
-  
-    
-  */
+  $: if (dialogOpen === false) {
+    clearFields();
+  }
 </script>
 
-<Dialog.Root>
+<Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger
     class="w-full h-13 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
   >
     <Plus class="w-5 h-5 mr-2" />
-    Post</Dialog.Trigger
-  >
+    Post
+  </Dialog.Trigger>
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
-      <Dialog.Title></Dialog.Title>
-      <Dialog.Description></Dialog.Description>
+      <Dialog.Title>Create a Post</Dialog.Title>
+      <Dialog.Description>Share what's on your mind</Dialog.Description>
     </Dialog.Header>
     <form on:submit|preventDefault={handleSubmit}>
       <div class="flex">
