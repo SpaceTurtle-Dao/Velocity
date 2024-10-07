@@ -1,37 +1,32 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import Router from "svelte-spa-router";
-  import { link } from "svelte-spa-router";
-  import "./app.css";
-  import CreatePostModal from "$lib/components/CreatePost.svelte";
-  import {
-    Home as HomeIcon,
-    Search,
-    Bell,
-    User,
-    MoreHorizontal,
-    Plus,
-    Zap,
-    Edit,
-    Mail,
-  } from "lucide-svelte";
-  import Profile from "$lib/components/views/profile/Profile.svelte";
-  import { currentUser, isConnected, user } from "./lib/stores/profile.store";
-  import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-  } from "$lib/components/ui/avatar";
-  import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
-  import RelayButtons from "$lib/components/Relay.svelte";
-  import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
-  import ConnectWalletButton from "$lib/components/wallet.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import { fetchFeed, info, relay, relays } from "$lib/ao/relay";
-  import UserList from "$lib/components/UserList.svelte";
-  import type { UserInfo } from "$lib/models/Profile";
-  import { users } from "$lib/stores/main.store";
-  import Feed from "$lib/components/views/feed/Feed.svelte";
+    import { onMount } from "svelte";
+    import Router from "svelte-spa-router";
+    import { link } from "svelte-spa-router";
+    import "./app.css";
+    import CreatePostModal from "$lib/components/CreatePost.svelte";
+
+    import {
+        Home as HomeIcon,
+        Search,
+        Bell,
+        User,
+        MoreHorizontal,
+        Plus,
+        Zap,
+        Edit,
+        LayoutDashboard,
+        Mail,
+    } from "lucide-svelte";
+
+    import Profile from "$lib/components/views/profile/Profile.svelte";
+    import { currentUser, isConnected, user } from "./lib/stores/profile.store";
+    import {
+        Avatar,
+        AvatarFallback,
+        AvatarImage,
+    } from "$lib/components/ui/avatar";
+
+
 
     let isCreatePostModalOpen = false;
     let _isConnected = false;
