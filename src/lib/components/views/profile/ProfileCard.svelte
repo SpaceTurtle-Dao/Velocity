@@ -6,6 +6,7 @@
     import { onMount } from "svelte";
     import * as Card from "$lib/components/ui/card";
     import * as HoverCard from "$lib/components/ui/hover-card";
+    import { link } from "svelte-spa-router";
 
     export let data: UserInfo;
     let textWithUrl = "";
@@ -62,13 +63,14 @@
         </Avatar.Root>
         <div class="grid gap-1">
             <HoverCard.Root>
-                <HoverCard.Trigger
-                    href="https://github.com/sveltejs"
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    class="rounded-sm underline-offset-4 hover:underline focus-visible:outline-0 focus-visible:outline-offset-8 focus-visible:outline-transparent"
-                >
-                    {data.Profile.name}
+                <HoverCard.Trigger>
+                    <a
+                        href="/profile/{data.Process}"
+                        use:link
+                        class="rounded-sm underline-offset-4 hover:underline focus-visible:outline-0 focus-visible:outline-offset-8 focus-visible:outline-transparent"
+                    >
+                        {data.Profile.name}
+                    </a>
                 </HoverCard.Trigger>
                 <HoverCard.Content class="w-80 border border-border rounded">
                     <div class="flex space-x-4">
