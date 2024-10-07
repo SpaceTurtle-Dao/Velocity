@@ -307,13 +307,13 @@
 {/if}
 <!-- Modal for UpdateProfile -->
 {#if showModal}
-  <div
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    on:click={toggleModal}
-  >
-    <div class="rounded-lg p-6 max-w-2xl w-full" on:click|stopPropagation>
-      <UpdateProfile />
-      <Button class="mt-4 rounded" on:click={toggleModal}>Close</Button>
+    <div
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      on:click={toggleModal}
+    >
+      <div class="rounded-lg p-6 max-w-2xl w-full" on:click|stopPropagation>
+        <UpdateProfile initialProfile={userInfo.Profile} on:profileUpdated={toggleModal} />
+        <Button class="mt-4 rounded" on:click={toggleModal}>Close</Button>
+      </div>
     </div>
-  </div>
 {/if}
