@@ -1,17 +1,14 @@
 import type { Meme } from "$lib/models/Meme";
-import type { Profile } from "$lib/models/Profile";
+import type { Profile, UserInfo } from "$lib/models/Profile";
 import { writable } from "svelte/store";
 
-
-const anon = {
-  Image: "mc5xNGMpBSqoQ3pWCyYUstQKb6IOIH6BTsa4suvIe-o",
-  CreatedAt: 0,
-  Name: "anon",
-  Creator: "anon",
-}
 export const userRelay = writable<string>();
-export const currentUser = writable<Profile>(anon);
-export const profileMemes = writable<Meme[]>([]);
+export const isConnected = writable<boolean>(false);
+export const currentUser = writable<UserInfo>();
+export const user = writable<UserInfo>();
+export const followers = writable<Array<string>>([]);
+export const userEvents = writable<Array<Event>>([]);
+export const feedEvents = writable<Array<Event>>([]);
 
 
 // User Data Store

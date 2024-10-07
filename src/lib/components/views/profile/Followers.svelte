@@ -1,68 +1,39 @@
 <script lang="ts">
-import { eventsStore, type EventsStoresData } from '$lib/models/Event';
+  import { followers } from "$lib/stores/profile.store";
+  import { profileFromEvent, type UserInfo } from "$lib/models/Profile";
+  import ProfileCard from "./ProfileCard.svelte";
+  import { info } from "$lib/ao/relay";
 
-let events: EventsStoresData;
-export let followers = [];
+  let userProfiles: Array<UserInfo> = [];
 
-//@ts-ignore
-eventsStore.subscribe(value => {
-  events = value;
-});
+  followers.subscribe(async (_followers) => {
+    let temp:Array<UserInfo>  = []
+    for (var i = 0; i < _followers.length; i++) {
+      console.log("getting info for");
+      console.log(_followers[i]);
+      let userInfo: UserInfo = await info(_followers[i]);
+      console.log(userInfo);
+      temp.push(userInfo);
+    }
+    userProfiles = temp;
+    console.log("got followers");
+    console.log(userProfiles);
+  });
 
-function getActionFromTags(tags: string[][]): string {
-  const actionTag = tags.find(tag => tag[0] === 'Action');
-  return actionTag ? actionTag[1] : 'Unknown';
-}
+  function formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleString();
+  }
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleString();
-}
-
+  function toUrl(tx: string) {
+    return (
+      "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
+      tx
+    );
+  }
 </script>
 
-<div class="events-list">
-  <h1>Events</h1>
-  {#each events as event (event.id)}
-    <div class="event-item">
-      <h2>{getActionFromTags(event.tags)}</h2>
-      <p>{event.content}</p>
-      <small>Created at: {formatDate(event.created_at)} by {event.pubkey}</small>
-    </div>
+<div class="flex flex-col space-y-2">
+  {#each userProfiles as userProfile}
+    <ProfileCard data={userProfile} />
   {/each}
-</div>
-
-<style>
-.events-list {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.event-item {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-h1 {
-  text-align: center;
-}
-
-h2 {
-  margin-top: 0;
-}
-
-small {
-  color: #666;
-}
-</style>
-
-
-<div class="p-4 bg-white rounded-lg shadow-md">
-  <h2 class="text-2xl font-bold text-purple-600 mb-4">Followers</h2>
-  <ul class="space-y-2">
-    {#each followers as follower}
-      <li class="p-3 bg-gray-100 rounded-lg shadow-sm">{follower}</li>
-    {/each}
-  </ul>
 </div>

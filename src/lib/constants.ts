@@ -1,13 +1,28 @@
 export function INDEXER_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "79kMURJhUHBJYb3-sqMjkIRoxQ8qTgWVZMCdHm4wFNM";
+            return "VU_wocPzsgUfGmWqMwLkJ8cCSsQTJe3K2ZIiz85KO7A";
         }
         case "staging": {
-            return "79kMURJhUHBJYb3-sqMjkIRoxQ8qTgWVZMCdHm4wFNM";
+            return "VU_wocPzsgUfGmWqMwLkJ8cCSsQTJe3K2ZIiz85KO7A";
         }
         case "production": {
-            return "79kMURJhUHBJYb3-sqMjkIRoxQ8qTgWVZMCdHm4wFNM";
+            return "VU_wocPzsgUfGmWqMwLkJ8cCSsQTJe3K2ZIiz85KO7A";
+        }
+    }
+    return "";
+}
+
+export function RELAY_MESSAGE_ID(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "xF1cmzb4QKkPXxxt-k--sHjhs7EUoK7xJ1nQ6xGcul0";
+        }
+        case "staging": {
+            return "xF1cmzb4QKkPXxxt-k--sHjhs7EUoK7xJ1nQ6xGcul0";
+        }
+        case "production": {
+            return "xF1cmzb4QKkPXxxt-k--sHjhs7EUoK7xJ1nQ6xGcul0";
         }
     }
     return "";
