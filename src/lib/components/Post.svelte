@@ -2,13 +2,7 @@
     import * as Avatar from "$lib/components/ui/avatar/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Card from "$lib/components/ui/card/index.js";
-    import {
-        MessageCircle,
-        Repeat2,
-        Heart,
-        Share,
-        HandCoins,
-    } from "lucide-svelte";
+    import { MessageCircle, Repeat2, Heart, HandCoins } from "lucide-svelte";
     import {
         profileFromEvent,
         type Profile,
@@ -18,6 +12,11 @@
     import { user } from "$lib/stores/profile.store";
     import { onMount } from "svelte";
     import { info } from "$lib/ao/relay";
+    import Like from "$lib/components/views/engagement/Like.svelte";
+    import Reply from "$lib/components/views/engagement/Reply.svelte";
+    import Repost from "$lib/components/views/engagement/Repost.svelte";
+    import Buy from "$lib/components/views/engagement/Buy.svelte";
+    import Share from "$lib/components/views/engagement/Share.svelte";
 
     export let event: any;
     let _user: UserInfo;
@@ -107,66 +106,33 @@
 
 {#if _user}
     <div class="pl-5 pt-5 pr-5">
-        <div class="flex justify-start space-x-2">
-            <Avatar.Root class="hidden h-9 w-9 sm:flex">
-                {#if _user.Profile.name}
-                    <Avatar.Image src={profile.picture} alt="Avatar" />
-                {/if}
-                <Avatar.Fallback>OM</Avatar.Fallback>
-            </Avatar.Root>
-            <div>
-                <div class="flex space-x-1">
-                    <p class="font-medium text-primary h-5">
-                        {profile.name}
-                    </p>
-                    <p class="text-gray-500">
-                        <!--{formatDate(_user.Profile.created_at)}-->
-                    </p>
+        <div>
+            <div class="flex justify-start space-x-2">
+                <Avatar.Root class="hidden h-9 w-9 sm:flex">
+                    {#if _user.Profile.name}
+                        <Avatar.Image src={profile.picture} alt="Avatar" />
+                    {/if}
+                    <Avatar.Fallback>OM</Avatar.Fallback>
+                </Avatar.Root>
+                <div>
+                    <div class="flex space-x-1">
+                        <p class="font-medium text-primary h-5">
+                            {profile.name}
+                        </p>
+                        <p class="text-gray-500">
+                            <!--{formatDate(_user.Profile.created_at)}-->
+                        </p>
+                    </div>
+                    <Nip92 {event} />
                 </div>
-                <Nip92 {event} />
             </div>
-        </div>
-
-        <div class="flex justify-between pl-8 py-2">
-            <Button
-                variant="link"
-                size="icon"
-                class="text-primary hover:bg-secondary rounded rounded-full"
-                on:click={reply}
-            >
-                <MessageCircle strokeWidth={0.8} />
-            </Button>
-            <Button
-                variant="link"
-                size="icon"
-                class="text-primary hover:bg-secondary rounded rounded-full"
-                on:click={repost}
-            >
-                <Repeat2 strokeWidth={0.8} />
-            </Button>
-            <Button
-                variant="link"
-                size="icon"
-                class="text-primary hover:bg-secondary rounded rounded-full"
-                on:click={like}
-            >
-                <Heart strokeWidth={0.8} />
-            </Button>
-            <Button
-                variant="link"
-                size="icon"
-                class="text-primary hover:bg-secondary rounded rounded-full"
-            >
-                <HandCoins strokeWidth={0.5} />
-            </Button>
-            <Button
-                variant="link"
-                size="icon"
-                class="text-primary hover:bg-secondary rounded rounded-full"
-                on:click={share}
-            >
-                <Share strokeWidth={0.8} />
-            </Button>
+            <div class="flex justify-between py-2 px-10">
+                <Reply />
+                <Repost />
+                <Like />
+                <Buy />
+                <Share />
+            </div>
         </div>
     </div>
 {/if}
