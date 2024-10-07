@@ -49,11 +49,11 @@
        });
 
        async function fetchRelays() {
-              let _relays = await relays("1", "10");
-              for (let i = 0; i < _relays.length; i++) {
-                     let _i = await info(_relays[i].relay);
-                     profilesStore.addProfile(_i);
-              }
+              // let _relays = await relays("1", "10");
+              // for (let i = 0; i < _relays.length; i++) {
+              //        let _i = await info(_relays[i].relay);
+              //        profilesStore.addProfile(_i);
+              // }
               console.log("done");
               console.log(allProfiles.length);
        }
@@ -277,8 +277,6 @@
                                                                userRelay={profile
                                                                       .Profile
                                                                       .pubkey}
-                                                               token={profile.Token}
-                                                               quantity={profile.SubscriptionCost.toString()}
                                                                >Subscribe</Follow
                                                         >
                                                  {/if}
