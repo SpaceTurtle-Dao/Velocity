@@ -18,6 +18,7 @@
     import { user } from "$lib/stores/profile.store";
     import { onMount } from "svelte";
     import { info } from "$lib/ao/relay";
+    import ReplyModal from '$lib/components/Reply/ReplyModal.svelte';
 
     export let event: any;
     let _user: UserInfo;
@@ -26,6 +27,8 @@
     let p: string;
     let q: string;
     let relay: string;
+
+    let isReplyModalOpen = false;
 
     function formatDate(dateString: number): string {
         return new Date(dateString).toLocaleTimeString();
@@ -41,7 +44,15 @@
     function repost() {}
     function like() {}
     function share() {}
-    function reply() {}
+    function reply() {
+        isReplyModalOpen = true;
+        console.log("reply");
+    }
+
+    function handleReplySubmit(replyText: string) {
+        console.log("Submitted Reply: ", replyText);
+        isReplyModalOpen = false;
+    }
 
     function parseTags() {
         if (event.Tags["e"]) {
@@ -69,7 +80,6 @@
         console.log(_user);
         console.log(profile);
     });
-
     /*
     {#if event.kind == 6}
         {#if e && p && relay && q}
@@ -169,4 +179,13 @@
             </Button>
         </div>
     </div>
+
+    <ReplyModal
+        bind:isOpen={isReplyModalOpen} 
+        originalPost={{ author: profile.name, content: profile.about || "", avatar: profile.picture || "", event: event }}
+        currentUser={{ name: profile.name , avatar: profile.picture || "" }}
+        on:close={() => isReplyModalOpen = false}
+        on:submit={(e) => handleReplySubmit(e.detail)} 
+    />
+
 {/if}
