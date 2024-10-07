@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
-  import { Textarea } from "./ui/textarea";
+  import { Textarea } from "$lib/components/ui/textarea";
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { currentUser, userEvents } from "$lib/stores/profile.store";
@@ -28,7 +28,6 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Separator } from "$lib/components/ui/separator/index.js";
-  import DialogFooter from "./ui/dialog/dialog-footer.svelte";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
