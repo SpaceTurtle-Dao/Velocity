@@ -29,19 +29,7 @@
     function formatDate(dateString: number): string {
         return new Date(dateString).toLocaleTimeString();
     }
-
-    function toUrl(tx: string) {
-        return (
-            "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
-            tx
-        );
-    }
-
-    function repost() {}
-    function like() {}
-    function share() {}
-    function reply() {}
-
+    
     function parseTags() {
         if (event.Tags["e"]) {
             relay = event.Tags["e"];
@@ -129,7 +117,7 @@
             <div class="flex justify-between py-2 px-10">
                 <Reply />
                 <Repost />
-                <Like />
+                <Like id={event.Id} pubkey={event.From}/>
                 <Buy />
                 <Share />
             </div>
