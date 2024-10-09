@@ -105,7 +105,7 @@
 </script>
 
 <Button
-    class="w-44 h-12 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
+    class="items-center text-black w-3/4 text-secondary"
     on:click={connectWallet}
 >
     {#if isLoading}

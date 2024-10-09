@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Router from "svelte-spa-router";
-  import { push } from "svelte-spa-router";
-  import { link } from "svelte-spa-router";
+  import { push, link } from "svelte-spa-router";
   import "./app.css";
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import {
@@ -26,81 +25,59 @@
   import Feed from "$lib/components/views/feed/Feed.svelte";
   import IndividualProfile from "$lib/components/views/profile/IndividualProfile.svelte";
   import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
+  import Spinner from "$lib/components/spinners/Spinner.svelte";
 
   let isCreatePostModalOpen = false;
-  let _isConnected = false;
-  let _currentUser: UserInfo;
+  let isLoading = true;
 
-  isConnected.subscribe((value) => {
-    _isConnected = value;
-    if (value && window.location.hash === "#/") {
-      window.location.hash = "#/feed";
-    }
-  });
-
-  currentUser.subscribe((value) => {
-    _currentUser = value;
-  });
+  $: _isConnected = $isConnected;
+  $: _currentUser = $currentUser;
 
   async function fetchPost() {
-    let filters: Array<any> = [];
-    console.log("Fetching Post");
     if ($currentUser) {
-      let filter = {
+      let filters = [{
         kinds: ["1"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-      };
-      filters.push(filter);
+      }];
       let _filters = JSON.stringify(filters);
-      if ($currentUser) {
-        fetchFeed($currentUser.Process, _filters);
-        fetchEvents($currentUser.Process, _filters);
-      }
+      await fetchFeed($currentUser.Process, _filters);
+      await fetchEvents($currentUser.Process, _filters);
     }
   }
 
   async function checkWalletConnection() {
     if (window.arweaveWallet) {
       try {
-        console.log("////////GETTING WALLET/////////////");
         const address = await window.arweaveWallet.getActiveAddress();
         if (address) {
-          _isConnected = true;
           isConnected.set(true);
           let _relay = await relay(address);
-          console.log("USER RELAY");
-          console.log(_relay);
           if (_relay) {
             let _currentUser = await info(_relay);
             currentUser.set(_currentUser);
             user.set(_currentUser);
             await fetchPost();
+            push('/feed');
           }
         }
       } catch (error) {
         console.error("Failed to get active address:", error);
-        _isConnected = false;
         isConnected.set(false);
-        push("/"); // Redirect to landing page
       }
     }
+    isLoading = false;
   }
 
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
     { icon: User, label: "Profile", href: "/profile" },
-    { icon: Mail, label: "Messages", href: "/message" },
+    { icon: Mail, label: "Messages", href: "/messages" },
   ];
 
   function toggleCreatePostModal() {
-    console.log("making post");
     isCreatePostModalOpen = !isCreatePostModalOpen;
-  }
-
-  async function handlePostSubmit(event: CustomEvent) {
-    console.log("New post submitted:", event.detail.content);
   }
 
   const routes = {
@@ -114,10 +91,18 @@
   onMount(async () => {
     await checkWalletConnection();
   });
+
+  function handleConnect() {
+    checkWalletConnection();
+  }
 </script>
 
-{#if !_isConnected}
-  <Router {routes} />
+{#if isLoading}
+  <div class="flex items-center justify-center h-screen bg-background">
+    <Spinner />
+  </div>
+{:else if !_isConnected}
+  <LandingPage on:connect={handleConnect} />
 {:else}
   <div class="bg-background h-screen">
     <div class="flex w-full bg-background justify-center">
@@ -154,7 +139,7 @@
           {#if $currentUser == null || $currentUser == undefined}
             <CreateProfile />
           {:else}
-            <CreatePostModal/>
+            <CreatePostModal bind:isOpen={isCreatePostModalOpen} />
           {/if}
           {#if _currentUser}
             <div class="p-4">

@@ -2,24 +2,32 @@
   import { Button } from "$lib/components/ui/button";
   import backgroundImage from '../../../../assets/Logo.png';
   import ConnectWalletButton from "$lib/components/wallet/wallet.svelte";
-  import { isConnected } from "$lib/stores/profile.store";
+  import { isConnected, currentUser } from "$lib/stores/profile.store";
   import { onMount } from "svelte";
+  import { push } from "svelte-spa-router";
 
   let connectionError = false;
 
   onMount(() => {
     const unsubscribe = isConnected.subscribe(value => {
-      if (!value) {
+      if (value) {
+        // If connected, route to the feed
+        push('/feed');
+      } else {
         connectionError = true;
       }
     });
 
     return unsubscribe;
   });
+
+  function handleConnect() {
+    // This function will be called when the wallet is successfully connected
+    push('/feed');
+  }
 </script>
 
 <div class="flex h-screen bg-background text-foreground">
-  <!-- Left side - Image and Text -->
   <div class="hidden lg:flex lg:w-1/2 relative">
     <div 
       class="absolute inset-0 bg-cover bg-center" 
@@ -43,10 +51,7 @@
       </div>
 
       <div class="mt-8 flex flex-col items-center justify-center">
-        <ConnectWalletButton buttonClass="items-center text-black w-3/4" />
-        {#if connectionError}
-          <p class="mt-4 text-red-500">Failed to connect. Please ensure you have the necessary permissions and try again.</p>
-        {/if}
+        <ConnectWalletButton buttonClass="items-center text-black w-3/4" on:connect={handleConnect} />
       </div>
 
       <p class="mt-4 text-center text-sm text-muted-foreground">
