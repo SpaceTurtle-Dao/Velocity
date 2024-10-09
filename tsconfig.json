@@ -16,12 +16,8 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "paths": {
-      "$lib": [
-        "./src/lib"
-      ],
-      "$lib/*": [
-        "./src/lib/*"
-      ]
+      "$lib": ["./src/lib"],
+			"$lib/*": ["./src/lib/*"],
     }
   },
   "include": [
@@ -29,5 +25,5 @@
     "src/**/*.js",
     "src/**/*.svelte"
   ],
-  // "references": [{ "path": "./tsconfig.node.json" }]
+  //"references": [{ "path": "./tsconfig.node.json" }]
 }
