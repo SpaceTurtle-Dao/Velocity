@@ -25,14 +25,18 @@ import { users } from "$lib/stores/main.store";
 import type { Tag } from "$lib/models/Tag";
 import type { Relay } from "$lib/models/Relay";
 
+function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export const event = async (
-    tags:Array<Tag>,
+    tags: Array<Tag>,
     relay: string
 ) => {
-    const actionTag:Tag = {
-        name:"Action",
-        value:"Event"
-      }
+    const actionTag: Tag = {
+        name: "Action",
+        value: "Event"
+    }
     tags.push(actionTag)
     try {
         console.log("***TAGS***")
@@ -121,11 +125,12 @@ export const spawnRelay = async () => {
         _relay = await createProcess();
         console.log("Got Process")
         console.log(_relay)
-        await send(_relay,message,module)
+        await send(_relay, message, module)
         return _relay
     } catch (e) {
         console.log(e);
     }
+    await sleep(1000);
     return _relay
 };
 
@@ -138,7 +143,7 @@ export const fetchFeed = async (relay: string, filters: string) => {
         let result = await read(relay, message);
         let json = JSON.parse(result.Data);
         console.log(json)
-        if (result){
+        if (result) {
             feedEvents.set(json)
         }
     } catch (e) {
@@ -163,6 +168,26 @@ export const fetchEvents = async (relay: string, filters: string) => {
         };
     } catch (e) {
         console.log(e);
+    }
+};
+
+export const _fetchEvents = async (relay: string, filters: string) => {
+    try {
+        // @ts-ignore
+        let message = FetchEvents(filters);
+        let result = await read(relay, message);
+        if (result) {
+            console.log(result);
+            let json = JSON.parse(result.Data);
+            console.log("***Filters***")
+            console.log(JSON.parse(filters));
+            console.log("***Got Events***")
+            console.log(json);
+            return json
+        };
+    } catch (e) {
+        console.log(e);
+        throw(e)
     }
 };
 
@@ -265,7 +290,7 @@ export async function relays(page: string, size: string) {
         let userRelays: Array<Relay> = JSON.parse(result.Data);
         for (var i = 0; i < userRelays.length; i++) {
             let userProfile = await info(userRelays[i].relay)
-            if(userProfile){
+            if (userProfile) {
                 userProfiles.push(userProfile)
             }
         }
