@@ -48,28 +48,6 @@
 	}
 
 	// @ts-ignore
-	/*export const sendData = async (processId, tags, data) => {
-	console.log("Sending message to: " + processId)
-	// The only 2 mandatory parameters here are process and signer
-	// connect to the extension
-	// @ts-ignore
-	let messageId = await message({
-
-		process: processId,
-
-		// Tags that the process will use as input.
-		tags: tags,
-		data: data,
-		// A signer function used to build the message "signature"
-		// @ts-ignore
-		signer: createDataItemSigner(window.arweaveWallet)
-	});
-	console.log(messageId);
-	return await readMessage(messageId, processId);
-	//return result
-};*/
-
-	// @ts-ignore
 	export const read = async (processId, tags) => {
 		// The only 2 mandatory parameters here are process and signer
 		// connect to the extension

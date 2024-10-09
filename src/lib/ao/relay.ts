@@ -25,6 +25,10 @@ import { users } from "$lib/stores/main.store";
 import type { Tag } from "$lib/models/Tag";
 import type { Relay } from "$lib/models/Relay";
 
+function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export const event = async (
     tags: Array<Tag>,
     relay: string
@@ -126,6 +130,7 @@ export const spawnRelay = async () => {
     } catch (e) {
         console.log(e);
     }
+    await sleep(1000);
     return _relay
 };
 
@@ -163,6 +168,26 @@ export const fetchEvents = async (relay: string, filters: string) => {
         };
     } catch (e) {
         console.log(e);
+    }
+};
+
+export const _fetchEvents = async (relay: string, filters: string) => {
+    try {
+        // @ts-ignore
+        let message = FetchEvents(filters);
+        let result = await read(relay, message);
+        if (result) {
+            console.log(result);
+            let json = JSON.parse(result.Data);
+            console.log("***Filters***")
+            console.log(JSON.parse(filters));
+            console.log("***Got Events***")
+            console.log(json);
+            return json
+        };
+    } catch (e) {
+        console.log(e);
+        throw(e)
     }
 };
 

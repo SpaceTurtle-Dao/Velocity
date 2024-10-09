@@ -17,6 +17,8 @@
     import Repost from "$lib/components/views/engagement/Repost.svelte";
     import Buy from "$lib/components/views/engagement/Buy.svelte";
     import Share from "$lib/components/views/engagement/Share.svelte";
+    import ReplyModal from '$lib/components/Reply/ReplyModal.svelte';
+
 
     export let event: any;
     let _user: UserInfo;
@@ -26,10 +28,17 @@
     let q: string;
     let relay: string;
 
+    let isReplyModalOpen = false;
+
     function formatDate(dateString: number): string {
         return new Date(dateString).toLocaleTimeString();
     }
-    
+
+    function handleReplySubmit(replyText: string) {
+        console.log("Submitted Reply: ", replyText);
+        isReplyModalOpen = false;
+    }
+
     function parseTags() {
         if (event.Tags["e"]) {
             relay = event.Tags["e"];
@@ -56,7 +65,6 @@
         console.log(_user);
         console.log(profile);
     });
-
     /*
     {#if event.kind == 6}
         {#if e && p && relay && q}
@@ -117,10 +125,19 @@
             <div class="flex justify-between py-2 px-10">
                 <Reply />
                 <Repost />
-                <Like id={event.Id} pubkey={event.From}/>
+                <Like id={event.Id} pubkey={event.From} timestamp={event.timestamp}/>
                 <Buy />
                 <Share />
             </div>
         </div>
     </div>
+
+    <ReplyModal
+        bind:isOpen={isReplyModalOpen} 
+        originalPost={{ author: profile.name, content: profile.about || "", avatar: profile.picture || "", event: event }}
+        currentUser={{ name: profile.name , avatar: profile.picture || "" }}
+        on:close={() => isReplyModalOpen = false}
+        on:submit={(e) => handleReplySubmit(e.detail)} 
+    />
+
 {/if}

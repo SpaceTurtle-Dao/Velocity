@@ -4,10 +4,10 @@
         walletAddress,
         setWalletAddress,
         clearWalletAddress,
-    } from "../stores/walletStore";
-    import SmallSpinner from "$lib/components/smallSpinner.svelte";
+    } from "../../stores/walletStore";
+    import SmallSpinner from "$lib/components/spinners/smallSpinner.svelte";
     import { relay, info, relays } from "$lib/ao/relay";
-    import { currentUser, isConnected, user, userRelay } from "../stores/profile.store";
+    import { currentUser, isConnected, user, userRelay } from "$lib/stores/profile.store";
     import { Button } from "$lib/components/ui/button";
     export let buttonClass = "";
 

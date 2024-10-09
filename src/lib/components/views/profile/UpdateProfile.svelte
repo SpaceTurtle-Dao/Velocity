@@ -1,17 +1,19 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { z } from 'zod';
   import type { Profile, UserInfo } from '$lib/models/Profile';
-  import { currentUser, user, userRelay } from '$lib/stores/profile.store';
+  import { currentUser, user } from '$lib/stores/profile.store';
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import { Textarea } from "$lib/components/ui/textarea";
   import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
   import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
-  import { Camera, X } from 'lucide-svelte';
-    import { event, info } from '$lib/ao/relay';
-    import { upload } from '$lib/ao/uploader';
+  import { Camera } from 'lucide-svelte';
+  import { event, info } from '$lib/ao/relay';
+  import { upload } from '$lib/ao/uploader';
+
+  export let initialProfile: Profile;
 
   // Zod schema for profile validation
   const profileSchema = z.object({
@@ -27,13 +29,13 @@
   type ProfileSchemaType = z.infer<typeof profileSchema>;
 
   let profile: ProfileSchemaType = {
-    name: '',
-    display_name: '',
-    about: '',
-    picture: '',
-    website: '',
-    banner: '',
-    bot: false,
+    name: initialProfile.name || '',
+    display_name: initialProfile.display_name || '',
+    about: initialProfile.about || '',
+    picture: initialProfile.picture || '',
+    website: initialProfile.website || '',
+    banner: initialProfile.banner || '',
+    bot: initialProfile.bot || false,
   };
 
   let userInfo: UserInfo;
@@ -67,7 +69,7 @@
     }
   }
 
-  async function createProfile() {
+  async function updateProfile() {
     try {
       profileSchema.parse(profile);
       errors = {};
@@ -91,16 +93,17 @@
         bot: profile.bot,
       });
 
-      const tags =  [{ name: "Kind", value: "0" }, { name: "Content", value: content }]
+      const tags = [{ name: "Kind", value: "0" }, { name: "Content", value: content }];
       
       try {
-        const result = await event(tags,$currentUser.Process)
-        let _currentUser = await info(userInfo.Process)
-        currentUser.set(_currentUser)
-        user.set(_currentUser)
-        console.log('Profile created successfully:', result);
+        const result = await event(tags, $currentUser.Process);
+        let _currentUser = await info(userInfo.Process);
+        currentUser.set(_currentUser);
+        user.set(_currentUser);
+        console.log('Profile updated successfully:', result);
+        dispatch('profileUpdated');
       } catch (error) {
-        console.error('Error creating profile:', error);
+        console.error('Error updating profile:', error);
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -110,6 +113,10 @@
       }
     }
   }
+
+  onMount(() => {
+    // If you need to do any initialization with the initial profile data
+  });
 </script>
 
 <div class="mx-auto max-w-2xl p-4">
@@ -118,8 +125,8 @@
       <CardTitle>Update Your Profile</CardTitle>
     </CardHeader>
     <CardContent>
-      <form on:submit|preventDefault={createProfile} class="space-y-6">
-        <div class="relative mb-16"> <!-- Increased bottom margin -->
+      <form on:submit|preventDefault={updateProfile} class="space-y-6">
+        <div class="relative mb-16">
           <div class="h-32 bg-gray-200 relative">
             {#if profile.banner}
               <img src={profile.banner} alt="Banner" class="w-full h-full object-cover" />
@@ -135,7 +142,7 @@
               on:change={(e) => handleFileChange(e, 'banner')} 
             />
           </div>
-          <div class="absolute bottom-0 left-4 transform translate-y-1/3"> <!-- Changed from translate-y-1/2 to translate-y-1/3 -->
+          <div class="absolute bottom-0 left-4 transform translate-y-1/3">
             <div class="relative">
               <Avatar class="w-24 h-24 border-4 border-white">
                 <AvatarImage src={profile.picture} alt={profile.name} />
