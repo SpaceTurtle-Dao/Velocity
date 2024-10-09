@@ -123,7 +123,7 @@
                 </div>
             </div>
             <div class="flex justify-between py-2 px-10">
-                <Reply />
+                <Reply event={event} user={_user}/>
                 <Repost />
                 <Like id={event.Id} pubkey={event.From} timestamp={event.timestamp}/>
                 <Buy />
