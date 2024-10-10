@@ -1,7 +1,7 @@
 <script lang="ts">
   import { followers } from "$lib/stores/profile.store";
   import { profileFromEvent, type UserInfo } from "$lib/models/Profile";
-  import ProfileCard from "./ProfileCard.svelte";
+  import ProfileCard from "$lib/components/views/profile/ProfileCard.svelte";
   import { info } from "$lib/ao/relay";
 
   let userProfiles: Array<UserInfo> = [];

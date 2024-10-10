@@ -5,7 +5,7 @@
         user,
         feedEvents,
     } from "$lib/stores/profile.store";
-    import Post from "../../Post.svelte";
+    import Post from "../../posts/Post.svelte";
     import * as Tabs from "$lib/components/ui/tabs/index.js";
 
     import { onMount } from "svelte";

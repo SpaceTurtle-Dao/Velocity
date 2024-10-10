@@ -21,12 +21,9 @@
     type UserInfo,
   } from "$lib/models/Profile";
   import { currentUser, userEvents, user } from "../../../stores/profile.store";
-  import Post from "../../posts/Post.svelte";
-  import Followers from "../../Followers/Followers.svelte";
+  import Post from "$lib/components/posts/Post.svelte";
+  import Followers from "$lib/components/Followers/Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import { Separator } from "$lib/components/ui/separator";
   import {
     Users,
     LucideUserPlus,
@@ -34,107 +31,103 @@
     Link,
     CalendarDays,
   } from "lucide-svelte";
-  import { onMount } from "svelte";
-  import { fetchEvents, subs, subscriptions } from "$lib/ao/relay";
-  import UpdateProfile from "./UpdateProfile.svelte";
-  import Follow from "../../Follow/Follow.svelte";
+  import { onMount, afterUpdate } from "svelte";
+  import { fetchEvents, info, subs, subscriptions } from "$lib/ao/relay";
+  import Follow from "$lib/components/Follow/Follow.svelte";
   import UserList from "$lib/components/UserList/UserList.svelte";
   import Process from "$lib/ao/process.svelte";
+//   import { params } from "svelte-spa-router";
+
+  export let params: { process?: string } = {};
 
   let activeTab: string = "posts";
-  let userInfo: UserInfo;
+  let userInfo: UserInfo | null = null;
   let events: Array<Event> = [];
-  
-  let showModal = false;
   let textWithUrl = "";
-  // Get the <p> tag by ID
   let pTag: HTMLElement | null;
-  // Regular expression to find URLs in the string
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
-  user.subscribe((value) => {
-    let filters: Array<any> = [];
-    if (value) {
-      let filter = {
-        kinds: [1],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-      };
-      filters.push(filter);
-      userInfo = value;
-      let _filters = JSON.stringify(filters);
+  $: process = params.process || "";
+
+  async function loadUserData() {
+    if (process) {
+      userInfo = null; // Reset userInfo to trigger re-render
+      events = []; // Reset events
+      userInfo = await info(process);
       if (userInfo) {
-        document.getElementById(userInfo.Process);
-        fetchEvents(userInfo.Process, _filters);
-      }
-      if (userInfo.Profile.about) {
-        textWithUrl = userInfo.Profile.about;
+        await fetchUserData();
+        if (userInfo.Profile.about) {
+          textWithUrl = userInfo.Profile.about;
+          await processAboutText();
+        }
       }
     }
-    filters = [];
-  });
+  }
+
+  $: if (process) {
+    loadUserData();
+  }
+
+  async function fetchUserData() {
+    if (!userInfo) return;
+    let filters: Array<any> = [{
+      kinds: [1],
+      since: 1663905355000,
+      until: Date.now(),
+      limit: 100,
+    }];
+    let _filters = JSON.stringify(filters);
+    await fetchEvents(userInfo.Process, _filters);
+  }
 
   async function fetchMedia() {
-    let filters: Array<any> = [];
-    events = [];
-    if (userInfo) {
-      let filter = {
-        kinds: ["1"],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-        tags: {
-            imeta: [
-              "m image/apng",
-              "m image/avif",
-              "m image/gif",
-              "m image/jpeg",
-              "m image/png",
-              "m image/svg+xml",
-              "m image/webp",
-              "m video/x-msvideo",
-              "m video/mp4",
-              "m video/mpeg",
-              "m video/ogg",
-              "m video/webm",
-            ],
-          },
-      };
-      filters.push(filter);
-      let _filters = JSON.stringify(filters);
-      fetchEvents(userInfo.Process, _filters);
-    }
-    filters = [];
+    if (!userInfo) return;
+    let filters: Array<any> = [{
+      kinds: ["1"],
+      since: 1663905355000,
+      until: Date.now(),
+      limit: 100,
+      tags: {
+        imeta: [
+          "m image/apng",
+          "m image/avif",
+          "m image/gif",
+          "m image/jpeg",
+          "m image/png",
+          "m image/svg+xml",
+          "m image/webp",
+          "m video/x-msvideo",
+          "m video/mp4",
+          "m video/mpeg",
+          "m video/ogg",
+          "m video/webm",
+        ],
+      },
+    }];
+    let _filters = JSON.stringify(filters);
+    await fetchEvents(userInfo.Process, _filters);
   }
 
   async function fetchPost() {
-    let filters: Array<any> = [];
-    //events = [];
-    if (userInfo) {
-      let filter = {
-        kinds: ["1"],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-        tags: []
-      };
-      filters.push(filter);
-      let _filters = JSON.stringify(filters);
-      if (userInfo) {
-        fetchEvents(userInfo.Process, _filters);
-      }
-    }
-    filters = [];
+    if (!userInfo) return;
+    let filters: Array<any> = [{
+      kinds: ["1"],
+      since: 1663905355000,
+      until: Date.now(),
+      limit: 100,
+      tags: []
+    }];
+    let _filters = JSON.stringify(filters);
+    await fetchEvents(userInfo.Process, _filters);
   }
 
   async function fetchSubs() {
-    console.log("will get subs");
+    if (!userInfo) return;
     await subs(userInfo.Process, "1", "100");
   }
 
   async function fetchSubscriptions() {
-    console.log("will get subscriptions");
+    if (!userInfo) return;
     await subscriptions(userInfo.Process, "1", "100");
   }
 
@@ -150,34 +143,32 @@
     activeTab = tab;
   }
 
-  function toggleModal() {
-    showModal = !showModal;
-  }
-
-  onMount(async () => {
-    await fetchPost()
-    // Split the string into parts, keeping the URLs separate
+  async function processAboutText() {
+    if (!userInfo) return;
     const parts = textWithUrl.split(urlPattern);
-
-    // Loop over the parts and create text or links accordingly
-    parts.forEach((part) => {
-      if (pTag) {
+    pTag = document.getElementById(userInfo.Process);
+    if (pTag) {
+      pTag.innerHTML = ''; // Clear existing content
+      parts.forEach((part) => {
         if (urlPattern.test(part)) {
-          // If the part is a URL, create an <a> tag
           const linkElement = document.createElement("a");
           linkElement.className = "text-blue-400";
-          linkElement.href = part; // Set the href attribute
-          linkElement.textContent = part; // Set the text content
-          linkElement.target = "_blank"; // Open link in new tab
+          linkElement.href = part;
+          linkElement.textContent = part;
+          linkElement.target = "_blank";
           pTag?.appendChild(linkElement);
         } else {
-          // If the part is not a URL, append it as plain text
           pTag!.appendChild(document.createTextNode(part));
         }
-      }
-    });
+      });
+    }
+  }
+
+  afterUpdate(() => {
+    if (userInfo && userInfo.Profile.about) {
+      processAboutText();
+    }
   });
-  //transition-transform transform hover:scale-105 duration-300
 </script>
 
 {#if userInfo}
@@ -186,7 +177,6 @@
       class="mb-10 overflow-hidden shadow-lg rounded-lg border-border relative"
     >
       <div class="relative mb-10">
-        <!-- Increased bottom margin -->
         <div class="bg-gray-200 relative">
           {#if userInfo.Profile.banner}
             <img
@@ -199,7 +189,6 @@
           {/if}
         </div>
         <div class="absolute bottom-0 left-4 transform translate-y-1/3">
-          <!-- Changed from translate-y-1/2 to translate-y-1/3 -->
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
               {#if userInfo.Profile.picture}
@@ -218,20 +207,10 @@
         </div>
       </div>
 
-      <!-- Card Content with Blur Effect -->
       <CardContent>
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{userInfo.Profile.name}</p>
-          {#if userInfo.Process == $currentUser.Process}
-            <Button
-              variant="outline"
-              size="sm"
-              class="text-primary rounded rounded-full"
-              on:click={toggleModal}
-            >
-              Edit Profile
-            </Button>
-          {:else}
+          {#if $currentUser && userInfo.Process !== $currentUser.Process}
             <Follow relay={userInfo.Process} userRelay={$currentUser.Process} />
           {/if}
         </div>
@@ -241,7 +220,7 @@
           {#if userInfo.Profile.website}
             <div class="flex flex-row space-x-1 justify-end items-center">
               <Link size={16} />
-              <a class="text-blue-400" href={userInfo.Profile.website}
+              <a class="text-blue-400" href={userInfo.Profile.website} target="_blank" rel="noopener noreferrer"
                 >{userInfo.Profile.website}</a
               >
             </div>
@@ -305,16 +284,4 @@
       </Tabs.Content>
     </Tabs.Root>
   </div>
-{/if}
-<!-- Modal for UpdateProfile -->
-{#if showModal}
-    <div
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      on:click={toggleModal}
-    >
-      <div class="rounded-lg p-6 max-w-2xl w-full" on:click|stopPropagation>
-        <UpdateProfile initialProfile={userInfo.Profile} on:profileUpdated={toggleModal} />
-        <Button class="mt-4 rounded" on:click={toggleModal}>Close</Button>
-      </div>
-    </div>
 {/if}

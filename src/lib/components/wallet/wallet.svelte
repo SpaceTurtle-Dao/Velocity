@@ -4,10 +4,10 @@
         walletAddress,
         setWalletAddress,
         clearWalletAddress,
-    } from "../stores/walletStore";
-    import SmallSpinner from "$lib/components/smallSpinner.svelte";
+    } from "../../stores/walletStore";
+    import SmallSpinner from "$lib/components/spinners/smallSpinner.svelte";
     import { relay, info, relays } from "$lib/ao/relay";
-    import { currentUser, isConnected, user, userRelay } from "../stores/profile.store";
+    import { currentUser, isConnected, user, userRelay } from "$lib/stores/profile.store";
     import { Button } from "$lib/components/ui/button";
     export let buttonClass = "";
 
@@ -105,7 +105,7 @@
 </script>
 
 <Button
-    class="w-44 h-12 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
+    class="items-center text-black w-3/4 text-secondary"
     on:click={connectWallet}
 >
     {#if isLoading}

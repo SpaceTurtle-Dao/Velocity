@@ -2,7 +2,7 @@
     import { writable } from "svelte/store";
     import { onMount } from "svelte";
     import { Toaster } from "$lib/components/ui/sonner";
-    import WalletConnectButton from "$lib/components/wallet.svelte";
+    import WalletConnectButton from "$lib/components/wallet/wallet.svelte";
 
     let isMenuOpen = false;
 
