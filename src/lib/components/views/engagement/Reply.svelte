@@ -10,7 +10,6 @@
     import { Separator } from "$lib/components/ui/separator/index";
     import type { UserInfo } from "$lib/models/Profile";
     import { currentUser } from "$lib/stores/profile.store";
-    import { event as sendEvent } from "$lib/ao/relay";
 
     export let event: any;
     export let user: UserInfo;
@@ -18,27 +17,35 @@
     let count = 0;
     let replyText = "";
 
-    async function reply() {
-        if (!replyText.trim()) return;
+    function reply() {
+        let kind: Tag = {
+            name: "Kind",
+            value: "1",
+        };
 
-        const tags = [
-            { name: "e", value: event.Id },
-            { name: "p", value: event.From },
+        let e: Tag = {
+            name: "e",
+            value: event.Id,
+        };
+
+        let p: Tag = {
+            name: "p",
+            value: event.From,
+        };
+
+        let marker: Tag = {
+            name: "marker",
+            value: "reply",
+        };
+        let _tags: Array<Tag> = [
+            kind,
+            e,
+            p,
+            marker,
         ];
-
-        try {
-            await sendEvent(tags, $currentUser.Process);
-            console.log("Reply sent successfully to the backend");
-            replyText = "";
-            count++;
-            // Close the dialog after successful reply
-            Dialog.close();
-        } catch (error) {
-            console.error("Error sending reply:", error);
-        }
+        let _content = content;
     }
 </script>
-
 
 <Dialog.Root>
     <Dialog.Trigger>
@@ -64,12 +71,14 @@
                         src={user.Profile.picture}
                         alt={user.Profile.display_name}
                     />
-                    <Avatar.Fallback>{user.Profile.display_name}</Avatar.Fallback>
+                    <Avatar.Fallback
+                        >{user.Profile.display_name}</Avatar.Fallback
+                    >
                 </Avatar.Root>
                 <div class="flex-grow overflow-hidden">
                     <p class="font-semibold">{user.Profile.display_name}</p>
                     <div>
-                        <Nip92 event={event} />
+                        <Nip92 {event} />
                     </div>
                 </div>
             </div>
@@ -79,7 +88,9 @@
                         src={$currentUser.Profile.picture}
                         alt={$currentUser.Profile.display_name}
                     />
-                    <Avatar.Fallback>{$currentUser.Profile.display_name}</Avatar.Fallback>
+                    <Avatar.Fallback
+                        >{$currentUser.Profile.display_name}</Avatar.Fallback
+                    >
                 </Avatar.Root>
                 <div class="flex-grow">
                     <Input
