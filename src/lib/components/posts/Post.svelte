@@ -65,39 +65,6 @@
         console.log(_user);
         console.log(profile);
     });
-    /*
-    {#if event.kind == 6}
-        {#if e && p && relay && q}
-            <!--Quote-->
-            <div>
-                <Nip92 {event} />
-            </div>
-            <div class="border border-border rounded rounded-sm">
-                <Nip92 event={event2} />
-            </div>
-        {:else if e && p && relay}
-            <!--Repost-->
-            <div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-                <Repeat2 size={16} />
-                <span>Reposted</span>
-            </div>
-            <div>
-                <Nip92 event={event2} />
-            </div>
-        {/if}
-    {/if}
-    {#if event.kind == 1}
-        <!--Quote-->
-        <div class="pl-11 pr-11 pb-5 bg-blue-400">
-            <Nip92 {event} />
-        </div>
-        <div class="border border-border rounded rounded-sm p-5">
-            <div class="pl-11 pr-11 pb-5">
-                <Nip92 {event} />
-            </div>
-        </div>
-    {/if}
-    */
 </script>
 
 {#if _user}
@@ -131,13 +98,5 @@
             </div>
         </div>
     </div>
-
-    <ReplyModal
-        bind:isOpen={isReplyModalOpen} 
-        originalPost={{ author: profile.name, content: profile.about || "", avatar: profile.picture || "", event: event }}
-        currentUser={{ name: profile.name , avatar: profile.picture || "" }}
-        on:close={() => isReplyModalOpen = false}
-        on:submit={(e) => handleReplySubmit(e.detail)} 
-    />
 
 {/if}

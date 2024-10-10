@@ -10,15 +10,35 @@
     import { Separator } from "$lib/components/ui/separator/index";
     import type { UserInfo } from "$lib/models/Profile";
     import { currentUser } from "$lib/stores/profile.store";
+    import { event as sendEvent } from "$lib/ao/relay";
 
-    export let event:any;
-    export let user:UserInfo;
+    export let event: any;
+    export let user: UserInfo;
 
     let count = 0;
     let replyText = "";
 
-    function reply() {}
+    async function reply() {
+        if (!replyText.trim()) return;
+
+        const tags = [
+            { name: "e", value: event.Id },
+            { name: "p", value: event.From },
+        ];
+
+        try {
+            await sendEvent(tags, $currentUser.Process);
+            console.log("Reply sent successfully to the backend");
+            replyText = "";
+            count++;
+            // Close the dialog after successful reply
+            Dialog.close();
+        } catch (error) {
+            console.error("Error sending reply:", error);
+        }
+    }
 </script>
+
 
 <Dialog.Root>
     <Dialog.Trigger>
