@@ -158,12 +158,12 @@ export const fetchEvents = async (relay: string, filters: string) => {
         let message = FetchEvents(filters);
         let result = await read(relay, message);
         if (result) {
-            console.log(result);
+            //console.log(result);
             let json = JSON.parse(result.Data);
-            console.log("***Filters***")
+            /*console.log("***Filters***")
             console.log(JSON.parse(filters));
             console.log("***Got Events***")
-            console.log(json);
+            console.log(json);*/
             userEvents.set(json)
         };
     } catch (e) {
@@ -171,7 +171,8 @@ export const fetchEvents = async (relay: string, filters: string) => {
     }
 };
 
-export const _fetchEvents = async (relay: string, filters: string) => {
+export const _fetchEvents = async (relay: string, filters: string) : Promise<any[]> => {
+    let events:any[] = []
     try {
         // @ts-ignore
         let message = FetchEvents(filters);
@@ -179,16 +180,17 @@ export const _fetchEvents = async (relay: string, filters: string) => {
         if (result) {
             console.log(result);
             let json = JSON.parse(result.Data);
-            console.log("***Filters***")
+            //console.log("***Filters***")
             console.log(JSON.parse(filters));
-            console.log("***Got Events***")
+            //console.log("***Got Events***")
             console.log(json);
-            return json
+            events = json
         };
     } catch (e) {
         console.log(e);
         throw(e)
     }
+    return events
 };
 
 export const subs = async (relay: string, page: string, size: string) => {
@@ -227,8 +229,8 @@ export const isSubscribed = async (process: string, relay: string) => {
         let message = IsSubscribed(relay);
         let result = await read(process, message);
         if (result == undefined) throw (404);
-        console.log("********IS SUBSCIRBED**********")
-        console.log(result);
+        /*console.log("********IS SUBSCIRBED**********")
+        console.log(result);*/
         return result.Data
     } catch (e) {
         console.log(e);

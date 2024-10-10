@@ -11,13 +11,40 @@
     import type { UserInfo } from "$lib/models/Profile";
     import { currentUser } from "$lib/stores/profile.store";
 
-    export let event:any;
-    export let user:UserInfo;
+    export let event: any;
+    export let user: UserInfo;
 
     let count = 0;
     let replyText = "";
 
-    function reply() {}
+    function reply() {
+        let kind: Tag = {
+            name: "Kind",
+            value: "1",
+        };
+
+        let e: Tag = {
+            name: "e",
+            value: event.Id,
+        };
+
+        let p: Tag = {
+            name: "p",
+            value: event.From,
+        };
+
+        let marker: Tag = {
+            name: "marker",
+            value: "reply",
+        };
+        let _tags: Array<Tag> = [
+            kind,
+            e,
+            p,
+            marker,
+        ];
+        let _content = content;
+    }
 </script>
 
 <Dialog.Root>
@@ -44,12 +71,14 @@
                         src={user.Profile.picture}
                         alt={user.Profile.display_name}
                     />
-                    <Avatar.Fallback>{user.Profile.display_name}</Avatar.Fallback>
+                    <Avatar.Fallback
+                        >{user.Profile.display_name}</Avatar.Fallback
+                    >
                 </Avatar.Root>
                 <div class="flex-grow overflow-hidden">
                     <p class="font-semibold">{user.Profile.display_name}</p>
                     <div>
-                        <Nip92 event={event} />
+                        <Nip92 {event} />
                     </div>
                 </div>
             </div>
@@ -59,7 +88,9 @@
                         src={$currentUser.Profile.picture}
                         alt={$currentUser.Profile.display_name}
                     />
-                    <Avatar.Fallback>{$currentUser.Profile.display_name}</Avatar.Fallback>
+                    <Avatar.Fallback
+                        >{$currentUser.Profile.display_name}</Avatar.Fallback
+                    >
                 </Avatar.Root>
                 <div class="flex-grow">
                     <Input
