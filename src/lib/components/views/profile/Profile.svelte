@@ -155,6 +155,7 @@
   }
 
   onMount(async () => {
+    await fetchPost()
     // Split the string into parts, keeping the URLs separate
     const parts = textWithUrl.split(urlPattern);
 

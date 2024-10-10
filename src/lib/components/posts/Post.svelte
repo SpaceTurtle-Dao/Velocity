@@ -17,8 +17,6 @@
     import Repost from "$lib/components/views/engagement/Repost.svelte";
     import Buy from "$lib/components/views/engagement/Buy.svelte";
     import Share from "$lib/components/views/engagement/Share.svelte";
-    import ReplyModal from '$lib/components/Reply/ReplyModal.svelte';
-
 
     export let event: any;
     let _user: UserInfo;
@@ -58,12 +56,11 @@
     parseTags();
 
     onMount(async () => {
-        console.log("post event");
-        console.log(event);
+        //console.log(event);
         _user = await info(event.From);
         profile = _user.Profile;
-        console.log(_user);
-        console.log(profile);
+        //console.log(_user);
+        //console.log(profile);
     });
     /*
     {#if event.kind == 6}
@@ -125,19 +122,10 @@
             <div class="flex justify-between py-2 px-10">
                 <Reply event={event} user={_user}/>
                 <Repost />
-                <Like id={event.Id} pubkey={event.From} timestamp={event.timestamp}/>
+                <Like _event={event}/>
                 <Buy />
                 <Share />
             </div>
         </div>
     </div>
-
-    <ReplyModal
-        bind:isOpen={isReplyModalOpen} 
-        originalPost={{ author: profile.name, content: profile.about || "", avatar: profile.picture || "", event: event }}
-        currentUser={{ name: profile.name , avatar: profile.picture || "" }}
-        on:close={() => isReplyModalOpen = false}
-        on:submit={(e) => handleReplySubmit(e.detail)} 
-    />
-
 {/if}

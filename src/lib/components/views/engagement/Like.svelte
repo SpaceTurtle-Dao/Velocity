@@ -6,9 +6,7 @@
     import { _fetchEvents, event, fetchEvents } from "$lib/ao/relay";
     import { currentUser, userEvents } from "$lib/stores/profile.store";
 
-    export let id: string;
-    export let pubkey: string;
-    export let timestamp: string;
+    export let _event: any;
 
     let liked = false;
     let likes: Array<any> = [];
@@ -26,18 +24,18 @@
         };
         let eventTag: Tag = {
             name: "e",
-            value: id,
+            value: JSON.stringify([_event.Id]),
         };
         let pubkeyTag: Tag = {
             name: "p",
-            value: pubkey,
+            value: JSON.stringify([_event.From]),
         };
         _tags.push(kind);
         _tags.push(contentTag);
         _tags.push(eventTag);
         _tags.push(pubkeyTag);
         liked = !liked;
-        await event(_tags, pubkey);
+        await event(_tags, _event.From);
         await fetchLikes()
     }
 
@@ -46,16 +44,16 @@
         likes = [];
         let filter = {
             kinds: ["7"],
-            since: Number(timestamp),
-            until: Date.now(),
+            //since: Number(timestamp),
+            //until: Date.now(),
             //limit: 100,
             tags: {
-                e: [id]
+                e: [_event.Id]
             },
         };
         filters.push(filter);
         let _filters = JSON.stringify(filters);
-        likes = await _fetchEvents(pubkey, _filters);
+        likes = await _fetchEvents(_event.From, _filters);
         for(var i=0; i < likes.length; i++){
             if(likes[i].From == $currentUser.Process){
                 liked = true
@@ -66,9 +64,11 @@
 
     onMount(async () => {
         console.log($currentUser.Process)
-        console.log("getting likes");
+        console.log("getting likes for id");
+        console.log(_event.Id)
         await fetchLikes()
-        console.log("got "+likes.length+" likes");
+        console.log("got "+likes.length+" likes for id");
+        console.log(_event.Id)
         console.log(likes);
     });
 </script>
