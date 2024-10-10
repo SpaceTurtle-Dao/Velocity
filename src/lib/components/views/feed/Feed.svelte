@@ -9,7 +9,7 @@
     import * as Tabs from "$lib/components/ui/tabs/index.js";
 
     import { onMount } from "svelte";
-    import { fetchEvents, fetchFeed } from "$lib/ao/relay";
+    import { fetchEvents, fetchFeed, info, relay, relays } from "$lib/ao/relay";
 
     let events: Array<any> = [];
     let filters: Array<any> = [];
@@ -44,7 +44,7 @@
                 since: 1663905355000,
                 until: Date.now(),
                 limit: 100,
-                tags: []
+                tags: [],
             };
             filters.push(filter);
             let _filters = JSON.stringify(filters);
@@ -55,7 +55,9 @@
         filters = [];
     }
 
-    onMount(async () => {});
+    onMount(async () => {
+        fetchFeedEvents();
+    });
 
     //transition-transform transform hover:scale-105 duration-300
 </script>
