@@ -3,12 +3,12 @@
     import { link } from "svelte-spa-router";
     import "./app.css";
 
-    import UserList from "$lib/components/UserList.svelte";
+    import UserList from "$lib/components/UserList/UserList.svelte";
     import { Skeleton } from "$lib/components/ui/skeleton/index";
     import { isConnected } from "$lib/stores/profile.store";
     import Feed from "$lib/components/views/feed/Feed.svelte";
     import Profile from "$lib/components/views/profile/Profile.svelte";
-    import RelayButtons from "$lib/components/Relay.svelte";
+    import RelayButtons from "$lib/components/relay/Relay.svelte";
     import {
         Home as HomeIcon,
         User,
