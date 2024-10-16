@@ -130,7 +130,7 @@ export const spawnRelay = async () => {
     } catch (e) {
         console.log(e);
     }
-    await sleep(1000);
+    await sleep(3000);
     return _relay
 };
 
@@ -178,12 +178,12 @@ export const _fetchEvents = async (relay: string, filters: string) : Promise<any
         let message = FetchEvents(filters);
         let result = await read(relay, message);
         if (result) {
-            console.log(result);
+            //console.log(result);
             let json = JSON.parse(result.Data);
             //console.log("***Filters***")
-            console.log(JSON.parse(filters));
+            //console.log(JSON.parse(filters));
             //console.log("***Got Events***")
-            console.log(json);
+            //console.log(json);
             events = json
         };
     } catch (e) {

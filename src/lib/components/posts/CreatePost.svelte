@@ -5,7 +5,7 @@
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { currentUser, userEvents } from "$lib/stores/profile.store";
-  import type { Tag } from "$lib/models/Tags";
+  import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
@@ -81,15 +81,22 @@
     if (selectedMedia) {
       let media = await upload(selectedMedia);
       let dimisions = ""; //"3024x4032"
-      let url = "url " + media.url;
-      let m = "m " + media.mimeType;
-      let dim = "dim " + dimisions;
-      let _tag: Tag = {
-        name: "imeta",
-        value: JSON.stringify([url, m, dim]),
+      let urlTag: Tag = {
+        name: "url",
+        value: media.url,
+      };
+      let mTag: Tag = {
+        name: "mimeType",
+        value: media.mimeType || "",
+      };
+      let dimTag: Tag = {
+        name: "dim",
+        value: dimisions,
       };
       _content = _content + " " + media.url;
-      _tags.push(_tag);
+      _tags.push(urlTag);
+      _tags.push(mTag);
+      _tags.push(dimTag);
     }
 
     let contentTag: Tag = {

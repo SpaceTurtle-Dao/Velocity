@@ -10,6 +10,7 @@
     import { Separator } from "$lib/components/ui/separator/index";
     import type { UserInfo } from "$lib/models/Profile";
     import { currentUser } from "$lib/stores/profile.store";
+    import type { Tag } from "$lib/models/Tag";
 
     export let event: any;
     export let user: UserInfo;
@@ -43,7 +44,6 @@
             p,
             marker,
         ];
-        let _content = content;
     }
 </script>
 

@@ -24,11 +24,11 @@
         };
         let eventTag: Tag = {
             name: "e",
-            value: JSON.stringify([_event.Id]),
+            value: _event.Id.toString(),
         };
         let pubkeyTag: Tag = {
             name: "p",
-            value: JSON.stringify([_event.From]),
+            value: _event.From,
         };
         _tags.push(kind);
         _tags.push(contentTag);
@@ -48,7 +48,8 @@
             //until: Date.now(),
             //limit: 100,
             tags: {
-                e: [_event.Id]
+                e: [_event.Id],
+                //p: [_event.From]
             },
         };
         filters.push(filter);
