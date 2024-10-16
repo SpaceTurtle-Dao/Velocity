@@ -99,6 +99,7 @@
               "m video/ogg",
               "m video/webm",
             ],
+            marker: ["root"],
           },
       };
       filters.push(filter);
@@ -117,7 +118,9 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        tags: []
+        tags: {
+          marker: ["root"],
+        },
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);

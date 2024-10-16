@@ -5,20 +5,11 @@
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { currentUser, userEvents } from "$lib/stores/profile.store";
-  import type { Tag } from "$lib/models/Tags";
+  import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
   import {
     Home as HomeIcon,
-    Search,
-    Bell,
-    User,
-    MoreHorizontal,
     Plus,
-    Zap,
-    Edit,
-    Mail,
     Image,
     X,
   } from "lucide-svelte";
@@ -28,7 +19,6 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Separator } from "$lib/components/ui/separator/index.js";
-  import DialogFooter from "$lib/components/ui/dialog/dialog-footer.svelte";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -76,11 +66,15 @@
       name: "Kind",
       value: "1",
     };
-    let _tags: Array<Tag> = [kind];
+    let markerTag: Tag = {
+      name: "marker",
+      value: "root",
+    };
+    let _tags: Array<Tag> = [kind, markerTag];
     let _content = content;
     if (selectedMedia) {
       let media = await upload(selectedMedia);
-      let dimisions = ""; //"3024x4032"
+      let dimisions = ""; //Dimension logic automatically
       let url = "url " + media.url;
       let m = "m " + media.mimeType;
       let dim = "dim " + dimisions;
