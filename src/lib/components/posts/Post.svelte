@@ -17,16 +17,22 @@
     let profile: any;
     let isReply: boolean = false;
     let replyingTo: string | null = null;
+    let isRepost: boolean = false;
 
     const dispatch = createEventDispatcher();
 
     onMount(async () => {
         _user = await info(event.From);
-        profile = _user.Profile;
+        profile = _user?.Profile;
         
         if (event.Tags["marker"] === "reply") {
             isReply = true;
             replyingTo = event.Tags["p"];
+        }
+
+        // Check if the event is a repost (kind 6)
+        if (event.Tags["Kind"] == "6") {
+            isRepost = true;
         }
     });
 
@@ -36,13 +42,24 @@
     }
 </script>
 
-<div class={`pl-5 pt-5 pr-5 ${isReply ? 'ml-8 border-l-2 border-gray-300' : ''}`}>
+<!-- Main Container -->
+<div class={`pl-5 pt-5 pr-5 ${isReply ? 'ml-8 border-l-2 border-gray-300' : ''} ${isRepost ? '' : ''}`}>
+    <!-- Reply Information -->
     {#if isReply}
         <div class="flex items-center text-gray-500 mb-2">
             <CornerDownRight size={16} class="mr-2" />
             <span class="text-sm">Replying to @{replyingTo}</span>
         </div>
     {/if}
+
+    <!-- Repost Banner -->
+    {#if isRepost}
+        <div class="flex items-center text-gray-500 mb-2">
+            <span class="text-sm">Reposted by @{profile?.name}</span>
+        </div>
+    {/if}
+
+    <!-- Main Content -->
     <div>
         <div class="flex justify-start space-x-2">
             <Avatar class="hidden h-9 w-9 sm:flex">
@@ -58,18 +75,29 @@
                         {profile?.name}
                     </p>
                 </div>
-                <Nip92 {event} />
+                <!-- Repost or Normal Content -->
+                {#if isRepost}
+                    <!-- Repost UI: Show original event content -->
+                    <div class="p-4 border border-gray-300 rounded ">
+                        <Nip92 {event} />
+                    </div>
+                {:else}
+                    <!-- Normal post content -->
+                    <Nip92 {event} />
+                {/if}
             </div>
         </div>
+
+        <!-- Engagement Buttons -->
         <div class="flex justify-between py-2 px-10">
             <Reply {event} user={_user} on:newReply={handleNewReply}/>
-            <Repost />
+            <Repost _event={event}/>
             <Like _event={event}/>
             <Buy />
             <Share />
         </div>
     </div>
-    
+
     <!-- Nested Replies -->
     {#if replies.length > 0}
         <div class="ml-8 mt-4">
