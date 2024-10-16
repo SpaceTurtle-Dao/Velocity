@@ -141,6 +141,7 @@ export const fetchFeed = async (relay: string, filters: string) => {
         // @ts-ignore
         let message = FetchFeed(filters);
         let result = await read(relay, message);
+        console.log(result);
         let json = JSON.parse(result.Data);
         console.log(json)
         if (result) {

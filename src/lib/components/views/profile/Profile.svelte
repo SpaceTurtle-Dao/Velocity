@@ -44,7 +44,7 @@
   let activeTab: string = "posts";
   let userInfo: UserInfo;
   let events: Array<Event> = [];
-  
+
   let showModal = false;
   let textWithUrl = "";
   // Get the <p> tag by ID
@@ -86,20 +86,21 @@
         limit: 100,
         tags: {
           mimeType: [
-              "image/apng",
-              "image/avif",
-              "image/gif",
-              "image/jpeg",
-              "image/png",
-              "image/svg+xml",
-              "image/webp",
-              "video/x-msvideo",
-              "video/mp4",
-              "video/mpeg",
-              "video/ogg",
-              "video/webm",
-            ],
-          },
+            "image/apng",
+            "image/avif",
+            "image/gif",
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml",
+            "image/webp",
+            "video/x-msvideo",
+            "video/mp4",
+            "video/mpeg",
+            "video/ogg",
+            "video/webm",
+          ],
+          marker: ["root"],
+        },
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
@@ -117,7 +118,9 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        tags: []
+        tags: {
+          marker: ["root"],
+        },
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
@@ -155,7 +158,7 @@
   }
 
   onMount(async () => {
-    await fetchPost()
+    await fetchPost();
     // Split the string into parts, keeping the URLs separate
     const parts = textWithUrl.split(urlPattern);
 
@@ -220,7 +223,7 @@
 
       <!-- Card Content with Blur Effect -->
       <CardContent>
-        <div class="flex justify-between space-x-2">
+        <div class="flex justify-between space-x-2 ">
           <p class="font-bold text-2xl">{userInfo.Profile.name}</p>
           {#if userInfo.Process == $currentUser.Process}
             <Button
@@ -264,7 +267,7 @@
       </CardContent>
     </Card>
 
-    <Tabs.Root value="post" class="max-w-prose">
+    <Tabs.Root value="post" class="max-w-prose ">
       <Tabs.List class="grid grid-cols-4">
         <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
         <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
@@ -308,13 +311,16 @@
 {/if}
 <!-- Modal for UpdateProfile -->
 {#if showModal}
-    <div
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      on:click={toggleModal}
-    >
-      <div class="rounded-lg p-6 max-w-2xl w-full" on:click|stopPropagation>
-        <UpdateProfile initialProfile={userInfo.Profile} on:profileUpdated={toggleModal} />
-        <Button class="mt-4 rounded" on:click={toggleModal}>Close</Button>
-      </div>
+  <div
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    on:click={toggleModal}
+  >
+    <div class="rounded-lg p-6 max-w-2xl w-full" on:click|stopPropagation>
+      <UpdateProfile
+        initialProfile={userInfo.Profile}
+        on:profileUpdated={toggleModal}
+      />
+      <Button class="mt-4 rounded" on:click={toggleModal}>Close</Button>
     </div>
+  </div>
 {/if}

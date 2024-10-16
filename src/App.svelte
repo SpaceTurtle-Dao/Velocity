@@ -35,12 +35,14 @@
 
   async function fetchPost() {
     if ($currentUser) {
-      let filters = [{
-        kinds: ["1"],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-      }];
+      let filters = [
+        {
+          kinds: ["1"],
+          since: 1663905355000,
+          until: Date.now(),
+          limit: 100,
+        },
+      ];
       let _filters = JSON.stringify(filters);
       await fetchFeed($currentUser.Process, _filters);
       await fetchEvents($currentUser.Process, _filters);
@@ -59,7 +61,7 @@
             currentUser.set(_currentUser);
             user.set(_currentUser);
             await fetchPost();
-            push('/feed');
+            push("/feed");
           }
         }
       } catch (error) {
@@ -104,12 +106,12 @@
 {:else if !_isConnected}
   <LandingPage on:connect={handleConnect} />
 {:else}
-  <div class="bg-background h-screen">
+  <div class="bg-background">
     <div class="flex w-full bg-background justify-center">
       <div class="flex p-4 w-1/3 justify-end">
         <div class="space-y-8 p-4">
           <nav>
-            <ul class="space-y-3">
+            <ul class="space-y-3 overflow-hidden flex flex-col">
               {#each menuItems as item}
                 <li>
                   <a
@@ -121,7 +123,9 @@
                       this={item.icon}
                       class="w-6 h-6 mr-4 text-primary"
                     />
-                    <span class="text-lg font-medium text-primary">{item.label}</span>
+                    <span class="text-lg font-medium text-primary"
+                      >{item.label}</span
+                    >
                   </a>
                 </li>
               {/each}
@@ -148,12 +152,18 @@
           {/if}
         </div>
       </div>
-      <div class="overflow-y-scroll no-scrollbar h-screen w-1/3">
+      <div class="h-screen w-1/3 overflow-auto scrollbar-hidden">
         <Router {routes} />
       </div>
       <div class="flex justify-start pt-10 pl-10 w-1/3">
-        <UserList/>
+        <UserList />
       </div>
     </div>
   </div>
 {/if}
+
+<style>
+  .scrollbar-hidden {
+    scrollbar-width: none;
+  }
+</style>
