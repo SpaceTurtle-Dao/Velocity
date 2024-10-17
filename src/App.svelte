@@ -36,7 +36,7 @@
 
 <div class="bg-background h-screen">
     <div class="flex w-full bg-background justify-center">
-        <div class="flex p-4 w-1/3 justify-end">
+        <div class="flex p-4 w-1/4 justify-end">
             <SideBar />
         </div>
         <div class="overflow-y-scroll no-scrollbar h-screen w-1/3">
