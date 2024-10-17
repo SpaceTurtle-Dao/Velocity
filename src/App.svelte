@@ -45,14 +45,14 @@
   <div class="flex w-full bg-background justify-center">
     <!-- {#if} -->
     {#if _walletState == WalletState.Connected}
-      <div class="flex p-4 w-1/4 justify-end">
+      <div class="flex p-3 w-1/5 justify-end">
         <Navbar />
       </div>
-      <div class="overflow-y-scroll no-scrollbar h-screen w-1/3">
+      <div class="overflow-y-scroll no-scrollbar h-screen w-1/2">
         <Router {routes} />
       </div>
 
-      <div class="flex justify-start pt-10 pl-10 w-1/3">
+      <div class="flex justify-start w-1/5">
         <UserList />
       </div>
     {/if}
