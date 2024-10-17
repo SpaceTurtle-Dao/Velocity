@@ -4,44 +4,24 @@
   import { Button } from "$lib/components/ui/button/index.js";
   export let event: any;
   let inlineUrl: string;
-  let media: string;
-  let mimeType: string;
-  let thumb: string;
 
   function parseTags() {
-    let isImeta = false;
     let match = event.Content.match(/https?:\/\/[^\s]+/);
     if (match == null) return;
     inlineUrl = match[0];
-    if (event.imeta) {
-      let tags = JSON.parse(event.imeta)
-      isImeta = true;
-      for (var i in tags) {
-        let tag = tags[i];
-        if (tag.split(" ")[0] == "url" && inlineUrl == tag.split(" ")[1]) {
-          media = tag.split(" ")[1];
-        }
-        if (tag.split(" ")[0] == "m") {
-          mimeType = tag.split(" ")[1];
-        }
-        if (tag.split(" ")[0] == "thumb") {
-          thumb = tag.split(" ")[1];
-        }
-      }
-    }
   }
 
   parseTags();
 </script>
 
-{#if mimeType && media && inlineUrl}
+{#if event.mimeType && event.url && inlineUrl}
   <article class="pb-5 text-primary text-wrap ...">
     <p>{event.Content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
   </article>
-  {#if mimeType.startsWith("image/")}
-    <img class="border border-border" alt="The project logo" src={media} />
+  {#if event.mimeType.startsWith("image/")}
+    <img class="border border-border" alt="The project logo" src={event.url} />
   {:else}
-    <Video src={media} controls />
+    <Video src={event.url} controls />
   {/if}
 {:else if inlineUrl}
   <article class="justify-left text-primary text-wrap ...">

@@ -5,9 +5,8 @@
         user,
         feedEvents,
     } from "$lib/stores/profile.store";
-    import Post from "../../posts/Post.svelte";
+    import Post from "$lib/components/posts/Post.svelte";
     import * as Tabs from "$lib/components/ui/tabs/index.js";
-
     import { onMount } from "svelte";
     import { fetchEvents, fetchFeed, info, relay, relays } from "$lib/ao/relay";
 
@@ -16,9 +15,36 @@
 
     feedEvents.subscribe((value) => {
         if (value.length > 0) {
-            events = value;
+            events = processEvents(value);
         }
     });
+
+    function processEvents(rawEvents: any) {
+        const postMap = new Map();
+        const topLevelPosts :any = [];
+
+        //@ts-ignore
+        rawEvents.forEach(event => {
+            postMap.set(event.Id, { ...event, replies: [] });
+        });
+
+        //@ts-ignore
+        rawEvents.forEach(event => {
+            if (event.Tags["marker"] === "reply") {
+                const parentId = event.Tags["e"];
+                const parent = postMap.get(parentId);
+                if (parent) {
+                    parent.replies.push(postMap.get(event.Id));
+                } else {
+                    topLevelPosts.push(postMap.get(event.Id));
+                }
+            } else if (event.Tags["marker"] === "root" || !event.Tags["marker"]) {
+                topLevelPosts.push(postMap.get(event.Id));
+            }
+        });
+        //@ts-ignore
+        return topLevelPosts;
+    }
 
     async function fetchFollowingEvents() {
         if ($currentUser) {
@@ -27,6 +53,7 @@
                 since: 1663905355000,
                 until: Date.now(),
                 limit: 100,
+                tags: {marker: ["root", "reply"]}
             };
             filters.push(filter);
             let _filters = JSON.stringify(filters);
@@ -44,7 +71,7 @@
                 since: 1663905355000,
                 until: Date.now(),
                 limit: 100,
-                tags: [],
+                tags: {marker: ["root", "reply"]}
             };
             filters.push(filter);
             let _filters = JSON.stringify(filters);
@@ -56,10 +83,14 @@
     }
 
     onMount(async () => {
-        fetchFeedEvents();
+        // Initial fetch can go here if needed
+        await fetchFeedEvents();
     });
 
-    //transition-transform transform hover:scale-105 duration-300
+    function handleNewReply(event: any) {
+        const newReply = event.detail;
+        events = processEvents([...events.flat(), newReply]);
+    }
 </script>
 
 {#if $currentUser}
@@ -79,7 +110,7 @@
                 <div class="">
                     {#each events as event}
                         <div class="border border-border max-w-prose">
-                            <Post {event} />
+                            <Post {event} replies={event.replies} on:newReply={handleNewReply} />
                         </div>
                     {/each}
                 </div>
@@ -88,7 +119,7 @@
                 <div class="">
                     {#each events as event}
                         <div class="border border-border max-w-prose">
-                            <Post {event} />
+                            <Post {event} replies={event.replies} on:newReply={handleNewReply} />
                         </div>
                     {/each}
                 </div>
