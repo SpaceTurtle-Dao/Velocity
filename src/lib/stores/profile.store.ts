@@ -2,13 +2,33 @@ import type { Meme } from "$lib/models/Meme";
 import type { Profile, UserInfo } from "$lib/models/Profile";
 import { writable } from "svelte/store";
 
-export const userRelay = writable<string>();
+export enum ProfileState {
+  Empty = "Empty",
+  Loading = "Loading",
+  Loaded = "Loaded",
+  Error = "Error"
+}
+
+export enum WalletState {
+  Disconnected = "Disconnected",
+  Connecting = "Connecting",
+  Connected = "Connected",
+  Error = "Error"
+}
+
 export const isConnected = writable<boolean>(false);
-export const currentUser = writable<UserInfo>();
+export const profileState = writable<ProfileState>();
+export const walletState = writable<WalletState>();
+
 export const user = writable<UserInfo>();
+export const currentUser = writable<UserInfo>();
+
+export const userRelay = writable<string>();
+
 export const followers = writable<Array<string>>([]);
 export const userEvents = writable<Array<Event>>([]);
 export const feedEvents = writable<Array<Event>>([]);
+
 
 
 // User Data Store

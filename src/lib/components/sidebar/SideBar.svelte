@@ -12,18 +12,21 @@
     Plus,
   } from "lucide-svelte";
   import UserProfile from "../views/profile/UserProfile.svelte";
-  import Feed from "$lib/Feed.svelte";
-  import { currentUser } from "$lib/stores/profile.store";
+  import Feed from "$lib/components/views/feed/Feed.svelte";
+  import { currentUser, isConnected } from "$lib/stores/profile.store";
   import { profileFromEvent, type Profile } from "$lib/models/Profile";
   import {
     Avatar,
     AvatarFallback,
     AvatarImage,
   } from "$lib/components/ui/avatar";
+  // import { skeleton } from "$lib/components/ui/skeleton/skeleton.svelte";
+  import { Skeleton } from "$lib/components/ui/skeleton/index.js";
+  import { fly } from "svelte/transition";
 
   export let url = "";
 
-  let profile: Profile;
+  let profile: Profile | undefined;
 
   const menuItems = [
     { icon: Home, label: "Home", href: "/" },
@@ -40,14 +43,18 @@
   }
 
   currentUser.subscribe((value) => {
-    profile = profileFromEvent(value.Profile);
+    if ($isConnected) {
+      profile = profileFromEvent(value.Profile);
+    } else {
+      profile = undefined;
+    }
   });
 </script>
 
 <Router {url}>
   <div class="flex h-screen">
     <aside
-      class="w-1/4 bg-background shadow-lg flex flex-col justify-between p-4"
+      class="w-1/3 bg-background shadow-lg flex flex-col justify-between p-4"
     >
       <div class="space-y-4">
         <!-- secondarysecondary -->
@@ -70,10 +77,9 @@
           <ul class="space-y-2">
             {#each menuItems as item}
               <li>
-                secondary
                 <Link
                   to={item.href}
-                  class="flex items-center p-2 rounded-full hover:bg-secondary-100 transition-colors duration-200"
+                  class="flex items-center p-2 rounded-full hover:bg-secondary transition-colors duration-200"
                 >
                   <svelte:component
                     this={item.icon}
@@ -87,47 +93,61 @@
             {/each}
             <li>
               <button
-                class="flex items-center p-2 rounded-full hover:bg-secondary-100 transition-colors duration-200"
+                class="flex items-center p-2 rounded-full hover:bg-secondary transition-colors duration-200"
               >
-                <MoreHorizontal class="w-6 h-6 mr-4 text-secondary-500" />
-                <span class="text-lg font-medium text-gray-700">More</span>
+                <MoreHorizontal class="w-6 h-6 mr-4 text-primary0" />
+                <span class="text-lg font-medium text-primary">More</span>
               </button>
             </li>
           </ul>
         </nav>
         <button
-          class="w-full bg-secondary-500 text-white rounded-full py-3 font-bold text-lg hover:bg-purple-600 transition-colors duration-200 flex items-center justify-center"
+          class="w-full bg-secondary-500 text-white rounded-full py-3 font-bold text-lg hover:bg-secondary transition-colors duration-200 flex items-center justify-center"
         >
           <Plus class="w-5 h-5 mr-2" />
           Post
         </button>
       </div>
       <div class="p-4">
-        <div class="bg-gradient-to-r from-secondary-500 to-pink-500 p-6">
+        <div class=" p-6">
           <div class="flex items-center space-x-4">
-            {#if profile.picture}
+            {#if profile}
               <Avatar class="h-24 w-24 ring-4 ring-white">
-                <AvatarImage src={toUrl(profile.picture)} alt={profile.name} />
-                <AvatarFallback>{profile.name}</AvatarFallback>
+                {#if profile.picture}
+                  <AvatarImage
+                    src={toUrl(profile.picture)}
+                    alt={profile.name}
+                  />
+                {:else}
+                  <AvatarFallback>{profile.name}</AvatarFallback>
+                {/if}
               </Avatar>
+              <div>
+                <h1 class="text-3xl font-extrabold text-white">
+                  {profile.name}
+                </h1>
+                <p class="text-secondary-200">@{profile.name}</p>
+                <p class="mt-2 text-white">{"profile.bio"}</p>
+              </div>
+            {:else}
+              <div class="flex items-center space-x-4">
+                <Skeleton class="h-12 w-12 rounded-full" />
+                <div class="space-y-2">
+                  <Skeleton class="h-4 w-[250px]" />
+                  <Skeleton class="h-4 w-[200px]" />
+                </div>
+              </div>
             {/if}
-            <div>
-              <h1 class="text-3xl font-extrabold text-white">
-                {profile.name}
-              </h1>
-              <p class="text-secondary-200">@{profile.name}</p>
-              <p class="mt-2 text-white">{"profile.bio"}</p>
-            </div>
           </div>
         </div>
       </div>
     </aside>
 
-    <main class="flex-1 p-4 bg-[#FFF0F5] overflow-auto">
+    <!-- <main class="flex-1 p-4 bg-[#FFF0F5] overflow-auto">
       <Route path="/" component={Feed} />
-      <!-- <Route path="/explore" component={ExploreComponent} /> 
+      <Route path="/explore" component={ExploreComponent} /> 
       <Route path="/notifications" component={NotificationsComponent} /> -->
-      <Route path="/UserProfile" component={UserProfile} />
-    </main>
+    <!-- <Route path="/UserProfile" component={UserProfile} /> -->
+    <!-- </main> -->
   </div>
 </Router>

@@ -18,7 +18,7 @@
     } from "lucide-svelte";
     import SideBar from "$lib/components/sidebar/SideBar.svelte";
 
-    // let _isConnected = false;
+    let _isConnected = false;
     // let _currentUser: UserInfo;
 
     const menuItems = [
@@ -48,6 +48,14 @@
         </div>
     </div>
 </div>
+
+<!-- {#if $isLoading}
+    <div class="flex items-center justify-center h-screen bg-background">
+        <Spinner />
+    </div>
+{:else if !_isConnected}
+    <LandingPage on:connect={handleConnect} />
+{:else}{/if} -->
 
 <!-- 
 
