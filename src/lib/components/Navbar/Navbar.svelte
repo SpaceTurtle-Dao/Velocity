@@ -21,7 +21,7 @@
         AvatarImage,
     } from "$lib/components/ui/avatar";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
-    import { fly } from "svelte/transition";
+    // import { fly } from "svelte/transition";
 
     export let url = "";
 
