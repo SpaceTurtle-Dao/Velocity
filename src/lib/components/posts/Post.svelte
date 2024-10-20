@@ -6,13 +6,15 @@
     import { CornerDownRight } from "lucide-svelte";
     import Nip92 from "$lib/handlers/NIP92.svelte";
     import Like from "$lib/components/views/engagement/Like.svelte";
-    import Repost from "$lib/components/views/engagement/Repost.svelte";
-    import Buy from "$lib/components/views/engagement/Buy.svelte";
-    import Share from "$lib/components/views/engagement/Share.svelte";
+    import Repost from '$lib/components/views/engagement/Repost.svelte';
+    import Buy from '$lib/components/views/engagement/Buy.svelte';
+    import Share from '$lib/components/views/engagement/Share.svelte';
     import { createEventDispatcher } from 'svelte';
+    import { link } from 'svelte-spa-router';
 
     export let event: any;
     export let replies: any[] = [];
+    export let showFullPost: boolean = false;
     let _user: any;
     let profile: any;
     let isReply: boolean = false;
@@ -30,13 +32,15 @@
         }
     });
 
+    console.log("Event is from post", event);
+
     function handleNewReply(replyEvent: any) {
         replies = [...replies, replyEvent.detail];
         dispatch('newReply', replyEvent.detail);
     }
 </script>
 
-<div class={`pl-5 pt-5 pr-5 ${isReply ? 'ml-8 border-l-2 border-gray-300' : ''}`}>
+<div class={`pl-5 pt-5 pr-5 ${showFullPost ? 'border-b border-gray-200 pb-5' : ''}`}>
     {#if isReply}
         <div class="flex items-center text-gray-500 mb-2">
             <CornerDownRight size={16} class="mr-2" />
@@ -61,6 +65,7 @@
                 <Nip92 {event} />
             </div>
         </div>
+        <p class="mt-2 text-lg">{event.Tags.Content}</p>
         <div class="flex justify-between py-2 px-10">
             <Reply {event} user={_user} on:newReply={handleNewReply}/>
             <Repost />
@@ -69,13 +74,12 @@
             <Share />
         </div>
     </div>
-    
-    <!-- Nested Replies -->
-    {#if replies.length > 0}
-        <div class="ml-8 mt-4">
-            {#each replies as reply}
-                <svelte:self event={reply} replies={reply.replies || []} on:newReply />
-            {/each}
-        </div>
-    {/if}
 </div>
+
+{#if !showFullPost}
+    <a use:link href={`/post/${event.From}/${event.Id}`} class="block hover:bg-gray-50 transition duration-150 ease-in-out">
+        <div class="px-5 py-2 text-sm text-blue-500">
+            {event.Id}
+        </div>
+    </a>
+{/if}

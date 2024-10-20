@@ -24,13 +24,7 @@
   import Post from "../../posts/Post.svelte";
   import Followers from "../../Followers/Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import { Separator } from "$lib/components/ui/separator";
   import {
-    Users,
-    LucideUserPlus,
-    Settings,
     Link,
     CalendarDays,
   } from "lucide-svelte";
