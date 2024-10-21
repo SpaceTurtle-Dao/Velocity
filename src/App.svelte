@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Router from "svelte-spa-router";
+  import { location } from "svelte-spa-router";
   import { push, link } from "svelte-spa-router";
   import "./app.css";
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
@@ -26,6 +27,7 @@
   import IndividualProfile from "$lib/components/views/profile/IndividualProfile.svelte";
   import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
   import Spinner from "$lib/components/spinners/Spinner.svelte";
+  import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
 
   let isCreatePostModalOpen = false;
   let isLoading = true;
@@ -86,7 +88,7 @@
     "/": LandingPage,
     "/feed": Feed,
     "/profile": Profile,
-    "/messages": RelayButtons,
+    "/messages": MessagesPage,
     "/profile/:process": IndividualProfile,
   };
 
@@ -97,6 +99,8 @@
   function handleConnect() {
     checkWalletConnection();
   }
+
+  $: isMessagesPage = $location === "/messages";
 </script>
 
 {#if isLoading}
@@ -152,10 +156,16 @@
           {/if}
         </div>
       </div>
-      <div class="h-screen w-1/3 overflow-auto scrollbar-hidden">
+      <div
+        class={"h-screen  overflow-auto scrollbar-hidden" +
+          (isMessagesPage ? " w-2/3" : " w-1/3")}
+      >
         <Router {routes} />
       </div>
-      <div class="flex justify-start pt-10 pl-10 w-1/3">
+      <div
+        class={"flex justify-start pt-10 pl-10 w-1/3" +
+          (isMessagesPage ? " hidden" : "")}
+      >
         <UserList />
       </div>
     </div>
