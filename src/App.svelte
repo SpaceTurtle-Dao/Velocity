@@ -17,7 +17,7 @@
   import Profile from "$lib/components/views/profile/Profile.svelte";
   import IndividualProfile from "$lib/components/views/profile/IndividualProfile.svelte";
   import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
-  import SideBar from "$lib/components/sidebar/SideBar.svelte";
+  // import SideBar from "$lib/components/sidebar/SideBar.svelte";
   import UserList from "$lib/components/UserList/UserList.svelte";
   import { Skeleton } from "$lib/components/ui/skeleton/index";
   import { info, relay, relays } from "$lib/ao/relay";
@@ -55,6 +55,8 @@
       <div class="flex justify-start w-1/5">
         <UserList />
       </div>
+    {:else if _walletState == WalletState.Disconnected}
+      <LandingPage on:connect={aoconnect} />
     {/if}
   </div>
 </div>
@@ -64,7 +66,6 @@
         <Spinner />
     </div>
 {:else if !_isConnected}
-    <LandingPage on:connect={handleConnect} />
 {:else}{/if} -->
 
 <!-- 
