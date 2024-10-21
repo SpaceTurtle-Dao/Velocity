@@ -7,7 +7,7 @@
     import * as Card from "$lib/components/ui/card/index.js";
 
     let userelays: Array<UserInfo> = [];
-    let title = "You might like"
+    let title = "You might like";
 
     users.subscribe((value) => (userelays = value));
 
@@ -21,7 +21,7 @@
     <Card.Root
         data-x-chunk-name="UserList"
         data-x-chunk-description="A card showing a list of users."
-        class="border-border rounded"
+        class="border-none rounded"
     >
         <Card.Header>
             <Card.Title>{title}</Card.Title>

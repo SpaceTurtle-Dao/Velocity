@@ -1,103 +1,74 @@
 <script lang="ts">
+  import "./app.css";
   import { onMount } from "svelte";
+  import {
+    currentUser,
+    isConnected,
+    user,
+    profileState,
+    walletState,
+    ProfileState,
+    WalletState,
+    aoconnect,
+  } from "./lib/stores/profile.store";
   import Router from "svelte-spa-router";
   import { push, link } from "svelte-spa-router";
-  import "./app.css";
-  import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
-  import {
-    Home as HomeIcon,
-    User,
-    MoreHorizontal,
-    Plus,
-    Mail,
-  } from "lucide-svelte";
-  import Profile from "$lib/components/views/profile/Profile.svelte";
-  import { currentUser, isConnected, user } from "./lib/stores/profile.store";
-  import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
-  import RelayButtons from "$lib/components/relay/Relay.svelte";
-  import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
-  import ConnectWalletButton from "$lib/components/wallet/wallet.svelte";
-  import Button from "$lib/components/ui/button/button.svelte";
-  import { fetchEvents, fetchFeed, info, relay, relays } from "$lib/ao/relay";
-  import UserList from "$lib/components/UserList/UserList.svelte";
-  import type { UserInfo } from "$lib/models/Profile";
-  import { users } from "$lib/stores/main.store";
   import Feed from "$lib/components/views/feed/Feed.svelte";
+  import Profile from "$lib/components/views/profile/Profile.svelte";
   import IndividualProfile from "$lib/components/views/profile/IndividualProfile.svelte";
   import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
-  import Spinner from "$lib/components/spinners/Spinner.svelte";
+  // import SideBar from "$lib/components/sidebar/SideBar.svelte";
+  import UserList from "$lib/components/UserList/UserList.svelte";
+  import { Skeleton } from "$lib/components/ui/skeleton/index";
+  import { info, relay, relays } from "$lib/ao/relay";
+  import RelayButtons from "$lib/components/relay/Relay.svelte";
+  import Navbar from "$lib/components/Navbar/Navbar.svelte";
 
-  let isCreatePostModalOpen = false;
-  let isLoading = true;
-
-  $: _isConnected = $isConnected;
-  $: _currentUser = $currentUser;
-
-  async function fetchPost() {
-    if ($currentUser) {
-      let filters = [
-        {
-          kinds: ["1"],
-          since: 1663905355000,
-          until: Date.now(),
-          limit: 100,
-        },
-      ];
-      let _filters = JSON.stringify(filters);
-      await fetchFeed($currentUser.Process, _filters);
-      await fetchEvents($currentUser.Process, _filters);
-    }
-  }
-
-  async function checkWalletConnection() {
-    if (window.arweaveWallet) {
-      try {
-        const address = await window.arweaveWallet.getActiveAddress();
-        if (address) {
-          isConnected.set(true);
-          let _relay = await relay(address);
-          if (_relay) {
-            let _currentUser = await info(_relay);
-            currentUser.set(_currentUser);
-            user.set(_currentUser);
-            await fetchPost();
-            push("/feed");
-          }
-        }
-      } catch (error) {
-        console.error("Failed to get active address:", error);
-        isConnected.set(false);
-      }
-    }
-    isLoading = false;
-  }
-
-  const menuItems = [
-    { icon: HomeIcon, label: "Home", href: "/feed" },
-    { icon: User, label: "Profile", href: "/profile" },
-    { icon: Mail, label: "Messages", href: "/messages" },
-  ];
-
-  function toggleCreatePostModal() {
-    isCreatePostModalOpen = !isCreatePostModalOpen;
-  }
+  $: _walletState = $walletState;
+  // $: _profileState = $profileState;
+  // $: _currentUser = $currentUser;
 
   const routes = {
-    "/": LandingPage,
-    "/feed": Feed,
+    // "/": LandingPage,
+    "/": Feed,
     "/profile": Profile,
     "/messages": RelayButtons,
     "/profile/:process": IndividualProfile,
   };
 
   onMount(async () => {
-    await checkWalletConnection();
+    await aoconnect();
   });
-
-  function handleConnect() {
-    checkWalletConnection();
-  }
 </script>
+
+<div class="bg-background h-screen">
+  <div class="flex w-full bg-background justify-center">
+    <!-- {#if} -->
+    {#if _walletState == WalletState.Connected}
+      <div class="flex p-3 w-1/5 justify-end">
+        <Navbar />
+      </div>
+      <div class="overflow-y-scroll no-scrollbar h-screen w-1/2">
+        <Router {routes} />
+      </div>
+
+      <div class="flex justify-start w-1/5">
+        <UserList />
+      </div>
+    {:else if _walletState == WalletState.Disconnected}
+      <LandingPage on:connect={aoconnect} />
+    {/if}
+  </div>
+</div>
+
+<!-- {#if $isLoading}
+    <div class="flex items-center justify-center h-screen bg-background">
+        <Spinner />
+    </div>
+{:else if !_isConnected}
+{:else}{/if} -->
+
+<!-- 
 
 {#if isLoading}
   <div class="flex items-center justify-center h-screen bg-background">
@@ -166,4 +137,4 @@
   .scrollbar-hidden {
     scrollbar-width: none;
   }
-</style>
+</style> -->

@@ -1,14 +1,71 @@
 import type { Meme } from "$lib/models/Meme";
 import type { Profile, UserInfo } from "$lib/models/Profile";
 import { writable } from "svelte/store";
+import { info, relay, relays } from "$lib/ao/relay";
+
+export enum ProfileState {
+  Empty = "Empty",
+  Loading = "Loading",
+  Loaded = "Loaded",
+  Error = "Error"
+}
+
+export enum WalletState {
+  Disconnected = "Disconnected",
+  Connecting = "Connecting",
+  Connected = "Connected",
+  Error = "Error"
+}
+
+export const isConnected = writable<boolean>(false);
+export const profileState = writable<ProfileState>();
+export const walletState = writable<WalletState>();
+
+
+
+export const user = writable<UserInfo>();
+export const currentUser = writable<UserInfo>();
 
 export const userRelay = writable<string>();
-export const isConnected = writable<boolean>(false);
-export const currentUser = writable<UserInfo>();
-export const user = writable<UserInfo>();
+
 export const followers = writable<Array<string>>([]);
 export const userEvents = writable<Array<Event>>([]);
 export const feedEvents = writable<Array<Event>>([]);
+
+
+export async function aoconnect() {
+  if (window.arweaveWallet) {
+    try {
+      walletState.set(WalletState.Connecting);
+      const address = await window.arweaveWallet.getActiveAddress();
+      if (address) {
+        let _relay = await relay(address);
+        walletState.set(WalletState.Connected);
+        if (_relay) {
+          profileState.set(ProfileState.Loading);
+          let _currentUser = await info(_relay);
+          profileState.set(ProfileState.Loaded);
+          currentUser.set(_currentUser);
+          user.set(_currentUser);
+        } else {
+          profileState.set(ProfileState.Empty);
+        }
+      }
+    } catch (error) {
+      // console.error("Failed to get active address:", error);
+      console.log("Failed to get active address:", error);
+      walletState.set(WalletState.Disconnected);
+      profileState.set(ProfileState.Empty);
+      // isConnected.set(false);
+    }
+  } else {
+    // console.log()
+  }
+}
+
+
+
+
 
 
 // User Data Store

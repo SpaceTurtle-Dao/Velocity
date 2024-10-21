@@ -8,7 +8,7 @@
     import Post from "$lib/components/posts/Post.svelte";
     import * as Tabs from "$lib/components/ui/tabs/index.js";
     import { onMount } from "svelte";
-    import { fetchEvents, fetchFeed } from "$lib/ao/relay";
+    import { fetchEvents, fetchFeed, info, relay, relays } from "$lib/ao/relay";
 
     let events: Array<any> = [];
     let filters: Array<any> = [];
