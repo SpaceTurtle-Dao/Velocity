@@ -39,8 +39,8 @@ export async function aoconnect() {
       walletState.set(WalletState.Connecting);
       const address = await window.arweaveWallet.getActiveAddress();
       if (address) {
-        walletState.set(WalletState.Connected);
         let _relay = await relay(address);
+        walletState.set(WalletState.Connected);
         if (_relay) {
           profileState.set(ProfileState.Loading);
           let _currentUser = await info(_relay);
@@ -52,8 +52,10 @@ export async function aoconnect() {
         }
       }
     } catch (error) {
-      console.error("Failed to get active address:", error);
-      walletState.set(WalletState.Error);
+      // console.error("Failed to get active address:", error);
+      console.log("Failed to get active address:", error);
+      walletState.set(WalletState.Disconnected);
+      profileState.set(ProfileState.Empty);
       // isConnected.set(false);
     }
   } else {
