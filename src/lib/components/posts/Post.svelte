@@ -5,34 +5,46 @@
     import { Avatar, AvatarImage, AvatarFallback } from "$lib/components/ui/avatar";
     import { CornerDownRight } from "lucide-svelte";
     import Nip92 from "$lib/handlers/NIP92.svelte";
-    import Like from "$lib/components/views/engagement/Like.svelte";
-    import Repost from "$lib/components/views/engagement/Repost.svelte";
-    import Buy from "$lib/components/views/engagement/Buy.svelte";
-    import Share from "$lib/components/views/engagement/Share.svelte";
+    import Like from '$lib/components/views/engagement/Like.svelte';
+    import Repost from '$lib/components/views/engagement/Repost.svelte';
+    import Buy from '$lib/components/views/engagement/Buy.svelte';
+    import Share from '$lib/components/views/engagement/Share.svelte';
     import { createEventDispatcher } from 'svelte';
+  import { currentUser } from '$lib/stores/profile.store';
 
     export let event: any;
     export let replies: any[] = [];
+    
     let _user: any;
     let profile: any;
     let isReply: boolean = false;
     let replyingTo: string | null = null;
     let isRepost: boolean = false;
-
+    let originalEvent: any = null;
+    let originalUser: any = null;
+    let originalProfile: any = null;
+    
     const dispatch = createEventDispatcher();
 
     onMount(async () => {
         _user = await info(event.From);
         profile = _user?.Profile;
-        
+
         if (event.Tags["marker"] === "reply") {
             isReply = true;
             replyingTo = event.Tags["p"];
         }
 
-        // Check if the event is a repost (kind 6)
-        if (event.Tags["Kind"] == "6") {
+        if (event.Tags['Kind'] === '6') {
             isRepost = true;
+            try {
+                originalEvent = JSON.parse(event.Tags['Content']);
+                originalUser = await info(originalEvent.From);
+                originalProfile = originalUser?.Profile;
+            } catch (error) {
+                console.error('Failed to handle repost:', error);
+                isRepost = false;
+            }
         }
     });
 
@@ -42,8 +54,7 @@
     }
 </script>
 
-<!-- Main Container -->
-<div class={`pl-5 pt-5 pr-5 ${isReply ? 'ml-8 border-l-2 border-gray-300' : ''} ${isRepost ? '' : ''}`}>
+<div class="pl-5 pt-5 pr-5 {isReply ? 'ml-8 border-l-2 border-gray-300' : ''}">
     <!-- Reply Information -->
     {#if isReply}
         <div class="flex items-center text-gray-500 mb-2">
@@ -53,9 +64,16 @@
     {/if}
 
     <!-- Repost Banner -->
-    {#if isRepost}
+    {#if isRepost && profile?.name}
         <div class="flex items-center text-gray-500 mb-2">
-            <span class="text-sm">Reposted by @{profile?.name}</span>
+            <span class="text-sm">Reposted by 
+               {#if profile?.name == $currentUser?.Profile?.name}
+                    You
+                {:else}
+                @{profile.name}
+                {/if}
+            </span>
+            
         </div>
     {/if}
 
@@ -63,26 +81,36 @@
     <div>
         <div class="flex justify-start space-x-2">
             <Avatar class="hidden h-9 w-9 sm:flex">
-                {#if profile?.picture}
+                {#if isRepost && originalProfile?.picture}
+                    <AvatarImage src={originalProfile.picture} alt="Avatar" />
+                {:else if profile?.picture}
                     <AvatarImage src={profile.picture} alt="Avatar" />
                 {:else}
-                    <AvatarFallback>{profile?.name?.[0] || 'U'}</AvatarFallback>
+                    <AvatarFallback>
+                        {#if isRepost}
+                            {originalProfile?.name?.[0] || 'U'}
+                        {:else}
+                            {profile?.name?.[0] || 'U'}
+                        {/if}
+                    </AvatarFallback>
                 {/if}
             </Avatar>
+            
             <div>
                 <div class="flex space-x-1">
                     <p class="font-medium text-primary h-5">
-                        {profile?.name}
+                        {#if isRepost && originalProfile?.name}
+                            {originalProfile.name}
+                        {:else}
+                            {profile?.name}
+                        {/if}
                     </p>
                 </div>
-                <!-- Repost or Normal Content -->
-                {#if isRepost}
-                    <!-- Repost UI: Show original event content -->
-                    <div class="p-4 border border-gray-300 rounded ">
-                        <Nip92 {event} />
-                    </div>
+
+                <!-- Content Display -->
+                {#if isRepost && originalEvent}
+                    <Nip92 event={originalEvent} />
                 {:else}
-                    <!-- Normal post content -->
                     <Nip92 {event} />
                 {/if}
             </div>
@@ -91,8 +119,8 @@
         <!-- Engagement Buttons -->
         <div class="flex justify-between py-2 px-10">
             <Reply {event} user={_user} on:newReply={handleNewReply}/>
-            <Repost _event={event}/>
-            <Like _event={event}/>
+            <Repost _event={isRepost ? originalEvent : event}/>
+            <Like _event={isRepost ? originalEvent : event}/>
             <Buy />
             <Share />
         </div>
