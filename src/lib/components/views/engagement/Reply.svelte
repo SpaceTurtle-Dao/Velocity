@@ -8,10 +8,10 @@
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Image, X } from "lucide-svelte";
   import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
-  import { Separator } from "$lib/components/ui/separator/index.js";
 
   export let event: any;
   export let user: any;
+  let newReply: any;
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -88,7 +88,15 @@
     };
     _tags.push(contentTag);
 
-    const newReply = await aoEvent(_tags, $currentUser.Process);
+    if(event.marker)
+    {
+      newReply = await aoEvent(_tags, event.From);
+    }
+    else{
+      newReply = await aoEvent(_tags, event.p);
+    }
+
+    
     
     // Dispatch an event to notify the parent component of the new reply
     dispatch('newReply', newReply);
