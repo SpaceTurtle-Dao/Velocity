@@ -84,6 +84,8 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
+      };
+      let filter2 = {
         tags: {
           mimeType: [
             "image/apng",
@@ -98,11 +100,18 @@
             "video/mpeg",
             "video/ogg",
             "video/webm",
-          ],
+          ]
+        },
+      }
+      
+      let filter3 = {
+        tags: {
           marker: ["root"],
         },
       };
       filters.push(filter);
+      filters.push(filter2);
+      filters.push(filter3);
       let _filters = JSON.stringify(filters);
       fetchEvents(userInfo.Process, _filters);
     }
