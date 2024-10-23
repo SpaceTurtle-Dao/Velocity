@@ -4,7 +4,7 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { currentUser, userEvents } from "$lib/stores/profile.store";
+  import { currentUser } from "$lib/stores/profile.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import {

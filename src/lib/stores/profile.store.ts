@@ -7,8 +7,8 @@ export const isConnected = writable<boolean>(false);
 export const currentUser = writable<UserInfo>();
 export const user = writable<UserInfo>();
 export const followers = writable<Array<string>>([]);
-export const userEvents = writable<Array<Event>>([]);
-export const feedEvents = writable<Array<Event>>([]);
+//export const userEvents = writable<Array<Event>>([]);
+//export const feedEvents = writable<Array<Event>>([]);
 
 
 // User Data Store
