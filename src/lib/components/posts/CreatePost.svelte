@@ -178,7 +178,6 @@
         on:change={handleFileChange}
       />
     </form>
-    <Separator />
     <Dialog.Footer>
       <div class="w-full flex flex-row justify-between">
         <Button

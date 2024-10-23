@@ -24,13 +24,7 @@
   import Post from "../../posts/Post.svelte";
   import Followers from "../../Followers/Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import { Separator } from "$lib/components/ui/separator";
   import {
-    Users,
-    LucideUserPlus,
-    Settings,
     Link,
     CalendarDays,
   } from "lucide-svelte";
@@ -84,6 +78,8 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
+      };
+      let filter2 = {
         tags: {
           mimeType: [
             "image/apng",
@@ -98,11 +94,18 @@
             "video/mpeg",
             "video/ogg",
             "video/webm",
-          ],
+          ]
+        },
+      }
+      
+      let filter3 = {
+        tags: {
           marker: ["root"],
         },
       };
       filters.push(filter);
+      filters.push(filter2);
+      filters.push(filter3);
       let _filters = JSON.stringify(filters);
       fetchEvents(userInfo.Process, _filters);
     }
