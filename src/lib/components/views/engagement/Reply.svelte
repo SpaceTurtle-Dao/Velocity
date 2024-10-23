@@ -2,8 +2,8 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
-  import { currentUser, userEvents } from "$lib/stores/profile.store";
+  import { event as aoEvent } from "$lib/ao/relay";
+  import { currentUser } from "$lib/stores/profile.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Image, X } from "lucide-svelte";
@@ -21,6 +21,11 @@
   let dialogOpen = false;
 
   const dispatch = createEventDispatcher();
+
+  // Helper function to find tag value
+  function findTagValue(tags: Tag[], tagName: string): string | undefined {
+    return tags.find(tag => tag.name === tagName)?.value;
+  }
 
   function clearFields() {
     content = "";
@@ -54,56 +59,61 @@
   }
 
   async function handleSubmit() {
+    if (!content.trim() && !selectedMedia) return;
+    
     isLoading = true;
-    let kind: Tag = {
-      name: "Kind",
-      value: "1",
-    };
-    let _tags: Array<Tag> = [kind];
+    try {
+      const tags: Tag[] = [
+        { name: "Kind", value: "1" },
+        { name: "marker", value: "reply" },
+        { name: "e", value: event.Id },
+        { name: "p", value: event.From }
+      ];
 
-    // Add reply-specific tags
-    let eTag: Tag = {
-      name: "e",
-      value: event.Id,
-    };
-    let pTag: Tag = {
-      name: "p",
-      value: event.From,
-    };
-    let markerTag: Tag = {
-      name: "marker",
-      value: "reply",
-    };
-    _tags.push(eTag, pTag, markerTag);
+      // Check if the event is already a reply
+      const eventTags: Tag[] = Array.isArray(event.Tags) ? event.Tags : [];
+      const markerValue = findTagValue(eventTags, "marker");
+      const parentEventId = findTagValue(eventTags, "e");
+      const rootValue = findTagValue(eventTags, "root");
 
-    let _content = content;
-    if (selectedMedia) {
-      // Handle media upload here if needed
-      _content = _content + " [Media attached]"; // Placeholder for media handling
+      // Add root tag based on the event type
+      if (rootValue) {
+        tags.push({ name: "root", value: rootValue });
+      } else if (markerValue === "reply" && parentEventId) {
+        tags.push({ name: "root", value: parentEventId });
+      } else {
+        tags.push({ name: "root", value: event.Id });
+      }
+
+      let _content = content;
+      if (selectedMedia) {
+        // Handle media upload here if needed
+        _content = _content + " [Media attached]";
+      }
+
+      tags.push({ name: "Content", value: _content });
+
+      newReply = await aoEvent(tags, $currentUser.Process);
+      
+      // Create a simplified tags object for the event dispatch
+      const replyTags = tags.reduce((acc: any, tag) => {
+        acc[tag.name.toLowerCase()] = tag.value;
+        return acc;
+      }, {});
+
+      dispatch('newReply', {
+        ...newReply,
+        Tags: replyTags
+      });
+
+      clearFields();
+      dialogOpen = false;
+      
+    } catch (error) {
+      console.error("Error creating reply:", error);
+    } finally {
+      isLoading = false;
     }
-
-    let contentTag: Tag = {
-      name: "Content",
-      value: _content,
-    };
-    _tags.push(contentTag);
-
-    if(event.marker)
-    {
-      newReply = await aoEvent(_tags, event.From);
-    }
-    else{
-      newReply = await aoEvent(_tags, event.p);
-    }
-
-    
-    
-    // Dispatch an event to notify the parent component of the new reply
-    dispatch('newReply', newReply);
-
-    isLoading = false;
-    dialogOpen = false;
-    clearFields();
   }
 
   $: if (dialogOpen === false) {
@@ -125,11 +135,11 @@
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
       <Dialog.Title>Reply to Post</Dialog.Title>
-      <Dialog.Description>Respond to {user.Profile.name}'s post</Dialog.Description>
+      <Dialog.Description>Respond to {user?.Profile?.name}'s post</Dialog.Description>
     </Dialog.Header>
     <form on:submit|preventDefault={handleSubmit}>
       <div class="flex">
-        {#if $currentUser.Profile.picture}
+        {#if $currentUser?.Profile?.picture}
           <Avatar class="h-12 w-12">
             <AvatarImage
               src={$currentUser.Profile.picture}
@@ -139,7 +149,7 @@
           </Avatar>
         {:else}
           <Avatar class="h-12 w-12">
-            <AvatarFallback>{$currentUser.Profile.name}</AvatarFallback>
+            <AvatarFallback>{$currentUser?.Profile?.name}</AvatarFallback>
           </Avatar>
         {/if}
         <div class="w-full ml-3">
@@ -147,16 +157,16 @@
             bind:value={content}
             placeholder="Post your reply"
             class="text-lg w-full bg-background border-none focus:border-none outline-none focus:outline-none focus-visible:outline-none ring-none focus:ring-none focus-visible:ring-none ring-background overflow-y-hidden"
-          ></Textarea>
+          />
           {#if mediaPreviewUrl}
             <div class="relative p-5">
-              {#if selectedMedia && selectedMedia.type.startsWith("video")}
+              {#if selectedMedia?.type.startsWith("video")}
                 <!-- svelte-ignore a11y-media-has-caption -->
                 <video
                   src={mediaPreviewUrl}
                   controls
                   class="w-full h-48 object-cover rounded-md"
-                ></video>
+                />
               {:else}
                 <img
                   src={mediaPreviewUrl}
@@ -197,7 +207,7 @@
           type="submit"
           on:click={handleSubmit}
           class="bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition duration-200 text-md"
-          disabled={isLoading || !content.trim()}
+          disabled={isLoading || (!content.trim() && !selectedMedia)}
         >
           {isLoading ? "Replying..." : "Reply"}
         </Button>

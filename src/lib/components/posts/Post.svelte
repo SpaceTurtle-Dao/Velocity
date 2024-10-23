@@ -65,7 +65,6 @@
                 <Nip92 {event} />
             </div>
         </div>
-        <p class="mt-2 text-lg">{event.Tags.Content}</p>
         <div class="flex justify-between py-2 px-10">
             <Reply {event} user={_user} on:newReply={handleNewReply}/>
             <Repost />

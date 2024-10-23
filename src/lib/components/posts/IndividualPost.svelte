@@ -9,7 +9,6 @@
     AvatarImage,
     AvatarFallback,
   } from "$lib/components/ui/avatar";
-  import { CornerDownRight } from "lucide-svelte";
   import Nip92 from "$lib/handlers/NIP92.svelte";
   import Like from "$lib/components/views/engagement/Like.svelte";
   import Repost from "$lib/components/views/engagement/Repost.svelte";
@@ -107,11 +106,10 @@
             {/if}
           </Avatar>
           <div>
-            <p class="font-semibold">{profile?.name}</p>
+            <p class="font-semibold text-primary">{profile?.name}</p>
             <Nip92 event={post} />
           </div>
         </div>
-        <p class="mt-2 text-lg">{post.Tags.Content}</p>
         <div class="flex justify-between mt-4">
           <Reply event={post} user={_user} on:newReply={handleNewReply} />
           <Repost />
@@ -131,6 +129,6 @@
       {/each}
     </div>
   {:else}
-    <p>Loading...</p>
+    <p class="text-white">Loading...</p>
   {/if}
 </div>
