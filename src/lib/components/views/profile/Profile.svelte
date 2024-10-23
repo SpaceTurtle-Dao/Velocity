@@ -20,7 +20,7 @@
     type Profile,
     type UserInfo,
   } from "$lib/models/Profile";
-  import { currentUser, userEvents, user } from "../../../stores/profile.store";
+  import { currentUser, user } from "../../../stores/profile.store";
   import Post from "../../posts/Post.svelte";
   import Followers from "../../Followers/Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
@@ -128,7 +128,7 @@
       filters.push(filter);
       let _filters = JSON.stringify(filters);
       if (userInfo) {
-        fetchEvents(userInfo.Process, _filters);
+        events = await fetchEvents(userInfo.Process, _filters);
       }
     }
     filters = [];
@@ -143,10 +143,6 @@
     console.log("will get subscriptions");
     await subscriptions(userInfo.Process, "1", "100");
   }
-
-  userEvents.subscribe((value) => {
-    events = value;
-  });
 
   function formatDate(dateString: number): string {
     return new Date(dateString).toLocaleDateString();

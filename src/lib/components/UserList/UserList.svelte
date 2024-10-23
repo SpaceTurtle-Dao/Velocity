@@ -5,11 +5,12 @@
     import { relays } from "$lib/ao/relay";
     import { users } from "$lib/stores/main.store";
     import * as Card from "$lib/components/ui/card/index.js";
+    import { currentUser } from "$lib/stores/profile.store";
 
     let userelays: Array<UserInfo> = [];
     let title = "You might like"
 
-    users.subscribe((value) => (userelays = value));
+    users.subscribe((value) => (userelays = value.filter(relay => relay.Process != $currentUser.Process)));
 
     onMount(async () => {
         console.log("********Mounted*******");

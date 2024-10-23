@@ -20,7 +20,7 @@
     type Profile,
     type UserInfo,
   } from "$lib/models/Profile";
-  import { currentUser, userEvents, user } from "../../../stores/profile.store";
+  import { currentUser, user } from "../../../stores/profile.store";
   import Post from "$lib/components/posts/Post.svelte";
   import Followers from "$lib/components/Followers/Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
@@ -42,7 +42,7 @@
 
   let activeTab: string = "posts";
   let userInfo: UserInfo | null = null;
-  let events: Array<Event> = [];
+  let events: Array<any> = [];
   let textWithUrl = "";
   let pTag: HTMLElement | null;
   const urlPattern = /(https?:\/\/[^\s]+)/g;
@@ -105,7 +105,7 @@
       },
     }];
     let _filters = JSON.stringify(filters);
-    await fetchEvents(userInfo.Process, _filters);
+    events = await fetchEvents(userInfo.Process, _filters);
   }
 
   async function fetchPost() {
@@ -118,7 +118,7 @@
       tags: []
     }];
     let _filters = JSON.stringify(filters);
-    await fetchEvents(userInfo.Process, _filters);
+    events = await fetchEvents(userInfo.Process, _filters);
   }
 
   async function fetchSubs() {
@@ -130,10 +130,6 @@
     if (!userInfo) return;
     await subscriptions(userInfo.Process, "1", "100");
   }
-
-  userEvents.subscribe((value) => {
-    events = value;
-  });
 
   function formatDate(dateString: number): string {
     return new Date(dateString).toLocaleDateString();
