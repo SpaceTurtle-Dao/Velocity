@@ -74,7 +74,7 @@
     events = [];
     if (userInfo) {
       let filter = {
-        kinds: ["1"],
+        kinds: ["1","6"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
@@ -117,7 +117,7 @@
     //events = [];
     if (userInfo) {
       let filter = {
-        kinds: ["1"],
+        kinds: ["1","6"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
