@@ -1,7 +1,7 @@
 <script lang="ts">
     import Reply from '$lib/components/views/engagement/Reply.svelte';
     import { onMount } from 'svelte';
-    import { info } from "$lib/ao/relay";
+    import { _fetchEvents, info } from "$lib/ao/relay";
     import { Avatar, AvatarImage, AvatarFallback } from "$lib/components/ui/avatar";
     import { CornerDownRight , Repeat2Icon } from "lucide-svelte";
     import Nip92 from "$lib/handlers/NIP92.svelte";
@@ -27,7 +27,7 @@
     let originalProfile: any = null;
     let isLoading: boolean = true;
     let loadError: string | null = null;
-
+    let repostArray: any[] = [];
     // Create reactive statements to handle data dependencies
     $: {
         if (event) {
@@ -50,6 +50,18 @@
             return null;
         }
     }
+
+
+    async function countReposts(){
+          let repostFilter = JSON.stringify([
+    {
+      kinds: ["6"],
+      tags: { e: originalEvent.Id.toString()},
+    },
+  ]);
+  repostArray = await _fetchEvents($currentUser.Process, repostFilter);
+    console.log("reposts array", repostArray);
+}
 
     async function loadEventData() {
         isLoading = true;

@@ -1,4 +1,4 @@
-<!-- <script lang="ts">
+ <script lang="ts">
 	import { upload } from '$lib/ao/uploader';
     import { Button } from "$lib/components/ui/button/index.js";
     import { Repeat2 } from "lucide-svelte";
@@ -53,9 +53,9 @@
         <Repeat2 strokeWidth={0.8} class="text-primary"/>
         <p class="font-thin">{count}</p>
     {/if}
-</Button> -->
+</Button> 
 
-<script lang="ts">
+<!-- <script lang="ts">
   import { Button } from "$lib/components/ui/button/index.js";
   import { Repeat2 } from "lucide-svelte";
   import { event } from "$lib/ao/relay";
@@ -140,4 +140,4 @@
     <Repeat2 strokeWidth={0.8} class="text-primary" />
     <p class="font-thin">{count}</p>
   {/if}
-</Button>
+</Button> -->
