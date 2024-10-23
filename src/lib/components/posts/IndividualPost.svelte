@@ -45,7 +45,7 @@
     let postFilter = JSON.stringify([
       {
         kinds: ["1"],
-        marker: "root",
+        tags: {marker: ["root"]},
         //   ids: [id],
         //   limit: 1
       },
@@ -79,16 +79,13 @@
   async function handleNewReply(replyEvent: any) {
     let newReply = replyEvent.detail;
 
-    // Add reply-specific tags
     let eTag = { name: "e", value: post.Id };
     let pTag = { name: "p", value: post.From };
     let markerTag = { name: "marker", value: "reply" };
     newReply.Tags.push(eTag, pTag, markerTag);
 
-    // Send the new reply event
     await aoEvent(newReply.Tags, $currentUser.Process);
 
-    // Update the replies list
     replies = [newReply, ...replies];
   }
 </script>
@@ -121,7 +118,7 @@
     </div>
 
     <div class="mt-4">
-      <h2 class="text-xl font-semibold mb-4">Replies</h2>
+      <h2 class="text-xl text-primary font-semibold mb-4">Replies</h2>
       {#each replies as reply (reply.Id)}
         <div class="border border-border rounded-lg overflow-hidden mb-4">
           <Post event={reply} />
