@@ -3,7 +3,7 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import { Repeat2 } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { _fetchEvents, event } from "$lib/ao/relay";
+  import { fetchEvents, event } from "$lib/ao/relay";
   import type { Tag } from "$lib/models/Tag";
   import { currentUser } from "$lib/stores/profile.store";
 
@@ -58,7 +58,7 @@
         };
         filters.push(filter);
         let _filters = JSON.stringify(filters);
-        repostArray = await _fetchEvents($currentUser.Process, _filters);
+        repostArray = await fetchEvents($currentUser.Process, _filters);
         for(var i=0; i < repostArray.length; i++){
             if(repostArray[i].From == $currentUser.Process){
                 reposted = true
