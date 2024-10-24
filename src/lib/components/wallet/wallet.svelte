@@ -15,8 +15,11 @@
         userRelay,
     } from "$lib/stores/profile.store";
     import { Button } from "$lib/components/ui/button";
+    // import { Othent } from "@othent/kms";
 
     export let buttonClass = "";
+    import { Othent, AppInfo } from "@othent/kms";
+
     let title = "Connect Wallet";
     let isLoading = false;
 
@@ -108,6 +111,16 @@
             isLoading = false;
         }
     };
+
+    const appInfo: AppInfo = {
+        name: "My Awesome App",
+        version: "1.0.0",
+        env: "production",
+    };
+
+const othent = new Othent({ appInfo, ... });
+
+
 </script>
 
 <div class="flex flex-col gap-4 w-full max-w-[1200px] mx-auto">
