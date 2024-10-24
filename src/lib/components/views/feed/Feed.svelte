@@ -1,23 +1,15 @@
 <script lang="ts">
     import {
         currentUser,
-        userEvents,
-        user,
-        feedEvents,
+        user
     } from "$lib/stores/profile.store";
     import Post from "$lib/components/posts/Post.svelte";
     import * as Tabs from "$lib/components/ui/tabs/index.js";
     import { onMount } from "svelte";
-    import { fetchEvents, fetchFeed } from "$lib/ao/relay";
+    import { fetchEvents } from "$lib/ao/relay";
 
     let events: Array<any> = [];
     let filters: Array<any> = [];
-
-    feedEvents.subscribe((value) => {
-        if (value.length > 0) {
-            events = processEvents(value);
-        }
-    });
 
     function processEvents(rawEvents: any) {
         const postMap = new Map();
@@ -58,7 +50,8 @@
             filters.push(filter);
             let _filters = JSON.stringify(filters);
             if ($currentUser) {
-                fetchFeed($currentUser.Process, _filters);
+                let _events = await fetchEvents($currentUser.Process, _filters);
+                events = processEvents(_events);
             }
         }
         filters = [];
@@ -76,7 +69,8 @@
             filters.push(filter);
             let _filters = JSON.stringify(filters);
             if ($currentUser) {
-                fetchFeed($currentUser.Process, _filters);
+                let _events = await fetchEvents($currentUser.Process, _filters);
+                events = processEvents(_events);
             }
         }
         filters = [];

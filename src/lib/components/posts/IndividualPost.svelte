@@ -1,7 +1,7 @@
 <script lang="ts">
   console.log("Loading it is!!");
   import { onMount } from "svelte";
-  import { _fetchEvents, info, event as aoEvent } from "$lib/ao/relay";
+  import { fetchEvents, info, event as aoEvent } from "$lib/ao/relay";
   import Post from "$lib/components/posts/Post.svelte";
   import Reply from "$lib/components/views/engagement/Reply.svelte";
   import {
@@ -51,7 +51,7 @@
         //   limit: 1
       },
     ]);
-    let postResults = await _fetchEvents(user, postFilter);
+    let postResults = await fetchEvents(user, postFilter);
     if (postResults.length > 0) {
       post = postResults[0];
       _user = await info(post.From);
@@ -74,7 +74,7 @@
         tags: { e: [id] },
       },
     ]);
-    replies = await _fetchEvents($currentUser.Process, replyFilter);
+    replies = await fetchEvents($currentUser.Process, replyFilter);
   });
 
   async function handleNewReply(replyEvent: any) {
