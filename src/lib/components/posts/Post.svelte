@@ -1,7 +1,7 @@
 <script lang="ts">
     import Reply from '$lib/components/views/engagement/Reply.svelte';
     import { onMount } from 'svelte';
-    import { _fetchEvents, info } from "$lib/ao/relay";
+    import { fetchEvents, info } from "$lib/ao/relay";
     import { Avatar, AvatarImage, AvatarFallback } from "$lib/components/ui/avatar";
     import { CornerDownRight , Repeat2Icon } from "lucide-svelte";
     import Nip92 from "$lib/handlers/NIP92.svelte";
@@ -59,7 +59,7 @@
       tags: { e: originalEvent.Id.toString()},
     },
   ]);
-  repostArray = await _fetchEvents($currentUser.Process, repostFilter);
+  repostArray = await fetchEvents($currentUser.Process, repostFilter);
     console.log("reposts array", repostArray);
 }
 
