@@ -1,54 +1,60 @@
-<script>
-    import { onMount } from "svelte";
+<script lang="ts">
     import {
         walletAddress,
         setWalletAddress,
         clearWalletAddress,
     } from "../../stores/walletStore";
     import SmallSpinner from "$lib/components/spinners/smallSpinner.svelte";
+    import MyWallet from "./my_wallet.svelte";
+    // @ts-ignore
     import { relay, info, relays } from "$lib/ao/relay";
-    import { currentUser, isConnected, user, userRelay } from "$lib/stores/profile.store";
+    import {
+        currentUser,
+        isConnected,
+        user,
+        userRelay,
+    } from "$lib/stores/profile.store";
     import { Button } from "$lib/components/ui/button";
-    export let buttonClass = "";
 
+    export let buttonClass = "";
     let title = "Connect Wallet";
     let isLoading = false;
 
     $: if ($walletAddress) {
         title = formatAddress($walletAddress);
-        isConnected.set(true)
+        isConnected.set(true);
     } else {
         title = "Connect Wallet";
-        isConnected.set(false)
+        isConnected.set(false);
     }
-    async function checkWalletConnection() {
+
+    async function checkWalletConnection(): Promise<void> {
+        // @ts-ignore
         if (window.arweaveWallet) {
             try {
+                // @ts-ignore
                 const address = await window.arweaveWallet.getActiveAddress();
-                isConnected.set(true)
+                isConnected.set(true);
                 let _relay = await relay(address);
                 if (_relay) {
                     userRelay.set(_relay);
-                    let _currentUser = await info(_relay)
-                    console.log("///////CURRENT USER/////////")
-                    console.log(_currentUser)
-                    currentUser.set(_currentUser)
-                    user.set(_currentUser)
+                    let _currentUser = await info(_relay);
+                    currentUser.set(_currentUser);
+                    user.set(_currentUser);
                 }
                 setWalletAddress(address);
                 title = "Disconnect";
             } catch (error) {
-                //console.error('Failed to get active address:', error);
+                console.error("Failed to get active address:", error);
             }
         }
     }
 
-    //@ts-ignore
-    function formatAddress(address) {
+    function formatAddress(address: string): string {
         return `${address.slice(0, 4)}...${address.slice(-4)}`;
     }
 
-    const connectWallet = async () => {
+    const connectWallet = async (): Promise<void> => {
         if ($isConnected) {
             await disconnectWallet();
             return;
@@ -57,6 +63,7 @@
         title = "Connecting";
         isLoading = true;
         try {
+            // @ts-ignore
             await window.arweaveWallet.connect(
                 [
                     "ACCESS_ADDRESS",
@@ -79,7 +86,6 @@
                     protocol: "https",
                 },
             );
-            console.log("Wallet connected successfully");
             await checkWalletConnection();
         } catch (error) {
             console.error("Failed to connect wallet:", error);
@@ -89,12 +95,12 @@
         }
     };
 
-    const disconnectWallet = async () => {
+    const disconnectWallet = async (): Promise<void> => {
         title = "Disconnecting";
         isLoading = true;
         try {
+            // @ts-ignore
             await window.arweaveWallet.disconnect();
-            console.log("Wallet disconnected successfully");
             clearWalletAddress();
         } catch (error) {
             console.error("Failed to disconnect wallet:", error);
@@ -104,16 +110,24 @@
     };
 </script>
 
-<Button
-    class="items-center text-black w-3/4 text-secondary"
-    on:click={connectWallet}
->
-    {#if isLoading}
-        <div class="flex flex-row items-center">
-            {title}
-            <div class="pl-2"><SmallSpinner /></div>
-        </div>
-    {:else}
-        {$isConnected ? "Disconnect Wallet" : title}
+<div class="flex flex-col gap-4 w-full max-w-[1200px] mx-auto">
+    <div class="flex justify-center sm:justify-start px-4 sm:px-6 md:px-8">
+        <Button
+            class="w-full sm:w-auto min-w-[200px] items-center text-black text-secondary {buttonClass}"
+            on:click={connectWallet}
+        >
+            {#if isLoading}
+                <div class="flex flex-row items-center justify-center">
+                    {title}
+                    <div class="pl-2"><SmallSpinner /></div>
+                </div>
+            {:else}
+                {$isConnected ? "Disconnect Wallet" : title}
+            {/if}
+        </Button>
+    </div>
+
+    {#if $isConnected}
+        <MyWallet />
     {/if}
-</Button>
+</div>
