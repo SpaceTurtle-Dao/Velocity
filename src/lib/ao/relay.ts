@@ -18,7 +18,7 @@ import {
     SetRelay
 } from "$lib/ao/messegeFactory.svelte";
 import { INDEXER_ID, WAR_TOKEN } from "$lib/constants";
-import { currentUser, feedEvents, followers, userEvents } from "$lib/stores/profile.store";
+import { currentUser, followers } from "$lib/stores/profile.store";
 import { feedPosts, replies } from "../stores/feedpage.store";
 import type { UserInfo } from "$lib/models/Profile";
 import { users } from "$lib/stores/main.store";
@@ -134,45 +134,20 @@ export const spawnRelay = async () => {
     return _relay
 };
 
-export const fetchFeed = async (relay: string, filters: string) => {
-    console.log("**********Fetching Feed*******")
-    let _events: Array<any> = [];
-    try {
-        // @ts-ignore
-        let message = FetchFeed(filters);
-        let result = await read(relay, message);
-        console.log(result);
-        let json = JSON.parse(result.Data);
-        console.log(json)
-        if (result) {
-            feedEvents.set(json)
-        }
-    } catch (e) {
-        console.log(e);
-    }
-    return _events;
-};
-
-export const fetchEvents = async (relay: string, filters: string) => {
+/*export const fetchEvents = async (relay: string, filters: string) => {
     try {
         // @ts-ignore
         let message = FetchEvents(filters);
         let result = await read(relay, message);
         if (result) {
-            //console.log(result);
-            let json = JSON.parse(result.Data);
-            /*console.log("***Filters***")
-            console.log(JSON.parse(filters));
-            console.log("***Got Events***")
-            console.log(json);*/
             userEvents.set(json)
         };
     } catch (e) {
         console.log(e);
     }
-};
+};*/
 
-export const _fetchEvents = async (relay: string, filters: string) : Promise<any[]> => {
+export const fetchEvents = async (relay: string, filters: string) : Promise<any[]> => {
     let events:any[] = []
     try {
         // @ts-ignore

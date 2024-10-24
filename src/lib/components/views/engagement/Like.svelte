@@ -3,8 +3,8 @@
     import type { Tag } from "$lib/models/Tag";
     import { Heart } from "lucide-svelte";
     import { onMount } from "svelte";
-    import { _fetchEvents, event, fetchEvents } from "$lib/ao/relay";
-    import { currentUser, userEvents } from "$lib/stores/profile.store";
+    import { fetchEvents, event } from "$lib/ao/relay";
+    import { currentUser } from "$lib/stores/profile.store";
 
     export let _event: any;
 
@@ -54,7 +54,7 @@
         };
         filters.push(filter);
         let _filters = JSON.stringify(filters);
-        likes = await _fetchEvents(_event.From, _filters);
+        likes = await fetchEvents(_event.From, _filters);
         for(var i=0; i < likes.length; i++){
             if(likes[i].From == $currentUser.Process){
                 liked = true

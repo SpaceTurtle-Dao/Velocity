@@ -2,7 +2,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import { event as aoEvent } from "$lib/ao/relay";
+  import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
   import { currentUser } from "$lib/stores/profile.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
