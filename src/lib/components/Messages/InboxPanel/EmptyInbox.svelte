@@ -3,7 +3,7 @@
 </script>
 
 <div class="flex flex-col items-center mt-10">
-  <div class="w-[330px]">
+  <div class="max-w-[330px] w-auto">
     <h1 class="text-left text-3xl text-primary font-extrabold">
       Welcome to your inbox!
     </h1>
