@@ -95,7 +95,6 @@
 
       newReply = await aoEvent(tags, $currentUser.Process);
       
-      // Create a simplified tags object for the event dispatch
       const replyTags = tags.reduce((acc: any, tag) => {
         acc[tag.name.toLowerCase()] = tag.value;
         return acc;
