@@ -1,13 +1,12 @@
 <script lang="ts">
-    import {
-        walletAddress,
-        setWalletAddress,
-        clearWalletAddress,
-    } from "../../stores/walletStore";
+    import { walletAddress, walletStore } from "../../stores/walletStore";
+
     import SmallSpinner from "$lib/components/spinners/smallSpinner.svelte";
     import MyWallet from "./my_wallet.svelte";
+
     // @ts-ignore
     import { relay, info, relays } from "$lib/ao/relay";
+
     import {
         currentUser,
         isConnected,
@@ -15,10 +14,8 @@
         userRelay,
     } from "$lib/stores/profile.store";
     import { Button } from "$lib/components/ui/button";
-    // import { Othent } from "@othent/kms";
 
     export let buttonClass = "";
-    import { Othent, AppInfo } from "@othent/kms";
 
     let title = "Connect Wallet";
     let isLoading = false;
@@ -45,7 +42,7 @@
                     currentUser.set(_currentUser);
                     user.set(_currentUser);
                 }
-                setWalletAddress(address);
+                // setWalletAddress(address);
                 title = "Disconnect";
             } catch (error) {
                 console.error("Failed to get active address:", error);
@@ -104,29 +101,19 @@
         try {
             // @ts-ignore
             await window.arweaveWallet.disconnect();
-            clearWalletAddress();
+            // clearWalletAddress();
         } catch (error) {
             console.error("Failed to disconnect wallet:", error);
         } finally {
             isLoading = false;
         }
     };
-
-    const appInfo: AppInfo = {
-        name: "My Awesome App",
-        version: "1.0.0",
-        env: "production",
-    };
-
-const othent = new Othent({ appInfo, ... });
-
-
 </script>
 
 <div class="flex flex-col gap-4 w-full max-w-[1200px] mx-auto">
-    <div class="flex justify-center sm:justify-start px-4 sm:px-6 md:px-8">
+    <div class="flex-col justify-center sm:justify-start px-4 sm:px-6 md:px-8">
         <Button
-            class="w-full sm:w-auto min-w-[200px] items-center text-black text-secondary {buttonClass}"
+            class="w-full sm:w-auto min-w-[300px] items-center text-black text-secondary {buttonClass}"
             on:click={connectWallet}
         >
             {#if isLoading}
@@ -136,6 +123,20 @@ const othent = new Othent({ appInfo, ... });
                 </div>
             {:else}
                 {$isConnected ? "Disconnect Wallet" : title}
+            {/if}
+        </Button>
+
+        <Button
+            class="w-full sm:w-auto min-w-[300px] items-center text-black text-secondary {buttonClass}"
+            on:click={walletStore.connectOthunt}
+        >
+            {#if isLoading}
+                <div class="flex flex-row items-center justify-center">
+                    {title}
+                    <div class="pl-2"><SmallSpinner /></div>
+                </div>
+            {:else}
+                {$isConnected ? "Disconnect Wallet" : "Othunt"}
             {/if}
         </Button>
     </div>
