@@ -111,21 +111,9 @@
 </script>
 
 <div class="flex flex-col gap-4 w-full max-w-[1200px] mx-auto">
-    <div class="flex-col justify-center sm:justify-start px-4 sm:px-6 md:px-8">
-        <Button
-            class="w-full sm:w-auto min-w-[300px] items-center text-black text-secondary {buttonClass}"
-            on:click={connectWallet}
-        >
-            {#if isLoading}
-                <div class="flex flex-row items-center justify-center">
-                    {title}
-                    <div class="pl-2"><SmallSpinner /></div>
-                </div>
-            {:else}
-                {$isConnected ? "Disconnect Wallet" : title}
-            {/if}
-        </Button>
-
+    <div
+        class="flex-col justify-evenly sm:justify-evenly px-4 sm:px-6 md:px-8 space-y-4"
+    >
         <Button
             class="w-full sm:w-auto min-w-[300px] items-center text-black text-secondary {buttonClass}"
             on:click={walletStore.connectOthunt}
@@ -137,6 +125,20 @@
                 </div>
             {:else}
                 {$isConnected ? "Disconnect Wallet" : "Othunt"}
+            {/if}
+        </Button>
+
+        <Button
+            class="w-full sm:w-auto min-w-[300px] items-center text-black text-secondary {buttonClass}"
+            on:click={connectWallet}
+        >
+            {#if isLoading}
+                <div class="flex flex-row items-center justify-center">
+                    {title}
+                    <div class="pl-2"><SmallSpinner /></div>
+                </div>
+            {:else}
+                {$isConnected ? "Disconnect Wallet" : title}
             {/if}
         </Button>
     </div>

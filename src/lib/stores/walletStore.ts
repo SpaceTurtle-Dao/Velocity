@@ -4,7 +4,7 @@ import { currentUser, user, userRelay } from './profile.store';
 import { Othent, type AppInfo, type PermissionType } from '@othent/kms';
 
 // Types
-export type AuthMethod = 'arweave' | 'google' | 'apple' | null;
+export type AuthMethod = 'arweave' | 'othunt' | null;
 
 export interface WalletState {
        address: string;
@@ -153,7 +153,7 @@ function createWalletStore() {
                             if (state.authMethod === 'arweave') {
                                    // @ts-ignore
                                    await window.arweaveWallet?.disconnect();
-                            } else if (state.authMethod === 'google' || state.authMethod === 'apple') {
+                            } else if (state.authMethod === 'othunt') {
                                    await othent.disconnect();
                             }
                             set(initialState);
