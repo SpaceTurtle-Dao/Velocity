@@ -5,12 +5,10 @@
   import { mockChatThreads } from "./inboxMockData";
 </script>
 
-<div class="border-x border-border h-full py-4">
-  <div>
-    <h2 class="text-xl px-4 font-bold text-primary">Inbox</h2>
+<div class="border-x border-border h-full">
+  <div class="border-b border-border p-4">
+    <h2 class="text-xl font-bold text-primary">Inbox</h2>
   </div>
-
-  <div class="my-4 border-b border-border" />
 
   <!-- <EmptyInbox /> -->
 

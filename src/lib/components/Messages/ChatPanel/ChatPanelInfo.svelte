@@ -3,7 +3,7 @@
 </script>
 
 <div class="h-full flex flex-col justify-center items-center">
-  <div class="w-[330px]">
+  <div class="max-w-[330px] w-auto">
     <h2 class="text-left text-3xl text-primary font-extrabold">
       Select a message
     </h2>
