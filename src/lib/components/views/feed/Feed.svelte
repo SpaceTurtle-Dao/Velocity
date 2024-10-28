@@ -41,7 +41,7 @@
     async function fetchFollowingEvents() {
         if ($currentUser) {
             let filter = {
-                kinds: ["1"],
+                kinds: ["1","6"],
                 since: 1663905355000,
                 until: Date.now(),
                 limit: 100,
@@ -60,7 +60,7 @@
     async function fetchFeedEvents() {
         if ($currentUser) {
             let filter = {
-                kinds: ["1"],
+                kinds: ["1","6"],
                 since: 1663905355000,
                 until: Date.now(),
                 limit: 100,

@@ -5,12 +5,15 @@
     import Profile from "$lib/components/views/profile/Profile.svelte";
     import RelayButtons from "$lib/components/relay/Relay.svelte";
     import IndividualProfile from "$lib/components/views/profile/IndividualProfile.svelte";
+    import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
+
     const routes = {
         "/": LandingPage,
         "/feed": Feed,
         "/profile": Profile,
         "/messages": RelayButtons,
         "/profile/:process": IndividualProfile,
+        "/post/:id/:user": IndividualPost,
     };
 </script>
 

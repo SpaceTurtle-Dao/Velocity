@@ -74,10 +74,13 @@
     events = [];
     if (userInfo) {
       let filter = {
-        kinds: ["1"],
+        kinds: ["1","6"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
+        tags: {
+          From: [$currentUser.Process]
+        },
       };
       let filter2 = {
         tags: {
@@ -117,7 +120,7 @@
     //events = [];
     if (userInfo) {
       let filter = {
-        kinds: ["1"],
+        kinds: ["1","6"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
@@ -125,7 +128,13 @@
           marker: ["root"],
         },
       };
+      let filter2 = {
+        tags: {
+          From: [$currentUser.Process],
+        },
+      };
       filters.push(filter);
+      filters.push(filter2);
       let _filters = JSON.stringify(filters);
       if (userInfo) {
         events = await fetchEvents(userInfo.Process, _filters);
