@@ -1,136 +1,218 @@
 <script lang="ts">
-  console.log("Loading it is!!");
   import { onMount } from "svelte";
   import { fetchEvents, info, event as aoEvent } from "$lib/ao/relay";
-  import Post from "$lib/components/posts/Post.svelte";
-  import Reply from "$lib/components/views/engagement/Reply.svelte";
-  import {
-    Avatar,
-    AvatarImage,
-    AvatarFallback,
-  } from "$lib/components/ui/avatar";
-  import { CornerDownRight } from "lucide-svelte";
-  import Nip92 from "$lib/handlers/NIP92.svelte";
+  import { currentUser } from "$lib/stores/profile.store";
+  import { Avatar, AvatarImage, AvatarFallback } from "$lib/components/ui/avatar";
+  import { Button } from "$lib/components/ui/button";
+  import { Textarea } from "$lib/components/ui/textarea";
   import Like from "$lib/components/views/engagement/Like.svelte";
   import Repost from "$lib/components/views/engagement/Repost.svelte";
   import Buy from "$lib/components/views/engagement/Buy.svelte";
   import Share from "$lib/components/views/engagement/Share.svelte";
-  import { currentUser } from "$lib/stores/profile.store";
+  import Post from "$lib/components/posts/Post.svelte";
+  import { Image } from "lucide-svelte";
   import { afterUpdate } from "svelte";
 
-  // Set the current URL
   let url = window.location.href.split("/");
   let id = url.pop() || "/";
   let user = url.pop() || "/";
-
-  console.log("Answer it");
-
-  // Set it as soon as pages update
-  afterUpdate(() => {
-    let url = window.location.href.split("/");
-    id = url.pop() || "/";
-    user = url.pop() || "/";
-  });
-
-  console.log("user is this", user);
-
-  console.log("Id is this", id);
-
+  
   let post: any = null;
   let replies: any[] = [];
   let _user: any;
   let profile: any;
 
+  // For reply input
+  let replyContent = "";
+  let isSubmitting = false;
+  let fileInput: HTMLInputElement;
+  let selectedMedia: File | null = null;
+  let mediaPreviewUrl: string | null = null;
+
   onMount(async () => {
-    // Fetch the post
     let postFilter = JSON.stringify([
       {
         kinds: ["1"],
-        marker: "root",
-        //   ids: [id],
-        //   limit: 1
-      },
+        tags: { marker: ["root"] }
+      }
     ]);
     let postResults = await fetchEvents(user, postFilter);
     if (postResults.length > 0) {
       post = postResults[0];
       _user = await info(post.From);
       profile = _user.Profile;
-      console.log("Post filter object", postFilter);
-      console.log("Post results", postResults);
     }
 
-    console.log("Post filter object", postFilter);
-    console.log("Post results", postResults);
-
-    //Fetch replies
     let replyFilter = JSON.stringify([
       {
         kinds: ["1"],
         limit: 100,
-        tags: { marker: ["reply"] },
+        tags: { marker: ["reply"] }
       },
       {
-        tags: { e: [id] },
-      },
+        tags: { e: [id] }
+      }
     ]);
     replies = await fetchEvents($currentUser.Process, replyFilter);
   });
 
-  async function handleNewReply(replyEvent: any) {
-    let newReply = replyEvent.detail;
+  async function handleReply() {
+    if (!replyContent.trim() && !selectedMedia) return;
+    isSubmitting = true;
 
-    // Add reply-specific tags
-    let eTag = { name: "e", value: post.Id };
-    let pTag = { name: "p", value: post.From };
-    let markerTag = { name: "marker", value: "reply" };
-    newReply.Tags.push(eTag, pTag, markerTag);
+    try {
+      const tags = [
+        { name: "Kind", value: "1" },
+        { name: "marker", value: "reply" },
+        { name: "e", value: post.Id },
+        { name: "p", value: post.From },
+        { name: "Content", value: replyContent }
+      ];
 
-    // Send the new reply event
-    await aoEvent(newReply.Tags, $currentUser.Process);
-
-    // Update the replies list
-    replies = [newReply, ...replies];
+      const newReply = await aoEvent(tags, $currentUser.Process);
+      replies = [newReply, ...replies];
+      replyContent = "";
+      selectedMedia = null;
+      mediaPreviewUrl = null;
+      if (fileInput) fileInput.value = "";
+    } catch (error) {
+      console.error("Error posting reply:", error);
+    } finally {
+      isSubmitting = false;
+    }
   }
+
+  function handleMediaSelect() {
+    fileInput?.click();
+  }
+
+  function handleFileChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+      selectedMedia = target.files[0];
+      mediaPreviewUrl = URL.createObjectURL(selectedMedia);
+    }
+  }
+
+  function removeSelectedMedia() {
+    selectedMedia = null;
+    mediaPreviewUrl = null;
+    if (fileInput) fileInput.value = "";
+  }
+
+  afterUpdate(() => {
+    url = window.location.href.split("/");
+    id = url.pop() || "/";
+    user = url.pop() || "/";
+  });
 </script>
 
-<div class="max-w-2xl mx-auto mt-8">
+<div class="max-w-prose mx-auto mt-10 mb-10">
   {#if post}
-    <div class="border border-border rounded-lg overflow-hidden">
+    <!-- Main Post -->
+    <div class="border border-border hover:bg-gray-900/5">
       <div class="p-4">
-        <div class="flex items-start space-x-3">
-          <Avatar class="h-10 w-10">
+        <div class="flex space-x-3">
+          <Avatar class="h-12 w-12">
             {#if profile?.picture}
-              <AvatarImage src={profile.picture} alt="Avatar" />
+              <AvatarImage src={profile.picture} alt={profile?.name || "User"} />
             {:else}
               <AvatarFallback>{profile?.name?.[0] || "U"}</AvatarFallback>
             {/if}
           </Avatar>
-          <div>
-            <p class="font-semibold">{profile?.name}</p>
-            <Nip92 event={post} />
+          <div class="flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-primary">{profile?.name || "User"}</span>
+              {#if profile?.verified}
+                <span class="text-blue-500">✓</span>
+              {/if}
+            </div>
+            <p class="text-primary mt-1">{post.Content}</p>
+            
+            <!-- Engagement Stats -->
+              <div class="flex justify-between mt-3 engagement-button">
+                <Repost />
+                <Like _event={post} />
+                <Buy />
+                <Share />
+            </div>
           </div>
         </div>
-        <p class="mt-2 text-lg">{post.Tags.Content}</p>
-        <div class="flex justify-between mt-4">
-          <Reply event={post} user={_user} on:newReply={handleNewReply} />
-          <Repost />
-          <Like _event={post} />
-          <Buy />
-          <Share />
+      </div>
+
+      <!-- Inline Reply Field -->
+      <div class="border-t border-border p-4">
+        <div class="flex space-x-3">
+          <Avatar class="h-12 w-12">
+            {#if $currentUser?.Profile?.picture}
+              <AvatarImage 
+                src={$currentUser.Profile.picture} 
+                alt={$currentUser.Profile.name || "Current User"} 
+              />
+            {:else}
+              <AvatarFallback>
+                {$currentUser?.Profile?.name?.[0] || "U"}
+              </AvatarFallback>
+            {/if}
+          </Avatar>
+          <div class="flex-1">
+            <Textarea
+              bind:value={replyContent}
+              placeholder="Post your reply"
+              class="w-full bg-background text-primary border-none focus:border-none outline-none focus:outline-none focus-visible:outline-none ring-none focus:ring-none focus-visible:ring-none text-lg"
+            />
+            {#if mediaPreviewUrl}
+              <div class="relative mt-2">
+                {#if selectedMedia?.type.startsWith('video')}
+                  <video src={mediaPreviewUrl} controls class="w-full h-48 object-cover rounded-md" />
+                {:else}
+                  <img src={mediaPreviewUrl} alt="Selected media" class="w-full object-cover rounded-md" />
+                {/if}
+                <button
+                  class="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white hover:bg-black/70"
+                  on:click={removeSelectedMedia}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            {/if}
+            <div class="flex justify-between mt-4">
+              <Button
+                variant="ghost"
+                on:click={handleMediaSelect}
+                class="text-primary hover:bg-primary/10 rounded-full"
+              >
+                <Image size={24} />
+              </Button>
+              <Button
+                on:click={handleReply}
+                disabled={isSubmitting || (!replyContent.trim() && !selectedMedia)}
+                class="bg-primary text-primary-foreground rounded-full px-4 py-2 font-semibold hover:bg-primary/90"
+              >
+                {isSubmitting ? "Replying..." : "Reply"}
+              </Button>
+            </div>
+            <input
+              type="file"
+              accept="image/*,video/*"
+              bind:this={fileInput}
+              class="hidden"
+              on:change={handleFileChange}
+            />
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="mt-4">
-      <h2 class="text-xl font-semibold mb-4">Replies</h2>
-      {#each replies as reply (reply.Id)}
-        <div class="border border-border rounded-lg overflow-hidden mb-4">
-          <Post event={reply} />
-        </div>
-      {/each}
-    </div>
+    <!-- Replies -->
+    {#each replies as reply (reply.Id)}
+      <div class="border border-border hover:bg-gray-900/5">
+        <Post event={reply} />
+      </div>
+    {/each}
   {:else}
-    <p>Loading...</p>
+    <div class="flex justify-center items-center h-32">
+      <p class="text-gray-500">Loading...</p>
+    </div>
   {/if}
 </div>
