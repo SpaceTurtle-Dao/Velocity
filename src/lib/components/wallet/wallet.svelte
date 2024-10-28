@@ -117,16 +117,19 @@
             let res = await othent.connect();
             console.log(res);
             if (res) {
+                let addr = await othent.getActiveAddress();
+                console.log(addr);
+                isConnected.set(true);
                 title = "Connected";
                 isLoading = false;
-                let addr = await othent.getActiveAddress();
-                isConnected.set(true);
                 let _relay = await relay(addr);
                 if (_relay) {
                     userRelay.set(_relay);
                     let _currentUser = await info(_relay);
                     currentUser.set(_currentUser);
                     user.set(_currentUser);
+                } else {
+                    console.log("No relay found");
                 }
             } else {
                 title = "Error";
@@ -134,7 +137,7 @@
                 isConnected.set(false);
             }
         } catch (error) {
-            console.log(error);
+            console.log("Failed to connect via othent", error);
             title = "Error";
             isLoading = false;
             isConnected.set(false);
@@ -184,12 +187,12 @@
                     <div class="pl-2"><SmallSpinner /></div>
                 </div>
             {:else}
-                {$isConnected ? "Disconnect Wallet" : title}
+                {$isConnected ? "Disconnect Wallet" : "ao wallet"}
             {/if}
         </Button>
     </div>
 
-    {#if $isConnected}
+    <!-- {#if $isConnected}
         <MyWallet />
-    {/if}
+    {/if} -->
 </div>
