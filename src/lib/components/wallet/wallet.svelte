@@ -1,12 +1,13 @@
 <script lang="ts">
-    import { walletAddress, walletStore } from "../../stores/walletStore";
-
+    import {
+        walletAddress,
+        aoWalletState,
+        othuntWalletState,
+    } from "../../stores/walletStore";
     import SmallSpinner from "$lib/components/spinners/smallSpinner.svelte";
     import MyWallet from "./my_wallet.svelte";
-
     // @ts-ignore
     import { relay, info, relays } from "$lib/ao/relay";
-
     import {
         currentUser,
         isConnected,
@@ -14,11 +15,23 @@
         userRelay,
     } from "$lib/stores/profile.store";
     import { Button } from "$lib/components/ui/button";
-
+    import { Othent } from "@othent/kms";
+    import { appConfig, appInfo } from "$lib/models/wallet";
     export let buttonClass = "";
 
     let title = "Connect Wallet";
     let isLoading = false;
+
+    let aoState = "disconnected";
+    let othentState = "disconnected";
+
+    aoWalletState.subscribe((value) => {
+        aoState = value;
+    });
+
+    othuntWalletState.subscribe((value) => {
+        othentState = value;
+    });
 
     $: if ($walletAddress) {
         title = formatAddress($walletAddress);
@@ -94,6 +107,39 @@
             isLoading = false;
         }
     };
+    const connectOthent = async (): Promise<void> => {
+        try {
+            title = "Connecting";
+            isLoading = true;
+            const othent = new Othent({
+                appInfo: appInfo,
+            });
+            let res = await othent.connect();
+            console.log(res);
+            if (res) {
+                title = "Connected";
+                isLoading = false;
+                let addr = await othent.getActiveAddress();
+                isConnected.set(true);
+                let _relay = await relay(addr);
+                if (_relay) {
+                    userRelay.set(_relay);
+                    let _currentUser = await info(_relay);
+                    currentUser.set(_currentUser);
+                    user.set(_currentUser);
+                }
+            } else {
+                title = "Error";
+                isLoading = false;
+                isConnected.set(false);
+            }
+        } catch (error) {
+            console.log(error);
+            title = "Error";
+            isLoading = false;
+            isConnected.set(false);
+        }
+    };
 
     const disconnectWallet = async (): Promise<void> => {
         title = "Disconnecting";
@@ -116,9 +162,9 @@
     >
         <Button
             class="w-full sm:w-auto min-w-[300px] items-center text-black text-secondary {buttonClass}"
-            on:click={walletStore.connectOthunt}
+            on:click={connectOthent}
         >
-            {#if isLoading}
+            {#if othentState === "connecting"}
                 <div class="flex flex-row items-center justify-center">
                     {title}
                     <div class="pl-2"><SmallSpinner /></div>
@@ -132,7 +178,7 @@
             class="w-full sm:w-auto min-w-[300px] items-center text-black text-secondary {buttonClass}"
             on:click={connectWallet}
         >
-            {#if isLoading}
+            {#if aoState === "connecting"}
                 <div class="flex flex-row items-center justify-center">
                     {title}
                     <div class="pl-2"><SmallSpinner /></div>
