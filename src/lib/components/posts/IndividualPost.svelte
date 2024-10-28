@@ -130,13 +130,11 @@
             <p class="text-primary mt-1">{post.Content}</p>
             
             <!-- Engagement Stats -->
-            <div class="flex justify-between mt-4 text-gray-500 max-w-md">
-              <div class="flex justify-between mt-3 engagement-buttons">
+              <div class="flex justify-between mt-3 engagement-button">
                 <Repost />
                 <Like _event={post} />
                 <Buy />
                 <Share />
-              </div>
             </div>
           </div>
         </div>
@@ -161,7 +159,7 @@
             <Textarea
               bind:value={replyContent}
               placeholder="Post your reply"
-              class="w-full bg-background border-none focus:border-none outline-none focus:outline-none focus-visible:outline-none ring-none focus:ring-none focus-visible:ring-none text-lg"
+              class="w-full bg-background text-primary border-none focus:border-none outline-none focus:outline-none focus-visible:outline-none ring-none focus:ring-none focus-visible:ring-none text-lg"
             />
             {#if mediaPreviewUrl}
               <div class="relative mt-2">
