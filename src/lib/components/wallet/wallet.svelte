@@ -113,8 +113,22 @@
             isLoading = true;
             const othent = new Othent({
                 appInfo: appInfo,
+                inject: true,
             });
-            let res = await othent.connect();
+            let res = await othent.connect(
+                undefined,
+                {
+                    name: "Super Cool App",
+                    logo: "https://arweave.net/jAvd7Z1CBd8gVF2D6ESj7SMCCUYxDX_z3vpp5aHdaYk",
+                    env: "production",
+                    version: "1.0.0",
+                },
+                {
+                    host: "g8way.io",
+                    port: 443,
+                    protocol: "https",
+                },
+            );
             console.log(res);
             if (res) {
                 let addr = await othent.getActiveAddress();
