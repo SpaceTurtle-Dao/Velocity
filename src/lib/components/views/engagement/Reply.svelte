@@ -64,7 +64,7 @@
     isLoading = true;
     try {
       const tags: Tag[] = [
-        { name: "Kind", value: "1" },
+        { name: "Kind", value: "1" },  // Explicitly set as reply type
         { name: "marker", value: "reply" },
         { name: "e", value: event.Id },
         { name: "p", value: event.From }
@@ -87,11 +87,11 @@
 
       let _content = content;
       if (selectedMedia) {
-        // Handle media upload here if needed
         _content = _content + " [Media attached]";
       }
 
       tags.push({ name: "Content", value: _content });
+      tags.push({ name: "action", value: "reply" }); // Add explicit action tag
 
       newReply = await aoEvent(tags, $currentUser.Process);
       

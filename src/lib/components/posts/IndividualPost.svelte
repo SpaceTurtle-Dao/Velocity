@@ -10,7 +10,7 @@
   import Buy from "$lib/components/views/engagement/Buy.svelte";
   import Share from "$lib/components/views/engagement/Share.svelte";
   import Post from "$lib/components/posts/Post.svelte";
-  import { Image } from "lucide-svelte";
+  import { Image, Repeat2Icon } from "lucide-svelte";
   import { afterUpdate } from "svelte";
 
   let url = window.location.href.split("/");
@@ -18,21 +18,33 @@
   let user = url.pop() || "/";
   
   let post: any = null;
+  let originalPost: any = null;
   let replies: any[] = [];
   let _user: any;
   let profile: any;
+  let originalUser: any;
+  let originalProfile: any;
+  let isRepost: boolean = false;
 
-  // For reply input
   let replyContent = "";
   let isSubmitting = false;
   let fileInput: HTMLInputElement;
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
+  async function parseRepostContent(content: string) {
+    try {
+      return JSON.parse(content);
+    } catch (error) {
+      console.error('Failed to parse repost content:', error);
+      return null;
+    }
+  }
+
   onMount(async () => {
     let postFilter = JSON.stringify([
       {
-        kinds: ["1"],
+        kinds: ["1", "6"],  // Include kind 6 for reposts
         tags: { marker: ["root"] }
       }
     ]);
@@ -41,6 +53,17 @@
       post = postResults[0];
       _user = await info(post.From);
       profile = _user.Profile;
+
+      // Check if this is a repost
+      if (post.Tags['Kind'] === '6') {
+        isRepost = true;
+        const parsedContent = await parseRepostContent(post.Tags['Content']);
+        if (parsedContent) {
+          originalPost = parsedContent;
+          originalUser = await info(parsedContent.From);
+          originalProfile = originalUser?.Profile;
+        }
+      }
     }
 
     let replyFilter = JSON.stringify([
@@ -64,8 +87,8 @@
       const tags = [
         { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
-        { name: "e", value: post.Id },
-        { name: "p", value: post.From },
+        { name: "e", value: isRepost ? originalPost.Id : post.Id },
+        { name: "p", value: isRepost ? originalPost.From : post.From },
         { name: "Content", value: replyContent }
       ];
 
@@ -111,30 +134,62 @@
   {#if post}
     <!-- Main Post -->
     <div class="border border-border hover:bg-gray-900/5">
+      {#if isRepost}
+        <div class="flex items-center text-gray-500 px-4 pt-4">
+          <Repeat2Icon size={16} class="mr-2" />
+          <span class="text-sm">
+            Reposted by {profile?.name || "Unknown User"}
+          </span>
+        </div>
+      {/if}
       <div class="p-4">
         <div class="flex space-x-3">
           <Avatar class="h-12 w-12">
-            {#if profile?.picture}
+            {#if isRepost && originalProfile?.picture}
+              <AvatarImage src={originalProfile.picture} alt={originalProfile?.name || "User"} />
+            {:else if profile?.picture}
               <AvatarImage src={profile.picture} alt={profile?.name || "User"} />
             {:else}
-              <AvatarFallback>{profile?.name?.[0] || "U"}</AvatarFallback>
+              <AvatarFallback>
+                {#if isRepost && originalProfile?.name}
+                  {originalProfile.name[0]}
+                {:else if profile?.name}
+                  {profile.name[0]}
+                {:else}
+                  U
+                {/if}
+              </AvatarFallback>
             {/if}
           </Avatar>
           <div class="flex-1">
             <div class="flex items-center space-x-2">
-              <span class="font-bold text-primary">{profile?.name || "User"}</span>
-              {#if profile?.verified}
+              <span class="font-bold text-primary">
+                {#if isRepost && originalProfile?.name}
+                  {originalProfile.name}
+                {:else if profile?.name}
+                  {profile.name}
+                {:else}
+                  Unknown User
+                {/if}
+              </span>
+              {#if (isRepost ? originalProfile?.verified : profile?.verified)}
                 <span class="text-blue-500">✓</span>
               {/if}
             </div>
-            <p class="text-primary mt-1">{post.Content}</p>
+            <p class="text-primary mt-1">
+              {#if isRepost && originalPost}
+                {originalPost.Content}
+              {:else}
+                {post.Content}
+              {/if}
+            </p>
             
             <!-- Engagement Stats -->
-              <div class="flex justify-between mt-3 engagement-button">
-                <Repost />
-                <Like _event={post} />
-                <Buy />
-                <Share />
+            <div class="flex justify-between mt-3 engagement-button">
+              <Repost _event={isRepost ? originalPost : post} />
+              <Like _event={isRepost ? originalPost : post} />
+              <Buy />
+              <Share />
             </div>
           </div>
         </div>
