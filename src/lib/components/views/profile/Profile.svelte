@@ -71,7 +71,7 @@
 
   async function fetchMedia() {
     let filters: Array<any> = [];
-    //events = [];
+    events = [];
     if (userInfo) {
       let filter = {
         kinds: ["1","6"],
