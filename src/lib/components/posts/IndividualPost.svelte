@@ -1,8 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchEvents, info, event as aoEvent } from "$lib/ao/relay";
+  import { fetchEvents, info, event as aoEvent, event } from "$lib/ao/relay";
   import { currentUser } from "$lib/stores/profile.store";
-  import { Avatar, AvatarImage, AvatarFallback } from "$lib/components/ui/avatar";
+  import {
+    Avatar,
+    AvatarImage,
+    AvatarFallback,
+  } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
   import Like from "$lib/components/views/engagement/Like.svelte";
@@ -16,7 +20,7 @@
   let url = window.location.href.split("/");
   let id = url.pop() || "/";
   let user = url.pop() || "/";
-  
+
   let post: any = null;
   let originalPost: any = null;
   let replies: any[] = [];
@@ -36,7 +40,7 @@
     try {
       return JSON.parse(content);
     } catch (error) {
-      console.error('Failed to parse repost content:', error);
+      console.error("Failed to parse repost content:", error);
       return null;
     }
   }
@@ -44,9 +48,9 @@
   onMount(async () => {
     let postFilter = JSON.stringify([
       {
-        kinds: ["1", "6"],  // Include kind 6 for reposts
-        tags: { marker: ["root"] }
-      }
+        kinds: ["1", "6"], // Include kind 6 for reposts
+        tags: { marker: ["root"] },
+      },
     ]);
     let postResults = await fetchEvents(user, postFilter);
     if (postResults.length > 0) {
@@ -55,9 +59,9 @@
       profile = _user.Profile;
 
       // Check if this is a repost
-      if (post.Tags['Kind'] === '6') {
+      if (post.Tags["Kind"] === "6") {
         isRepost = true;
-        const parsedContent = await parseRepostContent(post.Tags['Content']);
+        const parsedContent = await parseRepostContent(post.Tags["Content"]);
         if (parsedContent) {
           originalPost = parsedContent;
           originalUser = await info(parsedContent.From);
@@ -70,11 +74,11 @@
       {
         kinds: ["1"],
         limit: 100,
-        tags: { marker: ["reply"] }
+        tags: { marker: ["reply"] },
       },
       {
-        tags: { e: [id] }
-      }
+        tags: { e: [id] },
+      },
     ]);
     replies = await fetchEvents($currentUser.Process, replyFilter);
   });
@@ -89,7 +93,7 @@
         { name: "marker", value: "reply" },
         { name: "e", value: isRepost ? originalPost.Id : post.Id },
         { name: "p", value: isRepost ? originalPost.From : post.From },
-        { name: "Content", value: replyContent }
+        { name: "Content", value: replyContent },
       ];
 
       const newReply = await aoEvent(tags, $currentUser.Process);
@@ -134,75 +138,16 @@
   {#if post}
     <!-- Main Post -->
     <div class="border border-border hover:bg-gray-900/5">
-      {#if isRepost}
-        <div class="flex items-center text-gray-500 px-4 pt-4">
-          <Repeat2Icon size={16} class="mr-2" />
-          <span class="text-sm">
-            Reposted by {profile?.name || "Unknown User"}
-          </span>
-        </div>
-      {/if}
-      <div class="p-4">
-        <div class="flex space-x-3">
-          <Avatar class="h-12 w-12">
-            {#if isRepost && originalProfile?.picture}
-              <AvatarImage src={originalProfile.picture} alt={originalProfile?.name || "User"} />
-            {:else if profile?.picture}
-              <AvatarImage src={profile.picture} alt={profile?.name || "User"} />
-            {:else}
-              <AvatarFallback>
-                {#if isRepost && originalProfile?.name}
-                  {originalProfile.name[0]}
-                {:else if profile?.name}
-                  {profile.name[0]}
-                {:else}
-                  U
-                {/if}
-              </AvatarFallback>
-            {/if}
-          </Avatar>
-          <div class="flex-1">
-            <div class="flex items-center space-x-2">
-              <span class="font-bold text-primary">
-                {#if isRepost && originalProfile?.name}
-                  {originalProfile.name}
-                {:else if profile?.name}
-                  {profile.name}
-                {:else}
-                  Unknown User
-                {/if}
-              </span>
-              {#if (isRepost ? originalProfile?.verified : profile?.verified)}
-                <span class="text-blue-500">✓</span>
-              {/if}
-            </div>
-            <p class="text-primary mt-1">
-              {#if isRepost && originalPost}
-                {originalPost.Content}
-              {:else}
-                {post.Content}
-              {/if}
-            </p>
-            
-            <!-- Engagement Stats -->
-            <div class="flex justify-between mt-3 engagement-button">
-              <Repost _event={isRepost ? originalPost : post} />
-              <Like _event={isRepost ? originalPost : post} />
-              <Buy />
-              <Share />
-            </div>
-          </div>
-        </div>
-      </div>
+      <Post event={post} />
 
       <!-- Inline Reply Field -->
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
           <Avatar class="h-12 w-12">
             {#if $currentUser?.Profile?.picture}
-              <AvatarImage 
-                src={$currentUser.Profile.picture} 
-                alt={$currentUser.Profile.name || "Current User"} 
+              <AvatarImage
+                src={$currentUser.Profile.picture}
+                alt={$currentUser.Profile.name || "Current User"}
               />
             {:else}
               <AvatarFallback>
@@ -218,16 +163,40 @@
             />
             {#if mediaPreviewUrl}
               <div class="relative mt-2">
-                {#if selectedMedia?.type.startsWith('video')}
-                  <video src={mediaPreviewUrl} controls class="w-full h-48 object-cover rounded-md" />
+                {#if selectedMedia?.type.startsWith("video")}
+                  <video
+                    src={mediaPreviewUrl}
+                    controls
+                    class="w-full h-48 object-cover rounded-md"
+                  />
                 {:else}
-                  <img src={mediaPreviewUrl} alt="Selected media" class="w-full object-cover rounded-md" />
+                  <img
+                    src={mediaPreviewUrl}
+                    alt="Selected media"
+                    class="w-full object-cover rounded-md"
+                  />
                 {/if}
                 <button
                   class="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white hover:bg-black/70"
                   on:click={removeSelectedMedia}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><line x1="18" y1="6" x2="6" y2="18" /><line
+                      x1="6"
+                      y1="6"
+                      x2="18"
+                      y2="18"
+                    /></svg
+                  >
                 </button>
               </div>
             {/if}
@@ -241,7 +210,8 @@
               </Button>
               <Button
                 on:click={handleReply}
-                disabled={isSubmitting || (!replyContent.trim() && !selectedMedia)}
+                disabled={isSubmitting ||
+                  (!replyContent.trim() && !selectedMedia)}
                 class="bg-primary text-primary-foreground rounded-full px-4 py-2 font-semibold hover:bg-primary/90"
               >
                 {isSubmitting ? "Replying..." : "Reply"}
