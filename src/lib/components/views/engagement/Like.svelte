@@ -42,17 +42,19 @@
     async function fetchLikes() {
         let filters: Array<any> = [];
         likes = [];
-        let filter = {
+        let filter1 = {
             kinds: ["7"],
             //since: Number(timestamp),
             //until: Date.now(),
             //limit: 100,
+        };
+        let filter2 = {
             tags: {
                 e: [_event.Id],
                 //p: [_event.From]
             },
         };
-        filters.push(filter);
+        filters.push(filter1,filter2);
         let _filters = JSON.stringify(filters);
         likes = await fetchEvents(_event.From, _filters);
         for(var i=0; i < likes.length; i++){

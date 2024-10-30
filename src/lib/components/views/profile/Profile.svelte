@@ -71,16 +71,14 @@
 
   async function fetchMedia() {
     let filters: Array<any> = [];
-    events = [];
+    //events = [];
     if (userInfo) {
       let filter = {
         kinds: ["1","6"],
+        authors: [$currentUser.Process],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        tags: {
-          From: [$currentUser.Process]
-        },
       };
       let filter2 = {
         tags: {
@@ -100,17 +98,10 @@
           ]
         },
       }
-      
-      let filter3 = {
-        tags: {
-          marker: ["root"],
-        },
-      };
       filters.push(filter);
       filters.push(filter2);
-      filters.push(filter3);
       let _filters = JSON.stringify(filters);
-      fetchEvents(userInfo.Process, _filters);
+      events = await fetchEvents(userInfo.Process, _filters);
     }
     filters = [];
   }
@@ -247,7 +238,7 @@
           {/if}
         </div>
         <p class="font-light text-gray-400">@{userInfo.Profile.display_name}</p>
-        <p class="pt-2.5" id={userInfo.Process}></p>
+        <p class="pt-2.5" id={userInfo.Process}>{userInfo.Profile.about}</p>
         <div class="flex flex-row space-x-5 pt-2.5">
           {#if userInfo.Profile.website}
             <div class="flex flex-row space-x-1 justify-end items-center">

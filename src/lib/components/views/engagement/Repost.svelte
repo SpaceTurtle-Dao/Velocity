@@ -18,7 +18,7 @@
 
   async function repost() {
     reposted = !reposted;
-    let value = ""
+    let value = "";
     let kind: Tag = {
       name: "Kind",
       value: "6",
@@ -44,39 +44,42 @@
   }
 
   async function fetchRepost() {
-        let filters: Array<any> = [];
-          repostArray = [];
-        let filter = {
-            kinds: ["6"],
-            //since: Number(timestamp),
-            //until: Date.now(),
-            //limit: 100,
-            tags: {
-                e: [_event.Id],
-                //p: [_event.From]
-            },
-        };
-        filters.push(filter);
-        let _filters = JSON.stringify(filters);
-        repostArray = await fetchEvents($currentUser.Process, _filters);
-        for(var i=0; i < repostArray.length; i++){
-            if(repostArray[i].From == $currentUser.Process){
-                reposted = true
-            }
-        }
-        filters = [];
+    let filters: Array<any> = [];
+    repostArray = [];
+    let filter1 = {
+      kinds: ["6"],
+      //since: Number(timestamp),
+      //until: Date.now(),
+      //limit: 100,
+    };
+    let filter2 = {
+      tags: {
+        e: [_event.Id],
+        //p: [_event.From]
+      },
+    };
+    filters.push(filter1, filter2);
+    let _filters = JSON.stringify(filters);
+    repostArray = await fetchEvents($currentUser.Process, _filters);
+    for (var i = 0; i < repostArray.length; i++) {
+      if (repostArray[i].From == $currentUser.Process) {
+        reposted = true;
+      } else {
+        reposted = false;
+      }
     }
+    filters = [];
+  }
 
-    onMount(async () => {
-        console.log($currentUser.Process)
-        console.log("getting repost for id");
-        console.log(_event.Id)
-        await fetchRepost()
-        console.log("got "+repostArray.length+" repost for id");
-        console.log(_event.Id)
-        console.log(repostArray);
-    });
-
+  onMount(async () => {
+    console.log($currentUser.Process);
+    console.log("getting repost for id");
+    console.log(_event.Id);
+    await fetchRepost();
+    console.log("got " + repostArray.length + " repost for id");
+    console.log(_event.Id);
+    console.log(repostArray);
+  });
 </script>
 
 <Button

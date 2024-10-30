@@ -69,12 +69,6 @@
         loadError = null;
         
         try {
-            // Reset state
-            isRepost = false;
-            originalEvent = null;
-            originalUser = null;
-            originalProfile = null;
-
             // Load base user info
             _user = await info(event.From);
             profile = _user?.Profile;
@@ -87,9 +81,9 @@
 
             // Check for repost
             if (event.Tags['Kind'] === '6') {
+                isRepost = true;
                 const parsedContent = await parseRepostContent();
                 if (parsedContent) {
-                    isRepost = true;
                     originalEvent = parsedContent;
                     
                     // Load original post author info

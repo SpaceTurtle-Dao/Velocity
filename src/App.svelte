@@ -56,8 +56,9 @@
     <div class="flex w-full bg-background justify-center">
       <Left />
       <Middle />
-      <Right />
+      {#if $currentUser}
+        <Right />
+      {/if}
     </div>
   </div>
 {/if}
-
