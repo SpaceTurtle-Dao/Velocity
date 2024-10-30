@@ -1,13 +1,13 @@
 export function INDEXER_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "YENK5kb1P-By598SctZMiSW_CDqLli_2sTKimdkLBcc";
+            return "0TCTmjHjq2i-GKUmd6w5BeUPOBCG8KK7wNhyE4bK04g";
         }
         case "staging": {
-            return "YENK5kb1P-By598SctZMiSW_CDqLli_2sTKimdkLBcc";
+            return "0TCTmjHjq2i-GKUmd6w5BeUPOBCG8KK7wNhyE4bK04g";
         }
         case "production": {
-            return "YENK5kb1P-By598SctZMiSW_CDqLli_2sTKimdkLBcc";
+            return "0TCTmjHjq2i-GKUmd6w5BeUPOBCG8KK7wNhyE4bK04g";
         }
     }
     return "";
