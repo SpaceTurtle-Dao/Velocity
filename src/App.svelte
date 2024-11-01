@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { push, link } from "svelte-spa-router";
+  import { push, location } from "svelte-spa-router";
   import "./app.css";
   import { currentUser, isConnected, user } from "./lib/stores/profile.store";
   import { info, relay } from "$lib/ao/relay";
@@ -9,10 +9,11 @@
   import Middle from "$lib/components/views/main/MiddleView.svelte";
   import Left from "$lib/components/views/main/LeftView.svelte";
   import Right from "$lib/components/views/main/RightView.svelte";
+  import SignUp from "./lib/components/views/signup/SignUp.svelte";
 
   let isLoading = true;
-
   $: _isConnected = $isConnected;
+  $: isSignUpRoute = $location === "/signup";
 
   async function checkWalletConnection() {
     if (window.arweaveWallet) {
@@ -25,8 +26,17 @@
             let _currentUser = await info(_relay);
             currentUser.set(_currentUser);
             user.set(_currentUser);
-            push("/feed");
+            if (!isSignUpRoute) {
+              push("/feed");
+            }
+          } else {
+            // No profile found; redirect to signup if not already there
+            if (!isSignUpRoute) {
+              push("/signup");
+            }
           }
+        } else {
+          isConnected.set(false);
         }
       } catch (error) {
         console.error("Failed to get active address:", error);
@@ -47,8 +57,15 @@
 
 {#if isLoading}
   <div class="flex items-center justify-center h-screen bg-background">
-    <Spinner />
+    <div class="space-y-4">
+      <Spinner />
+      <p class="text-muted-foreground text-center animate-pulse">
+        Connecting to wallet...
+      </p>
+    </div>
   </div>
+{:else if isSignUpRoute}
+  <SignUp />
 {:else if !_isConnected}
   <LandingPage on:connect={handleConnect} />
 {:else}

@@ -12,7 +12,7 @@
     const unsubscribe = isConnected.subscribe(value => {
       if (value) {
         // If connected, route to the feed
-        push('/feed');
+        push('/signup');//change back to /feed later (debugging)
       } else {
         connectionError = true;
       }
@@ -23,7 +23,7 @@
 
   function handleConnect() {
     // This function will be called when the wallet is successfully connected
-    push('/feed');
+    // push('/feed');
   }
 </script>
 

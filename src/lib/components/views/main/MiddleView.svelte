@@ -6,6 +6,8 @@
     import RelayButtons from "$lib/components/relay/Relay.svelte";
     import IndividualProfile from "$lib/components/views/profile/IndividualProfile.svelte";
     import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
+    import SignUp from "../signup/SignUp.svelte";
+    
 
     const routes = {
         "/": LandingPage,
@@ -14,6 +16,7 @@
         "/messages": RelayButtons,
         "/profile/:process": IndividualProfile,
         "/post/:id/:user": IndividualPost,
+        "/signup": SignUp,
     };
 </script>
 
