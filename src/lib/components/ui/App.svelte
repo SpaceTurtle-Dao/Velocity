@@ -32,6 +32,7 @@
   import type { UserInfo } from "$lib/models/Profile";
   import { users } from "$lib/stores/main.store";
   import Feed from "$lib/components/views/feed/Feed.svelte";
+  import SignUp from "../views/signup/SignUp.svelte";
 
   let isCreatePostModalOpen = false;
   let _isConnected = false;
@@ -100,6 +101,7 @@
     "/feed": Feed,
     "/profile": Profile,
     "/messages": RelayButtons,
+    "/signup": SignUp,
   };
 
   onMount(async () => {
