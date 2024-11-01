@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchEvents, info, event as aoEvent, event } from "$lib/ao/relay";
+  import { fetchEvents, info, event as aoEvent } from "$lib/ao/relay";
   import { currentUser } from "$lib/stores/profile.store";
   import {
     Avatar,
@@ -14,21 +14,18 @@
   import Buy from "$lib/components/views/engagement/Buy.svelte";
   import Share from "$lib/components/views/engagement/Share.svelte";
   import Post from "$lib/components/posts/Post.svelte";
-  import { Image, Repeat2Icon } from "lucide-svelte";
+  import { Image } from "lucide-svelte";
   import { afterUpdate } from "svelte";
+  import type { Tag } from "$lib/models/Tag";
 
   let url = window.location.href.split("/");
   let id = url.pop() || "/";
   let user = url.pop() || "/";
 
   let post: any = null;
-  let originalPost: any = null;
   let replies: any[] = [];
   let _user: any;
   let profile: any;
-  let originalUser: any;
-  let originalProfile: any;
-  let isRepost: boolean = false;
 
   let replyContent = "";
   let isSubmitting = false;
@@ -36,76 +33,73 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
-  async function parseRepostContent(content: string) {
+  function findTagValue(tags: Tag[], tagName: string): string | undefined {
+    if (!Array.isArray(tags)) return undefined;
+    return tags.find(tag => tag.name === tagName)?.value;
+  }
+
+  function clearFields() {
+    replyContent = "";
+    selectedMedia = null;
+    mediaPreviewUrl = null;
+    if (fileInput) fileInput.value = "";
+  }
+
+  async function refreshPage() {
+    // Store the current scroll position
+    const scrollPos = window.scrollY;
+    
+    // Reload all data
     try {
-      return JSON.parse(content);
+      let postFilter = JSON.stringify([
+        {
+          kinds: ["1", "6"],
+          tags: { marker: ["root"] },
+        },
+      ]);
+      let postResults = await fetchEvents(user, postFilter);
+      if (postResults.length > 0) {
+        post = postResults[0];
+        if (post) {
+          post.Tags = post.Tags || {};
+          _user = await info(post.From);
+          profile = _user?.Profile;
+        }
+      }
+      await fetchReplies();
+      
+      // Restore scroll position after a brief delay to ensure content is rendered
+      setTimeout(() => {
+        window.scrollTo(0, scrollPos);
+      }, 100);
     } catch (error) {
-      console.error("Failed to parse repost content:", error);
-      return null;
+      console.error("Error refreshing page:", error);
     }
   }
 
   onMount(async () => {
-    let postFilter = JSON.stringify([
-      {
-        kinds: ["1", "6"], // Include kind 6 for reposts
-        tags: { marker: ["root"] },
-      },
-    ]);
-    let postResults = await fetchEvents(user, postFilter);
-    if (postResults.length > 0) {
-      post = postResults[0];
-      _user = await info(post.From);
-      profile = _user.Profile;
-
-      // Check if this is a repost
-      if (post.Tags["Kind"] === "6") {
-        isRepost = true;
-        const parsedContent = await parseRepostContent(post.Tags["Content"]);
-        if (parsedContent) {
-          originalPost = parsedContent;
-          originalUser = await info(parsedContent.From);
-          originalProfile = originalUser?.Profile;
-        }
-      }
-    }
-
-    let replyFilter = JSON.stringify([
-      {
-        kinds: ["1"],
-        limit: 100,
-        tags: { marker: ["reply"] },
-      },
-      {
-        tags: { e: [id] },
-      },
-    ]);
-    replies = await fetchEvents($currentUser.Process, replyFilter);
+    await refreshPage();
   });
 
-  async function handleReply() {
-    if (!replyContent.trim() && !selectedMedia) return;
-    isSubmitting = true;
-
+  async function fetchReplies() {
     try {
-      const tags = [
-        { name: "Kind", value: "1" },
-        { name: "marker", value: "reply" },
-        { name: "e", value: isRepost ? originalPost.Id : post.Id },
-        { name: "p", value: isRepost ? originalPost.From : post.From },
-        { name: "Content", value: replyContent },
-      ];
-
-      const newReply = await aoEvent(tags, $currentUser.Process);
-      replies = [newReply, ...replies];
-      replyContent = "";
-      selectedMedia = null;
-      mediaPreviewUrl = null;
-      if (fileInput) fileInput.value = "";
+      let replyFilter = JSON.stringify([
+        {
+          kinds: ["1"],
+          limit: 100,
+          tags: { marker: ["reply"] },
+        },
+        {
+          tags: { e: [id] },
+        },
+      ]);
+      replies = await fetchEvents($currentUser.Process, replyFilter);
+      replies = replies.map(reply => ({
+        ...reply,
+        Tags: reply.Tags || {}
+      }));
     } catch (error) {
-      console.error("Error posting reply:", error);
-    } finally {
-      isSubmitting = false;
+      console.error("Error fetching replies:", error);
     }
   }
 
@@ -127,6 +121,48 @@
     if (fileInput) fileInput.value = "";
   }
 
+  async function handleReply() {
+    if (!replyContent.trim() && !selectedMedia) return;
+    
+    isSubmitting = true;
+    try {
+      const tags: Tag[] = [
+        { name: "Kind", value: "1" },
+        { name: "marker", value: "reply" },
+        { name: "e", value: post.Id },
+        { name: "p", value: post.From }
+      ];
+
+      const postTags: Tag[] = Array.isArray(post.Tags) ? post.Tags : [];
+      const rootValue = findTagValue(postTags, "root");
+      
+      tags.push({ 
+        name: "root", 
+        value: rootValue || post.Id 
+      });
+
+      let _content = replyContent;
+      if (selectedMedia) {
+        _content = _content + " [Media attached]";
+      }
+
+      tags.push({ name: "Content", value: _content });
+      tags.push({ name: "action", value: "reply" });
+
+      await aoEvent(tags, $currentUser.Process);
+      
+      clearFields();
+      
+      // Refresh the page after successful reply
+      await refreshPage();
+      
+    } catch (error) {
+      console.error("Error creating reply:", error);
+    } finally {
+      isSubmitting = false;
+    }
+  }
+
   afterUpdate(() => {
     url = window.location.href.split("/");
     id = url.pop() || "/";
@@ -136,11 +172,9 @@
 
 <div class="max-w-prose mx-auto mt-10 mb-10">
   {#if post}
-    <!-- Main Post -->
     <div class="border border-border hover:bg-gray-900/5">
       <Post event={post} />
 
-      <!-- Inline Reply Field -->
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
           <Avatar class="h-12 w-12">
@@ -190,13 +224,10 @@
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    ><line x1="18" y1="6" x2="6" y2="18" /><line
-                      x1="6"
-                      y1="6"
-                      x2="18"
-                      y2="18"
-                    /></svg
                   >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
                 </button>
               </div>
             {/if}
@@ -210,8 +241,7 @@
               </Button>
               <Button
                 on:click={handleReply}
-                disabled={isSubmitting ||
-                  (!replyContent.trim() && !selectedMedia)}
+                disabled={isSubmitting || (!replyContent.trim() && !selectedMedia)}
                 class="bg-primary text-primary-foreground rounded-full px-4 py-2 font-semibold hover:bg-primary/90"
               >
                 {isSubmitting ? "Replying..." : "Reply"}
@@ -229,10 +259,9 @@
       </div>
     </div>
 
-    <!-- Replies -->
-    {#each replies as reply (reply.Id)}
+    {#each replies as reply}
       <div class="border border-border hover:bg-gray-900/5">
-        <Post event={reply} />
+        <Post event={reply}/>
       </div>
     {/each}
   {:else}
