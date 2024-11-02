@@ -3,6 +3,7 @@
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
   import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
+  import { upload } from "$lib/ao/uploader";
   import { currentUser } from "$lib/stores/profile.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
@@ -64,7 +65,7 @@
     isLoading = true;
     try {
       const tags: Tag[] = [
-        { name: "Kind", value: "1" },  // Explicitly set as reply type
+        { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
         { name: "e", value: event.Id },
         { name: "p", value: event.From }
@@ -86,12 +87,21 @@
       }
 
       let _content = content;
+
+      // Handle media upload
       if (selectedMedia) {
-        _content = _content + " [Media attached]";
+        const media = await upload(selectedMedia);
+        const dimensions = "";
+
+        tags.push({ name: "url", value: media.url });
+        tags.push({ name: "mimeType", value: media.mimeType || "" });
+        tags.push({ name: "dim", value: dimensions });
+
+        _content = _content + " " + media.url;
       }
 
       tags.push({ name: "Content", value: _content });
-      tags.push({ name: "action", value: "reply" }); // Add explicit action tag
+      tags.push({ name: "action", value: "reply" });
 
       newReply = await aoEvent(tags, $currentUser.Process);
       

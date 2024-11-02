@@ -17,6 +17,8 @@
   import { Image } from "lucide-svelte";
   import { afterUpdate } from "svelte";
   import type { Tag } from "$lib/models/Tag";
+  import { upload } from "$lib/ao/uploader";
+
 
   let url = window.location.href.split("/");
   let id = url.pop() || "/";
@@ -143,7 +145,14 @@
 
       let _content = replyContent;
       if (selectedMedia) {
-        _content = _content + " [Media attached]";
+        const media = await upload(selectedMedia);
+        const dimensions = "";
+
+        tags.push({ name: "url", value: media.url });
+        tags.push({ name: "mimeType", value: media.mimeType || "" });
+        tags.push({ name: "dim", value: dimensions });
+
+        _content = _content + " " + media.url;
       }
 
       tags.push({ name: "Content", value: _content });
