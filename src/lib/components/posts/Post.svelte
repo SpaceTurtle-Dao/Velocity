@@ -256,19 +256,19 @@
                     </a>
 
                     <div class="flex justify-between mt-3 engagement-buttons">
-    <div class="flex items-center">
-        <Reply {event} user={_user} on:newReply={handleNewReply}/>
-        {#if replyCount > 0}
-            <span class="ml-1 text-sm text-muted-foreground">
-                {replyCount}
-            </span>
-        {/if}
-    </div>
-    <Repost _event={isRepost ? originalEvent : event}/>
-    <Like _event={isRepost ? originalEvent : event}/>
-    <Buy />
-    <Share />
-</div>
+                        <div class="flex items-center">
+                            <Reply {event} user={_user} on:newReply={handleNewReply}/>
+                            {#if replyCount > 0}
+                                <span class="ml-1 text-sm text-muted-foreground">
+                                    {replyCount}
+                                </span>
+                            {/if}
+                        </div>
+                        <Repost _event={isRepost ? originalEvent : event}/>
+                        <Like _event={isRepost ? originalEvent : event}/>
+                        <Buy />
+                        <Share />
+                    </div>
                 </div>
             {/if}
         </Dialog.Trigger>
