@@ -19,6 +19,8 @@
     export let replies: any[] = [];
     export let showFullPost: boolean = false;
 
+    let replyCount = 0;
+
     let _user: any;
     let profile: any;
     let isReply: boolean = false;
@@ -96,6 +98,7 @@
                     }
                 }
             }
+            await countReplies();
             isLoading = false;
         } catch (error) {
             console.error("Error loading event data:", error);
@@ -115,6 +118,8 @@
     function handleNewReply(replyEvent: any) {
         replies = [...replies, replyEvent.detail];
         dispatch("newReply", replyEvent.detail);
+        replyCount += 1;
+        dispatch('newReply', replyEvent.detail);
     }
 
     function handleClick(e: MouseEvent) {
@@ -123,6 +128,28 @@
             dialogOpen = true;
         }
     }
+
+    async function countReplies() {
+        if (!event?.Id) return;
+        
+        try {
+            let replyFilter = JSON.stringify([
+                {
+                    kinds: ["1"],
+                    tags: { marker: ["reply"] },
+                },
+                {
+                    tags: { e: [event.Id] },
+                }
+            ]);
+            
+            const replies = await fetchEvents($currentUser.Process, replyFilter);
+            replyCount = replies.length;
+        } catch (error) {
+            console.error("Error counting replies:", error);
+        }
+    }
+    
 </script>
 
 <div class="cursor-pointer border-b border-gray-800">
@@ -257,13 +284,16 @@
                     </a>
 
                     <div class="flex justify-between mt-3 engagement-buttons">
-                        <Reply
-                            {event}
-                            user={_user}
-                            on:newReply={handleNewReply}
-                        />
-                        <Repost _event={isRepost ? originalEvent : event} />
-                        <Like _event={isRepost ? originalEvent : event} />
+                        <div class="flex items-center">
+                            <Reply {event} user={_user} on:newReply={handleNewReply}/>
+                            {#if replyCount > 0}
+                                <span class="ml-1 text-sm text-muted-foreground">
+                                    {replyCount}
+                                </span>
+                            {/if}
+                        </div>
+                        <Repost _event={isRepost ? originalEvent : event}/>
+                        <Like _event={isRepost ? originalEvent : event}/>
                         <Buy />
                         <Share />
                     </div>

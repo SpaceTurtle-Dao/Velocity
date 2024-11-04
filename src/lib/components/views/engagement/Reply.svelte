@@ -1,32 +1,42 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import { Button } from "$lib/components/ui/button";
-    import { Textarea } from "$lib/components/ui/textarea";
-    import { event as aoEvent } from "$lib/ao/relay";
-    import { currentUser } from "$lib/stores/profile.store";
-    import type { Tag } from "$lib/models/Tag";
-    import * as Dialog from "$lib/components/ui/dialog/index.js";
-    import { Image, X } from "lucide-svelte";
-    import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
-    import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-    import PostPreview from "./PostPreview.svelte";
+  import { createEventDispatcher, onMount } from "svelte";
+  import { Button } from "$lib/components/ui/button";
+  import { Textarea } from "$lib/components/ui/textarea";
+  import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
+  import { upload } from "$lib/ao/uploader";
+  import { currentUser } from "$lib/stores/profile.store";
+  import type { Tag } from "$lib/models/Tag";
+  import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { Image, X } from "lucide-svelte";
+  import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
+  import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
+  import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
+  import PostPreview from "./PostPreview.svelte";
 
-    export let event: any;
-    export let user: any;
-    let newReply: any;
+  export let event: any;
+  export let user: any;
+  let newReply: any;
 
-    let content = "";
-    let fileInput: HTMLInputElement | null = null;
-    let selectedMedia: File | null = null;
-    let mediaPreviewUrl: string | null = null;
-    let isLoading = false;
-    let dialogOpen = false;
+  let content = "";
+  let fileInput: HTMLInputElement | null = null;
+  let selectedMedia: File | null = null;
+  let mediaPreviewUrl: string | null = null;
+  let isLoading = false;
+  let dialogOpen = false;
 
-    const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher();
 
-    // Helper function to find tag value
-    function findTagValue(tags: Tag[], tagName: string): string | undefined {
-        return tags.find((tag) => tag.name === tagName)?.value;
+  // Helper function to find tag value
+  function findTagValue(tags: Tag[], tagName: string): string | undefined {
+    return tags.find(tag => tag.name === tagName)?.value;
+  }
+
+  function clearFields() {
+    content = "";
+    selectedMedia = null;
+    mediaPreviewUrl = null;
+    if (fileInput) {
+      fileInput.value = "";
     }
 
     function clearFields() {
@@ -51,71 +61,70 @@
             mediaPreviewUrl = URL.createObjectURL(selectedMedia);
         }
     }
+  
+  async function handleSubmit() {
+    if (!content.trim() && !selectedMedia) return;
+    
+    isLoading = true;
+    try {
+      const tags: Tag[] = [
+        { name: "Kind", value: "1" },
+        { name: "marker", value: "reply" },
+        { name: "e", value: event.Id },
+        { name: "p", value: event.From }
+      ];
 
-    function removeSelectedMedia() {
-        selectedMedia = null;
-        mediaPreviewUrl = null;
-        if (fileInput) {
-            fileInput.value = "";
-        }
-    }
+      // Check if the event is already a reply
+      const eventTags: Tag[] = Array.isArray(event.Tags) ? event.Tags : [];
+      const markerValue = findTagValue(eventTags, "marker");
+      const parentEventId = findTagValue(eventTags, "e");
+      const rootValue = findTagValue(eventTags, "root");
 
-    async function handleSubmit() {
-        if (!content.trim() && !selectedMedia) return;
+      // Add root tag based on the event type
+      if (rootValue) {
+        tags.push({ name: "root", value: rootValue });
+      } else if (markerValue === "reply" && parentEventId) {
+        tags.push({ name: "root", value: parentEventId });
+      } else {
+        tags.push({ name: "root", value: event.Id });
+      }
 
-        isLoading = true;
-        try {
-            const tags: Tag[] = [
-                { name: "Kind", value: "1" }, // Explicitly set as reply type
-                { name: "marker", value: "reply" },
-                { name: "e", value: event.Id },
-                { name: "p", value: event.From },
-            ];
+      let _content = content;
 
-            // Check if the event is already a reply
-            const eventTags: Tag[] = Array.isArray(event.Tags)
-                ? event.Tags
-                : [];
-            const markerValue = findTagValue(eventTags, "marker");
-            const parentEventId = findTagValue(eventTags, "e");
-            const rootValue = findTagValue(eventTags, "root");
+      // Handle media upload
+      if (selectedMedia) {
+        const media = await upload(selectedMedia);
+        const dimensions = "";
 
-            // Add root tag based on the event type
-            if (rootValue) {
-                tags.push({ name: "root", value: rootValue });
-            } else if (markerValue === "reply" && parentEventId) {
-                tags.push({ name: "root", value: parentEventId });
-            } else {
-                tags.push({ name: "root", value: event.Id });
-            }
+        tags.push({ name: "url", value: media.url });
+        tags.push({ name: "mimeType", value: media.mimeType || "" });
+        tags.push({ name: "dim", value: dimensions });
 
-            let _content = content;
-            if (selectedMedia) {
-                _content = _content + " [Media attached]";
-            }
+        _content = _content + " " + media.url;
+      }
 
-            tags.push({ name: "Content", value: _content });
-            tags.push({ name: "action", value: "reply" }); // Add explicit action tag
+      tags.push({ name: "Content", value: _content });
+      tags.push({ name: "action", value: "reply" });
 
-            newReply = await aoEvent(tags, $currentUser.Process);
+      newReply = await aoEvent(tags, $currentUser.Process);
+      
+      const replyTags = tags.reduce((acc: any, tag) => {
+        acc[tag.name.toLowerCase()] = tag.value;
+        return acc;
+      }, {});
 
-            const replyTags = tags.reduce((acc: any, tag) => {
-                acc[tag.name.toLowerCase()] = tag.value;
-                return acc;
-            }, {});
+      dispatch('newReply', {
+        ...newReply,
+        Tags: replyTags
+      });
 
-            dispatch("newReply", {
-                ...newReply,
-                Tags: replyTags,
-            });
-
-            clearFields();
-            dialogOpen = false;
-        } catch (error) {
-            console.error("Error creating reply:", error);
-        } finally {
-            isLoading = false;
-        }
+      clearFields();
+      dialogOpen = false;
+      
+    } catch (error) {
+      console.error("Error creating reply:", error);
+    } finally {
+      isLoading = false;
     }
 
     $: if (dialogOpen === false) {

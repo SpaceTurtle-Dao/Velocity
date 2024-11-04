@@ -17,21 +17,61 @@
   import { Image } from "lucide-svelte";
   import { afterUpdate } from "svelte";
   import type { Tag } from "$lib/models/Tag";
+  import { upload } from "$lib/ao/uploader";
+  import { link, push, location } from 'svelte-spa-router';
 
-  let url = window.location.href.split("/");
-  let id = url.pop() || "/";
-  let user = url.pop() || "/";
+  // Reactive declaration for URL parsing
+  $: {
+    const urlParts = $location.split('/');
+    id = urlParts[urlParts.length - 1] || "/";
+    user = urlParts[urlParts.length - 2] || "/";
+    if (id !== "/" && user !== "/") {
+      loadPost(user, id);
+    }
+  }
 
   let post: any = null;
   let replies: any[] = [];
   let _user: any;
   let profile: any;
+  let id: string;
+  let user: string;
 
   let replyContent = "";
   let isSubmitting = false;
   let fileInput: HTMLInputElement;
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
+
+  async function loadPost(userId: string, postId: string) {
+    try {
+      // First, try to fetch the specific post
+      let postFilter = JSON.stringify([
+        {
+          ids: [postId],
+          kinds: ["1", "6"],
+        },
+      ]);
+      
+      let postResults = await fetchEvents(userId, postFilter);
+      
+      if (postResults.length > 0) {
+        post = postResults[0];
+        post.Tags = post.Tags || {};
+        _user = await info(post.From);
+        profile = _user?.Profile;
+        
+        // After loading the post, fetch its replies
+        await fetchReplies(postId);
+      } else {
+        console.error("Post not found");
+        post = null;
+      }
+    } catch (error) {
+      console.error("Error loading post:", error);
+      post = null;
+    }
+  }
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
     if (!Array.isArray(tags)) return undefined;
@@ -46,42 +86,20 @@
   }
 
   async function refreshPage() {
-    // Store the current scroll position
     const scrollPos = window.scrollY;
-    
-    // Reload all data
-    try {
-      let postFilter = JSON.stringify([
-        {
-          kinds: ["1", "6"],
-          tags: { marker: ["root"] },
-        },
-      ]);
-      let postResults = await fetchEvents(user, postFilter);
-      if (postResults.length > 0) {
-        post = postResults[0];
-        if (post) {
-          post.Tags = post.Tags || {};
-          _user = await info(post.From);
-          profile = _user?.Profile;
-        }
-      }
-      await fetchReplies();
-      
-      // Restore scroll position after a brief delay to ensure content is rendered
-      setTimeout(() => {
-        window.scrollTo(0, scrollPos);
-      }, 100);
-    } catch (error) {
-      console.error("Error refreshing page:", error);
-    }
+    await loadPost(user, id);
+    setTimeout(() => {
+      window.scrollTo(0, scrollPos);
+    }, 100);
   }
 
   onMount(async () => {
-    await refreshPage();
+    if (id !== "/" && user !== "/") {
+      await loadPost(user, id);
+    }
   });
 
-  async function fetchReplies() {
+  async function fetchReplies(postId: string) {
     try {
       let replyFilter = JSON.stringify([
         {
@@ -90,13 +108,18 @@
           tags: { marker: ["reply"] },
         },
         {
-          tags: { e: [id] },
+          tags: { e: [postId] },
         },
       ]);
       replies = await fetchEvents($currentUser.Process, replyFilter);
-      replies = replies.map(reply => ({
-        ...reply,
-        Tags: reply.Tags || {}
+      replies = await Promise.all(replies.map(async reply => {
+        const replyUser = await info(reply.From);
+        return {
+          ...reply,
+          Tags: reply.Tags || {},
+          user: replyUser,
+          profile: replyUser?.Profile
+        };
       }));
     } catch (error) {
       console.error("Error fetching replies:", error);
@@ -143,7 +166,14 @@
 
       let _content = replyContent;
       if (selectedMedia) {
-        _content = _content + " [Media attached]";
+        const media = await upload(selectedMedia);
+        const dimensions = "";
+
+        tags.push({ name: "url", value: media.url });
+        tags.push({ name: "mimeType", value: media.mimeType || "" });
+        tags.push({ name: "dim", value: dimensions });
+
+        _content = _content + " " + media.url;
       }
 
       tags.push({ name: "Content", value: _content });
@@ -152,8 +182,6 @@
       await aoEvent(tags, $currentUser.Process);
       
       clearFields();
-      
-      // Refresh the page after successful reply
       await refreshPage();
       
     } catch (error) {
@@ -163,11 +191,10 @@
     }
   }
 
-  afterUpdate(() => {
-    url = window.location.href.split("/");
-    id = url.pop() || "/";
-    user = url.pop() || "/";
-  });
+  async function handleReplyClick(reply: any, e: MouseEvent) {
+    e.preventDefault();
+    await push(`/post/${reply.From}/${reply.Id}`);
+  }
 </script>
 
 <div class="max-w-prose mx-auto mt-10 mb-10">
@@ -259,9 +286,15 @@
       </div>
     </div>
 
-    {#each replies as reply}
-      <div class="border border-border hover:bg-gray-900/5">
-        <Post event={reply}/>
+    {#each replies as reply (reply.Id)}
+      <div 
+        class="border border-border hover:bg-gray-900/5 cursor-pointer"
+        on:click={(e) => handleReplyClick(reply, e)}
+      >
+        <Post 
+          event={reply}
+          showFullPost={false}
+        />
       </div>
     {/each}
   {:else}
