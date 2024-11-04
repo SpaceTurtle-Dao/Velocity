@@ -179,7 +179,7 @@
                 <div class="p-4">
                     {#if isReply}
                         <div
-                            class="flex items-centertext-muted-foreground mb-2"
+                            class="flex items-center text-muted-foreground mb-2"
                         >
                             <CornerDownRight size={16} class="mr-2" />
                             <span class="text-sm"
