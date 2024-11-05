@@ -1,11 +1,11 @@
 <script>
-// @ts-nocheck
-
+    // @ts-nocheck
     import { currentUser, isConnected, user } from "$lib/stores/profile.store";
     import { push, link } from "svelte-spa-router";
     import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
     import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
     import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
+    import Logo from "../../../../assets/Logo2.png";
     import {
         Home as HomeIcon,
         User,
@@ -32,6 +32,9 @@
     <div class="space-y-8 p-4">
         <nav>
             <ul class="space-y-3 overflow-hidden flex flex-col">
+                <li>
+                    <img class="w-10 h-10" src={Logo} alt="Logo" />
+                </li>
                 {#each menuItems as item}
                     <li>
                         <a
