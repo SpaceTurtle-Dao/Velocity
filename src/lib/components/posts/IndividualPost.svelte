@@ -18,11 +18,12 @@
   import { afterUpdate } from "svelte";
   import type { Tag } from "$lib/models/Tag";
   import { upload } from "$lib/ao/uploader";
-  import { link, push, location } from 'svelte-spa-router';
+  import { link, push, location } from "svelte-spa-router";
+  import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
 
   // Reactive declaration for URL parsing
   $: {
-    const urlParts = $location.split('/');
+    const urlParts = $location.split("/");
     id = urlParts[urlParts.length - 1] || "/";
     user = urlParts[urlParts.length - 2] || "/";
     if (id !== "/" && user !== "/") {
@@ -52,15 +53,15 @@
           kinds: ["1", "6"],
         },
       ]);
-      
+
       let postResults = await fetchEvents(userId, postFilter);
-      
+
       if (postResults.length > 0) {
         post = postResults[0];
         post.Tags = post.Tags || {};
         _user = await info(post.From);
         profile = _user?.Profile;
-        
+
         // After loading the post, fetch its replies
         await fetchReplies(postId);
       } else {
@@ -75,7 +76,7 @@
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
     if (!Array.isArray(tags)) return undefined;
-    return tags.find(tag => tag.name === tagName)?.value;
+    return tags.find((tag) => tag.name === tagName)?.value;
   }
 
   function clearFields() {
@@ -112,15 +113,17 @@
         },
       ]);
       replies = await fetchEvents($currentUser.Process, replyFilter);
-      replies = await Promise.all(replies.map(async reply => {
-        const replyUser = await info(reply.From);
-        return {
-          ...reply,
-          Tags: reply.Tags || {},
-          user: replyUser,
-          profile: replyUser?.Profile
-        };
-      }));
+      replies = await Promise.all(
+        replies.map(async (reply) => {
+          const replyUser = await info(reply.From);
+          return {
+            ...reply,
+            Tags: reply.Tags || {},
+            user: replyUser,
+            profile: replyUser?.Profile,
+          };
+        })
+      );
     } catch (error) {
       console.error("Error fetching replies:", error);
     }
@@ -146,22 +149,22 @@
 
   async function handleReply() {
     if (!replyContent.trim() && !selectedMedia) return;
-    
+
     isSubmitting = true;
     try {
       const tags: Tag[] = [
         { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
         { name: "e", value: post.Id },
-        { name: "p", value: post.From }
+        { name: "p", value: post.From },
       ];
 
       const postTags: Tag[] = Array.isArray(post.Tags) ? post.Tags : [];
       const rootValue = findTagValue(postTags, "root");
-      
-      tags.push({ 
-        name: "root", 
-        value: rootValue || post.Id 
+
+      tags.push({
+        name: "root",
+        value: rootValue || post.Id,
       });
 
       let _content = replyContent;
@@ -180,10 +183,9 @@
       tags.push({ name: "action", value: "reply" });
 
       await aoEvent(tags, $currentUser.Process);
-      
+
       clearFields();
       await refreshPage();
-      
     } catch (error) {
       console.error("Error creating reply:", error);
     } finally {
@@ -225,6 +227,7 @@
             {#if mediaPreviewUrl}
               <div class="relative mt-2">
                 {#if selectedMedia?.type.startsWith("video")}
+                  <!-- svelte-ignore a11y-media-has-caption -->
                   <video
                     src={mediaPreviewUrl}
                     controls
@@ -266,13 +269,15 @@
               >
                 <Image size={24} />
               </Button>
-              <Button
+
+              <ButtonWithLoader
+                class="rounded-full  py-3 font-semibold px-6 w-24"
                 on:click={handleReply}
-                disabled={isSubmitting || (!replyContent.trim() && !selectedMedia)}
-                class="bg-primary text-primary-foreground rounded-full px-4 py-2 font-semibold hover:bg-primary/90"
-              >
-                {isSubmitting ? "Replying..." : "Reply"}
-              </Button>
+                loader={isSubmitting}
+                disabled={isSubmitting ||
+                  (!replyContent.trim() && !selectedMedia)}
+                >Reply
+              </ButtonWithLoader>
             </div>
             <input
               type="file"
@@ -287,14 +292,11 @@
     </div>
 
     {#each replies as reply (reply.Id)}
-      <div 
+      <div
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
-        <Post 
-          event={reply}
-          showFullPost={false}
-        />
+        <Post event={reply} showFullPost={false} />
       </div>
     {/each}
   {:else}
