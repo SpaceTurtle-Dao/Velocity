@@ -11,9 +11,10 @@
   import { Camera } from "lucide-svelte";
   import { spawnRelay, event, setRelay, info } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { push } from "svelte-spa-router";
+  import { push, replace } from "svelte-spa-router";
   import type { Tag } from "$lib/models/Tag";
   import Spinner from "$lib/components/spinners/Spinner.svelte";
+  import * as Dialog from "$lib/components/ui/dialog/index.js";
 
   // Zod schema for signup validation
   const signupSchema = z.object({
@@ -38,10 +39,16 @@
 
   let isLoading = false;
   let isUploading = false;
+  let isOpen = false;
   let errors: Partial<Record<keyof SignupSchemaType, string>> = {};
   let pictureFile: File | null = null;
   let bannerFile: File | null = null;
   let _relay: string | undefined;
+  let userInfo: UserInfo;
+
+  currentUser.subscribe((value) => {
+    userInfo = value;
+  });
 
   function handleFileChange(event: Event, type: 'picture' | 'banner') {
     const target = event.target as HTMLInputElement;
@@ -60,9 +67,20 @@
     }
   }
 
+  async function handleExistingUser() {
+    isOpen = true;
+  }
+
   async function handleSignup() {
     isLoading = true;
     try {
+      // Check if user already exists
+      if (userInfo) {
+        handleExistingUser();
+        isLoading = false;
+        return;
+      }
+
       // Validate the profile data
       signupSchema.parse(profile);
       errors = {};
@@ -87,7 +105,6 @@
         picture: profile.picture,
         banner: profile.banner,
         website: profile.website,
-        
       });
 
       const tags: Array<Tag> = [
@@ -120,11 +137,45 @@
     }
   }
 
+  async function checkExistingUser() {
+    try {
+      if (userInfo) {
+        replace('/feed');
+      }
+    } catch (error) {
+      console.error("Error checking user:", error);
+    }
+  }
+
   onMount(() => {
-    // This will be called when the component is mounted
-    
+    checkExistingUser();
   });
 </script>
+
+<Dialog.Root bind:open={isOpen}>
+  <Dialog.Content class="sm:max-w-[425px]">
+    <Dialog.Header>
+      <Dialog.Title class="text-primary">Profile Already Exists</Dialog.Title>
+    </Dialog.Header>
+    <div class="p-6">
+      <p class="text-center mb-4">You already have a profile. Would you like to go to your feed?</p>
+      <div class="flex justify-center space-x-4">
+        <Button
+          variant="outline"
+          on:click={() => isOpen = false}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="default"
+          on:click={() => push('/feed')}
+        >
+          Go to Feed
+        </Button>
+      </div>
+    </div>
+  </Dialog.Content>
+</Dialog.Root>
 
 <div class="min-h-screen bg-background flex flex-col items-center justify-center p-4">
   <Card class="w-full max-w-md">
