@@ -225,6 +225,7 @@
             {#if mediaPreviewUrl}
               <div class="relative mt-2">
                 {#if selectedMedia?.type.startsWith("video")}
+                  <!-- svelte-ignore a11y-media-has-caption -->
                   <video
                     src={mediaPreviewUrl}
                     controls
