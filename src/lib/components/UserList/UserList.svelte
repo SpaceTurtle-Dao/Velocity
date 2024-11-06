@@ -8,9 +8,14 @@
     import { currentUser } from "$lib/stores/profile.store";
 
     let userelays: Array<UserInfo> = [];
-    let title = "You might like"
+    let title = "You might like";
 
-    users.subscribe((value) => (userelays = value.filter(relay => relay.Process != $currentUser.Process)));
+    users.subscribe(
+        (value) =>
+            (userelays = value.filter(
+                (relay) => relay.Process != $currentUser.Process,
+            )),
+    );
 
     onMount(async () => {
         console.log("********Mounted*******");
@@ -18,19 +23,30 @@
     });
 </script>
 
-<div>
+<div class="w-full h-full">
     <Card.Root
         data-x-chunk-name="UserList"
         data-x-chunk-description="A card showing a list of users."
-        class="border-border rounded"
+        class="border-border rounded p-0 max-w-[380px] min-w-[280px]"
     >
         <Card.Header>
             <Card.Title>{title}</Card.Title>
         </Card.Header>
-        <Card.Content class="grid gap-8">
-            {#each userelays as userelay}
-                <ProfileCard data={userelay} />
-            {/each}
+        <Card.Content class="w-full">
+            <div
+                class="grid gap-8 max-h-[80vh] overflow-y-auto scrollable-element pr-3 w-full max-w-full"
+            >
+                {#each userelays as userelay}
+                    <ProfileCard data={userelay} />
+                {/each}
+            </div>
         </Card.Content>
     </Card.Root>
 </div>
+
+<style>
+    .scrollable-element {
+        scrollbar-color: hsl(0, 0%, 45%) hsl(0 0% 14.9%);
+        scrollbar-width: thin;
+    }
+</style>

@@ -3,17 +3,16 @@
     import Feed from "$lib/components/views/feed/Feed.svelte";
     import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
     import Profile from "$lib/components/views/profile/Profile.svelte";
-    import RelayButtons from "$lib/components/relay/Relay.svelte";
     import IndividualProfile from "$lib/components/views/profile/IndividualProfile.svelte";
     import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
     import SignUp from "../signup/SignUp.svelte";
-    
+    import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
 
     const routes = {
         "/": LandingPage,
         "/feed": Feed,
         "/profile": Profile,
-        "/messages": RelayButtons,
+        "/messages": MessagesPage,
         "/profile/:process": IndividualProfile,
         "/post/:id/:user": IndividualPost,
         "/signup": SignUp,
@@ -26,7 +25,6 @@
 
 <style>
     .scrollbar-hidden {
-      scrollbar-width: none;
+        scrollbar-width: none;
     }
-  </style>
-  
+</style>

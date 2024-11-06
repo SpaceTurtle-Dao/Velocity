@@ -8,7 +8,14 @@
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Image, X } from "lucide-svelte";
-  import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
+  import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+  } from "$lib/components/ui/avatar";
+  import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
+  import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
+  import PostPreview from "./PostPreview.svelte";
 
   export let event: any;
   export let user: any;
@@ -25,7 +32,7 @@
 
   // Helper function to find tag value
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
-    return tags.find(tag => tag.name === tagName)?.value;
+    return tags.find((tag) => tag.name === tagName)?.value;
   }
 
   function clearFields() {
@@ -51,24 +58,16 @@
     }
   }
 
-  function removeSelectedMedia() {
-    selectedMedia = null;
-    mediaPreviewUrl = null;
-    if (fileInput) {
-      fileInput.value = "";
-    }
-  }
-
   async function handleSubmit() {
     if (!content.trim() && !selectedMedia) return;
-    
+
     isLoading = true;
     try {
       const tags: Tag[] = [
         { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
         { name: "e", value: event.Id },
-        { name: "p", value: event.From }
+        { name: "p", value: event.From },
       ];
 
       // Check if the event is already a reply
@@ -104,24 +103,31 @@
       tags.push({ name: "action", value: "reply" });
 
       newReply = await aoEvent(tags, $currentUser.Process);
-      
+
       const replyTags = tags.reduce((acc: any, tag) => {
         acc[tag.name.toLowerCase()] = tag.value;
         return acc;
       }, {});
 
-      dispatch('newReply', {
+      dispatch("newReply", {
         ...newReply,
-        Tags: replyTags
+        Tags: replyTags,
       });
 
       clearFields();
       dialogOpen = false;
-      
     } catch (error) {
       console.error("Error creating reply:", error);
     } finally {
       isLoading = false;
+    }
+  }
+
+  function removeSelectedMedia() {
+    selectedMedia = null;
+    mediaPreviewUrl = null;
+    if (fileInput) {
+      fileInput.value = "";
     }
   }
 
@@ -138,29 +144,33 @@
       class="flex flex-row text-primary space-x-1 bg-transparent hover:bg-transparent"
     >
       <span class="sr-only">Reply</span>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="w-5 h-5"
+        ><path
+          d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+        ></path></svg
+      >
     </Button>
   </Dialog.Trigger>
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
-      <Dialog.Title>Reply to Post</Dialog.Title>
-      <Dialog.Description>Respond to {user?.Profile?.name}'s post</Dialog.Description>
+      <PostPreview {event} {user} />
     </Dialog.Header>
-    <form on:submit|preventDefault={handleSubmit}>
+    <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        {#if $currentUser?.Profile?.picture}
-          <Avatar class="h-12 w-12">
-            <AvatarImage
-              src={$currentUser.Profile.picture}
-              alt={$currentUser.Profile.name}
-            />
-            <AvatarFallback>{$currentUser.Profile.name}</AvatarFallback>
-          </Avatar>
-        {:else}
-          <Avatar class="h-12 w-12">
-            <AvatarFallback>{$currentUser?.Profile?.name}</AvatarFallback>
-          </Avatar>
-        {/if}
+        <ProfilePicture
+          size="lg"
+          src={$currentUser.Profile.picture}
+          name={$currentUser.Profile.name}
+        />
+
         <div class="w-full ml-3">
           <Textarea
             bind:value={content}
@@ -212,14 +222,13 @@
         >
           <Image size={24} />
         </Button>
-        <Button
-          type="submit"
+
+        <ButtonWithLoader
+          class="rounded-full font-semibold text-md px-6 w-36"
           on:click={handleSubmit}
-          class="bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition duration-200 text-md"
           disabled={isLoading || (!content.trim() && !selectedMedia)}
+          loader={isLoading}>Reply</ButtonWithLoader
         >
-          {isLoading ? "Replying..." : "Reply"}
-        </Button>
       </div>
     </Dialog.Footer>
   </Dialog.Content>
