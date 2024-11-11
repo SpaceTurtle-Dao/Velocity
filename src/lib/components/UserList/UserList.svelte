@@ -6,9 +6,12 @@
     import { users } from "$lib/stores/main.store";
     import * as Card from "$lib/components/ui/card/index.js";
     import { currentUser } from "$lib/stores/profile.store";
+    import UserListSkeleton from "../Skeletons/UserListSkeleton.svelte";
 
     let userelays: Array<UserInfo> = [];
     let title = "You might like";
+
+    let isFetchingUsers: boolean;
 
     users.subscribe(
         (value) =>
@@ -19,7 +22,9 @@
 
     onMount(async () => {
         console.log("********Mounted*******");
+        isFetchingUsers = true;
         await relays("1", "100");
+        isFetchingUsers = false;
     });
 </script>
 
@@ -36,6 +41,9 @@
             <div
                 class="grid gap-8 max-h-[80vh] overflow-y-auto scrollable-element pr-3 w-full max-w-full"
             >
+                {#if isFetchingUsers}
+                    <UserListSkeleton />
+                {/if}
                 {#each userelays as userelay}
                     <ProfileCard data={userelay} />
                 {/each}
