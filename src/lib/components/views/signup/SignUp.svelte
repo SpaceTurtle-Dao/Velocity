@@ -18,7 +18,7 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Camera } from "lucide-svelte";
-  import { spawnRelay, event, setRelay, info } from "$lib/ao/relay";
+  import { event} from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { push, replace } from "svelte-spa-router";
   import type { Tag } from "$lib/models/Tag";

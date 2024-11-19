@@ -86,7 +86,7 @@
             value: _content,
         };
         _tags.push(contentTag);
-        await event(_tags, $currentUser.Process);
+        await event(_tags);
         console.log("///FETCHING EVENTS///");
         //fetchEvents($currentUser.Process, _filters);
         isLoading = false;
