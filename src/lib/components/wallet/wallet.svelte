@@ -9,7 +9,12 @@
     import { relay, info, relays } from "$lib/ao/relay";
     import { currentUser, isConnected, user, userRelay } from "$lib/stores/profile.store";
     import { Button } from "$lib/components/ui/button";
+    import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher();
     export let buttonClass = "";
+
+
 
     let title = "Connect Wallet";
     let isLoading = false;
@@ -37,10 +42,15 @@
                 }
                 setWalletAddress(address);
                 title = "Disconnect";
+                dispatch('connectionSuccess');
+                return true;
             } catch (error) {
-                //console.error('Failed to get active address:', error);
+                console.error('Failed to get active address:', error);
+                return false;
             }
         }
+        return false;
+
     }
 
     //@ts-ignore
@@ -80,7 +90,11 @@
                 },
             );
             console.log("Wallet connected successfully");
-            await checkWalletConnection();
+            const connected = await checkWalletConnection();
+            if (connected) {
+                // Store connection state in sessionStorage
+                sessionStorage.setItem('walletConnected', 'true');
+            }
         } catch (error) {
             console.error("Failed to connect wallet:", error);
             title = "Connect Wallet";
