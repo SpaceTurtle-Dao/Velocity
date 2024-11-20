@@ -3,38 +3,35 @@
   import { push, location } from "svelte-spa-router";
   import "./app.css";
   import { currentUser, isConnected, user } from "./lib/stores/profile.store";
-  import { info, relay } from "$lib/ao/relay";
+  // import { info, relay } from "$lib/ao/relay";
   import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
   import Spinner from "$lib/components/spinners/Spinner.svelte";
   import Middle from "$lib/components/views/main/MiddleView.svelte";
   import Left from "$lib/components/views/main/LeftView.svelte";
   import Right from "$lib/components/views/main/RightView.svelte";
   import SignUp from "./lib/components/views/signup/SignUp.svelte";
+  import { fetchEvents, fetchProfiles } from "$lib/ao/relay";
 
   let isLoading = true;
   $: _isConnected = $isConnected;
   $: isSignUpRoute = $location === "/signup";
 
   async function checkWalletConnection() {
+    console.log("Checking wallet connection");
+    console.log("Is Coneected", window.arweaveWallet);
     if (window.arweaveWallet) {
       try {
         const address = await window.arweaveWallet.getActiveAddress();
+        console.log("Address", address);
         if (address) {
           isConnected.set(true);
-          let _relay = await relay(address);
-          if (_relay) {
-            let _currentUser = await info(_relay);
-            currentUser.set(_currentUser);
-            user.set(_currentUser);
-            if (!isSignUpRoute) {
-              push("/feed");
-            }
-          } else {
-            // No profile found; redirect to signup if not already there
-            if (!isSignUpRoute) {
-              push("/signup");
-            }
-          }
+          // let _relay = await relay(address);
+          let profile = await fetchProfiles(address);
+
+          currentUser.set(profile);
+          user.set(profile);
+
+          console.log("Profiles are",profile);
         } else {
           isConnected.set(false);
         }

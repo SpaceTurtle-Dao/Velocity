@@ -9,30 +9,17 @@
   let connectionError = false;
 
   onMount(() => {
-        // Check if wallet was previously connected
-        const wasConnected = sessionStorage.getItem('walletConnected');
-        
-        const unsubscribe = isConnected.subscribe(value => {
-            if (value) {
-                // If connected, store the target route and reload the page
-                sessionStorage.setItem('redirectPath', '/feed');
-                window.location.reload();
-            } else {
-                connectionError = true;
-            }
-        });
-
-        // Check for redirect after page reload
-        if (wasConnected === 'true') {
-            const redirectPath = sessionStorage.getItem('redirectPath');
-            if (redirectPath) {
-                sessionStorage.removeItem('redirectPath'); // Clear the stored path
-                push(redirectPath);
-            }
-        }
-
-        return unsubscribe;
+    const unsubscribe = isConnected.subscribe(value => {
+      if (value) {
+        // If connected, route to the feed
+        push('/signup');//change back to /feed later (debugging)
+      } else {
+        connectionError = true;
+      }
     });
+
+    return unsubscribe;
+  });
 
   function handleConnect() {
     // This function will be called when the wallet is successfully connected

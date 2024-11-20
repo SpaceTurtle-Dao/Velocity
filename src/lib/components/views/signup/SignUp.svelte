@@ -18,7 +18,7 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Camera } from "lucide-svelte";
-  import { spawnRelay, event, setRelay, info } from "$lib/ao/relay";
+  import { event } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { push, replace } from "svelte-spa-router";
   import type { Tag } from "$lib/models/Tag";
@@ -122,15 +122,15 @@
       ];
 
       try {
-        _relay = await spawnRelay();
-        console.log("Got Relay " + _relay);
-        await event(tags, _relay!);
-        await setRelay(_relay!);
+        // _relay = await spawnRelay();
+        // console.log("Got Relay " + _relay);
+        await event(tags);
+        // await setRelay(_relay!);
 
         // Fetch updated user info
-        const _currentUser = await info(_relay);
-        currentUser.set(_currentUser);
-        user.set(_currentUser);
+        // const _currentUser = await info(_relay);
+        // currentUser.set(_currentUser);
+        // user.set(_currentUser);
 
         isLoading = false;
         push("/feed");

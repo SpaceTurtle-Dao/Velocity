@@ -26,7 +26,7 @@
     import * as Tabs from "$lib/components/ui/tabs/index.js";
     import { Link, CalendarDays } from "lucide-svelte";
     import { onMount } from "svelte";
-    import { fetchEvents, subs, subscriptions } from "$lib/ao/relay";
+    import { fetchEvents} from "$lib/ao/relay";
     import UpdateProfile from "./UpdateProfile.svelte";
     import Follow from "../../Follow/Follow.svelte";
     import UserList from "$lib/components/UserList/UserList.svelte";
@@ -60,7 +60,7 @@
             let _filters = JSON.stringify(filters);
             if (userInfo) {
                 document.getElementById(userInfo.Process);
-                fetchEvents(userInfo.Process, _filters);
+                fetchEvents(_filters);
             }
             if (userInfo.Profile.about) {
                 textWithUrl = userInfo.Profile.about;
@@ -101,7 +101,7 @@
             filters.push(filter);
             filters.push(filter2);
             let _filters = JSON.stringify(filters);
-            events = await fetchEvents(userInfo.Process, _filters);
+            events = await fetchEvents(_filters);
         }
         filters = [];
     }
@@ -128,7 +128,7 @@
             filters.push(filter2);
             let _filters = JSON.stringify(filters);
             if (userInfo) {
-                events = await fetchEvents(userInfo.Process, _filters);
+                events = await fetchEvents(_filters);
             }
         }
         filters = [];
@@ -136,12 +136,12 @@
 
     async function fetchSubs() {
         console.log("will get subs");
-        await subs(userInfo.Process, "1", "100");
+        // await subs(userInfo.Process, "1", "100");
     }
 
     async function fetchSubscriptions() {
         console.log("will get subscriptions");
-        await subscriptions(userInfo.Process, "1", "100");
+        // await subscriptions(userInfo.Process, "1", "100");
     }
 
     function formatDate(dateString: number): string {

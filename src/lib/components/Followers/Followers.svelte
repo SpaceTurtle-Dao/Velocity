@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
   import { followers } from "$lib/stores/profile.store";
   import { profileFromEvent, type UserInfo } from "$lib/models/Profile";
   import ProfileCard from "$lib/components/views/profile/ProfileCard.svelte";
@@ -36,4 +36,4 @@
   {#each userProfiles as userProfile}
     <ProfileCard data={userProfile} />
   {/each}
-</div>
+</div> -->

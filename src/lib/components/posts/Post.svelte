@@ -1,7 +1,7 @@
 <script lang="ts">
     import Reply from "$lib/components/views/engagement/Reply.svelte";
     import { onMount } from "svelte";
-    import { fetchEvents, info } from "$lib/ao/relay";
+    import { fetchEvents} from "$lib/ao/relay";
     import { CornerDownRight, Repeat2Icon } from "lucide-svelte";
     import Nip92 from "$lib/handlers/NIP92.svelte";
     import Like from "$lib/components/views/engagement/Like.svelte";
@@ -14,6 +14,7 @@
     import * as Dialog from "$lib/components/ui/dialog";
     import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
     import { formatTimestamp } from "$lib/utils/timestamp.utils";
+  import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
 
     export let event: any;
     export let replies: any[] = [];
@@ -63,18 +64,20 @@
                 tags: { e: originalEvent.Id.toString() },
             },
         ]);
-        repostArray = await fetchEvents($currentUser.Process, repostFilter);
+        repostArray = await fetchEvents(repostFilter);
         console.log("reposts array", repostArray);
     }
 
     async function loadEventData() {
         isLoading = true;
         loadError = null;
-
+        
         try {
             // Load base user info
-            _user = await info(event.From);
-            profile = _user?.Profile;
+            let messages = await FetchEvents(event.From);
+            console.log("messages are", messages)
+            let data = messages[0];
+            // profile = data.tags[];
 
             // Check for reply
             if (event.Tags["marker"] === "reply") {
@@ -90,7 +93,7 @@
                     originalEvent = parsedContent;
 
                     // Load original post author info
-                    originalUser = await info(parsedContent.From);
+                    // originalUser = await info(parsedContent.From);
                     if (originalUser?.Profile) {
                         originalProfile = originalUser.Profile;
                     } else {
@@ -143,7 +146,7 @@
                 }
             ]);
             
-            const replies = await fetchEvents($currentUser.Process, replyFilter);
+            const replies = await fetchEvents(replyFilter);
             replyCount = replies.length;
         } catch (error) {
             console.error("Error counting replies:", error);

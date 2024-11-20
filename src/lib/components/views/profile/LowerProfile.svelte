@@ -7,12 +7,9 @@
   import { navigate } from "svelte-routing";
   import {
     profileFromEvent,
-    type Profile,
-    type UserInfo,
-  } from "$lib/models/Profile";
+    type Profile  } from "$lib/models/Profile";
   import CreateProfile from "./CreateProfile.svelte";
 
-  let userInfo: UserInfo;
   let userProfile: Profile;
   let isConnected = false;
 
@@ -30,15 +27,14 @@
     if (value) {
       console.log("Got user")
       console.log(value)
-      userInfo = value;
-      userProfile = userInfo.Profile;
+      userProfile = value;
     }
   });
 
 
 </script>
 
-{#if userInfo}
+{#if userProfile}
   <button class="flex items-center space-x-4">
     {#if userProfile.picture}
       <Avatar class="h-12 w-12">
@@ -48,7 +44,7 @@
     {/if}
     <div class="flex-grow text-left">
       <p class="font-semibold text-white">{userProfile.name}</p>
-      <p class="text-sm text-white">@{userInfo.Process.slice(0, 12)}</p>
+      <p class="text-sm text-white">@{userProfile.display_name}</p>
     </div>
     <MoreHorizontal class="w-5 h-5 text-white" />
   </button>

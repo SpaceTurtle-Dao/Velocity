@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import type { UserInfo } from "$lib/models/Profile";
     import ProfileCard from "$lib/components/views/profile/ProfileCard.svelte";
     import { onMount } from "svelte";
@@ -57,4 +57,4 @@
         scrollbar-color: hsl(0, 0%, 45%) hsl(0 0% 14.9%);
         scrollbar-width: thin;
     }
-</style>
+</style> -->

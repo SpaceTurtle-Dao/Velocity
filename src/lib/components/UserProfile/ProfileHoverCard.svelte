@@ -1,9 +1,9 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import * as HoverCard from "$lib/components/ui/hover-card";
     import ProfilePicture from "./ProfilePicture.svelte";
     import { link } from "svelte-spa-router";
     import { getDisplayUrl } from "$lib/utils/url.utils";
-    import { isSubscribed, subscribe, unsubscribe } from "$lib/ao/relay";
+    // import { isSubscribed, subscribe, unsubscribe } from "$lib/ao/relay";
     import { currentUser } from "$lib/stores/profile.store";
     import { onMount } from "svelte";
     import type { UserInfo } from "$lib/models/Profile";
@@ -137,4 +137,4 @@
             </div>
         </div>
     </HoverCard.Content>
-</HoverCard.Root>
+</HoverCard.Root> -->
