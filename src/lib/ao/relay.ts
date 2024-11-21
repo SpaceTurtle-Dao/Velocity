@@ -58,9 +58,10 @@ export const fetchProfiles = async (address: string): Promise<Profile> => {
   try {
     let profile = JSON.parse(messages[0].Content);
     profile.address = messages[0].From;
-    return profile
+    console.log("Profile from App", profile);
+    return profile;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw e;
   }
 };
