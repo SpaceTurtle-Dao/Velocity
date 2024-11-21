@@ -1,7 +1,7 @@
 <script lang="ts">
     import Reply from "$lib/components/views/engagement/Reply.svelte";
     import { onMount } from "svelte";
-    import { fetchEvents} from "$lib/ao/relay";
+    import { fetchEvents, fetchProfiles } from "$lib/ao/relay";
     import { CornerDownRight, Repeat2Icon } from "lucide-svelte";
     import Nip92 from "$lib/handlers/NIP92.svelte";
     import Like from "$lib/components/views/engagement/Like.svelte";
@@ -9,17 +9,17 @@
     import Buy from "$lib/components/views/engagement/Buy.svelte";
     import Share from "$lib/components/views/engagement/Share.svelte";
     import { createEventDispatcher } from "svelte";
-    import { currentUser } from "$lib/stores/profile.store";
     import { link } from "svelte-spa-router";
     import * as Dialog from "$lib/components/ui/dialog";
     import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
     import { formatTimestamp } from "$lib/utils/timestamp.utils";
-  import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
+    import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
+    import { currentUser, isConnected, user } from "$lib/stores/profile.store";
 
     export let event: any;
     export let replies: any[] = [];
     export let showFullPost: boolean = false;
-
+    
     let replyCount = 0;
 
     let _user: any;
@@ -73,8 +73,11 @@
         loadError = null;
         
         try {
-            // Load base user info
+            const address = await window.arweaveWallet.getActiveAddress();
+            console.log("address is from Post", address);
+            // profile = await fetchProfiles(address);
             let messages = await FetchEvents(event.From);
+
             console.log("messages are", messages)
             let data = messages[0];
             // profile = data.tags[];
@@ -92,13 +95,7 @@
                 if (parsedContent) {
                     originalEvent = parsedContent;
 
-                    // Load original post author info
-                    // originalUser = await info(parsedContent.From);
-                    if (originalUser?.Profile) {
-                        originalProfile = originalUser.Profile;
-                    } else {
-                        console.warn("Original user profile not found");
-                    }
+                   originalProfile = await fetchProfiles(event.From);
                 }
             }
             await countReplies();
@@ -225,7 +222,7 @@
                             <Repeat2Icon size={16} class="mr-2" />
                             <span class="text-sm"
                                 >Reposted by
-                                {#if profile?.name == $currentUser?.Profile?.name}
+                                {#if profile?.name == profile.name}
                                     You
                                 {:else}
                                     @{profile.name}
@@ -238,14 +235,14 @@
                         <div>
                             <div class="flex justify-start space-x-3">
                                 <div class="hidden sm:flex">
-                                    <ProfilePicture
+                                    <!-- <ProfilePicture
                                         src={isRepost
                                             ? originalProfile.picture
                                             : profile.picture}
                                         name={isRepost
                                             ? originalProfile.name
                                             : profile.name}
-                                    />
+                                    /> -->
                                 </div>
 
                                 <div class="flex-1">
@@ -259,12 +256,12 @@
                                                 Unknown User
                                             {/if}
                                         </p>
-                                        <span
+                                        <!-- <span
                                             class="text-muted-foreground pl-0.5"
                                             >@{isRepost
                                                 ? originalProfile.display_name
                                                 : profile.display_name}</span
-                                        >
+                                        > -->
 
                                         <span class="text-muted-foreground"
                                             >· {formatTimestamp(

@@ -10,7 +10,7 @@
   import Left from "$lib/components/views/main/LeftView.svelte";
   import Right from "$lib/components/views/main/RightView.svelte";
   import SignUp from "./lib/components/views/signup/SignUp.svelte";
-  import { fetchEvents, fetchProfiles } from "$lib/ao/relay";
+  import { fetchProfiles } from "$lib/ao/relay";
 
   let isLoading = true;
   $: _isConnected = $isConnected;

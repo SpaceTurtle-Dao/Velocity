@@ -86,7 +86,7 @@
             value: _content,
         };
         _tags.push(contentTag);
-        await event(_tags, $currentUser.Process);
+        await event(_tags);
         console.log("///FETCHING EVENTS///");
         //fetchEvents($currentUser.Process, _filters);
         isLoading = false;
@@ -112,11 +112,11 @@
         </Dialog.Header>
         <form on:submit|preventDefault={() => {}}>
             <div class="flex">
-                <ProfilePicture
+                <!-- <ProfilePicture
                     src={$currentUser.Profile.picture}
                     name={$currentUser.Profile.name}
                     size="lg"
-                />
+                /> -->
 
                 <div class="w-full">
                     <Textarea

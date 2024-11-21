@@ -50,7 +50,7 @@
             filters.push(filter);
             let _filters = JSON.stringify(filters);
             if ($currentUser) {
-                let _events = await fetchEvents($currentUser.Process, _filters);
+                let _events = await fetchEvents(_filters);
                 events = processEvents(_events);
             }
         }
@@ -69,7 +69,7 @@
             filters.push(filter);
             let _filters = JSON.stringify(filters);
             if ($currentUser) {
-                let _events = await fetchEvents($currentUser.Process, _filters);
+                let _events = await fetchEvents(_filters);
                 events = processEvents(_events);
             }
         }

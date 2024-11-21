@@ -40,7 +40,7 @@
     _tags.push(contentTag);
     _tags.push(eTag);
     _tags.push(markerTag);
-    await event(_tags, $currentUser.Process);
+    await event(_tags);
   }
 
   async function fetchRepost() {
@@ -60,7 +60,7 @@
     };
     filters.push(filter1, filter2);
     let _filters = JSON.stringify(filters);
-    repostArray = await fetchEvents($currentUser.Process, _filters);
+    repostArray = await fetchEvents(_filters);
     for (var i = 0; i < repostArray.length; i++) {
       if (repostArray[i].From == $currentUser.Process) {
         reposted = true;
@@ -72,7 +72,7 @@
   }
 
   onMount(async () => {
-    console.log($currentUser.Process);
+    // console.log($currentUser.Process);
     console.log("getting repost for id");
     console.log(_event.Id);
     await fetchRepost();

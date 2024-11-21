@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { z } from "zod";
-    import type { UserInfo } from "$lib/models/Profile";
+    import type { Profile } from "$lib/models/Profile";
     import { currentUser } from "$lib/stores/profile.store";
     import { Input } from "$lib/components/ui/input";
     import { Label } from "$lib/components/ui/label";
@@ -37,7 +37,7 @@
     let _relay: string | undefined;
     let profileEvent: string;
     let isLoading = false;
-    let userInfo: UserInfo;
+    let userInfo: Profile;
     let errors: Partial<Record<keyof InitialProfileSchemaType, string>> = {};
 
     currentUser.subscribe((value) => {
