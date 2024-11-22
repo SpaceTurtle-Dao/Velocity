@@ -3,7 +3,7 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { currentUser } from "$lib/stores/profile.store";
+  import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Plus, Image, X } from "lucide-svelte";
@@ -113,8 +113,8 @@
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
         <ProfilePicture
-          src={$currentUser.picture}
-          name={$currentUser.name}
+          src={$currentUser?.picture}
+          name={$currentUser?.name}
           size="lg"
         />
 
