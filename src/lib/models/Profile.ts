@@ -7,6 +7,8 @@ export type Profile = {
     website?: string;
     banner?: string;
     bot?: boolean;
+    created_at: string;
+    updated_at: string;
 };
 
 export const profileFromEvent = (event: any): Profile => {

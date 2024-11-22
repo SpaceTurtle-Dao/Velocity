@@ -9,21 +9,22 @@
   import Buy from "$lib/components/views/engagement/Buy.svelte";
   import Share from "$lib/components/views/engagement/Share.svelte";
   import { createEventDispatcher } from "svelte";
-  import { currentUser } from "$lib/stores/profile.store";
+  import { currentUser } from "$lib/stores/current-user.store";
   import { link } from "svelte-spa-router";
   import * as Dialog from "$lib/components/ui/dialog";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { formatTimestamp } from "$lib/utils/timestamp.utils";
   import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
+  import type { Profile } from "$lib/models/Profile";
 
   export let event: any;
   export let replies: any[] = [];
-  export let showFullPost: boolean = false;
+//   export let showFullPost: boolean = false;
 
   let replyCount = 0;
 
   let _user: any;
-  let profile: any;
+  let profile: Profile;
   let isReply: boolean = false;
   let replyingTo: string | null = null;
   let isRepost: boolean = false;
@@ -227,10 +228,10 @@
             <div>
               <div class="flex justify-start space-x-3">
                 <div class="hidden sm:flex">
-                  <ProfilePicture
+                  <!-- <ProfilePicture
                     src={isRepost ? originalProfile.picture : profile.picture}
                     name={isRepost ? originalProfile.name : profile.name}
-                  />
+                  /> -->
                 </div>
 
                 <div class="flex-1">
@@ -238,17 +239,15 @@
                     <p class="font-medium text-primary">
                       {#if isRepost && originalProfile?.name}
                         {originalProfile.name}
-                      {:else if profile?.name}
-                        {profile.name}
                       {:else}
-                        Unknown User
+                        {$currentUser.name}
                       {/if}
                     </p>
-                    <span class="text-muted-foreground pl-0.5"
+                    <!-- <span class="text-muted-foreground pl-0.5"
                       >@{isRepost
                         ? originalProfile.display_name
                         : profile.display_name}</span
-                    >
+                    > -->
 
                     <span class="text-muted-foreground"
                       >· {formatTimestamp(event.Timestamp)}</span

@@ -16,6 +16,7 @@
   import IndividualProfile from "$lib/components/views/profile/IndividualProfile.svelte";
   import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
   import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
+  import { myPostStore } from "$lib/stores/my-post.store";
 
   let isLoading = true;
 
@@ -31,6 +32,8 @@
 
   onMount(async () => {
     await addressStore.sync();
+
+    await myPostStore.fetch();
   });
 
   let waitForUserFetch = true;

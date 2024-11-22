@@ -4,8 +4,6 @@
     import { Button } from "$lib/components/ui/button";
     import { onMount } from "svelte";
 
-    export let relay: string;
-    export let userRelay: string;
     let isLoading = false;
     let _isSubscribed: boolean = false;
 

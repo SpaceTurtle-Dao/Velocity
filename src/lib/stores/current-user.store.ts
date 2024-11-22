@@ -22,7 +22,6 @@ const initCurrentUserStore = () => {
       try {
         if (address) {
           const profile = await fetchProfiles(address);
-
           set(profile);
           push("/feed");
         }

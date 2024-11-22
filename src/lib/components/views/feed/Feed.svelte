@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { currentUser, user } from "$lib/stores/profile.store";
   import Post from "$lib/components/posts/Post.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { onMount } from "svelte";
   import { fetchEvents } from "$lib/ao/relay";
+  import { currentUser } from "$lib/stores/current-user.store";
 
   let events: Array<any> = [];
   let filters: Array<any> = [];
@@ -35,14 +35,15 @@
     return topLevelPosts;
   }
 
-  async function fetchFollowingEvents() {
+  async function fetchFollowingEvents(followers: Array<String>) {
     if ($currentUser) {
       let filter = {
         kinds: ["1", "6"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        tags: { marker: ["root", "reply"] },
+        tags: { marker: ["root"] },
+        authors: followers,
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
@@ -61,7 +62,8 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        tags: { marker: ["root", "reply"] },
+        tags: { marker: ["root"] },
+        // authors: [$currentUser.address],
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);
@@ -73,8 +75,9 @@
     filters = [];
   }
 
+  //We want 
+
   onMount(async () => {
-    // Initial fetch can go here if needed
     await fetchFeedEvents();
   });
 

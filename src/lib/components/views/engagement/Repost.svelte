@@ -5,7 +5,7 @@
   import { onMount } from "svelte";
   import { fetchEvents, event } from "$lib/ao/relay";
   import type { Tag } from "$lib/models/Tag";
-  import { currentUser } from "$lib/stores/profile.store";
+  import { currentUser } from "$lib/stores/current-user.store";
 
   export let _event: any;
 
@@ -40,7 +40,7 @@
     _tags.push(contentTag);
     _tags.push(eTag);
     _tags.push(markerTag);
-    await event(_tags, $currentUser.Process);
+    await event(_tags);
   }
 
   async function fetchRepost() {
@@ -60,19 +60,21 @@
     };
     filters.push(filter1, filter2);
     let _filters = JSON.stringify(filters);
-    repostArray = await fetchEvents($currentUser.Process, _filters);
+    repostArray = await fetchEvents(_filters);
     for (var i = 0; i < repostArray.length; i++) {
-      if (repostArray[i].From == $currentUser.Process) {
+      if (repostArray[i].From == $currentUser.address) {
         reposted = true;
       } else {
         reposted = false;
       }
     }
+
+    console.log("reposting array", repostArray);
     filters = [];
   }
 
   onMount(async () => {
-    console.log($currentUser.Process);
+    // console.log($currentUser.Process);
     console.log("getting repost for id");
     console.log(_event.Id);
     await fetchRepost();

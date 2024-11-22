@@ -44,11 +44,13 @@ export const fetchEvents = async (filters: string): Promise<any[]> => {
 };
 
 export const fetchProfiles = async (address: string): Promise<Profile> => {
+
+    console.log("Address", address);
   const profileFilter = JSON.stringify([
     {
       kinds: ["0"],
       authors: [address],
-      limit: 1,
+    //   limit: 1,
     },
   ]);
 
@@ -56,8 +58,11 @@ export const fetchProfiles = async (address: string): Promise<Profile> => {
   console.log("Messages from App", messages);
 
   try {
-    let profile = JSON.parse(messages[0].Content);
-    profile.address = messages[0].From;
+    let message = messages.pop();
+    let profile = JSON.parse(message.Content);
+    profile.address = message.From;
+    profile.created_at = messages[0].Timestamp;
+    profile.updated_at = message.Timestamp;
     console.log("Profile from App", profile);
     return profile;
   } catch (e) {
