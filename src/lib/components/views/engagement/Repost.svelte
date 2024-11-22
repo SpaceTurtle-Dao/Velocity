@@ -5,7 +5,7 @@
   import { onMount } from "svelte";
   import { fetchEvents, event } from "$lib/ao/relay";
   import type { Tag } from "$lib/models/Tag";
-  import { currentUser } from "$lib/stores/profile.store";
+  import { currentUser } from "$lib/stores/current-user.store";
 
   export let _event: any;
 
@@ -62,12 +62,14 @@
     let _filters = JSON.stringify(filters);
     repostArray = await fetchEvents(_filters);
     for (var i = 0; i < repostArray.length; i++) {
-      if (repostArray[i].From == $currentUser.Process) {
+      if (repostArray[i].From == $currentUser.address) {
         reposted = true;
       } else {
         reposted = false;
       }
     }
+
+    console.log("reposting array", repostArray);
     filters = [];
   }
 

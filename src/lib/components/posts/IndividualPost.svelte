@@ -207,14 +207,14 @@
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
           <Avatar class="h-12 w-12">
-            {#if $currentUser?.Profile?.picture}
+            {#if $currentUser?.picture}
               <AvatarImage
-                src={$currentUser.Profile.picture}
-                alt={$currentUser.Profile.name || "Current User"}
+                src={$currentUser.picture}
+                alt={$currentUser.name || "Current User"}
               />
             {:else}
               <AvatarFallback>
-                {$currentUser?.Profile?.name?.[0] || "U"}
+                {$currentUser?.name?.[0] || "U"}
               </AvatarFallback>
             {/if}
           </Avatar>
