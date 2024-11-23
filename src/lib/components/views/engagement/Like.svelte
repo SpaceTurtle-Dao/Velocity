@@ -4,7 +4,7 @@
     import { Heart } from "lucide-svelte";
     import { onMount } from "svelte";
     import { fetchEvents, event } from "$lib/ao/relay";
-    import { currentUser } from "$lib/stores/profile.store";
+    import { currentUser } from "$lib/stores/current-user.store";
 
     export let _event: any;
 
@@ -35,7 +35,7 @@
         _tags.push(eventTag);
         _tags.push(pubkeyTag);
         liked = !liked;
-        await event(_tags, _event.From);
+        await event(_tags);
         await fetchLikes()
     }
 
@@ -56,9 +56,9 @@
         };
         filters.push(filter1,filter2);
         let _filters = JSON.stringify(filters);
-        likes = await fetchEvents(_event.From, _filters);
+        likes = await fetchEvents(_filters);
         for(var i=0; i < likes.length; i++){
-            if(likes[i].From == $currentUser.Process){
+            if(likes[i].From == $currentUser.address){
                 liked = true
             }
         }
@@ -66,7 +66,7 @@
     }
 
     onMount(async () => {
-        console.log($currentUser.Process)
+        console.log($currentUser.address)
         console.log("getting likes for id");
         console.log(_event.Id)
         await fetchLikes()

@@ -15,18 +15,13 @@
         AvatarImage,
     } from "$lib/components/ui/avatar";
     import { Button } from "$lib/components/ui/button";
-    import {
-        profileFromEvent,
-        type Profile,
-        type UserInfo,
-    } from "$lib/models/Profile";
-    import { currentUser, user } from "../../../stores/profile.store";
+    import { currentUser } from "$lib/stores/current-user.store";
     import Post from "../../posts/Post.svelte";
     import Followers from "../../Followers/Followers.svelte";
     import * as Tabs from "$lib/components/ui/tabs/index.js";
     import { Link, CalendarDays } from "lucide-svelte";
     import { onMount } from "svelte";
-    import { fetchEvents, subs, subscriptions } from "$lib/ao/relay";
+    import { fetchEvents} from "$lib/ao/relay";
     import UpdateProfile from "./UpdateProfile.svelte";
     import Follow from "../../Follow/Follow.svelte";
     import UserList from "$lib/components/UserList/UserList.svelte";
@@ -34,9 +29,11 @@
     import { X } from "lucide-svelte";
     import { getDisplayUrl } from "$lib/utils/url.utils";
     import { formatJoinedTimestamp } from "$lib/utils/timestamp.utils";
+    import type { Profile } from "$lib/models/Profile";
+    import { user } from "$lib/stores/profile.store";
 
     let activeTab: string = "posts";
-    let userInfo: UserInfo;
+    let userInfo: Profile[];
     let events: Array<Event> = [];
 
     let showModal = false;
@@ -46,7 +43,7 @@
     // Regular expression to find URLs in the string
     const urlPattern = /(https?:\/\/[^\s]+)/g;
 
-    user.subscribe((value) => {
+    user.subscribe(async (value) => {
         let filters: Array<any> = [];
         if (value) {
             let filter = {
@@ -59,8 +56,8 @@
             userInfo = value;
             let _filters = JSON.stringify(filters);
             if (userInfo) {
-                document.getElementById(userInfo.Process);
-                fetchEvents(userInfo.Process, _filters);
+                document.getElementById(userInfo.address);
+                await fetchEvents(_filters);
             }
             if (userInfo.Profile.about) {
                 textWithUrl = userInfo.Profile.about;
@@ -75,7 +72,7 @@
         if (userInfo) {
             let filter = {
                 kinds: ["1", "6"],
-                authors: [$currentUser.Process],
+                authors: [$currentUser.address],
                 since: 1663905355000,
                 until: Date.now(),
                 limit: 100,
@@ -101,7 +98,7 @@
             filters.push(filter);
             filters.push(filter2);
             let _filters = JSON.stringify(filters);
-            events = await fetchEvents(userInfo.Process, _filters);
+            events = await fetchEvents(_filters);
         }
         filters = [];
     }
@@ -121,14 +118,14 @@
             };
             let filter2 = {
                 tags: {
-                    From: [$currentUser.Process],
+                    From: [$currentUser.address],
                 },
             };
             filters.push(filter);
             filters.push(filter2);
             let _filters = JSON.stringify(filters);
             if (userInfo) {
-                events = await fetchEvents(userInfo.Process, _filters);
+                events = await fetchEvents(_filters);
             }
         }
         filters = [];
@@ -136,12 +133,12 @@
 
     async function fetchSubs() {
         console.log("will get subs");
-        await subs(userInfo.Process, "1", "100");
+        // await subs(userInfo.Process, "1", "100");
     }
 
     async function fetchSubscriptions() {
         console.log("will get subscriptions");
-        await subscriptions(userInfo.Process, "1", "100");
+        // await subscriptions(userInfo.Process, "1", "100");
     }
 
     function formatDate(dateString: number): string {
@@ -224,7 +221,7 @@
             <CardContent>
                 <div class="flex justify-between space-x-2">
                     <p class="font-bold text-2xl">{userInfo.Profile.name}</p>
-                    {#if userInfo.Process == $currentUser.Process}
+                    {#if userInfo.Process == $currentUser.address}
                         <Button
                             variant="outline"
                             size="sm"
@@ -234,10 +231,9 @@
                             Edit Profile
                         </Button>
                     {:else}
-                        <Follow
-                            relay={userInfo.Process}
-                            userRelay={$currentUser.Process}
-                        />
+                        <!-- <Follow
+                            userRelay={$currentUser.address}
+                        /> -->
                     {/if}
                 </div>
                 <p class="text-muted-foreground">

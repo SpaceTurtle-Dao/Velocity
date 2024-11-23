@@ -102,7 +102,7 @@
       tags.push({ name: "Content", value: _content });
       tags.push({ name: "action", value: "reply" });
 
-      newReply = await aoEvent(tags, $currentUser.Process);
+      newReply = await aoEvent(tags);
 
       const replyTags = tags.reduce((acc: any, tag) => {
         acc[tag.name.toLowerCase()] = tag.value;
@@ -167,8 +167,8 @@
       <div class="flex">
         <ProfilePicture
           size="lg"
-          src={$currentUser.Profile.picture}
-          name={$currentUser.Profile.name}
+          src={$currentUser.picture}
+          name={$currentUser.name}
         />
 
         <div class="w-full ml-3">

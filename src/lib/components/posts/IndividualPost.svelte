@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchEvents, info, event as aoEvent } from "$lib/ao/relay";
+  import { fetchEvents, event as aoEvent } from "$lib/ao/relay";
   import { currentUser } from "$lib/stores/profile.store";
   import {
     Avatar,
@@ -54,12 +54,12 @@
         },
       ]);
 
-      let postResults = await fetchEvents(userId, postFilter);
+      let postResults = await fetchEvents(postFilter);
 
       if (postResults.length > 0) {
         post = postResults[0];
         post.Tags = post.Tags || {};
-        _user = await info(post.From);
+        // _user = await info(post.From);
         profile = _user?.Profile;
 
         // After loading the post, fetch its replies
@@ -112,15 +112,15 @@
           tags: { e: [postId] },
         },
       ]);
-      replies = await fetchEvents($currentUser.Process, replyFilter);
+      replies = await fetchEvents(replyFilter);
       replies = await Promise.all(
         replies.map(async (reply) => {
-          const replyUser = await info(reply.From);
+          // const replyUser = await info(reply.From);
           return {
             ...reply,
             Tags: reply.Tags || {},
-            user: replyUser,
-            profile: replyUser?.Profile,
+            // user: replyUser,
+            // profile: replyUser?.Profile,
           };
         })
       );
@@ -182,7 +182,7 @@
       tags.push({ name: "Content", value: _content });
       tags.push({ name: "action", value: "reply" });
 
-      await aoEvent(tags, $currentUser.Process);
+      await aoEvent(tags);
 
       clearFields();
       await refreshPage();
@@ -207,14 +207,14 @@
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
           <Avatar class="h-12 w-12">
-            {#if $currentUser?.Profile?.picture}
+            {#if $currentUser?.picture}
               <AvatarImage
-                src={$currentUser.Profile.picture}
-                alt={$currentUser.Profile.name || "Current User"}
+                src={$currentUser.picture}
+                alt={$currentUser.name || "Current User"}
               />
             {:else}
               <AvatarFallback>
-                {$currentUser?.Profile?.name?.[0] || "U"}
+                {$currentUser?.name?.[0] || "U"}
               </AvatarFallback>
             {/if}
           </Avatar>

@@ -16,13 +16,13 @@ export function HUB_ID(): string {
 export function INDEXER_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "0TCTmjHjq2i-GKUmd6w5BeUPOBCG8KK7wNhyE4bK04g";
+            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
         }
         case "staging": {
-            return "0TCTmjHjq2i-GKUmd6w5BeUPOBCG8KK7wNhyE4bK04g";
+            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
         }
         case "production": {
-            return "0TCTmjHjq2i-GKUmd6w5BeUPOBCG8KK7wNhyE4bK04g";
+            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
         }
     }
     return "";

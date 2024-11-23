@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import { isSubscribed, subscribe, unsubscribe } from "$lib/ao/relay";
     import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
     import { currentUser } from "$lib/stores/profile.store";
@@ -70,4 +70,4 @@
         disabled={loader}
         >Subscribe
     </ButtonWithLoader>
-{/if}
+{/if} -->

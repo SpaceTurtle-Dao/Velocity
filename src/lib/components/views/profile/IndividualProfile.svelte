@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import { fly } from "svelte/transition";
     import { Card, CardContent } from "$lib/components/ui/card";
     import {
@@ -304,4 +304,4 @@
             </Tabs.Content>
         </Tabs.Root>
     </div>
-{/if}
+{/if} -->

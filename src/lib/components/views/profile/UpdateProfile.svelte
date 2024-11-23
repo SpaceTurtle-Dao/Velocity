@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
     import { z } from "zod";
     import type { Profile, UserInfo } from "$lib/models/Profile";
@@ -251,4 +251,4 @@
             </form>
         </CardContent>
     </Card>
-</div>
+</div> -->
