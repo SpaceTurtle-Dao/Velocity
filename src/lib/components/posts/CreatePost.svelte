@@ -113,8 +113,8 @@
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
         <ProfilePicture
-          src={$currentUser.picture}
-          name={$currentUser.name}
+          src={$currentUser?.picture}
+          name={$currentUser?.name}
           size="lg"
         />
 
