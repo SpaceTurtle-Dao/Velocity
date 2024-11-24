@@ -34,7 +34,7 @@
     about: z.string().optional(),
     picture: z.string().optional(),
     banner: z.string().optional(),
-    website: z.string().url().optional().or(z.literal("")),
+    website: z.string().optional(),
   });
 
   type SignupSchemaType = z.infer<typeof signupSchema>;
@@ -157,6 +157,7 @@
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
+        console.log(err);
         errors = err.flatten().fieldErrors as Partial<
           Record<keyof SignupSchemaType, string>
         >;
@@ -305,7 +306,6 @@
           <Label for="website">Website</Label>
           <Input
             id="website"
-            type="url"
             bind:value={profile.website}
             placeholder="https://example.com"
             disabled={isLoading}

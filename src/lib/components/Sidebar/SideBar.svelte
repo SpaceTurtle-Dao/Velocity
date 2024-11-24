@@ -20,6 +20,7 @@
     AvatarFallback,
     AvatarImage,
   } from "$lib/components/ui/avatar";
+  import { ARWEAVE_ADDRESS } from "$lib/constants";
 
   export let url = "";
 
@@ -33,10 +34,7 @@
   ];
 
   function toUrl(tx: string) {
-    return (
-      "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
-      tx
-    );
+    return ARWEAVE_ADDRESS + tx;
   }
 
   currentUser.subscribe((value) => {
