@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { fetchEvents, event as aoEvent } from "$lib/ao/relay";
-  import { currentUser } from "$lib/stores/profile.store";
+  import { currentUser } from "$lib/stores/current-user.store";
   import {
     Avatar,
     AvatarImage,
@@ -9,10 +9,6 @@
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import Like from "$lib/components/views/engagement/Like.svelte";
-  import Repost from "$lib/components/views/engagement/Repost.svelte";
-  import Buy from "$lib/components/views/engagement/Buy.svelte";
-  import Share from "$lib/components/views/engagement/Share.svelte";
   import Post from "$lib/components/posts/Post.svelte";
   import { Image } from "lucide-svelte";
   import { afterUpdate } from "svelte";
@@ -20,6 +16,7 @@
   import { upload } from "$lib/ao/uploader";
   import { link, push, location } from "svelte-spa-router";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
+  import type { Profile } from "$lib/models/Profile";
 
   // Reactive declaration for URL parsing
   $: {
@@ -34,7 +31,7 @@
   let post: any = null;
   let replies: any[] = [];
   let _user: any;
-  let profile: any;
+  let profile: Profile;
   let id: string;
   let user: string;
 
@@ -292,11 +289,13 @@
     </div>
 
     {#each replies as reply (reply.Id)}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
-        <Post event={reply} showFullPost={false} />
+        <Post event={reply} />
       </div>
     {/each}
   {:else}
