@@ -247,7 +247,7 @@
                       {#if isRepost && originalProfile?.name}
                         {originalProfile.name}
                       {:else}
-                        {$currentUser.name}
+                        {profile.name}
                       {/if}
                     </p>
                     <span class="text-muted-foreground pl-0.5"

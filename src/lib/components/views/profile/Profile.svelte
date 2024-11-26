@@ -3,11 +3,6 @@
     import {
         Card,
         CardContent,
-        CardDescription,
-        CardFooter,
-        CardHeader,
-        CardTitle,
-        Root,
     } from "$lib/components/ui/card";
     import {
         Avatar,
@@ -21,7 +16,7 @@
     import * as Tabs from "$lib/components/ui/tabs/index.js";
     import { Link, CalendarDays } from "lucide-svelte";
     import { onMount } from "svelte";
-    import { fetchEvents} from "$lib/ao/relay";
+    import { fetchEvents, fetchProfile} from "$lib/ao/relay";
     import UpdateProfile from "./UpdateProfile.svelte";
     import Follow from "../../Follow/Follow.svelte";
     import UserList from "$lib/components/UserList/UserList.svelte";
@@ -31,10 +26,12 @@
     import { formatJoinedTimestamp } from "$lib/utils/timestamp.utils";
     import type { Profile } from "$lib/models/Profile";
     import { user } from "$lib/stores/profile.store";
+    import { event } from "$lib/ao/relay"
 
     let activeTab: string = "posts";
     let userInfo: Profile[];
     let events: Array<Event> = [];
+    let profile: Profile;
 
     let showModal = false;
     let textWithUrl = "";
@@ -42,6 +39,8 @@
     let pTag: HTMLElement | null;
     // Regular expression to find URLs in the string
     const urlPattern = /(https?:\/\/[^\s]+)/g;
+
+    console.log("Will load thissss!!!")
 
     user.subscribe(async (value) => {
         let filters: Array<any> = [];
@@ -55,13 +54,13 @@
             filters.push(filter);
             userInfo = value;
             let _filters = JSON.stringify(filters);
-            if (userInfo) {
-                document.getElementById(userInfo.address);
-                await fetchEvents(_filters);
-            }
-            if (userInfo.Profile.about) {
-                textWithUrl = userInfo.Profile.about;
-            }
+            // if (userInfo) {
+            //     document.getElementById(userInfo.address);
+            //     await fetchEvents(_filters);
+            // }
+            // if (userInfo.Profile.about) {
+            //     textWithUrl = userInfo.Profile.about;
+            // }
         }
         filters = [];
     });
@@ -154,6 +153,7 @@
     }
 
     onMount(async () => {
+        profile = await fetchProfile($currentUser.address);
         await fetchPost();
         // Split the string into parts, keeping the URLs separate
         const parts = textWithUrl.split(urlPattern);
@@ -176,7 +176,6 @@
             }
         });
     });
-    //transition-transform transform hover:scale-105 duration-300
 </script>
 
 {#if userInfo}
@@ -187,9 +186,9 @@
             <div class="relative mb-10">
                 <!-- Increased bottom margin -->
                 <div class="bg-gray-200 relative">
-                    {#if userInfo.Profile.banner}
+                    {#if profile.banner}
                         <img
-                            src={userInfo.Profile.banner}
+                            src={profile.banner}
                             alt="Banner"
                             class="w-full max-h-48 object-cover"
                         />
@@ -201,15 +200,15 @@
                     <!-- Changed from translate-y-1/2 to translate-y-1/3 -->
                     <div class="relative">
                         <Avatar class="w-24 h-24 border-4 border-white">
-                            {#if userInfo.Profile.picture}
+                            {#if profile.picture}
                                 <AvatarImage
-                                    src={userInfo.Profile.picture}
-                                    alt={userInfo.Profile.name}
+                                    src={profile.picture}
+                                    alt={profile.name}
                                 />
                             {/if}
                             <AvatarFallback
-                                >{userInfo.Profile.name
-                                    ? userInfo.Profile.name[0].toUpperCase()
+                                >{profile.name
+                                    ? profile.name[0].toUpperCase()
                                     : "U"}</AvatarFallback
                             >
                         </Avatar>
@@ -220,8 +219,8 @@
             <!-- Card Content with Blur Effect -->
             <CardContent>
                 <div class="flex justify-between space-x-2">
-                    <p class="font-bold text-2xl">{userInfo.Profile.name}</p>
-                    {#if userInfo.Process == $currentUser.address}
+                    <p class="font-bold text-2xl">{profile.name}</p>
+                    {#if profile.address == $currentUser.address}
                         <Button
                             variant="outline"
                             size="sm"
@@ -237,25 +236,25 @@
                     {/if}
                 </div>
                 <p class="text-muted-foreground">
-                    @{userInfo.Profile.display_name}
+                    @{profile.display_name}
                 </p>
-                {#if userInfo.Profile.about}
-                    <p class="pt-2.5" id={userInfo.Process}>
-                        {userInfo.Profile.about}
+                {#if profile.about}
+                    <p class="pt-2.5" id={profile.address}>
+                        {profile.about}
                     </p>
                 {/if}
                 <div class="flex flex-row space-x-5 pt-2.5">
-                    {#if userInfo.Profile.website}
+                    {#if profile.website}
                         <div
                             class="flex flex-row space-x-1 justify-end items-center"
                         >
                             <Link size={16} />
                             <a
                                 class="text-blue-400"
-                                href={userInfo.Profile.website}
+                                href={profile.website}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                >{getDisplayUrl(userInfo.Profile.website)}</a
+                                >{getDisplayUrl(profile.website)}</a
                             >
                         </div>
                     {/if}
@@ -264,17 +263,17 @@
                     >
                         <CalendarDays size={16} />
                         <p>
-                            Joined {formatJoinedTimestamp(userInfo.CreatedAt)}
+                            <!-- Joined {formatJoinedTimestamp(profile.display_name)} -->
                         </p>
                     </div>
                 </div>
                 <div class="flex space-x-5 pt-2.5">
                     <div class="flex space-x-1">
-                        <p>{userInfo.Subscriptions}</p>
+                        <!-- <p>{profile.Subscriptions}</p> -->
                         <p class="text-muted-foreground">Subscribing</p>
                     </div>
                     <div class="flex space-x-1">
-                        <p>{userInfo.Subs}</p>
+                        <!-- <p>{userInfo.Subs}</p> -->
                         <p class="text-muted-foreground">Subscribers</p>
                     </div>
                 </div>
