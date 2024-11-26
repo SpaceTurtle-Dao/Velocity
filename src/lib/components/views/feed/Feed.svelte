@@ -7,6 +7,7 @@
 
   let events: Array<any> = [];
   let filters: Array<any> = [];
+  let followers: Array<String> = ["exampleFollower1", "exampleFollower2"]; // Example followers
 
   function processEvents(rawEvents: any) {
     const postMap = new Map();

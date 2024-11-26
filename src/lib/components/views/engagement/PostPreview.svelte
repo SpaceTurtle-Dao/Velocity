@@ -1,8 +1,12 @@
 <script lang="ts">
     import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
     import { formatTimestamp } from "$lib/utils/timestamp.utils";
+    import type { Profile } from "$lib/models/Profile";
+
     export let event: any;
-    export let user: any;
+    export let user: Profile;
+
+    
     function formatContent(content: string): string {
         let urlReplaceContent = content.replace(
             /(?:https?|ftp):\/\/[\n\S]+/g,
@@ -21,8 +25,8 @@
     <div class="h-full flex flex-col items-center">
         <ProfilePicture
             size="lg"
-            src={user?.Profile?.picture}
-            name={user?.Profile?.name}
+            src={user?.picture}
+            name={user?.name}
         />
         <div
             id="vertical-line"
@@ -34,10 +38,10 @@
             class="h-12 w-full flex items-center min-w-0 overflow-hidden whitespace-nowrap"
         >
             <div class="text-primary text-base font-medium mr-1 ml-2">
-                {user?.Profile?.name}
+                {user?.name}
             </div>
             <div class="text-muted-foreground text-base font-light truncate">
-                {"@" + user?.Profile?.display_name}
+                {"@" + user?.display_name}
             </div>
 
             <span class="text-muted-foreground pl-1">
@@ -50,7 +54,7 @@
 
         <div class="text-start text-muted-foreground mt-5">
             {"Replying to "}
-            <span class="text-sky-500">{"@" + user?.Profile?.display_name}</span
+            <span class="text-sky-500">{"@" + user?.display_name}</span
             >
         </div>
     </div>

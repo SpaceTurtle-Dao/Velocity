@@ -1,7 +1,7 @@
 <script lang="ts">
   import Reply from "$lib/components/views/engagement/Reply.svelte";
   import { onMount } from "svelte";
-  import { fetchEvents } from "$lib/ao/relay";
+  import { fetchEvents, fetchProfile } from "$lib/ao/relay";
   import { CornerDownRight, Repeat2Icon } from "lucide-svelte";
   import Nip92 from "$lib/handlers/NIP92.svelte";
   import Like from "$lib/components/views/engagement/Like.svelte";
@@ -35,6 +35,8 @@
   let loadError: string | null = null;
   let repostArray: any[] = [];
   let dialogOpen = false;
+
+  console.log("working")
 
   $: {
     if (event) {
@@ -75,10 +77,15 @@
 
     try {
       // Load base user info
-      let messages = await FetchEvents(event.From);
-      console.log("messages are", messages);
-      let data = messages[0];
-      // profile = data.tags[];
+      // let messages = await fetchEvents(event.From);
+      // console.log("messages are", messages);
+      // let data = messages[0];
+
+      console.log("event is", event);
+      
+      profile = await fetchProfile(event.From);
+
+      console.log("user is", profile);
 
       // Check for reply
       if (event.Tags["marker"] === "reply") {
@@ -94,7 +101,7 @@
           originalEvent = parsedContent;
 
           // Load original post author info
-          // originalUser = await info(parsedContent.From);
+          originalUser = await fetchEvents(parsedContent.From);
           if (originalUser?.Profile) {
             originalProfile = originalUser.Profile;
           } else {
@@ -228,10 +235,10 @@
             <div>
               <div class="flex justify-start space-x-3">
                 <div class="hidden sm:flex">
-                  <!-- <ProfilePicture
+                  <ProfilePicture
                     src={isRepost ? originalProfile.picture : profile.picture}
                     name={isRepost ? originalProfile.name : profile.name}
-                  /> -->
+                  />
                 </div>
 
                 <div class="flex-1">
@@ -240,14 +247,14 @@
                       {#if isRepost && originalProfile?.name}
                         {originalProfile.name}
                       {:else}
-                        {$currentUser.name}
+                        {profile.name}
                       {/if}
                     </p>
-                    <!-- <span class="text-muted-foreground pl-0.5"
+                    <span class="text-muted-foreground pl-0.5"
                       >@{isRepost
                         ? originalProfile.display_name
                         : profile.display_name}</span
-                    > -->
+                    >
 
                     <span class="text-muted-foreground"
                       >· {formatTimestamp(event.Timestamp)}</span

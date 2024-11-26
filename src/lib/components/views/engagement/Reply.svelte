@@ -2,24 +2,20 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
+  import { event as aoEvent, fetchEvents, fetchProfile } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { currentUser } from "$lib/stores/profile.store";
+  import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Image, X } from "lucide-svelte";
-  import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-  } from "$lib/components/ui/avatar";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import PostPreview from "./PostPreview.svelte";
+  import type { Profile } from "$lib/models/Profile";
 
   export let event: any;
-  export let user: any;
   let newReply: any;
+  let profile: Profile;
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -29,6 +25,12 @@
   let dialogOpen = false;
 
   const dispatch = createEventDispatcher();
+
+  onMount(async () => {
+    profile = await fetchProfile(event.From);
+
+    console.log("Profile from the Reply component:", profile);
+  });
 
   // Helper function to find tag value
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
@@ -161,14 +163,14 @@
   </Dialog.Trigger>
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
-      <PostPreview {event} {user} />
+      <PostPreview {event} user={profile} />
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
         <ProfilePicture
           size="lg"
-          src={$currentUser.picture}
-          name={$currentUser.name}
+          src={$currentUser?.picture}
+          name={$currentUser?.name}
         />
 
         <div class="w-full ml-3">

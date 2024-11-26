@@ -43,7 +43,7 @@ export const fetchEvents = async (filters: string): Promise<any[]> => {
   return events;
 };
 
-export const fetchProfiles = async (address: string): Promise<Profile> => {
+export const fetchProfile = async (address: string): Promise<Profile> => {
 
     console.log("Address", address);
   const profileFilter = JSON.stringify([
