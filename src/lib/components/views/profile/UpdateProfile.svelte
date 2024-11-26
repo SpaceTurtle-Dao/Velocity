@@ -1,8 +1,8 @@
-<!-- <script lang="ts">
+<script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
     import { z } from "zod";
     import type { Profile, UserInfo } from "$lib/models/Profile";
-    import { currentUser, user } from "$lib/stores/profile.store";
+    import { currentUser } from "$lib/stores/current-user.store";
     import { Button } from "$lib/components/ui/button";
     import { Input } from "$lib/components/ui/input";
     import { Label } from "$lib/components/ui/label";
@@ -19,7 +19,7 @@
         AvatarImage,
     } from "$lib/components/ui/avatar";
     import { Camera } from "lucide-svelte";
-    import { event, info } from "$lib/ao/relay";
+    import { event, fetchEvents } from "$lib/ao/relay";
     import { upload } from "$lib/ao/uploader";
     import { fi } from "date-fns/locale";
     import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
@@ -51,12 +51,6 @@
 
     let userInfo: UserInfo;
     let errors: Partial<Record<keyof ProfileSchemaType, string>> = {};
-
-    currentUser.subscribe((value) => {
-        if (value) {
-            userInfo = value;
-        }
-    });
 
     let pictureFile: File | null = null;
     let bannerFile: File | null = null;
@@ -112,10 +106,10 @@
             ];
 
             try {
-                const result = await event(tags, $currentUser.Process);
-                let _currentUser = await info(userInfo.Process);
-                currentUser.set(_currentUser);
-                user.set(_currentUser);
+                const result = await event(tags);
+                // let _currentUser = await fetchEvents(userInfo.Process);
+                // currentUser.set(_currentUser);
+                // user.set(_currentUser);
                 console.log("Profile updated successfully:", result);
                 dispatch("profileUpdated");
             } catch (error) {
@@ -251,4 +245,4 @@
             </form>
         </CardContent>
     </Card>
-</div> -->
+</div>

@@ -70,3 +70,33 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     throw e;
   }
 };
+
+//@ts-ignore
+export const fetchProfiles = async (address: string): Promise<Profile> => {
+  console.log("Address", address);
+  const profileFilter = JSON.stringify([
+    {
+      kinds: ["0"],
+      // authors: [],
+      //   limit: 1,
+    },
+  ]);
+
+  let messages = await fetchEvents(profileFilter);
+  // console.log("Messages from App with all profiless", messages);
+
+  try {
+    messages.forEach((message) => {
+      let profile = JSON.parse(message.Content);
+      profile.address = message.From;
+      profile.created_at = messages[0].Timestamp;
+      profile.updated_at = message.Timestamp;
+      console.log("Profile from App in new Fetch all Profiles", profile);
+      return profile;
+    });
+  }
+  catch (e) {
+    console.error(e);
+    throw e;
+  }
+};

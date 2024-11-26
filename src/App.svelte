@@ -17,6 +17,7 @@
   import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
   import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
   import { myPostStore } from "$lib/stores/my-post.store";
+  import { fetchProfiles } from "$lib/ao/relay";
 
   let isLoading = true;
 
@@ -34,6 +35,8 @@
     await addressStore.sync();
 
     await myPostStore.fetch();
+
+    await fetchProfiles("ecBf4PGXWIYqtv17cIiMw7OFNYUcYc7cTQrKmRZisRQ");
   });
 
   let waitForUserFetch = true;

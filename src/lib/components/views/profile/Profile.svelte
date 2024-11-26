@@ -29,41 +29,40 @@
     import { event } from "$lib/ao/relay"
 
     let activeTab: string = "posts";
-    let userInfo: Profile[];
+    let userInfo: Profile;
     let events: Array<Event> = [];
     let profile: Profile;
 
     let showModal = false;
     let textWithUrl = "";
-    // Get the <p> tag by ID
     let pTag: HTMLElement | null;
-    // Regular expression to find URLs in the string
     const urlPattern = /(https?:\/\/[^\s]+)/g;
 
     console.log("Will load thissss!!!")
 
-    user.subscribe(async (value) => {
-        let filters: Array<any> = [];
-        if (value) {
-            let filter = {
-                kinds: [1],
-                since: 1663905355000,
-                until: Date.now(),
-                limit: 100,
-            };
-            filters.push(filter);
-            userInfo = value;
-            let _filters = JSON.stringify(filters);
-            // if (userInfo) {
-            //     document.getElementById(userInfo.address);
-            //     await fetchEvents(_filters);
-            // }
-            // if (userInfo.Profile.about) {
-            //     textWithUrl = userInfo.Profile.about;
-            // }
-        }
-        filters = [];
-    });
+    // user.subscribe(async (value) => {
+    //     let filters: Array<any> = [];
+    //     if (value) {
+    //         let filter = {
+    //             kinds: [1],
+    //             since: 1663905355000,
+    //             until: Date.now(),
+    //             limit: 100,
+    //         };
+    //         filters.push(filter);
+    //         userInfo = value;
+    //         let _filters = JSON.stringify(filters);
+    //         if (userInfo) {
+    //             document.getElementById(profile.address);
+    //             await fetchEvents(_filters);
+    //         }
+    //         if (profile.about) {
+    //             textWithUrl = profile.about;
+    //         }
+    //     }
+    //     filters = [];
+    //     console.log("Will load thissss!!!", filters);
+    // });
 
     async function fetchMedia() {
         let filters: Array<any> = [];
@@ -105,7 +104,7 @@
     async function fetchPost() {
         let filters: Array<any> = [];
         //events = [];
-        if (userInfo) {
+        if ($currentUser) {
             let filter = {
                 kinds: ["1", "6"],
                 since: 1663905355000,
@@ -123,7 +122,7 @@
             filters.push(filter);
             filters.push(filter2);
             let _filters = JSON.stringify(filters);
-            if (userInfo) {
+            if ($currentUser) {
                 events = await fetchEvents(_filters);
             }
         }
@@ -175,10 +174,31 @@
                 }
             }
         });
+
+        // for fetching posts for the user
+        async function subscribe(){
+        let filters: Array<any> = [];
+            let filter = {
+                kinds: [1],
+                since: 1663905355000,
+                until: Date.now(),
+                limit: 100,
+            };
+            filters.push(filter);
+            let _filters = JSON.stringify(filters);
+            if (userInfo) {
+                document.getElementById(profile.address);
+                await fetchEvents(_filters);
+            }
+            if (profile.about) {
+                textWithUrl = profile.about;
+            }
+        filters = [];
+        }
     });
 </script>
 
-{#if userInfo}
+{#if $currentUser}
     <div class="mt-10 max-w-prose">
         <Card
             class="mb-10 overflow-hidden shadow-lg rounded-lg border-border relative"
@@ -186,9 +206,9 @@
             <div class="relative mb-10">
                 <!-- Increased bottom margin -->
                 <div class="bg-gray-200 relative">
-                    {#if profile.banner}
+                    {#if $currentUser?.banner}
                         <img
-                            src={profile.banner}
+                            src={$currentUser?.banner}
                             alt="Banner"
                             class="w-full max-h-48 object-cover"
                         />
@@ -197,18 +217,17 @@
                     {/if}
                 </div>
                 <div class="absolute bottom-0 left-4 transform translate-y-1/3">
-                    <!-- Changed from translate-y-1/2 to translate-y-1/3 -->
                     <div class="relative">
                         <Avatar class="w-24 h-24 border-4 border-white">
-                            {#if profile.picture}
+                            {#if $currentUser?.picture}
                                 <AvatarImage
-                                    src={profile.picture}
+                                    src={profile?.picture}
                                     alt={profile.name}
                                 />
                             {/if}
                             <AvatarFallback
-                                >{profile.name
-                                    ? profile.name[0].toUpperCase()
+                                >{$currentUser.name
+                                    ? $currentUser.name[0].toUpperCase()
                                     : "U"}</AvatarFallback
                             >
                         </Avatar>
@@ -219,8 +238,8 @@
             <!-- Card Content with Blur Effect -->
             <CardContent>
                 <div class="flex justify-between space-x-2">
-                    <p class="font-bold text-2xl">{profile.name}</p>
-                    {#if profile.address == $currentUser.address}
+                    <p class="font-bold text-2xl">{$currentUser.name}</p>
+                    {#if $currentUser.address == $currentUser.address}
                         <Button
                             variant="outline"
                             size="sm"
@@ -236,25 +255,25 @@
                     {/if}
                 </div>
                 <p class="text-muted-foreground">
-                    @{profile.display_name}
+                    @{$currentUser.display_name}
                 </p>
-                {#if profile.about}
-                    <p class="pt-2.5" id={profile.address}>
-                        {profile.about}
+                {#if $currentUser.about}
+                    <p class="pt-2.5" id={$currentUser.address}>
+                        {$currentUser.about}
                     </p>
                 {/if}
                 <div class="flex flex-row space-x-5 pt-2.5">
-                    {#if profile.website}
+                    {#if $currentUser.website}
                         <div
                             class="flex flex-row space-x-1 justify-end items-center"
                         >
                             <Link size={16} />
                             <a
                                 class="text-blue-400"
-                                href={profile.website}
+                                href={$currentUser.website}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                >{getDisplayUrl(profile.website)}</a
+                                >{getDisplayUrl($currentUser.website)}</a
                             >
                         </div>
                     {/if}
@@ -263,7 +282,7 @@
                     >
                         <CalendarDays size={16} />
                         <p>
-                            <!-- Joined {formatJoinedTimestamp(profile.display_name)} -->
+                            Joined {"11th Jan 2025"}
                         </p>
                     </div>
                 </div>
@@ -314,14 +333,14 @@
                 </div>
             </Tabs.Content>
             <Tabs.Content value="following">
-                {#if $user && $currentUser}
+                <!-- {#if $user && $currentUser}
                     <UserList />
-                {/if}
+                {/if} -->
             </Tabs.Content>
             <Tabs.Content value="followers">
-                {#if $user && $currentUser}
+                <!-- {#if $user && $currentUser}
                     <UserList />
-                {/if}
+                {/if} -->
             </Tabs.Content>
         </Tabs.Root>
     </div>
@@ -341,7 +360,7 @@
                 >
             </div>
             <UpdateProfile
-                initialProfile={userInfo.Profile}
+                initialProfile={$currentUser}
                 on:profileUpdated={toggleModal}
             />
         </div>

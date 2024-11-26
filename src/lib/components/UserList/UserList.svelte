@@ -1,29 +1,28 @@
 <!-- <script lang="ts">
-    import type { UserInfo } from "$lib/models/Profile";
+    import type { Profile, UserInfo } from "$lib/models/Profile";
     import ProfileCard from "$lib/components/views/profile/ProfileCard.svelte";
     import { onMount } from "svelte";
-    import { relays } from "$lib/ao/relay";
     import { users } from "$lib/stores/main.store";
     import * as Card from "$lib/components/ui/card/index.js";
     import { currentUser } from "$lib/stores/profile.store";
     import UserListSkeleton from "../Skeletons/UserListSkeleton.svelte";
+    import { fetchProfiles } from "$lib/ao/relay";
 
-    let userelays: Array<UserInfo> = [];
+    let userelays: Profile;
     let title = "You might like";
 
     let isFetchingUsers: boolean;
 
-    users.subscribe(
-        (value) =>
-            (userelays = value.filter(
-                (relay) => relay.Process != $currentUser.Process,
-            )),
-    );
+
+    // users.subscribe(
+    //     (value) =>
+    //         (userelays = value.filter(
+    //             (relay) => relay.Process != $currentUser.Process,
+    //         )),
+    // );
 
     onMount(async () => {
-        console.log("********Mounted*******");
-        isFetchingUsers = true;
-        await relays("1", "100");
+        userelays = await fetchProfiles("GAWLwhI8OKS0gAQ1KJgp5-9zV_HBxZbcKjPhorWRw9U");
         isFetchingUsers = false;
     });
 </script>

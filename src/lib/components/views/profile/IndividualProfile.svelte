@@ -1,4 +1,4 @@
-<!-- <script lang="ts">
+<script lang="ts">
     import { fly } from "svelte/transition";
     import { Card, CardContent } from "$lib/components/ui/card";
     import {
@@ -12,7 +12,7 @@
         type Profile,
         type UserInfo,
     } from "$lib/models/Profile";
-    import { currentUser, user } from "../../../stores/profile.store";
+    import { currentUser } from "$lib/stores/current-user.store";
     import Post from "$lib/components/posts/Post.svelte";
     import Followers from "$lib/components/Followers/Followers.svelte";
     import * as Tabs from "$lib/components/ui/tabs/index.js";
@@ -24,7 +24,7 @@
         CalendarDays,
     } from "lucide-svelte";
     import { onMount, afterUpdate } from "svelte";
-    import { fetchEvents, info, subs, subscriptions } from "$lib/ao/relay";
+    import { fetchEvents, fetchProfile } from "$lib/ao/relay";
     import Follow from "$lib/components/Follow/Follow.svelte";
     import UserList from "$lib/components/UserList/UserList.svelte";
     import Process from "$lib/ao/process.svelte";
@@ -35,7 +35,7 @@
     export let params: { process?: string } = {};
 
     let activeTab: string = "posts";
-    let userInfo: UserInfo | null = null;
+    let userInfo: Profile | null = null;
     let events: Array<any> = [];
     let textWithUrl = "";
     let pTag: HTMLElement | null;
@@ -47,11 +47,11 @@
         if (process) {
             userInfo = null; // Reset userInfo to trigger re-render
             events = []; // Reset events
-            userInfo = await info(process);
+            userInfo = await fetchProfile($currentUser.address);
             if (userInfo) {
                 await fetchUserData();
-                if (userInfo.Profile.about) {
-                    textWithUrl = userInfo.Profile.about;
+                if (userInfo.about) {
+                    textWithUrl = userInfo.about;
                     await processAboutText();
                 }
             }
@@ -73,7 +73,7 @@
             },
         ];
         let _filters = JSON.stringify(filters);
-        await fetchEvents(userInfo.Process, _filters);
+        await fetchEvents(_filters);
     }
 
     async function fetchMedia() {
@@ -103,7 +103,7 @@
             },
         ];
         let _filters = JSON.stringify(filters);
-        events = await fetchEvents(userInfo.Process, _filters);
+        events = await fetchEvents(_filters);
     }
 
     async function fetchPost() {
@@ -118,18 +118,18 @@
             },
         ];
         let _filters = JSON.stringify(filters);
-        events = await fetchEvents(userInfo.Process, _filters);
+        events = await fetchEvents(_filters);
     }
 
-    async function fetchSubs() {
-        if (!userInfo) return;
-        await subs(userInfo.Process, "1", "100");
-    }
+    // async function fetchSubs() {
+    //     if (!userInfo) return;
+    //     await subs(userInfo.Process, "1", "100");
+    // }
 
-    async function fetchSubscriptions() {
-        if (!userInfo) return;
-        await subscriptions(userInfo.Process, "1", "100");
-    }
+    // async function fetchSubscriptions() {
+    //     if (!userInfo) return;
+    //     await subscriptions(userInfo.Process, "1", "100");
+    // }
 
     function formatDate(dateString: number): string {
         return new Date(dateString).toLocaleDateString();
@@ -142,7 +142,7 @@
     async function processAboutText() {
         if (!userInfo) return;
         const parts = textWithUrl.split(urlPattern);
-        pTag = document.getElementById(userInfo.Process);
+        pTag = document.getElementById(userInfo.address);
         if (pTag) {
             pTag.innerHTML = ""; // Clear existing content
             parts.forEach((part) => {
@@ -161,7 +161,7 @@
     }
 
     afterUpdate(() => {
-        if (userInfo && userInfo.Profile.about) {
+        if (userInfo && userInfo.about) {
             processAboutText();
         }
     });
@@ -174,9 +174,9 @@
         >
             <div class="relative mb-10">
                 <div class="bg-gray-200 relative">
-                    {#if userInfo.Profile.banner}
+                    {#if userInfo.banner}
                         <img
-                            src={userInfo.Profile.banner}
+                            src={userInfo.banner}
                             alt="Banner"
                             class="w-full max-h-48 object-cover"
                         />
@@ -187,15 +187,15 @@
                 <div class="absolute bottom-0 left-4 transform translate-y-1/3">
                     <div class="relative">
                         <Avatar class="w-24 h-24 border-4 border-white">
-                            {#if userInfo.Profile.picture}
+                            {#if userInfo.picture}
                                 <AvatarImage
-                                    src={userInfo.Profile.picture}
-                                    alt={userInfo.Profile.name}
+                                    src={userInfo.picture}
+                                    alt={userInfo.name}
                                 />
                             {/if}
                             <AvatarFallback
-                                >{userInfo.Profile.name
-                                    ? userInfo.Profile.name[0].toUpperCase()
+                                >{userInfo.name
+                                    ? userInfo.name[0].toUpperCase()
                                     : "U"}</AvatarFallback
                             >
                         </Avatar>
@@ -205,35 +205,35 @@
 
             <CardContent>
                 <div class="flex justify-between space-x-2">
-                    <p class="font-bold text-2xl">{userInfo.Profile.name}</p>
-                    {#if $currentUser && userInfo.Process !== $currentUser.Process}
-                        <Follow
+                    <p class="font-bold text-2xl">{userInfo.name}</p>
+                    {#if $currentUser && userInfo.address !== $currentUser.address}
+                        <!-- <Follow
                             relay={userInfo.Process}
                             userRelay={$currentUser.Process}
-                        />
+                        /> -->
                     {/if}
                 </div>
                 <p class="text-muted-foreground">
-                    @{userInfo.Profile.display_name}
+                    @{userInfo.display_name}
                 </p>
 
-                <p class="pt-2.5" id={userInfo.Process}>
-                    {#if userInfo.Profile.about}
-                        {userInfo.Profile.about}
+                <p class="pt-2.5" id={userInfo.address}>
+                    {#if userInfo.about}
+                        {userInfo.about}
                     {/if}
                 </p>
                 <div class="flex flex-row space-x-5 pt-2.5">
-                    {#if userInfo.Profile.website}
+                    {#if userInfo.website}
                         <div
                             class="flex flex-row space-x-1 justify-end items-center"
                         >
                             <Link size={16} />
                             <a
                                 class="text-blue-400"
-                                href={userInfo.Profile.website}
+                                href={userInfo.website}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                >{getDisplayUrl(userInfo.Profile.website)}</a
+                                >{getDisplayUrl(userInfo.website)}</a
                             >
                         </div>
                     {/if}
@@ -242,17 +242,17 @@
                     >
                         <CalendarDays size={16} />
                         <p>
-                            Joined {formatJoinedTimestamp(userInfo.CreatedAt)}
+                            <!-- Joined {formatJoinedTimestamp(userInfo.created_at)} -->
                         </p>
                     </div>
                 </div>
                 <div class="flex space-x-5 pt-2.5">
                     <div class="flex space-x-1">
-                        <p>{userInfo.Subscriptions}</p>
+                        <!-- <p>{userInfo.Subscriptions}</p> -->
                         <p class="text-muted-foreground">Subscribing</p>
                     </div>
                     <div class="flex space-x-1">
-                        <p>{userInfo.Subs}</p>
+                        <!-- <p>{userInfo.Subs}</p> -->
                         <p class="text-muted-foreground">Subscribers</p>
                     </div>
                 </div>
@@ -304,4 +304,4 @@
             </Tabs.Content>
         </Tabs.Root>
     </div>
-{/if} -->
+{/if}
