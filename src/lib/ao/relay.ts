@@ -44,13 +44,12 @@ export const fetchEvents = async (filters: string): Promise<any[]> => {
 };
 
 export const fetchProfile = async (address: string): Promise<Profile> => {
-
-    console.log("Address", address);
+  console.log("Address", address);
   const profileFilter = JSON.stringify([
     {
       kinds: ["0"],
       authors: [address],
-    //   limit: 1,
+      //   limit: 1,
     },
   ]);
 
@@ -65,6 +64,68 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     profile.updated_at = message.Timestamp;
     console.log("Profile from App", profile);
     return profile;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
+
+export const fetchProfiles = async (): Promise<Profile[]> => {
+  const profileFilter = JSON.stringify([
+    {
+      kinds: ["0"],
+      // authors: [],
+      //   limit: 1,
+    },
+  ]);
+
+  let messages = await fetchEvents(profileFilter);
+  // console.log("Messages from App with all profiless", messages);
+
+  try {
+    return messages.map((message) => {
+      let profile = JSON.parse(message.Content);
+
+      profile.address = message.From;
+
+      profile.created_at = messages[0].Timestamp;
+
+      profile.updated_at = message.Timestamp;
+
+      console.log("Profile from App in new Fetch all Profiles", profile);
+
+      return profile;
+    }) as Profile[];
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
+
+// Returns Profile in Key value format that can be used in UsersProfileMapStore
+export const fetchProfilesForUsersProfileMap = async (): Promise<
+  [string, Profile][]
+> => {
+  const profileFilter = JSON.stringify([
+    {
+      kinds: ["0"],
+    },
+  ]);
+
+  let messages = await fetchEvents(profileFilter);
+
+  try {
+    return messages.map((message) => {
+      let profile = JSON.parse(message.Content);
+
+      profile.address = message.From;
+
+      profile.created_at = messages[0].Timestamp;
+
+      profile.updated_at = message.Timestamp;
+
+      return [profile.address, profile];
+    }) as [string, Profile][];
   } catch (e) {
     console.error(e);
     throw e;

@@ -1,7 +1,7 @@
 <script lang="ts">
   import Reply from "$lib/components/views/engagement/Reply.svelte";
   import { onMount } from "svelte";
-  import { fetchEvents, fetchProfile } from "$lib/ao/relay";
+  import { fetchEvents } from "$lib/ao/relay";
   import { CornerDownRight, Repeat2Icon } from "lucide-svelte";
   import Nip92 from "$lib/handlers/NIP92.svelte";
   import Like from "$lib/components/views/engagement/Like.svelte";
@@ -16,15 +16,18 @@
   import { formatTimestamp } from "$lib/utils/timestamp.utils";
   import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
   import type { Profile } from "$lib/models/Profile";
+  import { usersProfile } from "$lib/stores/users-profile.store";
 
   export let event: any;
   export let replies: any[] = [];
-//   export let showFullPost: boolean = false;
+  //   export let showFullPost: boolean = false;
 
   let replyCount = 0;
 
   let _user: any;
-  let profile: Profile;
+
+  $: profile = $usersProfile.get(event.From);
+
   let isReply: boolean = false;
   let replyingTo: string | null = null;
   let isRepost: boolean = false;
@@ -36,7 +39,7 @@
   let repostArray: any[] = [];
   let dialogOpen = false;
 
-  console.log("working")
+  console.log("working");
 
   $: {
     if (event) {
@@ -76,16 +79,8 @@
     loadError = null;
 
     try {
-      // Load base user info
-      // let messages = await fetchEvents(event.From);
-      // console.log("messages are", messages);
-      // let data = messages[0];
-
-      console.log("event is", event);
-      
-      profile = await fetchProfile(event.From);
-
-      console.log("user is", profile);
+      // Commenting this because usersProfile.fetchProfiles will already fetched all the users profile
+      // profile = await usersProfile.get(event.From);
 
       // Check for reply
       if (event.Tags["marker"] === "reply") {
@@ -236,8 +231,10 @@
               <div class="flex justify-start space-x-3">
                 <div class="hidden sm:flex">
                   <ProfilePicture
-                    src={isRepost ? originalProfile.picture : profile.picture}
-                    name={isRepost ? originalProfile.name : profile.name}
+                    src={isRepost ? originalProfile.picture : profile?.picture}
+                    name={isRepost
+                      ? originalProfile.name
+                      : (profile?.name ?? "")}
                   />
                 </div>
 
@@ -247,13 +244,13 @@
                       {#if isRepost && originalProfile?.name}
                         {originalProfile.name}
                       {:else}
-                        {profile.name}
+                        {profile?.name}
                       {/if}
                     </p>
                     <span class="text-muted-foreground pl-0.5"
                       >@{isRepost
                         ? originalProfile.display_name
-                        : profile.display_name}</span
+                        : profile?.display_name}</span
                     >
 
                     <span class="text-muted-foreground"
@@ -276,7 +273,7 @@
 
           <div class="flex justify-between mt-3 engagement-buttons">
             <div class="flex items-center">
-              <Reply {event} user={_user} on:newReply={handleNewReply} />
+              <Reply {event} on:newReply={handleNewReply} />
               {#if replyCount > 0}
                 <span class="ml-1 text-sm text-muted-foreground">
                   {replyCount}

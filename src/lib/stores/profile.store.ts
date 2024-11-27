@@ -5,7 +5,7 @@ import { writable } from "svelte/store";
 export const userRelay = writable<string>();
 export const isConnected = writable<boolean>(false);
 export const currentUser = writable<Profile>();
-export const user = writable<Profile[]>();
+export const user = writable<Profile>();
 export const followers = writable<Array<string>>([]);
 //export const userEvents = writable<Array<Event>>([]);
 //export const feedEvents = writable<Array<Event>>([]);

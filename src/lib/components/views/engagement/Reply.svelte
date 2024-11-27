@@ -2,7 +2,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import { event as aoEvent, fetchEvents, fetchProfile } from "$lib/ao/relay";
+  import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
@@ -12,10 +12,11 @@
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import PostPreview from "./PostPreview.svelte";
   import type { Profile } from "$lib/models/Profile";
+  import { usersProfile } from "$lib/stores/users-profile.store";
 
   export let event: any;
   let newReply: any;
-  let profile: Profile;
+  let profile = $usersProfile.get(event.From);
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -25,12 +26,6 @@
   let dialogOpen = false;
 
   const dispatch = createEventDispatcher();
-
-  onMount(async () => {
-    profile = await fetchProfile(event.From);
-
-    console.log("Profile from the Reply component:", profile);
-  });
 
   // Helper function to find tag value
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
