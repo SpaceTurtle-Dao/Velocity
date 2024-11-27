@@ -13,7 +13,8 @@
     export let address:string;
 
     onMount(async () => {
-        // _isSubscribed = await isSubscribed(userRelay, relay);
+        let followList = await fetchFollowList($currentUser.address)
+        _isSubscribed = followList.includes(address)
     });
 
     async function _subscribe() {
