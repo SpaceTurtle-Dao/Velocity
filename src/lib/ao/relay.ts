@@ -45,7 +45,7 @@ export const fetchEvents = async (filters: string): Promise<any[]> => {
 
 export const fetchProfile = async (address: string): Promise<Profile> => {
   console.log("Address", address);
-  const profileFilter = JSON.stringify([
+  const filter = JSON.stringify([
     {
       kinds: ["0"],
       authors: [address],
@@ -53,7 +53,7 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     },
   ]);
 
-  let messages = await fetchEvents(profileFilter);
+  let messages = await fetchEvents(filter);
   console.log("Messages from App", messages);
 
   try {
@@ -71,7 +71,7 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
 };
 
 export const fetchProfiles = async (): Promise<Profile[]> => {
-  const profileFilter = JSON.stringify([
+  const filter = JSON.stringify([
     {
       kinds: ["0"],
       // authors: [],
@@ -79,7 +79,7 @@ export const fetchProfiles = async (): Promise<Profile[]> => {
     },
   ]);
 
-  let messages = await fetchEvents(profileFilter);
+  let messages = await fetchEvents(filter);
   // console.log("Messages from App with all profiless", messages);
 
   try {
@@ -96,6 +96,30 @@ export const fetchProfiles = async (): Promise<Profile[]> => {
 
       return profile;
     }) as Profile[];
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
+
+export const fetchFollowList = async (address: string): Promise<[string]> => {
+  console.log("Address", address);
+  const filter = JSON.stringify([
+    {
+      kinds: ["3"],
+      authors: [address],
+      //   limit: 1,
+    },
+  ]);
+
+  let messages = await fetchEvents(filter);
+  console.log("Messages from App", messages);
+
+  try {
+    let message = messages.pop();
+    let followList = JSON.parse(message.p);
+    console.log(`Follow List for ${address}`, followList);
+    return followList;
   } catch (e) {
     console.error(e);
     throw e;
