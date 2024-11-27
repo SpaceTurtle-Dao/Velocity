@@ -249,9 +249,9 @@
                             Edit Profile
                         </Button>
                     {:else}
-                        <!-- <Follow
-                            userRelay={$currentUser.address}
-                        /> -->
+                        <Follow
+                            address={userInfo.address}
+                        />
                     {/if}
                 </div>
                 <p class="text-muted-foreground">
