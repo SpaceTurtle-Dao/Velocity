@@ -1,12 +1,10 @@
 <script lang="ts">
-    // import { isSubscribed, subscribe, unsubscribe } from "$lib/ao/relay";
-    import { Rocket } from "lucide-svelte";
     import { Button } from "$lib/components/ui/button";
     import { onMount } from "svelte";
     import { fetchFollowList } from "$lib/ao/relay";
     import { currentUser } from "$lib/stores/current-user.store";
     import type { Tag } from "$lib/models/Tag";
-    import { event, fetchEvents } from "$lib/ao/relay";
+    import { event } from "$lib/ao/relay";
 
     let isLoading = false;
     let _isSubscribed: boolean = false;

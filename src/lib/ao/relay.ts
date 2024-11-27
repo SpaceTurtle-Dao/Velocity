@@ -62,6 +62,7 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     profile.address = message.From;
     profile.created_at = messages[0].Timestamp;
     profile.updated_at = message.Timestamp;
+    profile.followList = await fetchFollowList(address)
     console.log("Profile from App", profile);
     return profile;
   } catch (e) {
@@ -83,7 +84,7 @@ export const fetchProfiles = async (): Promise<Profile[]> => {
   // console.log("Messages from App with all profiless", messages);
 
   try {
-    return messages.map((message) => {
+    return messages.map( (message) => {
       let profile = JSON.parse(message.Content);
 
       profile.address = message.From;

@@ -2,9 +2,9 @@
   import { followers } from "$lib/stores/profile.store";
   import { profileFromEvent, type UserInfo, type Profile } from "$lib/models/Profile";
   import ProfileCard from "$lib/components/views/profile/ProfileCard.svelte";
-  import { fetchEvents } from "$lib/ao/relay";
+  import { fetchEvents, fetchProfiles } from "$lib/ao/relay";
 
-  let userProfiles: Array<UserInfo> = [];
+  let userProfiles: Array<Profile> = [];
   let isLoading = false;
   let error: string | null = null;
 
@@ -114,7 +114,7 @@
         })
       );
 
-      userProfiles = enrichedProfiles.filter((profile): profile is UserInfo => profile !== null);
+      userProfiles = await fetchProfiles()
       console.log('Processed profiles:', userProfiles);
       
     } catch (e) {
@@ -148,7 +148,7 @@
     <div class="text-red-500 text-center py-4">{error}</div>
   {:else}
     {#each userProfiles as userProfile}
-      <ProfileCard data={userProfile} />
+      <ProfileCard profile={userProfile} />
     {/each}
   {/if}
 </div>
