@@ -57,8 +57,10 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
   console.log("Messages from App", messages);
 
   try {
-    let message = messages.pop();
+    // messages[0] give the latest profile change of this address and it  return that
+    let message = messages[0];
     let profile = JSON.parse(message.Content);
+
     profile.address = message.From;
     profile.created_at = messages[0].Timestamp;
     profile.updated_at = message.Timestamp;
@@ -129,7 +131,7 @@ export const fetchFollowList = async (address: string): Promise<[string]> => {
 
 // Returns Profile in Key value format that can be used in UsersProfileMapStore
 export const fetchProfilesForUsersProfileMap = async (): Promise<
-  [string, Profile][]
+  Map<string, Profile>
 > => {
   const profileFilter = JSON.stringify([
     {
@@ -140,17 +142,32 @@ export const fetchProfilesForUsersProfileMap = async (): Promise<
   let messages = await fetchEvents(profileFilter);
 
   try {
-    return messages.map((message) => {
-      let profile = JSON.parse(message.Content);
+    const map = new Map<string, Profile>();
+
+    messages.forEach((message) => {
+      let profile = JSON.parse(message.Content) as Profile;
 
       profile.address = message.From;
 
-      profile.created_at = messages[0].Timestamp;
+      const duplicate = map.get(profile.address);
 
-      profile.updated_at = message.Timestamp;
+      if (duplicate) {
+        if (
+          duplicate.updated_at !== undefined &&
+          profile.updated_at !== undefined
+        ) {
+          if (profile.updated_at > duplicate.updated_at) {
+            map.set(profile.address, profile);
+          }
+        } else if (profile.updated_at) {
+          map.set(profile.address, profile);
+        }
+      } else {
+        map.set(profile.address, profile);
+      }
+    });
 
-      return [profile.address, profile];
-    }) as [string, Profile][];
+    return map;
   } catch (e) {
     console.error(e);
     throw e;

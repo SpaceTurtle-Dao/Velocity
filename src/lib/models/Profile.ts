@@ -16,8 +16,8 @@ export type Profile = {
   website?: string;
   banner?: string;
   bot?: boolean;
-  created_at?: string;
-  updated_at?: string;
+  created_at: number;
+  updated_at?: number;
 };
 
 export const profileFromEvent = (event: any): Profile => {
