@@ -108,11 +108,13 @@
       }
       isUploading = false;
 
+      const created_at = Date.now();
       // Prepare the content for the event
       const content = JSON.stringify({
         name: profile.name,
         display_name: profile.display_name,
         about: profile.about,
+        created_at,
         picture: profile.picture,
         banner: profile.banner,
         website: profile.website,
@@ -134,6 +136,7 @@
           currentUser.set({
             name: profile.name,
             about: profile.about,
+            created_at,
             picture: profile.picture,
             display_name: profile.display_name,
             banner: profile.banner,
