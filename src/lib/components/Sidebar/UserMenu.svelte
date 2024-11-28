@@ -27,9 +27,7 @@
 <DropdownMenu.Root>
        <DropdownMenu.Trigger asChild let:builder>
               <div class="p-4">
-                     <div
-                            class="bg-gradient-to-r from-secondary-500 to-pink-500 p-6"
-                     >
+                     <div class="p-6">
                             <div class="flex items-center space-x-4">
                                    {#if profile.picture}
                                           <Avatar
