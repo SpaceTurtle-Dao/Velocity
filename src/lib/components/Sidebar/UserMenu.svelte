@@ -3,8 +3,10 @@
        import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
        import { ARWEAVE_ADDRESS } from "$lib/constants";
        import { profileFromEvent, type Profile } from "$lib/models/Profile";
+       import { addressStore } from "$lib/stores/address.store";
        import { currentUser } from "$lib/stores/profile.store";
        import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+       
        // import {}
 
        let profile: Profile;
@@ -15,6 +17,10 @@
 
        function toUrl(tx: string) {
               return ARWEAVE_ADDRESS + tx;
+       }
+
+       async function diconnectWallet() {
+              await addressStore.disconnectWallet();
        }
 </script>
 

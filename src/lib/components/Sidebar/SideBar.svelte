@@ -21,6 +21,7 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { ARWEAVE_ADDRESS } from "$lib/constants";
+  import UserMenu from "./UserMenu.svelte";
 
   export let url = "";
 
@@ -101,7 +102,8 @@
         </button>
       </div>
       <div class="p-4">
-        <div class="bg-gradient-to-r from-secondary-500 to-pink-500 p-6">
+        <UserMenu />
+        <!-- <div class="bg-gradient-to-r from-secondary-500 to-pink-500 p-6">
           <div class="flex items-center space-x-4">
             {#if profile.picture}
               <Avatar class="h-24 w-24 ring-4 ring-white">
@@ -117,7 +119,7 @@
               <p class="mt-2 text-white">{"profile.bio"}</p>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </aside>
 
