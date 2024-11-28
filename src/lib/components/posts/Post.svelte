@@ -24,8 +24,6 @@
 
   let replyCount = 0;
 
-  let _user: any;
-
   $: profile = $usersProfile.get(event.From);
 
   let isReply: boolean = false;
@@ -79,7 +77,6 @@
     loadError = null;
 
     try {
-      // Commenting this because usersProfile.fetchProfiles will already fetched all the users profile
       // profile = await usersProfile.get(event.From);
 
       // Check for reply
@@ -258,7 +255,6 @@
                     >
                   </div>
 
-                  <!-- Content Display -->
                   <div class="text-gray-200">
                     {#if isRepost && originalEvent}
                       <Nip92 event={originalEvent} />
