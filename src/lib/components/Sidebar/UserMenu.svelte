@@ -6,7 +6,7 @@
        import { addressStore } from "$lib/stores/address.store";
        import { currentUser } from "$lib/stores/profile.store";
        import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-       
+
        // import {}
 
        let profile: Profile;
@@ -25,7 +25,7 @@
 </script>
 
 <DropdownMenu.Root>
-       <DropdownMenu.Trigger>
+       <DropdownMenu.Trigger asChild let:builder>
               <div class="p-4">
                      <div
                             class="bg-gradient-to-r from-secondary-500 to-pink-500 p-6"
