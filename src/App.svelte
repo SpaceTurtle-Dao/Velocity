@@ -46,9 +46,6 @@
 
     if (address) {
       await currentUser.fetch();
-
-      // delete currentuser duplication in usersProfile
-      $usersProfile.delete(address);
       waitForUserFetch = false;
     }
 

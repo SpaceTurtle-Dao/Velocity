@@ -54,8 +54,12 @@
             on:click={toggleCreatePostModal}
             class="flex items-center p-2 px-5 rounded-full hover:bg-background-700 transition-colors duration-200"
           > -->
-          <MoreHorizontal class="w-6 h-6 mr-4 text-primary" />
-          <span class="text-lg font-medium text-primary">More</span>
+          <div
+            class="flex items-center p-2 px-5 rounded-full hover:bg-background-700 transition-colors duration-200"
+          >
+            <MoreHorizontal class="w-6 h-6 mr-4 text-primary" />
+            <span class="text-lg font-medium text-primary">More</span>
+          </div>
           <!-- </button> -->
         </li>
       </ul>

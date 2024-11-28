@@ -2,6 +2,7 @@
   import ProfileCard from "$lib/components/views/profile/ProfileCard.svelte";
   import * as Card from "$lib/components/ui/card/index.js";
   import { usersProfile } from "$lib/stores/users-profile.store";
+  import { currentUser } from "$lib/stores/current-user.store";
 
   let title = "You might like";
 </script>
@@ -21,7 +22,9 @@
           class="grid gap-8 max-h-[80vh] overflow-y-auto scrollable-element pr-3 w-full max-w-full"
         >
           {#each $usersProfile.values() as profile}
-            <ProfileCard {profile} />
+            {#if profile.address !== $currentUser.address}
+              <ProfileCard {profile} />
+            {/if}
           {/each}
         </div>
       </Card.Content>
