@@ -84,18 +84,18 @@
                 </Link>
               </li>
             {/each}
-            <li>
+            <!-- <li>
               <button
                 class="flex items-center p-2 rounded-full hover:bg-secondary-100 transition-colors duration-200"
               >
                 <MoreHorizontal class="w-6 h-6 mr-4 text-secondary-500" />
                 <span class="text-lg font-medium text-gray-700">More</span>
               </button>
-            </li>
+            </li> -->
           </ul>
         </nav>
         <button
-          class="w-full bg-secondary-500 text-white rounded-full py-3 font-bold text-lg hover:bg-purple-600 transition-colors duration-200 flex items-center justify-center"
+          class="w-full bg-secondary-500 text-white rounded-full py-3 font-bold text-lg transition-colors duration-200 flex items-center justify-center"
         >
           <Plus class="w-5 h-5 mr-2" />
           Post
