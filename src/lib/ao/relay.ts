@@ -105,8 +105,9 @@ export const fetchProfiles = async (): Promise<Profile[]> => {
   }
 };
 
-export const fetchFollowList = async (address: string): Promise<[string]> => {
+export const fetchFollowList = async (address: string): Promise<Array<string>> => {
   console.log("Address", address);
+  let followList:Array<string> = []
   const filter = JSON.stringify([
     {
       kinds: ["3"],
@@ -119,14 +120,14 @@ export const fetchFollowList = async (address: string): Promise<[string]> => {
   console.log("Messages from App", messages);
 
   try {
+    console.log(`Follow List messages for ${address}`, messages);
     let message = messages.pop();
-    let followList = JSON.parse(message.p);
+    followList = JSON.parse(message.p);
     console.log(`Follow List for ${address}`, followList);
-    return followList;
   } catch (e) {
     console.error(e);
-    throw e;
   }
+  return followList
 };
 
 // Returns Profile in Key value format that can be used in UsersProfileMapStore
