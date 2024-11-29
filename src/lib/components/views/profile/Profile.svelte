@@ -217,7 +217,7 @@
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
               {#if $currentUser?.picture}
-                <AvatarImage src={profile?.picture} alt={profile.name} />
+                <AvatarImage src={profile?.picture} alt={profile?.name} />
               {/if}
               <AvatarFallback
                 >{$currentUser.name
