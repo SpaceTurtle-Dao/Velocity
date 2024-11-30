@@ -114,7 +114,7 @@
         })
       );
 
-      userProfiles = await fetchProfiles()
+      userProfiles = await fetchProfiles([])
       console.log('Processed profiles:', userProfiles);
       
     } catch (e) {

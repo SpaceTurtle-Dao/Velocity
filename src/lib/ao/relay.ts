@@ -1,4 +1,6 @@
+//@ts-ignore
 import { send, read } from "$lib/ao/process.svelte";
+//@ts-ignore
 import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
 import { HUB_ID } from "$lib/constants";
 import type { Tag } from "$lib/models/Tag";
@@ -73,20 +75,29 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
   }
 };
 
-export const fetchProfiles = async (): Promise<Profile[]> => {
-  const filter = JSON.stringify([
-    {
-      kinds: ["0"],
-      // authors: [],
-      //   limit: 1,
-    },
-  ]);
-
+export const fetchProfiles = async (authors: Array<string>): Promise<Profile[]> => {
+  let filter = "";
+  if (authors.length > 0) {
+    filter = JSON.stringify([
+      {
+        kinds: ["0"],
+        authors: authors,
+        //   limit: 1,
+      },
+    ]);
+  } else {
+    filter = JSON.stringify([
+      {
+        kinds: ["0"],
+        //   limit: 1,
+      },
+    ]);
+  }
   let messages = await fetchEvents(filter);
   // console.log("Messages from App with all profiless", messages);
 
   try {
-    return messages.map( (message) => {
+    return messages.map((message) => {
       let profile = JSON.parse(message.Content);
 
       profile.address = message.From;
@@ -107,7 +118,7 @@ export const fetchProfiles = async (): Promise<Profile[]> => {
 
 export const fetchFollowList = async (address: string): Promise<Array<string>> => {
   console.log("Address", address);
-  let followList:Array<string> = []
+  let followList: Array<string> = []
   const filter = JSON.stringify([
     {
       kinds: ["3"],
