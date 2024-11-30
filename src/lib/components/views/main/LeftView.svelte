@@ -18,7 +18,7 @@
 
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
-    { icon: User, label: "Profile", href: "/profile" },
+    { icon: User, label: "Profile", href: `/profile/${$currentUser.address}` },
     { icon: Mail, label: "Messages", href: "/messages" },
   ];
 

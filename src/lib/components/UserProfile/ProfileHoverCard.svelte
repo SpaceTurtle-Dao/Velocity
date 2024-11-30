@@ -8,6 +8,7 @@
   import { onMount } from "svelte";
   import type { Profile } from "$lib/models/Profile";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
+    import Follow from "../Follow/Follow.svelte";
 
   export let profile: Profile;
 
@@ -67,7 +68,7 @@
       <ProfilePicture name={profile.name} src={profile.picture} size="xl" />
 
       {#if isSubLoading}
-        <div class="h-9 w-32 bg-muted rounded-full animate-pulse"></div>
+        <Follow address={profile.address}/>
       {:else if isUserSubscribed}
         <!-- <ButtonWithLoader
                     {loader}
@@ -120,7 +121,7 @@
 
     <div class="flex justify-between mt-4">
       <div>
-        <!-- <span class="text-sm font-bold">{userInfo.Subscriptions}</span> -->
+        <span class="text-sm font-bold">{profile.followList.length}</span>
         <span class="text-sm font-normal text-muted-foreground"
           >Subscribing</span
         >
