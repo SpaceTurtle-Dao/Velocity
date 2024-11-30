@@ -124,6 +124,7 @@
           banner: profile.banner,
           bot: profile.bot,
           address: $currentUser.address,
+          followList: $currentUser.followList
         });
 
         console.log("Profile updated successfully:", result);
