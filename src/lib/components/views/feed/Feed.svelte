@@ -76,8 +76,6 @@
     filters = [];
   }
 
-  //We want 
-
   onMount(async () => {
     await fetchFeedEvents();
   });
