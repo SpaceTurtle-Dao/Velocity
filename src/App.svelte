@@ -31,11 +31,15 @@
   };
 
   onMount(async () => {
-    await addressStore.sync();
-
-    await myPostStore.fetch();
-
-    await usersProfile.fetchProfiles();
+    const promises = [
+      addressStore.sync(),
+      myPostStore.fetch(),
+      usersProfile.fetchProfiles(),
+    ];
+    let results = await Promise.allSettled(promises)
+    results.forEach(result => {
+      console.log(result.status)
+    })
   });
 
   let waitForUserFetch = true;

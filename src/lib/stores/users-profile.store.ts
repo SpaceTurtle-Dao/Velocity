@@ -1,4 +1,4 @@
-import { fetchProfile, fetchProfilesForUsersProfileMap } from "$lib/ao/relay";
+import { fetchFollowList, fetchProfile, fetchProfilesForUsersProfileMap } from "$lib/ao/relay";
 import type { Profile } from "$lib/models/Profile";
 import { get, writable, type Readable } from "svelte/store";
 import { addressStore } from "./address.store";
@@ -32,7 +32,14 @@ const initUsersProfileMapStore = (): UsersProfileMapStore => {
 
         if (profile) return profile;
 
-        const fetchedProfile = await fetchProfile(address);
+        const promises = [
+          fetchProfile(address),
+          fetchFollowList(address)
+        ];
+        let results = await Promise.all(promises)
+        const fetchedProfile:Profile = results[0] as Profile;
+        fetchedProfile.followList = results[1] as Array<string>
+        console.log("Profile from App", profile);
 
         update((map) => map.set(fetchedProfile.address, fetchedProfile));
 

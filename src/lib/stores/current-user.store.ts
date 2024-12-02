@@ -21,8 +21,9 @@ const initCurrentUserStore = () => {
       const { address } = get(addressStore);
       try {
         if (address) {
-          const profile = await fetchProfile(address);
-          const followList = await fetchFollowList(address);
+          let results = await Promise.all([fetchProfile(address),fetchFollowList(address)])
+          const profile = results[0] as Profile;
+          profile.followList = results[1] as Array<string>;
           set(profile);
           push("/feed");
         }

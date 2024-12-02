@@ -66,8 +66,6 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     profile.address = message.From;
     profile.created_at = messages[0].Timestamp;
     profile.updated_at = message.Timestamp;
-    profile.followList = await fetchFollowList(address)
-    console.log("Profile from App", profile);
     return profile;
   } catch (e) {
     console.error(e);
@@ -136,7 +134,8 @@ export const fetchFollowList = async (address: string): Promise<Array<string>> =
     followList = JSON.parse(message.p);
     console.log(`Follow List for ${address}`, followList);
   } catch (e) {
-    console.error(e);
+    console.log(e);
+    return followList
   }
   return followList
 };
@@ -145,22 +144,13 @@ export const fetchFollowList = async (address: string): Promise<Array<string>> =
 export const fetchProfilesForUsersProfileMap = async (): Promise<
   Map<string, Profile>
 > => {
-  const profileFilter = JSON.stringify([
-    {
-      kinds: ["0"],
-    },
-  ]);
-
-  let messages = await fetchEvents(profileFilter);
+ 
+  let profiles = await fetchProfiles([]);
 
   try {
     const map = new Map<string, Profile>();
 
-    messages.forEach((message) => {
-      let profile = JSON.parse(message.Content) as Profile;
-
-      profile.address = message.From;
-
+    profiles.forEach((profile) => {
       const duplicate = map.get(profile.address);
 
       if (duplicate) {
