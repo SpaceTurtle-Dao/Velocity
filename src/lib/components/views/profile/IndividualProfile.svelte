@@ -26,7 +26,7 @@
 
   let activeTab: string = "posts";
 
-  let profile: Profile | undefined = $usersProfile.get(params?.address ?? "");
+  $:profile = $usersProfile.get(params?.address ?? "");
 
   let events: Array<any> = [];
   let textWithUrl = "";
@@ -72,10 +72,12 @@
         until: Date.now(),
         limit: 100,
         tags: [],
+        authors: [profile.address],
       },
     ];
     let _filters = JSON.stringify(filters);
     events = await fetchEvents(_filters);
+    console.log("events for a particular user", events);
   }
 
   // async function fetchSubs() {
@@ -253,3 +255,4 @@
     </Tabs.Root>
   </div>
 {/if}
+

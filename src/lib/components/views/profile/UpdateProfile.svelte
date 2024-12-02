@@ -3,7 +3,6 @@
   import { z } from "zod";
   import type { Profile, UserInfo } from "$lib/models/Profile";
   import { currentUser } from "$lib/stores/current-user.store";
-  import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import { Textarea } from "$lib/components/ui/textarea";
@@ -21,7 +20,6 @@
   import { Camera } from "lucide-svelte";
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { fi } from "date-fns/locale";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
 
   export let initialProfile: Profile;
@@ -116,16 +114,17 @@
         // user.set(_currentUser);
 
         currentUser.set({
-          name: profile.name,
-          display_name: profile.display_name,
-          about: profile.about,
-          created_at: $currentUser.created_at,
-          updated_at,
-          picture: profile.picture,
-          website: profile.website,
-          banner: profile.banner,
-          bot: profile.bot,
-          address: $currentUser.address,
+            name: profile.name,
+            display_name: profile.display_name,
+            about: profile.about,
+            created_at: $currentUser.created_at,
+            updated_at,
+            picture: profile.picture,
+            website: profile.website,
+            banner: profile.banner,
+            bot: profile.bot,
+            address: $currentUser.address,
+            followList: []
         });
 
         console.log("Profile updated successfully:", result);

@@ -12,6 +12,7 @@ export type Profile = {
   picture?: string;
   display_name: string;
   address: string;
+  followList: string[];
   website?: string;
   banner?: string;
   bot?: boolean;

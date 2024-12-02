@@ -13,7 +13,6 @@
   import { isConnected } from "$lib/stores/is-connectec.store";
   import Feed from "$lib/components/views/feed/Feed.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
-  import IndividualProfile from "$lib/components/views/profile/IndividualProfile.svelte";
   import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
   import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
   import { myPostStore } from "$lib/stores/my-post.store";
@@ -26,7 +25,7 @@
     "/feed": Feed,
     "/profile": Profile,
     "/messages": MessagesPage,
-    "/profile/:address": IndividualProfile,
+    "/profile/:address": Profile,
     "/post/:id/:user": IndividualPost,
     "/signup": SignUp,
   };
@@ -46,9 +45,6 @@
 
     if (address) {
       await currentUser.fetch();
-
-      // delete currentuser duplication in usersProfile
-      $usersProfile.delete(address);
       waitForUserFetch = false;
     }
 

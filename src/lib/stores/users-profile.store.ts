@@ -21,12 +21,6 @@ const initUsersProfileMapStore = (): UsersProfileMapStore => {
         const map = await fetchProfilesForUsersProfileMap();
         console.log("profile-map", map);
 
-        const { address } = get(addressStore);
-        if (address) {
-          // delete currentuser duplication in usersProfile
-          map.delete(address);
-        }
-
         set(map);
       } catch (error) {
         console.error("Failed to fetch Users Profiles", error);

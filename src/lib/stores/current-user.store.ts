@@ -1,6 +1,6 @@
 import { get, writable, type Readable } from "svelte/store";
 import type { Profile } from "$lib/models/Profile";
-import { fetchProfile } from "$lib/ao/relay";
+import { fetchFollowList, fetchProfile } from "$lib/ao/relay";
 import { addressStore } from "./address.store";
 import { push } from "svelte-spa-router";
 
@@ -22,6 +22,7 @@ const initCurrentUserStore = () => {
       try {
         if (address) {
           const profile = await fetchProfile(address);
+          const followList = await fetchFollowList(address);
           set(profile);
           push("/feed");
         }

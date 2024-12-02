@@ -1,4 +1,6 @@
+//@ts-ignore
 import { send, read } from "$lib/ao/process.svelte";
+//@ts-ignore
 import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
 import { HUB_ID } from "$lib/constants";
 import type { Tag } from "$lib/models/Tag";
@@ -45,7 +47,7 @@ export const fetchEvents = async (filters: string): Promise<any[]> => {
 
 export const fetchProfile = async (address: string): Promise<Profile> => {
   console.log("Address", address);
-  const profileFilter = JSON.stringify([
+  const filter = JSON.stringify([
     {
       kinds: ["0"],
       authors: [address],
@@ -53,7 +55,7 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     },
   ]);
 
-  let messages = await fetchEvents(profileFilter);
+  let messages = await fetchEvents(filter);
   console.log("Messages from App", messages);
 
   try {
@@ -62,7 +64,9 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     let profile = JSON.parse(message.Content);
 
     profile.address = message.From;
-
+    profile.created_at = messages[0].Timestamp;
+    profile.updated_at = message.Timestamp;
+    profile.followList = await fetchFollowList(address)
     console.log("Profile from App", profile);
     return profile;
   } catch (e) {
@@ -71,16 +75,25 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
   }
 };
 
-export const fetchProfiles = async (): Promise<Profile[]> => {
-  const profileFilter = JSON.stringify([
-    {
-      kinds: ["0"],
-      // authors: [],
-      //   limit: 1,
-    },
-  ]);
-
-  let messages = await fetchEvents(profileFilter);
+export const fetchProfiles = async (authors: Array<string>): Promise<Profile[]> => {
+  let filter = "";
+  if (authors.length > 0) {
+    filter = JSON.stringify([
+      {
+        kinds: ["0"],
+        authors: authors,
+        //   limit: 1,
+      },
+    ]);
+  } else {
+    filter = JSON.stringify([
+      {
+        kinds: ["0"],
+        //   limit: 1,
+      },
+    ]);
+  }
+  let messages = await fetchEvents(filter);
   // console.log("Messages from App with all profiless", messages);
 
   try {
@@ -101,6 +114,31 @@ export const fetchProfiles = async (): Promise<Profile[]> => {
     console.error(e);
     throw e;
   }
+};
+
+export const fetchFollowList = async (address: string): Promise<Array<string>> => {
+  console.log("Address", address);
+  let followList: Array<string> = []
+  const filter = JSON.stringify([
+    {
+      kinds: ["3"],
+      authors: [address],
+      //   limit: 1,
+    },
+  ]);
+
+  let messages = await fetchEvents(filter);
+  console.log("Messages from App", messages);
+
+  try {
+    console.log(`Follow List messages for ${address}`, messages);
+    let message = messages.pop();
+    followList = JSON.parse(message.p);
+    console.log(`Follow List for ${address}`, followList);
+  } catch (e) {
+    console.error(e);
+  }
+  return followList
 };
 
 // Returns Profile in Key value format that can be used in UsersProfileMapStore
