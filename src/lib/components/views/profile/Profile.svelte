@@ -29,10 +29,9 @@
 
     export let params: { address?: string } = {};
 
-    let profile: Profile | undefined = $usersProfile.get(params?.address ?? "");
+    $:profile = $usersProfile.get(params?.address ?? "");
 
     let activeTab: string = "posts";
-    let userInfo: Profile;
     let events: Array<Event> = [];
 
     let showModal = false;
@@ -69,10 +68,10 @@
     async function fetchMedia() {
         let filters: Array<any> = [];
         events = [];
-        if (userInfo) {
+        if (profile) {
             let filter = {
                 kinds: ["1", "6"],
-                authors: [$currentUser.address],
+                authors: [profile.address],
                 since: 1663905355000,
                 until: Date.now(),
                 limit: 100,
@@ -106,7 +105,7 @@
     async function fetchPost() {
         let filters: Array<any> = [];
         //events = [];
-        if ($currentUser) {
+        if (profile) {
             let filter = {
                 kinds: ["1", "6"],
                 since: 1663905355000,
@@ -118,13 +117,13 @@
             };
             let filter2 = {
                 tags: {
-                    From: [$currentUser.address],
+                    From: [profile.address],
                 },
             };
             filters.push(filter);
             filters.push(filter2);
             let _filters = JSON.stringify(filters);
-            if ($currentUser) {
+            if (profile) {
                 events = await fetchEvents(_filters);
             }
         }
@@ -189,9 +188,9 @@
             <div class="relative mb-10">
                 <!-- Increased bottom margin -->
                 <div class="bg-gray-200 relative">
-                    {#if $currentUser?.banner}
+                    {#if profile?.banner}
                         <img
-                            src={$currentUser?.banner}
+                            src={profile?.banner}
                             alt="Banner"
                             class="w-full max-h-48 object-cover"
                         />
@@ -202,15 +201,15 @@
                 <div class="absolute bottom-0 left-4 transform translate-y-1/3">
                     <div class="relative">
                         <Avatar class="w-24 h-24 border-4 border-white">
-                            {#if $currentUser?.picture}
+                            {#if profile?.picture}
                                 <AvatarImage
                                     src={profile?.picture}
                                     alt={profile.name}
                                 />
                             {/if}
                             <AvatarFallback
-                                >{$currentUser.name
-                                    ? $currentUser.name[0].toUpperCase()
+                                >{profile.name
+                                    ? profile.name[0].toUpperCase()
                                     : "U"}</AvatarFallback
                             >
                         </Avatar>
@@ -221,8 +220,8 @@
             <!-- Card Content with Blur Effect -->
             <CardContent>
                 <div class="flex justify-between space-x-2">
-                    <p class="font-bold text-2xl">{$currentUser.name}</p>
-                    {#if $currentUser.address == $currentUser.address}
+                    <p class="font-bold text-2xl">{profile.name}</p>
+                    {#if profile.address == profile.address}
                         <Button
                             variant="outline"
                             size="sm"
@@ -233,30 +232,30 @@
                         </Button>
                     {:else}
                         <!-- <Follow
-                            userRelay={$currentUser.address}
+                            userRelay={profile.address}
                         /> -->
                     {/if}
                 </div>
                 <p class="text-muted-foreground">
-                    @{$currentUser.display_name}
+                    @{profile.display_name}
                 </p>
-                {#if $currentUser.about}
-                    <p class="pt-2.5" id={$currentUser.address}>
-                        {$currentUser.about}
+                {#if profile.about}
+                    <p class="pt-2.5" id={profile.address}>
+                        {profile.about}
                     </p>
                 {/if}
                 <div class="flex flex-row space-x-5 pt-2.5">
-                    {#if $currentUser.website}
+                    {#if profile.website}
                         <div
                             class="flex flex-row space-x-1 justify-end items-center"
                         >
                             <Link size={16} />
                             <a
                                 class="text-blue-400"
-                                href={$currentUser.website}
+                                href={profile.website}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                >{getDisplayUrl($currentUser.website)}</a
+                                >{getDisplayUrl(profile.website)}</a
                             >
                         </div>
                     {/if}
@@ -266,7 +265,7 @@
                         <CalendarDays size={16} />
                         <p>
                             Joined {formatJoinedTimestamp(
-                                $currentUser.created_at,
+                                profile.created_at,
                             )}
                         </p>
                     </div>
@@ -323,7 +322,7 @@
                 <UserList title="Subscribed" addresses={profile.followList} />
             </Tabs.Content>
             <Tabs.Content value="subsribers">
-                <!-- {#if $user && $currentUser}
+                <!-- {#if $user && profile}
                     <UserList />
                 {/if} -->
             </Tabs.Content>
@@ -331,7 +330,7 @@
     </div>
 {/if}
 <!-- Modal for UpdateProfile -->
-{#if showModal}
+{#if showModal && profile}
     <div
         class="fixed inset-0 bg-black bg-opacity-85 flex items-center justify-center z-50"
         on:click={toggleModal}
@@ -345,7 +344,7 @@
                 >
             </div>
             <UpdateProfile
-                initialProfile={$currentUser}
+                initialProfile={profile}
                 on:profileUpdated={toggleModal}
             />
         </div>
