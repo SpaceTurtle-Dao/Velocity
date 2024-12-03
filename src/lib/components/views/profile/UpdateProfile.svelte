@@ -114,17 +114,17 @@
         // user.set(_currentUser);
 
         currentUser.set({
-            name: profile.name,
-            display_name: profile.display_name,
-            about: profile.about,
-            created_at: $currentUser.created_at,
-            updated_at,
-            picture: profile.picture,
-            website: profile.website,
-            banner: profile.banner,
-            bot: profile.bot,
-            address: $currentUser.address,
-            followList: []
+          name: profile.name,
+          display_name: profile.display_name,
+          about: profile.about,
+          created_at: $currentUser.created_at,
+          updated_at,
+          picture: profile.picture,
+          website: profile.website,
+          banner: profile.banner,
+          bot: profile.bot,
+          address: $currentUser.address,
+          followList: $currentUser.followList,
         });
 
         console.log("Profile updated successfully:", result);

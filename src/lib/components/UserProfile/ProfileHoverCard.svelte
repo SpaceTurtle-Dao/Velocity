@@ -8,7 +8,7 @@
   import { onMount } from "svelte";
   import type { Profile } from "$lib/models/Profile";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-    import Follow from "../Follow/Follow.svelte";
+  import Follow from "../Follow/Follow.svelte";
 
   export let profile: Profile;
 
@@ -65,10 +65,12 @@
   </HoverCard.Trigger>
   <HoverCard.Content align="start">
     <div class="flex justify-between">
-      <ProfilePicture name={profile.name} src={profile.picture} size="xl" />
+      <a href="/profile/{profile.address}" use:link>
+        <ProfilePicture name={profile.name} src={profile.picture} size="xl" />
+      </a>
 
       {#if isSubLoading}
-        <Follow address={profile.address}/>
+        <Follow address={profile.address} />
       {:else if isUserSubscribed}
         <!-- <ButtonWithLoader
                     {loader}
@@ -93,11 +95,11 @@
     </div>
 
     <div class="text-primary text-lg font-bold">
-      {profile.name}
+      <a href="/profile/{profile.address}" use:link>{profile.name}</a>
     </div>
 
     <div class="text-muted-foreground text-base font-normal">
-      @{profile.display_name}
+      <a href="/profile/{profile.address}" use:link>@{profile.display_name}</a>
     </div>
 
     {#if profile.about}
