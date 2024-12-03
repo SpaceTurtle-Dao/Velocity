@@ -31,7 +31,6 @@
   let isRepost: boolean = false;
   let originalEvent: any = null;
   let originalUser: any = null;
-  let originalProfile: any = null;
   let isLoading: boolean = true;
   let loadError: string | null = null;
   let repostArray: any[] = [];
@@ -93,12 +92,15 @@
           originalEvent = parsedContent;
 
           // Load original post author info
-          originalUser = await fetchEvents(parsedContent.From);
-          if (originalUser?.Profile) {
-            originalProfile = originalUser.Profile;
-          } else {
-            console.warn("Original user profile not found");
-          }
+
+          originalUser = $usersProfile.get(parsedContent.From);
+
+          // originalUser = await fetchEvents(parsedContent.From);
+          // if (originalUser?.Profile) {
+          //   originalUser = originalUser.Profile;
+          // } else {
+          //   console.warn("Original user profile not found");
+          // }
         }
       }
       await countReplies();
@@ -229,10 +231,10 @@
             <div>
               <div class="flex justify-start space-x-3">
                 <div class="hidden sm:flex">
-                  {#if isRepost && originalProfile}
+                  {#if isRepost && originalUser}
                     <div>
                       <ProfilePictureHoverCard
-                        profile={originalProfile}
+                        profile={originalUser}
                         bind:isUserSubscribed
                       />
                     </div>
@@ -248,17 +250,17 @@
 
                 <div class="flex-1">
                   <div class="flex space-x-1 mb-1">
-                    {#if isRepost && originalProfile}
+                    {#if isRepost && originalUser}
                       <ProfileHoverCard
-                        profile={originalProfile}
+                        profile={originalUser}
                         bind:isUserSubscribed
                       >
                         <div class="flex space-x-1">
                           <p class="font-medium text-primary">
-                            {originalProfile.name}
+                            {originalUser.name}
                           </p>
                           <span class="text-muted-foreground pl-0.5"
-                            >@{originalProfile.display_name}</span
+                            >@{originalUser.display_name}</span
                           >
                         </div>
                       </ProfileHoverCard>
