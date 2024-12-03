@@ -3,21 +3,9 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import { usersProfile } from "$lib/stores/users-profile.store";
   import { currentUser } from "$lib/stores/current-user.store";
-  import type { Profile } from "$lib/models/Profile";
-  import { onMount } from "svelte";
-  import { fetchProfiles } from "$lib/ao/relay";
-
-  export let title = "You might like";
-  export let addresses: Array<string> = [];
-  let profiles: Array<Profile> = [];
-
-  onMount(async () => {
-    profiles = await fetchProfiles(addresses);
-    console.log(`we got ${profiles.length} profiles`)
-  });
 </script>
 
-{#if profiles.length > 0}
+{#if $usersProfile.size > 0}
   <div class="w-full h-full">
     <Card.Root
       data-x-chunk-name="UserList"
@@ -25,15 +13,15 @@
       class="border-border rounded p-0 min-w-[280px]"
     >
       <Card.Header>
-        <Card.Title>{title}</Card.Title>
+        <Card.Title>You might like</Card.Title>
       </Card.Header>
       <Card.Content class="w-full">
         <div
           class="grid gap-8 max-h-[80vh] overflow-y-auto scrollable-element pr-3"
         >
-          {#each profiles as profile}
+          {#each $usersProfile.values() as profile}
             {#if profile.address !== $currentUser.address}
-            <ProfileCard {profile} />
+              <ProfileCard {profile} />
             {/if}
           {/each}
         </div>
