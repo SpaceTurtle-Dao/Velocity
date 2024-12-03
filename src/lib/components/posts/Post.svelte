@@ -12,11 +12,11 @@
   import { currentUser } from "$lib/stores/current-user.store";
   import { link } from "svelte-spa-router";
   import * as Dialog from "$lib/components/ui/dialog";
-  import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
+  import ProfilePictureHoverCard from "../UserProfile/ProfilePictureHoverCard.svelte";
   import { formatTimestamp } from "$lib/utils/timestamp.utils";
   import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
-  import type { Profile } from "$lib/models/Profile";
   import { usersProfile } from "$lib/stores/users-profile.store";
+  import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
 
   export let event: any;
   export let replies: any[] = [];
@@ -152,6 +152,8 @@
       console.error("Error counting replies:", error);
     }
   }
+
+  let isUserSubscribed: boolean;
 </script>
 
 <div class="cursor-pointer border-b border-gray-800">
@@ -227,28 +229,51 @@
             <div>
               <div class="flex justify-start space-x-3">
                 <div class="hidden sm:flex">
-                  <ProfilePicture
-                    src={isRepost ? originalProfile.picture : profile?.picture}
-                    name={isRepost
-                      ? originalProfile.name
-                      : (profile?.name ?? "")}
-                  />
+                  {#if isRepost && originalProfile}
+                    <div>
+                      <ProfilePictureHoverCard
+                        profile={originalProfile}
+                        bind:isUserSubscribed
+                      />
+                    </div>
+                  {:else if profile}
+                    <div>
+                      <ProfilePictureHoverCard
+                        {profile}
+                        bind:isUserSubscribed
+                      />
+                    </div>
+                  {/if}
                 </div>
 
                 <div class="flex-1">
                   <div class="flex space-x-1 mb-1">
-                    <p class="font-medium text-primary">
-                      {#if isRepost && originalProfile?.name}
-                        {originalProfile.name}
-                      {:else}
-                        {profile?.name}
-                      {/if}
-                    </p>
-                    <span class="text-muted-foreground pl-0.5"
-                      >@{isRepost
-                        ? originalProfile.display_name
-                        : profile?.display_name}</span
-                    >
+                    {#if isRepost && originalProfile}
+                      <ProfileHoverCard
+                        profile={originalProfile}
+                        bind:isUserSubscribed
+                      >
+                        <div class="flex space-x-1">
+                          <p class="font-medium text-primary">
+                            {originalProfile.name}
+                          </p>
+                          <span class="text-muted-foreground pl-0.5"
+                            >@{originalProfile.display_name}</span
+                          >
+                        </div>
+                      </ProfileHoverCard>
+                    {:else if profile}
+                      <ProfileHoverCard {profile} bind:isUserSubscribed>
+                        <div class="flex space-x-1">
+                          <p class="font-medium text-primary">
+                            {profile?.name}
+                          </p>
+                          <span class="text-muted-foreground pl-0.5"
+                            >@{profile?.display_name}</span
+                          >
+                        </div>
+                      </ProfileHoverCard>
+                    {/if}
 
                     <span class="text-muted-foreground"
                       >· {formatTimestamp(event.Timestamp)}</span
