@@ -66,7 +66,7 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     profile.address = message.From;
     profile.created_at = messages[0].Timestamp;
     profile.updated_at = message.Timestamp;
-    profile.followList = await fetchFollowList(address)
+    profile.followList = await fetchFollowList(address);
     console.log("Profile from App", profile);
     return profile;
   } catch (e) {
@@ -75,7 +75,9 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
   }
 };
 
-export const fetchProfiles = async (authors: Array<string>): Promise<Profile[]> => {
+export const fetchProfiles = async (
+  authors: Array<string>
+): Promise<Profile[]> => {
   let filter = "";
   if (authors.length > 0) {
     filter = JSON.stringify([
@@ -116,9 +118,11 @@ export const fetchProfiles = async (authors: Array<string>): Promise<Profile[]> 
   }
 };
 
-export const fetchFollowList = async (address: string): Promise<Array<string>> => {
+export const fetchFollowList = async (
+  address: string
+): Promise<Array<string>> => {
   console.log("Address", address);
-  let followList: Array<string> = []
+  let followList: Array<string> = [];
   const filter = JSON.stringify([
     {
       kinds: ["3"],
@@ -138,7 +142,7 @@ export const fetchFollowList = async (address: string): Promise<Array<string>> =
   } catch (e) {
     console.error(e);
   }
-  return followList
+  return followList;
 };
 
 // Returns Profile in Key value format that can be used in UsersProfileMapStore

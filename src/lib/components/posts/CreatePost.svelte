@@ -9,6 +9,8 @@
   import { Plus, Image, X } from "lucide-svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
+  import { push, pop, replace } from "svelte-spa-router";
+  import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -87,7 +89,11 @@
     };
     _tags.push(contentTag);
     await event(_tags);
+
     console.log("///FETCHING EVENTS///");
+
+    // To notify Feed page that a new post has been created
+    notifyNewPostStore.update((num) => num + 1);
     //fetchEvents($currentUser.Process, _filters);
     isLoading = false;
     dialogOpen = false;
