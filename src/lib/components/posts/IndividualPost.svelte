@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchEvents, info, event as aoEvent } from "$lib/ao/relay";
-  import { currentUser } from "$lib/stores/profile.store";
+  import { fetchEvents, event as aoEvent } from "$lib/ao/relay";
+  import { currentUser } from "$lib/stores/current-user.store";
   import {
     Avatar,
     AvatarImage,
@@ -9,10 +9,6 @@
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import Like from "$lib/components/views/engagement/Like.svelte";
-  import Repost from "$lib/components/views/engagement/Repost.svelte";
-  import Buy from "$lib/components/views/engagement/Buy.svelte";
-  import Share from "$lib/components/views/engagement/Share.svelte";
   import Post from "$lib/components/posts/Post.svelte";
   import { Image } from "lucide-svelte";
   import { afterUpdate } from "svelte";
@@ -20,6 +16,7 @@
   import { upload } from "$lib/ao/uploader";
   import { link, push, location } from "svelte-spa-router";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
+  import type { Profile } from "$lib/models/Profile";
 
   // Reactive declaration for URL parsing
   $: {
@@ -34,7 +31,7 @@
   let post: any = null;
   let replies: any[] = [];
   let _user: any;
-  let profile: any;
+  let profile: Profile;
   let id: string;
   let user: string;
 
@@ -54,12 +51,12 @@
         },
       ]);
 
-      let postResults = await fetchEvents(userId, postFilter);
+      let postResults = await fetchEvents(postFilter);
 
       if (postResults.length > 0) {
         post = postResults[0];
         post.Tags = post.Tags || {};
-        _user = await info(post.From);
+        // _user = await info(post.From);
         profile = _user?.Profile;
 
         // After loading the post, fetch its replies
@@ -112,15 +109,15 @@
           tags: { e: [postId] },
         },
       ]);
-      replies = await fetchEvents($currentUser.Process, replyFilter);
+      replies = await fetchEvents(replyFilter);
       replies = await Promise.all(
         replies.map(async (reply) => {
-          const replyUser = await info(reply.From);
+          // const replyUser = await info(reply.From);
           return {
             ...reply,
             Tags: reply.Tags || {},
-            user: replyUser,
-            profile: replyUser?.Profile,
+            // user: replyUser,
+            // profile: replyUser?.Profile,
           };
         })
       );
@@ -182,7 +179,7 @@
       tags.push({ name: "Content", value: _content });
       tags.push({ name: "action", value: "reply" });
 
-      await aoEvent(tags, $currentUser.Process);
+      await aoEvent(tags);
 
       clearFields();
       await refreshPage();
@@ -206,15 +203,15 @@
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
-          <Avatar class="h-12 w-12">
-            {#if $currentUser?.Profile?.picture}
+          <Avatar class="h-12 w-12 text-primary">
+            {#if $currentUser?.picture}
               <AvatarImage
-                src={$currentUser.Profile.picture}
-                alt={$currentUser.Profile.name || "Current User"}
+                src={$currentUser.picture}
+                alt={$currentUser.name || "Current User"}
               />
             {:else}
               <AvatarFallback>
-                {$currentUser?.Profile?.name?.[0] || "U"}
+                {$currentUser?.name?.[0] || "U"}
               </AvatarFallback>
             {/if}
           </Avatar>
@@ -292,11 +289,13 @@
     </div>
 
     {#each replies as reply (reply.Id)}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
-        <Post event={reply} showFullPost={false} />
+        <Post event={reply} />
       </div>
     {/each}
   {:else}

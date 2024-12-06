@@ -1,19 +1,14 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { z } from "zod";
-    import type { UserInfo } from "$lib/models/Profile";
+    import type { Profile } from "$lib/models/Profile";
     import { currentUser } from "$lib/stores/profile.store";
     import { Input } from "$lib/components/ui/input";
     import { Label } from "$lib/components/ui/label";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
     import {
-        spawnRelay,
-        relay,
         event as _event,
-        info,
-        getOwner,
-        setRelay,
     } from "$lib/ao/relay";
     import { walletAddress } from "$lib/stores/walletStore";
     import { add } from "date-fns/fp/add";
@@ -42,7 +37,7 @@
     let _relay: string | undefined;
     let profileEvent: string;
     let isLoading = false;
-    let userInfo: UserInfo;
+    let userInfo: Profile;
     let errors: Partial<Record<keyof InitialProfileSchemaType, string>> = {};
 
     currentUser.subscribe((value) => {
@@ -109,10 +104,10 @@
             tags.push(contentTag);
             profileEvent = JSON.stringify(event);
             try {
-                _relay = await spawnRelay();
+                // _relay = await spawnRelay();
                 console.log("Got Relay " + _relay);
-                await _event(tags, _relay!);
-                await setRelay(_relay!);
+                await _event(tags);
+                // await setRelay(_relay!);
                 isLoading = false;
                 navigate("/profile", { replace: true });
                 isOpen = false; // Close the dialog

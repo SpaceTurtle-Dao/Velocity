@@ -1,58 +1,55 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { push, location } from "svelte-spa-router";
   import "./app.css";
-  import { currentUser, isConnected, user } from "./lib/stores/profile.store";
-  import { info, relay } from "$lib/ao/relay";
+  import { onMount } from "svelte";
+  import Router, { location } from "svelte-spa-router";
   import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
   import Spinner from "$lib/components/spinners/Spinner.svelte";
   import Middle from "$lib/components/views/main/MiddleView.svelte";
   import Left from "$lib/components/views/main/LeftView.svelte";
   import Right from "$lib/components/views/main/RightView.svelte";
   import SignUp from "./lib/components/views/signup/SignUp.svelte";
+  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/current-user.store";
+  import { isConnected } from "$lib/stores/is-connectec.store";
+  import Feed from "$lib/components/views/feed/Feed.svelte";
+  import Profile from "$lib/components/views/profile/Profile.svelte";
+  import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
+  import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
+  import { myPostStore } from "$lib/stores/my-post.store";
+  import { usersProfile } from "$lib/stores/users-profile.store";
 
   let isLoading = true;
-  $: _isConnected = $isConnected;
-  $: isSignUpRoute = $location === "/signup";
 
-  async function checkWalletConnection() {
-    if (window.arweaveWallet) {
-      try {
-        const address = await window.arweaveWallet.getActiveAddress();
-        if (address) {
-          isConnected.set(true);
-          let _relay = await relay(address);
-          if (_relay) {
-            let _currentUser = await info(_relay);
-            currentUser.set(_currentUser);
-            user.set(_currentUser);
-            if (!isSignUpRoute) {
-              push("/feed");
-            }
-          } else {
-            // No profile found; redirect to signup if not already there
-            if (!isSignUpRoute) {
-              push("/signup");
-            }
-          }
-        } else {
-          isConnected.set(false);
-        }
-      } catch (error) {
-        console.error("Failed to get active address:", error);
-        isConnected.set(false);
-      }
-    }
-    isLoading = false;
-  }
+  const routes = {
+    "/": LandingPage,
+    "/feed": Feed,
+    "/profile": Profile,
+    "/messages": MessagesPage,
+    "/profile/:address": Profile,
+    "/post/:id/:user": IndividualPost,
+    "/signup": SignUp,
+  };
 
   onMount(async () => {
-    await checkWalletConnection();
+    await addressStore.sync();
+
+    await myPostStore.fetch();
+
+    await usersProfile.fetchProfiles();
   });
 
-  function handleConnect() {
-    checkWalletConnection();
-  }
+  let waitForUserFetch = true;
+
+  addressStore.subscribe(async ({ address }) => {
+    console.log(address);
+
+    if (address) {
+      await currentUser.fetch();
+      waitForUserFetch = false;
+    }
+
+    isLoading = false;
+  });
 </script>
 
 {#if isLoading}
@@ -64,15 +61,15 @@
       </p>
     </div>
   </div>
-{:else if isSignUpRoute}
-  <SignUp />
-{:else if !_isConnected}
-  <LandingPage on:connect={handleConnect} />
+{:else if !$isConnected || waitForUserFetch}
+  <LandingPage />
+{:else if $location === "/signup"}
+  <Router {routes} />
 {:else}
   <div class="bg-background">
     <div class="flex w-full bg-background justify-center">
       <Left />
-      <Middle />
+      <Middle><Router {routes} /></Middle>
       {#if $currentUser}
         <Right />
       {/if}

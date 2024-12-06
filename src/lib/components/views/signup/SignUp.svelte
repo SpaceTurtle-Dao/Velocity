@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { z } from "zod";
-  import type { UserInfo } from "$lib/models/Profile";
-  import { currentUser, user } from "$lib/stores/profile.store";
+  import type { Profile } from "$lib/models/Profile";
+  import { user } from "$lib/stores/profile.store";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import { Button } from "$lib/components/ui/button";
@@ -18,12 +18,14 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Camera } from "lucide-svelte";
-  import { spawnRelay, event, setRelay, info } from "$lib/ao/relay";
+  import { event } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { push, replace } from "svelte-spa-router";
   import type { Tag } from "$lib/models/Tag";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import * as Dialog from "$lib/components/ui/dialog";
+  import { currentUser } from "$lib/stores/current-user.store";
+  import { addressStore } from "$lib/stores/address.store";
 
   // Zod schema for signup validation
   const signupSchema = z.object({
@@ -53,11 +55,11 @@
   let pictureFile: File | null = null;
   let bannerFile: File | null = null;
   let _relay: string | undefined;
-  let userInfo: UserInfo;
+  let userInfo: Profile;
 
-  currentUser.subscribe((value) => {
-    userInfo = value;
-  });
+  // currentUser.subscribe((value) => {
+  //   userInfo = value;
+  // });
 
   function handleFileChange(event: Event, type: "picture" | "banner") {
     const target = event.target as HTMLInputElement;
@@ -106,11 +108,13 @@
       }
       isUploading = false;
 
+      const created_at = Date.now();
       // Prepare the content for the event
       const content = JSON.stringify({
         name: profile.name,
         display_name: profile.display_name,
         about: profile.about,
+        created_at,
         picture: profile.picture,
         banner: profile.banner,
         website: profile.website,
@@ -122,15 +126,32 @@
       ];
 
       try {
-        _relay = await spawnRelay();
-        console.log("Got Relay " + _relay);
-        await event(tags, _relay!);
-        await setRelay(_relay!);
+        // _relay = await spawnRelay();
+        // console.log("Got Relay " + _relay);
+        await event(tags);
+
+        const { address } = $addressStore;
+
+        if (address) {
+          currentUser.set({
+            name: profile.name,
+            about: profile.about,
+            created_at,
+            picture: profile.picture,
+            display_name: profile.display_name,
+            banner: profile.banner,
+            website: profile.website,
+            bot: false,
+            address: address,
+            followList: [],
+          });
+        }
+        // await setRelay(_relay!);
 
         // Fetch updated user info
-        const _currentUser = await info(_relay);
-        currentUser.set(_currentUser);
-        user.set(_currentUser);
+        // const _currentUser = await info(_relay);
+        // currentUser.set(_currentUser);
+        // user.set(_currentUser);
 
         isLoading = false;
         push("/feed");

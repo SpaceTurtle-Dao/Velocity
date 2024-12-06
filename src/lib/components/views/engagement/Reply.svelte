@@ -4,22 +4,19 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { currentUser } from "$lib/stores/profile.store";
+  import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Image, X } from "lucide-svelte";
-  import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-  } from "$lib/components/ui/avatar";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import PostPreview from "./PostPreview.svelte";
+  import type { Profile } from "$lib/models/Profile";
+  import { usersProfile } from "$lib/stores/users-profile.store";
 
   export let event: any;
-  export let user: any;
   let newReply: any;
+  let profile = $usersProfile.get(event.From);
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -102,7 +99,7 @@
       tags.push({ name: "Content", value: _content });
       tags.push({ name: "action", value: "reply" });
 
-      newReply = await aoEvent(tags, $currentUser.Process);
+      newReply = await aoEvent(tags);
 
       const replyTags = tags.reduce((acc: any, tag) => {
         acc[tag.name.toLowerCase()] = tag.value;
@@ -161,14 +158,14 @@
   </Dialog.Trigger>
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
-      <PostPreview {event} {user} />
+      <PostPreview {event} user={profile} />
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
         <ProfilePicture
           size="lg"
-          src={$currentUser.Profile.picture}
-          name={$currentUser.Profile.name}
+          src={$currentUser?.picture}
+          name={$currentUser?.name}
         />
 
         <div class="w-full ml-3">

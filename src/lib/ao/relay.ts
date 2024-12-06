@@ -1,281 +1,191 @@
-import { send, read, createProcess, } from "$lib/ao/process.svelte";
-import {
-    Subscribe,
-    UnSubscribe,
-    SetOwner,
-    GetOwner,
-    Info,
-    Subs,
-    Subscriptions,
-    IsSubscribed,
-    FetchFeed,
-    FetchEvents,
-    Request,
-    RelayMessage,
-    Relays,
-    Eval,
-    Relay_Lua_Module,
-    SetRelay
-} from "$lib/ao/messegeFactory.svelte";
-import { INDEXER_ID, WAR_TOKEN } from "$lib/constants";
-import { currentUser, followers } from "$lib/stores/profile.store";
-import { feedPosts, replies } from "../stores/feedpage.store";
-import type { UserInfo } from "$lib/models/Profile";
-import { users } from "$lib/stores/main.store";
+//@ts-ignore
+import { send, read } from "$lib/ao/process.svelte";
+//@ts-ignore
+import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
+import { HUB_ID } from "$lib/constants";
 import type { Tag } from "$lib/models/Tag";
-import type { Relay } from "$lib/models/Relay";
+import type { Profile } from "$lib/models/Profile";
 
-function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export const event = async (
-    tags: Array<Tag>,
-    relay: string
-) => {
-    const actionTag: Tag = {
-        name: "Action",
-        value: "Event"
-    }
-    tags.push(actionTag)
-    try {
-        console.log("***TAGS***")
-        console.log(tags)
-        // @ts-ignore
-        let result = await send(relay, tags, null);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
-    }
+export const event = async (tags: Array<Tag>) => {
+  const actionTag: Tag = {
+    name: "Action",
+    value: "Event",
+  };
+  tags.push(actionTag);
+  try {
+    console.log("***TAGS***");
+    console.log(tags);
+    // @ts-ignore
+    let result = await send(HUB_ID(), tags, null);
+    console.log(result);
+  } catch (e) {
+    console.log(e);
+  }
 };
 
-export const subscribe = async (
-    subscribing_relay: string,
-    relay: string
-) => {
-    try {
-        // @ts-ignore
-        let message = Subscribe(relay);
-        let result = await send(subscribing_relay, message, null);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
+export const fetchEvents = async (filters: string): Promise<any[]> => {
+  let events: any[] = [];
+  try {
+    // @ts-ignore
+    let message = FetchEvents(filters);
+    let result = await read(HUB_ID(), message);
+    if (result) {
+      //console.log(result);
+      let json = JSON.parse(result.Data);
+      //console.log("***Filters***")
+      //console.log(JSON.parse(filters));
+      //console.log("***Got Events***")
+      //console.log(json);
+      events = json;
     }
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+  return events;
 };
 
-export const unsubscribe = async (
-    unsubscribing_relay: string,
-    relay: string,
-) => {
-    try {
-        // @ts-ignore
-        let message = UnSubscribe(relay);
-        let result = await send(unsubscribing_relay, message, null);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
-    }
+export const fetchProfile = async (address: string): Promise<Profile> => {
+  console.log("Address", address);
+  const filter = JSON.stringify([
+    {
+      kinds: ["0"],
+      authors: [address],
+      //   limit: 1,
+    },
+  ]);
+
+  let messages = await fetchEvents(filter);
+  console.log("Messages from App", messages);
+
+  try {
+    // messages[0] give the latest profile change of this address and it  return that
+    let message = messages[0];
+    let profile = JSON.parse(message.Content);
+
+    profile.address = message.From;
+    profile.created_at = messages[0].Timestamp;
+    profile.updated_at = message.Timestamp;
+    profile.followList = await fetchFollowList(address);
+    console.log("Profile from App", profile);
+    return profile;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
 };
 
-export const setOwner = async (
-    owner: string,
-    relay: string
-) => {
-    try {
-        // @ts-ignore
-        let message = SetOwner(owner);
-        let result = await send(relay, message, null);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
-    }
+export const fetchProfiles = async (
+  authors: Array<string>
+): Promise<Profile[]> => {
+  let filter = "";
+  if (authors.length > 0) {
+    filter = JSON.stringify([
+      {
+        kinds: ["0"],
+        authors: authors,
+        //   limit: 1,
+      },
+    ]);
+  } else {
+    filter = JSON.stringify([
+      {
+        kinds: ["0"],
+        //   limit: 1,
+      },
+    ]);
+  }
+  let messages = await fetchEvents(filter);
+  // console.log("Messages from App with all profiless", messages);
+
+  try {
+    return messages.map((message) => {
+      let profile = JSON.parse(message.Content);
+
+      profile.address = message.From;
+
+      profile.created_at = messages[0].Timestamp;
+
+      profile.updated_at = message.Timestamp;
+
+      console.log("Profile from App in new Fetch all Profiles", profile);
+
+      return profile;
+    }) as Profile[];
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
 };
 
-export const setRelay = async (
-    relay: string
-) => {
-    try {
-        // @ts-ignore
-        let message = SetRelay(relay);
-        let result = await send(INDEXER_ID(), message, null);
-        console.log(result);
-    } catch (e) {
-        console.log(e);
-    }
+export const fetchFollowList = async (
+  address: string
+): Promise<Array<string>> => {
+  console.log("Address", address);
+  let followList: Array<string> = [];
+  const filter = JSON.stringify([
+    {
+      kinds: ["3"],
+      authors: [address],
+      //   limit: 1,
+    },
+  ]);
+
+  let messages = await fetchEvents(filter);
+  console.log("Messages from App", messages);
+
+  try {
+    console.log(`Follow List messages for ${address}`, messages);
+    let message = messages.pop();
+    followList = JSON.parse(message.p);
+    console.log(`Follow List for ${address}`, followList);
+  } catch (e) {
+    console.error(e);
+  }
+  return followList;
 };
 
-export const getModule = async (): Promise<string> => {
-    let module = ""
-    try {
-        // @ts-ignore
-        let message = Relay_Lua_Module();
-        let result = await read(INDEXER_ID(), message);
-        module = result.Data
-    } catch (e) {
-        console.log(e);
-    }
-    return module
-};
+// Returns Profile in Key value format that can be used in UsersProfileMapStore
+export const fetchProfilesForUsersProfileMap = async (): Promise<
+  Map<string, Profile>
+> => {
+  const profileFilter = JSON.stringify([
+    {
+      kinds: ["0"],
+    },
+  ]);
 
-export const spawnRelay = async () => {
-    let _relay = ""
-    try {
-        let module = await getModule()
-        let message = Eval();
-        _relay = await createProcess();
-        console.log("Got Process")
-        console.log(_relay)
-        await send(_relay, message, module)
-        return _relay
-    } catch (e) {
-        console.log(e);
-    }
-    await sleep(3000);
-    return _relay
-};
+  let messages = await fetchEvents(profileFilter);
 
-/*export const fetchEvents = async (relay: string, filters: string) => {
-    try {
-        // @ts-ignore
-        let message = FetchEvents(filters);
-        let result = await read(relay, message);
-        if (result) {
-            userEvents.set(json)
-        };
-    } catch (e) {
-        console.log(e);
-    }
-};*/
+  try {
+    const map = new Map<string, Profile>();
 
-export const fetchEvents = async (relay: string, filters: string) : Promise<any[]> => {
-    let events:any[] = []
-    try {
-        // @ts-ignore
-        let message = FetchEvents(filters);
-        let result = await read(relay, message);
-        if (result) {
-            //console.log(result);
-            let json = JSON.parse(result.Data);
-            //console.log("***Filters***")
-            //console.log(JSON.parse(filters));
-            //console.log("***Got Events***")
-            //console.log(json);
-            events = json
-        };
-    } catch (e) {
-        console.log(e);
-        throw(e)
-    }
-    return events
-};
+    messages.forEach((message) => {
+      let profile = JSON.parse(message.Content) as Profile;
 
-export const subs = async (relay: string, page: string, size: string) => {
-    console.log("Fetching subs for " + relay)
-    try {
-        // @ts-ignore
-        let message = Subs(page, size);
-        let result = await read(relay, message);
-        console.log(result);
-        let json = JSON.parse(result.Data);
-        console.log(json);
-        followers.set(json)
-    } catch (e) {
-        console.log(e);
-    }
-};
+      profile.address = message.From;
 
-export const subscriptions = async (relay: string, page: string, size: string) => {
-    console.log("Fetching subscriptions for " + relay)
-    try {
-        // @ts-ignore
-        let message = Subscriptions(page, size);
-        let result = await read(relay, message);
-        console.log(result);
-        let json = JSON.parse(result.Data);
-        console.log(json);
-        followers.set(json)
-    } catch (e) {
-        console.log(e);
-    }
-};
+      const duplicate = map.get(profile.address);
 
-export const isSubscribed = async (process: string, relay: string) => {
-    try {
-        // @ts-ignore
-        let message = IsSubscribed(relay);
-        let result = await read(process, message);
-        if (result == undefined) throw (404);
-        /*console.log("********IS SUBSCIRBED**********")
-        console.log(result);*/
-        return result.Data
-    } catch (e) {
-        console.log(e);
-    }
-};
-
-export const info = async (process: string): Promise<any | null> => {
-    let _info = null;
-    try {
-        // @ts-ignore
-        let message = Info();
-        let result = await read(process, message);
-        if (result) {
-            let json = JSON.parse(result.Data);
-            _info = json
+      if (duplicate) {
+        if (
+          duplicate.updated_at !== undefined &&
+          profile.updated_at !== undefined
+        ) {
+          if (profile.updated_at > duplicate.updated_at) {
+            map.set(profile.address, profile);
+          }
+        } else if (profile.updated_at) {
+          map.set(profile.address, profile);
         }
-    } catch (e) {
-        console.log(e);
-    }
-    return _info
-};
+      } else {
+        map.set(profile.address, profile);
+      }
+    });
 
-export const getOwner = async (process: string): Promise<string> => {
-    let owner = ""
-    try {
-        // @ts-ignore
-        let message = GetOwner();
-        let result = await read(process, message);
-        console.log(result);
-        owner = result.Data
-    } catch (e) {
-        console.log(e);
-    }
-    return owner
-};
-
-
-export const relay = async (owner: string): Promise<string | null> => {
-    let _relay = null;
-    try {
-        // @ts-ignore
-        let message = RelayMessage(owner);
-        let result = await read(INDEXER_ID(), message);
-        if (result) {
-            _relay = result.Data
-        }
-    } catch (e) {
-        console.log(e);
-    }
-    return _relay
-};
-
-export async function relays(page: string, size: string) {
-    let userProfiles: Array<UserInfo> = [];
-    try {
-        // @ts-ignore
-        let message = Relays(page, size);
-        let result = await read(INDEXER_ID(), message);
-        let userRelays: Array<Relay> = JSON.parse(result.Data);
-        for (var i = 0; i < userRelays.length; i++) {
-            let userProfile = await info(userRelays[i].relay)
-            if (userProfile) {
-                userProfiles.push(userProfile)
-            }
-        }
-        console.log("****USERS****")
-        console.log(userProfiles);
-        users.set(userProfiles)
-    } catch (e) {
-        console.log(e);
-    }
+    return map;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
 };

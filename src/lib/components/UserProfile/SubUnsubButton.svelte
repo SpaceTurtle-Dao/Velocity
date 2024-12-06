@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { isSubscribed, subscribe, unsubscribe } from "$lib/ao/relay";
+    import { fetchFollowList, event } from "$lib/ao/relay";
     import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
+    import type { Tag } from "$lib/models/Tag";
     import { currentUser } from "$lib/stores/profile.store";
     import { onMount } from "svelte";
 
@@ -10,10 +11,8 @@
 
     let isSubLoading = true;
     async function loadIsSubscribed() {
-        isUserSubscribed = await isSubscribed(
-            $currentUser.Process,
-            targetProcess,
-        );
+        let followList = await fetchFollowList($currentUser.address)
+        isUserSubscribed = followList.includes(targetProcess)
     }
 
     onMount(async () => {
@@ -25,7 +24,18 @@
         loader = true;
 
         try {
-            await subscribe($currentUser.Process, targetProcess);
+            let followList = await fetchFollowList($currentUser.address)
+            followList.push(targetProcess)
+            let kind: Tag = {
+                name: "Kind",
+                value: "3",
+            };
+            let pTag: Tag = {
+                name: "p",
+                value: JSON.stringify(followList),
+            };
+            let _tags: Array<Tag> = [kind, pTag];
+            await event(_tags);
 
             isUserSubscribed = true;
         } catch (error) {
@@ -39,7 +49,18 @@
         loader = true;
 
         try {
-            await unsubscribe($currentUser.Process, targetProcess);
+            let followList = await fetchFollowList($currentUser.address)
+            followList.filter(p => p != targetProcess)
+            let kind: Tag = {
+                name: "Kind",
+                value: "3",
+            };
+            let pTag: Tag = {
+                name: "p",
+                value: JSON.stringify(followList),
+            };
+            let _tags: Array<Tag> = [kind, pTag];
+            await event(_tags);
 
             isUserSubscribed = false;
         } catch (error) {
