@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import { fetchEvents } from "$lib/ao/relay";
   import { currentUser } from "$lib/stores/current-user.store";
+  import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
 
   let events: Array<any> = [];
   let filters: Array<any> = [];
@@ -56,7 +57,12 @@
     filters = [];
   }
 
+  let isFetchingAlready = false;
   async function fetchFeedEvents() {
+    // To avoid double calling of fetchFeedEvents
+    if (isFetchingAlready) return;
+
+    isFetchingAlready = true;
     if ($currentUser) {
       let filter = {
         kinds: ["1", "6"],
@@ -71,9 +77,12 @@
       if ($currentUser) {
         let _events = await fetchEvents(_filters);
         events = processEvents(_events);
+        console.log("Events-1", events);
       }
     }
     filters = [];
+
+    isFetchingAlready = false;
   }
 
   onMount(async () => {
@@ -84,6 +93,13 @@
     const newReply = event.detail;
     events = processEvents([...events.flat(), newReply]);
   }
+
+  // This will be called when a new post is created (works as a notifier)
+  notifyNewPostStore.subscribe((value) => {
+    if (value) {
+      fetchFeedEvents();
+    }
+  });
 </script>
 
 {#if $currentUser}

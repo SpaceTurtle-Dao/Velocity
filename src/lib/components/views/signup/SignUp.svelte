@@ -143,6 +143,7 @@
             website: profile.website,
             bot: false,
             address: address,
+            followList: [],
           });
         }
         // await setRelay(_relay!);

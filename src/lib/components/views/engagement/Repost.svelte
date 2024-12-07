@@ -10,77 +10,70 @@
   export let _event: any;
 
   let reposted = false;
-  let isQuote = false; //TO-DO do the quote work
-  let count = 0;
+  let isQuote = false; // TO-DO: implement quote functionality
 
   let repostArray: Array<any> = [];
   let _tags: Array<Tag> = [];
 
+  // Reactive statement to update count based on repostArray
+  $: count = repostArray.length;
+
   async function repost() {
-    reposted = !reposted;
-    let value = "";
-    let kind: Tag = {
-      name: "Kind",
-      value: "6",
-    };
-    let _content = _event;
-    let contentTag: Tag = {
-      name: "Content",
-      value: JSON.stringify(_content),
-    };
-    let eTag: Tag = {
-      name: "e",
-      value: _event.Id.toString(),
-    };
-    let markerTag: Tag = {
-      name: "marker",
-      value: "root",
-    };
-    _tags.push(kind);
-    _tags.push(contentTag);
-    _tags.push(eTag);
-    _tags.push(markerTag);
+    if (!_event) return;
+
+    let _tags: Array<Tag> = [
+      {
+        name: "Kind",
+        value: "6"
+      },
+      {
+        name: "Content",
+        value: JSON.stringify({
+          ..._event,
+          repostedBy: $currentUser.address
+        })
+      },
+      {
+        name: "e",
+        value: _event.Id.toString()
+      },
+      {
+        name: "marker",
+        value: "root"
+      }
+    ];
+
     await event(_tags);
+    
+    // Immediately update local state
+    reposted = true;
+    
+    // Refresh reposts to ensure consistency
+    await fetchRepost();
   }
 
   async function fetchRepost() {
     let filters: Array<any> = [];
     repostArray = [];
+    
     let filter1 = {
       kinds: ["6"],
-      //since: Number(timestamp),
-      //until: Date.now(),
-      //limit: 100,
-    };
-    let filter2 = {
       tags: {
-        e: [_event.Id],
-        //p: [_event.From]
-      },
-    };
-    filters.push(filter1, filter2);
-    let _filters = JSON.stringify(filters);
-    repostArray = await fetchEvents(_filters);
-    for (var i = 0; i < repostArray.length; i++) {
-      if (repostArray[i].From == $currentUser.address) {
-        reposted = true;
-      } else {
-        reposted = false;
+        e: [_event.Id]
       }
-    }
-
-    console.log("reposting array", repostArray);
-    filters = [];
+    };
+    
+    let _filters = JSON.stringify([filter1]);
+    repostArray = await fetchEvents(_filters);
+    
+    // Check if current user has reposted
+    reposted = repostArray.some(repost => repost.From === $currentUser.address);
   }
 
   onMount(async () => {
-    // console.log($currentUser.Process);
-    console.log("getting repost for id");
-    console.log(_event.Id);
+    console.log("Getting reposts for id:", _event.Id);
     await fetchRepost();
-    console.log("got " + repostArray.length + " repost for id");
-    console.log(_event.Id);
-    console.log(repostArray);
+    console.log(`Got ${repostArray.length} reposts for id ${_event.Id}`);
   });
 </script>
 
@@ -92,10 +85,10 @@
 >
   {#if reposted}
     <Repeat2 strokeWidth={0.8} class="text-green-400" />
-    <!--<p class="font-thin text-green-400">{count}</p>-->
+    <p class="font-thin text-green-400">{count}</p>
   {:else}
     <Repeat2 strokeWidth={0.8} class="text-primary" />
-    <!--<p class="font-thin">{count}</p>-->
+    <p class="font-thin">{count}</p>
   {/if}
 </Button>
 

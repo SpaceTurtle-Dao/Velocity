@@ -203,7 +203,7 @@
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
-          <Avatar class="h-12 w-12">
+          <Avatar class="h-12 w-12 text-primary">
             {#if $currentUser?.picture}
               <AvatarImage
                 src={$currentUser.picture}

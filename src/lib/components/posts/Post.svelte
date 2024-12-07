@@ -12,15 +12,13 @@
   import { currentUser } from "$lib/stores/current-user.store";
   import { link } from "svelte-spa-router";
   import * as Dialog from "$lib/components/ui/dialog";
-  import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
+  import ProfilePictureHoverCard from "../UserProfile/ProfilePictureHoverCard.svelte";
   import { formatTimestamp } from "$lib/utils/timestamp.utils";
-  import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
-  import type { Profile } from "$lib/models/Profile";
   import { usersProfile } from "$lib/stores/users-profile.store";
+  import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
 
   export let event: any;
   export let replies: any[] = [];
-  //   export let showFullPost: boolean = false;
 
   let replyCount = 0;
 
@@ -31,19 +29,10 @@
   let isRepost: boolean = false;
   let originalEvent: any = null;
   let originalUser: any = null;
-  let originalProfile: any = null;
   let isLoading: boolean = true;
   let loadError: string | null = null;
   let repostArray: any[] = [];
   let dialogOpen = false;
-
-  console.log("working");
-
-  $: {
-    if (event) {
-      loadEventData();
-    }
-  }
 
   async function parseRepostContent() {
     if (!event?.Tags?.["Content"]) return null;
@@ -61,23 +50,9 @@
     }
   }
 
-  async function countReposts() {
-    let repostFilter = JSON.stringify([
-      {
-        kinds: ["6"],
-        tags: { e: originalEvent.Id.toString() },
-      },
-    ]);
-    repostArray = await fetchEvents(repostFilter);
-    console.log("reposts array", repostArray);
-  }
-
-  async function loadEventData() {
-    isLoading = true;
-    loadError = null;
-
+  async function fetchConcurrentData() {
     try {
-      // profile = await usersProfile.get(event.From);
+      const promises: Promise<any>[] = [];
 
       // Check for reply
       if (event.Tags["marker"] === "reply") {
@@ -88,31 +63,63 @@
       // Check for repost
       if (event.Tags["Kind"] === "6") {
         isRepost = true;
-        const parsedContent = await parseRepostContent();
-        if (parsedContent) {
-          originalEvent = parsedContent;
-
-          // Load original post author info
-          originalUser = await fetchEvents(parsedContent.From);
-          if (originalUser?.Profile) {
-            originalProfile = originalUser.Profile;
-          } else {
-            console.warn("Original user profile not found");
-          }
-        }
+        promises.push(
+          parseRepostContent().then(async (parsedContent) => {
+            if (parsedContent) {
+              originalEvent = parsedContent;
+              originalUser = $usersProfile.get(parsedContent.From);
+            }
+          })
+        );
       }
-      await countReplies();
-      isLoading = false;
+
+      // Count replies
+      promises.push(
+        (async () => {
+          if (!event?.Id) return;
+
+          const replyFilter = JSON.stringify([
+            {
+              kinds: ["1"],
+              tags: { marker: ["reply"] },
+            },
+            {
+              tags: { e: [event.Id] },
+            },
+          ]);
+
+          const replies = await fetchEvents(replyFilter);
+          replyCount = replies.length;
+        })()
+      );
+
+      // Count reposts if it's an original post
+      if (!isRepost) {
+        promises.push(
+          (async () => {
+            const repostFilter = JSON.stringify([
+              {
+                kinds: ["6"],
+                tags: { e: event.Id.toString() },
+              },
+            ]);
+            repostArray = await fetchEvents(repostFilter);
+          })()
+        );
+      }
+
+      await Promise.all(promises);
     } catch (error) {
       console.error("Error loading event data:", error);
       loadError = "Failed to load post data";
     } finally {
+      isLoading = false;
     }
   }
 
   onMount(() => {
     if (event) {
-      loadEventData();
+      fetchConcurrentData();
     }
   });
 
@@ -122,7 +129,6 @@
     replies = [...replies, replyEvent.detail];
     dispatch("newReply", replyEvent.detail);
     replyCount += 1;
-    dispatch("newReply", replyEvent.detail);
   }
 
   function handleClick(e: MouseEvent) {
@@ -132,26 +138,7 @@
     }
   }
 
-  async function countReplies() {
-    if (!event?.Id) return;
-
-    try {
-      let replyFilter = JSON.stringify([
-        {
-          kinds: ["1"],
-          tags: { marker: ["reply"] },
-        },
-        {
-          tags: { e: [event.Id] },
-        },
-      ]);
-
-      const replies = await fetchEvents(replyFilter);
-      replyCount = replies.length;
-    } catch (error) {
-      console.error("Error counting replies:", error);
-    }
-  }
+  let isUserSubscribed: boolean;
 </script>
 
 <div class="cursor-pointer border-b border-gray-800">
@@ -227,28 +214,51 @@
             <div>
               <div class="flex justify-start space-x-3">
                 <div class="hidden sm:flex">
-                  <ProfilePicture
-                    src={isRepost ? originalProfile.picture : profile?.picture}
-                    name={isRepost
-                      ? originalProfile.name
-                      : (profile?.name ?? "")}
-                  />
+                  {#if isRepost && originalUser}
+                    <div>
+                      <ProfilePictureHoverCard
+                        profile={originalUser}
+                        bind:isUserSubscribed
+                      />
+                    </div>
+                  {:else if profile}
+                    <div>
+                      <ProfilePictureHoverCard
+                        {profile}
+                        bind:isUserSubscribed
+                      />
+                    </div>
+                  {/if}
                 </div>
 
                 <div class="flex-1">
                   <div class="flex space-x-1 mb-1">
-                    <p class="font-medium text-primary">
-                      {#if isRepost && originalProfile?.name}
-                        {originalProfile.name}
-                      {:else}
-                        {profile?.name}
-                      {/if}
-                    </p>
-                    <span class="text-muted-foreground pl-0.5"
-                      >@{isRepost
-                        ? originalProfile.display_name
-                        : profile?.display_name}</span
-                    >
+                    {#if isRepost && originalUser}
+                      <ProfileHoverCard
+                        profile={originalUser}
+                        bind:isUserSubscribed
+                      >
+                        <div class="flex space-x-1">
+                          <p class="font-medium text-primary">
+                            {originalUser.name}
+                          </p>
+                          <span class="text-muted-foreground pl-0.5"
+                            >@{originalUser.display_name}</span
+                          >
+                        </div>
+                      </ProfileHoverCard>
+                    {:else if profile}
+                      <ProfileHoverCard {profile} bind:isUserSubscribed>
+                        <div class="flex space-x-1">
+                          <p class="font-medium text-primary">
+                            {profile?.name}
+                          </p>
+                          <span class="text-muted-foreground pl-0.5"
+                            >@{profile?.display_name}</span
+                          >
+                        </div>
+                      </ProfileHoverCard>
+                    {/if}
 
                     <span class="text-muted-foreground"
                       >· {formatTimestamp(event.Timestamp)}</span
