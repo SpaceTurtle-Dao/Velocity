@@ -20,6 +20,8 @@
     AvatarFallback,
     AvatarImage,
   } from "$lib/components/ui/avatar";
+  import { ARWEAVE_ADDRESS } from "$lib/constants";
+  import UserMenu from "./UserMenu.svelte";
 
   export let url = "";
 
@@ -33,10 +35,7 @@
   ];
 
   function toUrl(tx: string) {
-    return (
-      "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
-      tx
-    );
+    return ARWEAVE_ADDRESS + tx;
   }
 
   currentUser.subscribe((value) => {
@@ -85,25 +84,26 @@
                 </Link>
               </li>
             {/each}
-            <li>
+            <!-- <li>
               <button
                 class="flex items-center p-2 rounded-full hover:bg-secondary-100 transition-colors duration-200"
               >
                 <MoreHorizontal class="w-6 h-6 mr-4 text-secondary-500" />
                 <span class="text-lg font-medium text-gray-700">More</span>
               </button>
-            </li>
+            </li> -->
           </ul>
         </nav>
         <button
-          class="w-full bg-secondary-500 text-white rounded-full py-3 font-bold text-lg hover:bg-purple-600 transition-colors duration-200 flex items-center justify-center"
+          class="w-full bg-secondary-500 text-white rounded-full py-3 font-bold text-lg transition-colors duration-200 flex items-center justify-center"
         >
           <Plus class="w-5 h-5 mr-2" />
           Post
         </button>
       </div>
       <div class="p-4">
-        <div class="bg-gradient-to-r from-secondary-500 to-pink-500 p-6">
+        <UserMenu />
+        <!-- <div class="bg-gradient-to-r from-secondary-500 to-pink-500 p-6">
           <div class="flex items-center space-x-4">
             {#if profile.picture}
               <Avatar class="h-24 w-24 ring-4 ring-white">
@@ -119,7 +119,7 @@
               <p class="mt-2 text-white">{"profile.bio"}</p>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </aside>
 

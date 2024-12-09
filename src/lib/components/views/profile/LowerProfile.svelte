@@ -11,6 +11,7 @@
   import { profileFromEvent, type Profile } from "$lib/models/Profile";
   import CreateProfile from "./CreateProfile.svelte";
   import { currentUser } from "$lib/stores/current-user.store";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
 
   // Function to format Arweave transaction URLs
   function toUrl(tx: string) {
@@ -22,17 +23,31 @@
 </script>
 
 {#if $currentUser}
-  <button class="flex items-center space-x-4">
-    {#if $currentUser.picture}
-      <Avatar class="h-12 w-12">
-        <AvatarImage src={$currentUser.picture} alt={$currentUser.name} />
-        <AvatarFallback>{$currentUser.name}</AvatarFallback>
-      </Avatar>
-    {/if}
-    <div class="flex-grow text-left">
-      <p class="font-semibold text-white">{$currentUser.name}</p>
-      <p class="text-sm text-white">@{$currentUser.display_name}</p>
-    </div>
-    <MoreHorizontal class="w-5 h-5 text-white" />
-  </button>
+  <DropdownMenu.Root>
+    <DropdownMenu.Trigger asChild let:builder>
+      <button builders={[builder]} class="flex items-center space-x-4">
+        {#if $currentUser.picture}
+          <Avatar class="h-12 w-12">
+            <AvatarImage src={$currentUser.picture} alt={$currentUser.name} />
+            <AvatarFallback>{$currentUser.name}</AvatarFallback>
+          </Avatar>
+        {/if}
+        <div class="flex-grow text-left">
+          <p class="font-semibold text-white">{$currentUser.name}</p>
+          <p class="text-sm text-white">@{$currentUser.display_name}</p>
+        </div>
+        <MoreHorizontal class="w-5 h-5 text-white" />
+      </button>
+    </DropdownMenu.Trigger>
+    <DropdownMenu.Content>
+      <DropdownMenu.Group>
+        <DropdownMenu.Label>Log out</DropdownMenu.Label>
+        <!-- <DropdownMenu.Separator />
+              <DropdownMenu.Item>Profile</DropdownMenu.Item>
+              <DropdownMenu.Item>Billing</DropdownMenu.Item>
+              <DropdownMenu.Item>Team</DropdownMenu.Item>
+              <DropdownMenu.Item>Subscription</DropdownMenu.Item> -->
+      </DropdownMenu.Group>
+    </DropdownMenu.Content>
+  </DropdownMenu.Root>
 {/if}
