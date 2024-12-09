@@ -13,6 +13,7 @@
     Mail,
   } from "lucide-svelte";
   import { currentUser } from "$lib/stores/current-user.store";
+  import UserMenu from "$lib/components/Sidebar/UserMenu.svelte";
 
   //   let isCreatePostModalOpen = false;
 
