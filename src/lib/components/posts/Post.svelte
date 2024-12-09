@@ -16,13 +16,14 @@
   import { formatTimestamp } from "$lib/utils/timestamp.utils";
   import { usersProfile } from "$lib/stores/users-profile.store";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
+  import type { Profile } from "$lib/models/Profile";
 
   export let event: any;
   export let replies: any[] = [];
 
   let replyCount = 0;
 
-  $: profile = $usersProfile.get(event.From);
+  let profile:Profile;
 
   let isReply: boolean = false;
   let replyingTo: string | null = null;
@@ -117,8 +118,9 @@
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     if (event) {
+      profile = await usersProfile.get(event.From) as Profile;
       fetchConcurrentData();
     }
   });

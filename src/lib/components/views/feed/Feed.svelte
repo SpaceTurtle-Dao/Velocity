@@ -37,7 +37,7 @@
     return topLevelPosts;
   }
 
-  async function fetchFollowingEvents(followers: Array<String>) {
+  async function fetchFollowingEvents() {
     if ($currentUser) {
       let filter = {
         kinds: ["1", "6"],
@@ -45,7 +45,7 @@
         until: Date.now(),
         limit: 100,
         tags: { marker: ["root"] },
-        authors: followers,
+        authors: $currentUser.followList,
       };
       filters.push(filter);
       let _filters = JSON.stringify(filters);

@@ -33,9 +33,9 @@
   onMount(async () => {
     await addressStore.sync();
 
-    await myPostStore.fetch();
+    //await myPostStore.fetch();
 
-    await usersProfile.fetchProfiles();
+    //await usersProfile.fetchProfiles();
   });
 
   let waitForUserFetch = true;

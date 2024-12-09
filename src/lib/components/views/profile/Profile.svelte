@@ -320,7 +320,7 @@
         </div>
       </Tabs.Content>
       <Tabs.Content value="subscribed">
-        <UserList title="Subscribed" addresses={profile.followList} />
+        <UserList/>
       </Tabs.Content>
       <Tabs.Content value="subsribers">
         <!-- {#if $user && profile}
