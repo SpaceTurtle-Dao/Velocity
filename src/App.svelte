@@ -35,20 +35,26 @@
 
     //await myPostStore.fetch();
 
+
+    // await usersProfile.fetchProfiles();
     //await usersProfile.fetchProfiles();
   });
 
   let waitForUserFetch = true;
 
   addressStore.subscribe(async ({ address }) => {
-    console.log(address);
-
     if (address) {
-      await currentUser.fetch();
-      waitForUserFetch = false;
+      try {
+        await currentUser.fetch();
+        waitForUserFetch = false;
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      } finally {
+        isLoading = false;
+      }
+    } else {
+      isLoading = false;
     }
-
-    isLoading = false;
   });
 </script>
 
