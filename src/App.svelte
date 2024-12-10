@@ -31,16 +31,11 @@
   };
 
   onMount(async () => {
-    try {
-      await Promise.all([
-        addressStore.sync(),
-        // myPostStore.fetch(),
-        usersProfile.fetchProfiles()
-      ]);
-    } catch (error) {
-      console.error("Error in onMount:", error);
-      isLoading = false;
-    }
+    await addressStore.sync();
+
+    //await myPostStore.fetch();
+
+    // await usersProfile.fetchProfiles();
   });
 
   let waitForUserFetch = true;

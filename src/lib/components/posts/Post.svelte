@@ -16,13 +16,15 @@
   import { formatTimestamp } from "$lib/utils/timestamp.utils";
   import { usersProfile } from "$lib/stores/users-profile.store";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
+  import type { Profile } from "$lib/models/Profile";
+  import { onDestroy } from 'svelte';
 
   export let event: any;
   export let replies: any[] = [];
 
   let replyCount = 0;
 
-  $: profile = $usersProfile.get(event.From);
+  let profile:Profile;
 
   let isReply: boolean = false;
   let replyingTo: string | null = null;
@@ -33,6 +35,7 @@
   let loadError: string | null = null;
   let repostArray: any[] = [];
   let dialogOpen = false;
+  let loadingCompletePosts = false;
 
   async function parseRepostContent() {
     if (!event?.Tags?.["Content"]) return null;
@@ -113,12 +116,14 @@
       console.error("Error loading event data:", error);
       loadError = "Failed to load post data";
     } finally {
-      isLoading = false;
+      // isLoading = false;
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     if (event) {
+      profile = await usersProfile.get(event.From) as Profile;
+      isLoading =false;
       fetchConcurrentData();
     }
   });

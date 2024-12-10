@@ -23,6 +23,7 @@ const initCurrentUserStore = () => {
         if (address) {
           const profile = await fetchProfile(address);
           const followList = await fetchFollowList(address);
+          profile.followList = followList
           set(profile);
           push("/feed");
         }
