@@ -19,6 +19,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { onDestroy } from 'svelte';
 
+
   export let event: any;
   export let replies: any[] = [];
 

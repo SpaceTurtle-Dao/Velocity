@@ -35,7 +35,9 @@
 
     //await myPostStore.fetch();
 
+
     // await usersProfile.fetchProfiles();
+    //await usersProfile.fetchProfiles();
   });
 
   let waitForUserFetch = true;
