@@ -66,7 +66,9 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     profile.address = message.From;
     profile.created_at = messages[0].Timestamp;
     profile.updated_at = message.Timestamp;
-    profile.followList = await fetchFollowList(address);
+    fetchFollowList(address).then((followList) => {
+      profile.followList = followList
+    }).catch(console.log);
     console.log("Profile from App", profile);
     return profile;
   } catch (e) {

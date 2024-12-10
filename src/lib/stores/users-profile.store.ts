@@ -18,10 +18,10 @@ const initUsersProfileMapStore = (): UsersProfileMapStore => {
     fetchProfiles: async () => {
       try {
         console.log("**Fetching all profiles**");
-        const map = await fetchProfilesForUsersProfileMap();
-        console.log("profile-map", map);
-
-        set(map);
+        fetchProfilesForUsersProfileMap().then((profiles) => {
+          set(profiles);
+          console.log("profile-map", profiles);
+        }).catch(console.log);  
       } catch (error) {
         console.error("Failed to fetch Users Profiles", error);
       }
@@ -31,6 +31,10 @@ const initUsersProfileMapStore = (): UsersProfileMapStore => {
         let profile = get(usersProfile).get(address);
 
         if (profile) return profile;
+
+        /*fetchProfile(address).then((profile) => {
+          
+        }).catch()*/
 
         const fetchedProfile = await fetchProfile(address);
 

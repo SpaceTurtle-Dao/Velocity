@@ -31,8 +31,7 @@
   };
 
   onMount(async () => {
-    await addressStore.sync();
-
+    
     //await myPostStore.fetch();
 
 
@@ -45,14 +44,20 @@
   addressStore.subscribe(async ({ address }) => {
     if (address) {
       try {
+        console.log("Fetching User")
         await currentUser.fetch();
-        waitForUserFetch = false;
+        isLoading = false;
+        waitForUserFetch = false
+        console.log("Got User")
       } catch (error) {
         console.error("Error fetching current user:", error);
       } finally {
         isLoading = false;
       }
     } else {
+      console.log("Syncing")
+      await addressStore.sync();
+      console.log("Done Syncing")
       isLoading = false;
     }
   });
@@ -67,7 +72,7 @@
       </p>
     </div>
   </div>
-{:else if !$isConnected || waitForUserFetch}
+{:else if waitForUserFetch}
   <LandingPage />
 {:else if $location === "/signup"}
   <Router {routes} />
