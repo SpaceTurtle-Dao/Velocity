@@ -13,7 +13,7 @@
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Link, CalendarDays } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { fetchEvents, fetchProfile } from "$lib/ao/relay";
+  import { fetchEvents, fetchFollowList, fetchProfile } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
   import Follow from "../../Follow/Follow.svelte";
   import UserList from "$lib/components/UserList/UserList.svelte";
@@ -26,6 +26,8 @@
   import { event } from "$lib/ao/relay";
 
   import { usersProfile } from "$lib/stores/users-profile.store";
+  import { followListStore } from "$lib/stores/follow-list.store";
+  import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
 
   export let params: { address?: string } = {};
 
@@ -190,6 +192,41 @@
     }
   }
   let value = "post";
+
+  //////////// Following/ subscribing code
+  let numberOfFollowing = 0;
+
+  let followListLoading = true;
+
+  async function getFollowingCount() {
+    followListLoading = true;
+
+    if (profile?.address === $currentUser.address) {
+      numberOfFollowing = $followListStore.size;
+      followListLoading = false;
+
+      followListStore.subscribe((set) => {
+        numberOfFollowing = set.size;
+      });
+    } else {
+      if (profile?.address) {
+        fetchFollowList(profile?.address)
+          .then((followList) => {
+            numberOfFollowing = followList.length;
+            followListLoading = false;
+          })
+          .catch((e) => {
+            console.error(e);
+          });
+      }
+    }
+  }
+
+  $: {
+    if (profile) {
+      getFollowingCount();
+    }
+  }
 </script>
 
 {#if profile}
@@ -275,11 +312,18 @@
           </div>
         </div>
         <div class="flex space-x-5 pt-2.5">
-          <div class="flex space-x-1">
-            {#if profile.followList}
-              <p>{profile.followList.length}</p>
+          <div class="flex space-x-1 items-center">
+            {#if followListLoading}
+              <Skeleton class="h-5 w-[102px] rounded-full" />
+            {:else}
+              <div>
+                <span class="font-bold mr-1">{numberOfFollowing}</span>
+
+                <span class="font-normal text-muted-foreground"
+                  >Subscribing</span
+                >
+              </div>
             {/if}
-            <p class="text-muted-foreground">Subscribing</p>
           </div>
           <div class="flex space-x-1">
             <!-- <p>{userInfo.Subs}</p> -->

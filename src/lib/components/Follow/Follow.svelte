@@ -4,13 +4,10 @@
 
   export let address: string;
 
-  let isFollowListLoading = $followListStore.size === 0;
-
   // let isSubscribed: boolean = $followListStore.has(address);
   let isSubscribed: boolean = false;
 
   followListStore.subscribe((set) => {
-    isFollowListLoading = set.size === 0;
     isSubscribed = set.has(address);
   });
 
@@ -29,9 +26,7 @@
   }
 </script>
 
-{#if isFollowListLoading}
-  <div class="h-8 w-[120px] bg-muted rounded-full animate-pulse"></div>
-{:else if isSubscribed}
+{#if isSubscribed}
   <ButtonWithLoader
     {loader}
     class="group text-sm font-bold h-8 w-[120px]  rounded-full text-primary  hover:border-red-800 border-input bg-background hover:bg-accent hover:text-accent-foreground border"
