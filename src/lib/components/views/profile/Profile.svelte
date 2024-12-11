@@ -13,7 +13,7 @@
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Link, CalendarDays } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { fetchEvents, fetchFollowList, fetchProfile } from "$lib/ao/relay";
+  import { fetchEvents, fetchProfile } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
   import Follow from "../../Follow/Follow.svelte";
   import UserList from "$lib/components/UserList/UserList.svelte";
@@ -154,7 +154,6 @@
 
   onMount(async () => {
     if (profile) {
-      profile.followList = await fetchFollowList(profile.address);
       await fetchPost();
       // Split the string into parts, keeping the URLs separate
       const parts = textWithUrl.split(urlPattern);
@@ -320,7 +319,7 @@
         </div>
       </Tabs.Content>
       <Tabs.Content value="subscribed">
-        <UserList/>
+        <UserList />
       </Tabs.Content>
       <Tabs.Content value="subsribers">
         <!-- {#if $user && profile}

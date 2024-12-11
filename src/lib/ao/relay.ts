@@ -66,9 +66,6 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     profile.address = message.From;
     profile.created_at = messages[0].Timestamp;
     profile.updated_at = message.Timestamp;
-    fetchFollowList(address).then((followList) => {
-      profile.followList = followList
-    }).catch(console.log);
     console.log("Profile from App", profile);
     return profile;
   } catch (e) {
@@ -138,10 +135,10 @@ export const fetchFollowList = async (
 
   try {
     console.log(`Follow List messages for ${address}`, messages);
-    let message = messages.pop();
+    let message = messages[0]; // Latest Follow List at index 0
     if (message.p) {
       followList = JSON.parse(message.p);
-      console.log(`Follow List for ${address}`, followList);
+      console.log(`Latest Follow List for ${address}`, followList);
     }
   } catch (e) {
     console.log(e);
@@ -153,14 +150,12 @@ export const fetchFollowList = async (
 export const fetchProfilesForUsersProfileMap = async (): Promise<
   Map<string, Profile>
 > => {
-
   let profiles = await fetchProfiles([]);
 
   try {
     const map = new Map<string, Profile>();
 
     profiles.forEach((profile) => {
-
       const duplicate = map.get(profile.address);
 
       if (duplicate) {

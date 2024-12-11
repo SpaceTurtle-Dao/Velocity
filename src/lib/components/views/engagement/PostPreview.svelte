@@ -17,14 +17,12 @@
 
     return urlReplaceContent.slice(0, 400) + "...";
   }
-
-  let isUserSubscribed: boolean;
 </script>
 
 <div class="flex mt-4">
   <div class="h-full flex flex-col items-center">
     {#if user}
-      <ProfilePictureHoverCard size="lg" profile={user} bind:isUserSubscribed />
+      <ProfilePictureHoverCard size="lg" profile={user} />
     {/if}
     <div
       id="vertical-line"
@@ -36,7 +34,7 @@
       class="h-12 w-full flex items-center min-w-0 overflow-hidden whitespace-nowrap"
     >
       {#if user}
-        <ProfileHoverCard profile={user} bind:isUserSubscribed>
+        <ProfileHoverCard profile={user}>
           <div class="flex space-x-1">
             <div class="text-primary text-base font-medium mr-1 ml-2">
               {user?.name}

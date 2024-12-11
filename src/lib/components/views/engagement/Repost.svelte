@@ -6,6 +6,7 @@
   import { fetchEvents, event } from "$lib/ao/relay";
   import type { Tag } from "$lib/models/Tag";
   import { currentUser } from "$lib/stores/current-user.store";
+  import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
 
   export let _event: any;
 
@@ -24,30 +25,32 @@
     let _tags: Array<Tag> = [
       {
         name: "Kind",
-        value: "6"
+        value: "6",
       },
       {
         name: "Content",
         value: JSON.stringify({
           ..._event,
-          repostedBy: $currentUser.address
-        })
+          repostedBy: $currentUser.address,
+        }),
       },
       {
         name: "e",
-        value: _event.Id.toString()
+        value: _event.Id.toString(),
       },
       {
         name: "marker",
-        value: "root"
-      }
+        value: "root",
+      },
     ];
 
     await event(_tags);
-    
+
     // Immediately update local state
     reposted = true;
-    
+
+    notifyNewPostStore.update((num) => num + 1);
+
     // Refresh reposts to ensure consistency
     await fetchRepost();
   }
@@ -55,19 +58,21 @@
   async function fetchRepost() {
     let filters: Array<any> = [];
     repostArray = [];
-    
+
     let filter1 = {
       kinds: ["6"],
       tags: {
-        e: [_event.Id]
-      }
+        e: [_event.Id],
+      },
     };
-    
+
     let _filters = JSON.stringify([filter1]);
     repostArray = await fetchEvents(_filters);
-    
+
     // Check if current user has reposted
-    reposted = repostArray.some(repost => repost.From === $currentUser.address);
+    reposted = repostArray.some(
+      (repost) => repost.From === $currentUser.address
+    );
   }
 
   onMount(async () => {

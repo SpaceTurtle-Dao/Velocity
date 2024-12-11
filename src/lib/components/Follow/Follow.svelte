@@ -1,79 +1,54 @@
 <script lang="ts">
-    import { Button } from "$lib/components/ui/button";
-    import { onMount } from "svelte";
-    import { fetchFollowList } from "$lib/ao/relay";
-    import { currentUser } from "$lib/stores/current-user.store";
-    import type { Tag } from "$lib/models/Tag";
-    import { event } from "$lib/ao/relay";
+  import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
+  import { followListStore } from "$lib/stores/follow-list.store";
 
-    let isLoading = false;
-    let _isSubscribed: boolean = false;
-    export let address:string;
+  export let address: string;
 
-    onMount(async () => {
-        let followList = await fetchFollowList($currentUser.address)
-        _isSubscribed = followList.includes(address)
-    });
+  let isFollowListLoading = $followListStore.size === 0;
 
-    async function _subscribe() {
-        isLoading = true
-        try {
-            let followList = await fetchFollowList($currentUser.address)
-            followList.push(address)
-            let kind: Tag = {
-                name: "Kind",
-                value: "3",
-            };
-            let pTag: Tag = {
-                name: "p",
-                value: JSON.stringify(followList),
-            };
-            let _tags: Array<Tag> = [kind, pTag];
-            await event(_tags);
-            _isSubscribed = !_isSubscribed
-        } catch (e) {}
-        isLoading = false
-    }
+  // let isSubscribed: boolean = $followListStore.has(address);
+  let isSubscribed: boolean = false;
 
-    async function _unsubscribe() {
-        isLoading = true
-        try {
-            let followList = await fetchFollowList($currentUser.address)
-            followList.filter(p => p != address)
-            let kind: Tag = {
-                name: "Kind",
-                value: "3",
-            };
-            let pTag: Tag = {
-                name: "p",
-                value: JSON.stringify(followList),
-            };
-            let _tags: Array<Tag> = [kind, pTag];
-            await event(_tags);
-            _isSubscribed = !_isSubscribed
-        } catch (e) {}
-        isLoading = false
-    }
+  followListStore.subscribe((set) => {
+    isFollowListLoading = set.size === 0;
+    isSubscribed = set.has(address);
+  });
+
+  let loader = false;
+
+  async function unsubscribe() {
+    loader = true;
+    await followListStore.unfollow(address);
+    loader = false;
+  }
+
+  async function subscribe() {
+    loader = true;
+    await followListStore.follow(address);
+    loader = false;
+  }
 </script>
 
-{#if _isSubscribed}
-    <Button
-        variant="outline"
-        disabled={isLoading}
-        size="sm"
-        class="text-primary rounded"
-        on:click={_unsubscribe}
-    >
-        Unsubscribe
-    </Button>
-{:else if _isSubscribed == false}
-    <Button
-        variant="outline"
-        disabled={isLoading}
-        size="sm"
-        class="text-primary rounded"
-        on:click={_subscribe}
-    >
-        Subscribe
-    </Button>
+{#if isFollowListLoading}
+  <div class="h-8 w-[120px] bg-muted rounded-full animate-pulse"></div>
+{:else if isSubscribed}
+  <ButtonWithLoader
+    {loader}
+    class="group text-sm font-bold h-8 w-[120px]  rounded-full text-primary  hover:border-red-800 border-input bg-background hover:bg-accent hover:text-accent-foreground border"
+    loaderClass="size-5"
+    on:click={unsubscribe}
+    disabled={loader}
+  >
+    <span class="group-hover:hidden">Subscribed</span>
+    <span class="hidden group-hover:block text-red-500">Unsubscribe </span>
+  </ButtonWithLoader>
+{:else}
+  <ButtonWithLoader
+    {loader}
+    class="group text-sm font-bold h-8 w-[102px] rounded-full"
+    loaderClass="size-5"
+    on:click={subscribe}
+    disabled={loader}
+    >Subscribe
+  </ButtonWithLoader>
 {/if}

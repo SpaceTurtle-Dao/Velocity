@@ -17,15 +17,14 @@
   import { usersProfile } from "$lib/stores/users-profile.store";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import type { Profile } from "$lib/models/Profile";
-  import { onDestroy } from 'svelte';
-
+  import { onDestroy } from "svelte";
 
   export let event: any;
   export let replies: any[] = [];
 
   let replyCount = 0;
 
-  let profile:Profile;
+  let profile: Profile;
 
   let isReply: boolean = false;
   let replyingTo: string | null = null;
@@ -123,8 +122,8 @@
 
   onMount(async () => {
     if (event) {
-      profile = await usersProfile.get(event.From) as Profile;
-      isLoading =false;
+      profile = (await usersProfile.get(event.From)) as Profile;
+      isLoading = false;
       fetchConcurrentData();
     }
   });
@@ -143,8 +142,6 @@
       dialogOpen = true;
     }
   }
-
-  let isUserSubscribed: boolean;
 </script>
 
 <div class="cursor-pointer border-b border-gray-800">
@@ -222,17 +219,11 @@
                 <div class="hidden sm:flex">
                   {#if isRepost && originalUser}
                     <div>
-                      <ProfilePictureHoverCard
-                        profile={originalUser}
-                        bind:isUserSubscribed
-                      />
+                      <ProfilePictureHoverCard profile={originalUser} />
                     </div>
                   {:else if profile}
                     <div>
-                      <ProfilePictureHoverCard
-                        {profile}
-                        bind:isUserSubscribed
-                      />
+                      <ProfilePictureHoverCard {profile} />
                     </div>
                   {/if}
                 </div>
@@ -240,10 +231,7 @@
                 <div class="flex-1">
                   <div class="flex space-x-1 mb-1">
                     {#if isRepost && originalUser}
-                      <ProfileHoverCard
-                        profile={originalUser}
-                        bind:isUserSubscribed
-                      >
+                      <ProfileHoverCard profile={originalUser}>
                         <div class="flex space-x-1">
                           <p class="font-medium text-primary">
                             {originalUser.name}
@@ -254,7 +242,7 @@
                         </div>
                       </ProfileHoverCard>
                     {:else if profile}
-                      <ProfileHoverCard {profile} bind:isUserSubscribed>
+                      <ProfileHoverCard {profile}>
                         <div class="flex space-x-1">
                           <p class="font-medium text-primary">
                             {profile?.name}
