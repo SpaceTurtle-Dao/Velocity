@@ -4,7 +4,7 @@ import {
   PERMISSIONS,
 } from "$lib/constants/wallet.constants";
 import type { Option } from "$lib/types/option";
-import { writable, type Readable } from "svelte/store";
+import { writable, type Readable, get } from "svelte/store";
 
 export interface AddressStoreData {
   address: Option<string>;
@@ -31,7 +31,8 @@ const initAddressStore = (): AddressStore => {
       } catch (error: unknown) {
         console.error(error);
 
-        set({ address: null });
+        // To avoding loop of callbacks on address.subscribe callbacks
+        if (get(addressStore).address !== null) set({ address: null });
       }
     },
 

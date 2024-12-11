@@ -59,11 +59,13 @@ export function WAR_TOKEN(): string {
     return "";
 }
 
+export const ARWEAVE_ADDRESS = "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/"
+
 export const DEFAULT_QUANTITY = "1000000000000000000"
 export const DECIMALS = 1000000000000;
 
 
-export function formatNumber(num:number) {
+export function formatNumber(num: number) {
     const suffixes = ['', 'K', 'M', 'B', 'T', 'P', 'E']; // Add more if needed
     let tier = Math.log10(Math.abs(num)) / 3 | 0;
 

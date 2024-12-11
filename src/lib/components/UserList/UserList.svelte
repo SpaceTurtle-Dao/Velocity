@@ -3,6 +3,14 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import { usersProfile } from "$lib/stores/users-profile.store";
   import { currentUser } from "$lib/stores/current-user.store";
+  import type { Profile } from "$lib/models/Profile";
+
+  let profiles;
+
+  usersProfile.subscribe((value) => {
+    profiles = value.values();
+  });
+  // usersProfile.fetchProfiles()
 </script>
 
 {#if $usersProfile.size > 0}

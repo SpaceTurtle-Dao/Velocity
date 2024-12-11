@@ -20,13 +20,12 @@
   import { getDisplayUrl } from "$lib/utils/url.utils";
   import { formatJoinedTimestamp } from "$lib/utils/timestamp.utils";
   import { usersProfile } from "$lib/stores/users-profile.store";
-  //   import { params } from "svelte-spa-router";
 
   export let params: { address?: string } = {};
 
   let activeTab: string = "posts";
 
-  $:profile = $usersProfile.get(params?.address ?? "");
+  $: profile = $usersProfile.get(params?.address ?? "");
 
   let events: Array<any> = [];
   let textWithUrl = "";
@@ -255,4 +254,3 @@
     </Tabs.Root>
   </div>
 {/if}
-
