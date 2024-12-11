@@ -31,7 +31,19 @@
     "/signup": SignUp,
   };
 
+  function handleRouteReload() {
+    const hash = window.location.hash;
+
+    if (hash && hash !== "#/") {
+      // Redirect to home if any non-home route is reloaded
+      console.log("Reload detected on route", hash);
+
+      window.location.replace("/");
+    }
+  }
+
   onMount(() => {
+    handleRouteReload();
     //await myPostStore.fetch();
     // await usersProfile.fetchProfiles();
   });
