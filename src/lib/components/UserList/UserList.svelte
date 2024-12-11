@@ -8,10 +8,9 @@
   let profiles;
 
   usersProfile.subscribe((value) => {
-    profiles = value.values()
-  })
-  usersProfile.fetchProfiles()
-
+    profiles = value.values();
+  });
+  // usersProfile.fetchProfiles()
 </script>
 
 {#if $usersProfile.size > 0}

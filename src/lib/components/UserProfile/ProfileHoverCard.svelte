@@ -3,58 +3,41 @@
   import ProfilePicture from "./ProfilePicture.svelte";
   import { link } from "svelte-spa-router";
   import { getDisplayUrl } from "$lib/utils/url.utils";
-  // import { isSubscribed, subscribe, unsubscribe } from "$lib/ao/relay";
-  import { currentUser } from "$lib/stores/profile.store";
   import { onMount } from "svelte";
   import type { Profile } from "$lib/models/Profile";
-  import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import Follow from "../Follow/Follow.svelte";
+  import { followListStore } from "$lib/stores/follow-list.store";
+  import { currentUser } from "$lib/stores/current-user.store";
+  import { fetchFollowList } from "$lib/ao/relay";
+  import { Skeleton } from "$lib/components/ui/skeleton";
 
   export let profile: Profile;
 
-  // this for binding parent component and letting parent know that the subscription updated
-  export let isUserSubscribed: boolean;
+  let numberOfFollowing = 0;
 
-  let isSubLoading = true;
-  // async function loadIsSubscribed() {
-  //     isUserSubscribed = await isSubscribed(
-  //         $currentUser.Process,
-  //         userInfo.Process,
-  //     );
-  // }
-  onMount(async () => {
-    // await loadIsSubscribed();
-    // isSubLoading = false;
+  let isCurrentUser = $currentUser.address === profile.address;
+
+  let followListLoading = true;
+
+  onMount(() => {
+    if (isCurrentUser) {
+      numberOfFollowing = $followListStore.size;
+      followListLoading = false;
+
+      followListStore.subscribe((set) => {
+        numberOfFollowing = set.size;
+      });
+    } else {
+      fetchFollowList(profile.address)
+        .then((followList) => {
+          numberOfFollowing = followList.length;
+          followListLoading = false;
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    }
   });
-
-  let loader = false;
-  // async function subscribeTarget() {
-  //     loader = true;
-
-  //     try {
-  //         await subscribe($currentUser.Process, userInfo.Process);
-
-  //         isUserSubscribed = true;
-  //     } catch (error) {
-  //         console.error(error);
-  //     } finally {
-  //         loader = false;
-  //     }
-  // }
-
-  // async function unsubscribeTarget() {
-  //     loader = true;
-
-  //     try {
-  //         await unsubscribe($currentUser.Process, userInfo.Process);
-
-  //         isUserSubscribed = false;
-  //     } catch (error) {
-  //         console.error(error);
-  //     } finally {
-  //         loader = false;
-  //     }
-  // }
 </script>
 
 <HoverCard.Root>
@@ -69,28 +52,8 @@
         <ProfilePicture name={profile.name} src={profile.picture} size="xl" />
       </a>
 
-      {#if isSubLoading}
+      {#if !isCurrentUser}
         <Follow address={profile.address} />
-      {:else if isUserSubscribed}
-        <!-- <ButtonWithLoader
-                    {loader}
-                    class="group text-base font-bold h-9 w-32 rounded-full text-primary  hover:border-red-800 border-input bg-background hover:bg-accent hover:text-accent-foreground border"
-                    on:click={unsubscribeTarget}
-                    disabled={loader}
-                >
-                    <span class="group-hover:hidden">Subscribed</span>
-                    <span class="hidden group-hover:block text-red-500"
-                        >Unsubscribe
-                    </span>
-                </ButtonWithLoader> -->
-      {:else}
-        <!-- <ButtonWithLoader
-                    {loader}
-                    class="group text-base font-bold h-9 w-32 rounded-full"
-                    on:click={subscribeTarget}
-                    disabled={loader}
-                    >Subscribe
-                </ButtonWithLoader> -->
       {/if}
     </div>
 
@@ -121,13 +84,19 @@
       </div>
     {/if}
 
-    <div class="flex justify-between mt-4">
-      <div>
-        <span class="text-sm font-bold">{profile.followList.length}</span>
-        <span class="text-sm font-normal text-muted-foreground"
-          >Subscribing</span
-        >
-      </div>
+    <div class="flex justify-between mt-4 items-center">
+      {#if followListLoading}
+        <Skeleton class="h-4 w-[92px] rounded-full" />
+      {:else}
+        <div>
+          <span class="text-sm font-bold">{numberOfFollowing}</span>
+
+          <span class="text-sm font-normal text-muted-foreground"
+            >Subscribing</span
+          >
+        </div>
+      {/if}
+
       <div>
         <!-- <span class="text-sm font-bold">{userInfo.Subs}</span> -->
         <span class="text-sm font-normal text-muted-foreground"

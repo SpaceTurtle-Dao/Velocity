@@ -5,11 +5,8 @@
 
   export let profile: Profile;
   export let size: "sm" | "base" | "lg" | "xl" = "sm";
-
-  // this for binding parent component and letting parent know that the subscription updated
-  export let isUserSubscribed: boolean;
 </script>
 
-<ProfileHoverCard {profile} bind:isUserSubscribed>
+<ProfileHoverCard {profile}>
   <ProfilePicture name={profile.name} src={profile.picture} {size} />
 </ProfileHoverCard>

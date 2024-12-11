@@ -95,9 +95,9 @@
   }
 
   // This will be called when a new post is created (works as a notifier)
-  notifyNewPostStore.subscribe((value) => {
+  notifyNewPostStore.subscribe(async (value) => {
     if (value) {
-      fetchFeedEvents();
+      await fetchFeedEvents();
     }
   });
 </script>

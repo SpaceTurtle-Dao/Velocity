@@ -9,7 +9,6 @@
   import { Plus, Image, X } from "lucide-svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
-  import { push, pop, replace } from "svelte-spa-router";
   import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
 
   let content = "";
