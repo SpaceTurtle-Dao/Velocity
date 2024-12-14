@@ -20,6 +20,7 @@
   import { followListStore } from "$lib/stores/follow-list.store";
 
   let isLoading = true;
+  let isFollowListAlreadyFetched = false;
 
   const routes = {
     "/": LandingPage,
@@ -58,8 +59,6 @@
         isLoading = false;
         waitForUserFetch = false;
         console.log("Got User");
-
-        followListStore.sync();
       } catch (error) {
         console.error("Error fetching current user:", error);
       } finally {
@@ -70,6 +69,13 @@
       await addressStore.sync();
       console.log("Done Syncing");
       isLoading = false;
+    }
+  });
+
+  currentUser.subscribe((user) => {
+    if (user && !isFollowListAlreadyFetched) {
+      followListStore.sync();
+      isFollowListAlreadyFetched = true;
     }
   });
 
@@ -91,14 +97,12 @@
   <LandingPage />
 {:else if $location === "/signup"}
   <Router {routes} />
-{:else}
+{:else if $currentUser}
   <div class="bg-background">
     <div class="flex w-full bg-background justify-center">
       <Left />
       <Middle><Router {routes} /></Middle>
-      {#if $currentUser}
-        <Right />
-      {/if}
+      <Right />
     </div>
   </div>
 {/if}
