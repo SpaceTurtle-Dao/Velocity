@@ -15,6 +15,8 @@
   import { usersProfile } from "$lib/stores/users-profile.store";
 
   export let event: any;
+  export let isRepost: boolean;
+
   let newReply: any;
   let profile = $usersProfile.get(event.From);
 
@@ -158,7 +160,7 @@
   </Dialog.Trigger>
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
-      <PostPreview {event} user={profile} />
+      <PostPreview {event} {isRepost} user={profile} />
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
