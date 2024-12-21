@@ -273,7 +273,7 @@
 
           <div class="flex justify-between mt-3 engagement-buttons">
             <div class="flex items-center">
-              <Reply {event} on:newReply={handleNewReply} />
+              <Reply {event} {isRepost} on:newReply={handleNewReply} />
               {#if replyCount > 0}
                 <span class="ml-1 text-sm text-muted-foreground">
                   {replyCount}
