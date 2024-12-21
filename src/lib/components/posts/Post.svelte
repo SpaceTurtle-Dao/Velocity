@@ -102,8 +102,8 @@
           (async () => {
             const repostFilter = JSON.stringify([
               {
-                kinds: ["6"],
-                tags: { e: event.Id.toString() },
+                kinds: "6",
+                tags: { e: [event.Id.toString()] },
               },
             ]);
             repostArray = await fetchEvents(repostFilter);
