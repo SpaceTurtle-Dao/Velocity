@@ -11,7 +11,6 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import Post from "$lib/components/posts/Post.svelte";
   import { Image } from "lucide-svelte";
-  import { afterUpdate } from "svelte";
   import type { Tag } from "$lib/models/Tag";
   import { upload } from "$lib/ao/uploader";
   import { link, push, location } from "svelte-spa-router";

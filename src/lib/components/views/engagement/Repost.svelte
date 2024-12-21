@@ -56,24 +56,26 @@
   }
 
   async function fetchRepost() {
-    let filters: Array<any> = [];
-    repostArray = [];
+  let filters: Array<any> = [];
+  repostArray = [];
 
-    let filter1 = {
-      kinds: ["6"],
-      tags: {
-        e: [_event.Id],
-      },
-    };
+  let filter1 = {
+    kinds: ["6"],  // Only fetch kind 6 (repost) events
+    tags: {
+      e: [_event.Id.toString()],
+    },
+  };
 
-    let _filters = JSON.stringify([filter1]);
-    repostArray = await fetchEvents(_filters);
+  let _filters = JSON.stringify([filter1]);
+  repostArray = await fetchEvents(_filters);
 
-    // Check if current user has reposted
-    reposted = repostArray.some(
-      (repost) => repost.From === $currentUser.address
-    );
-  }
+  console.log("repostArray", repostArray);
+
+  // Check if current user has reposted
+  reposted = repostArray.some(
+    (repost) => repost.From === $currentUser.address
+  );
+}
 
   onMount(async () => {
     console.log("Getting reposts for id:", _event.Id);
