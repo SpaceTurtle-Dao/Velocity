@@ -1,24 +1,24 @@
 <script lang="ts">
-    import { Button } from "$lib/components/ui/button/index.js";
-    import type { Tag } from "$lib/models/Tag";
-    import { Repeat2 } from "lucide-svelte";
-    import { onMount } from "svelte";
-    import { fetchEvents, event } from "$lib/ao/relay";
-    import { currentUser } from "$lib/stores/current-user.store";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import type { Tag } from "$lib/models/Tag";
+  import { Repeat2 } from "lucide-svelte";
+  import { onMount } from "svelte";
+  import { fetchEvents, event } from "$lib/ao/relay";
+  import { currentUser } from "$lib/stores/current-user.store";
   import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
 
-    export let _event: any;
+  export let _event: any;
 
-    let reposted = false;
-    let reposts: Array<any> = [];
-    let _tags: Array<Tag> = [];
+  let reposted = false;
+  let reposts: Array<any> = [];
+  let _tags: Array<Tag> = [];
 
-    let kind: Tag = {
-        name: "Kind",
-        value: "6",
-    };
+  let kind: Tag = {
+    name: "Kind",
+    value: "6",
+  };
 
-    async function repost() {
+  async function repost() {
     if (!_event) return;
 
     let _tags: Array<Tag> = [
@@ -54,58 +54,57 @@
     await fetchReposts();
   }
 
-    async function fetchReposts() {
-        let filters: Array<any> = [];
-        reposts = [];
-        let filter1 = {
-            kinds: ["6"],
-            //since: Number(timestamp),
-            //until: Date.now(),
-            //limit: 100,
-        };
-        let filter2 = {
-            tags: {
-                e: [_event.Id],
-                //p: [_event.From]
-            },
-        };
-        filters.push(filter1, filter2);
-        let _filters = JSON.stringify(filters);
-        reposts = await fetchEvents(_filters);
-        for(var i=0; i < reposts.length; i++){
-            if(reposts[i].From == $currentUser.address){
-                reposted = true
-            }
-        }
-        filters = [];
+  async function fetchReposts() {
+    let filters: Array<any> = [];
+    reposts = [];
+    let filter1 = {
+      kinds: ["6"],
+      //since: Number(timestamp),
+      //until: Date.now(),
+      //limit: 100,
+    };
+    let filter2 = {
+      tags: {
+        e: [_event.Id],
+        //p: [_event.From]
+      },
+    };
+    filters.push(filter1, filter2);
+    let _filters = JSON.stringify(filters);
+    reposts = await fetchEvents(_filters);
+    for (var i = 0; i < reposts.length; i++) {
+      if (reposts[i].From == $currentUser.address) {
+        reposted = true;
+      }
     }
+    filters = [];
+  }
 
-    onMount(async () => {
-        console.log($currentUser.address)
-        console.log("getting reposts for id");
-        console.log(_event.Id)
-        await fetchReposts()
-        console.log("got "+reposts.length+" reposts for id");
-        console.log(_event.Id)
-        console.log(reposts);
-    });
+  onMount(async () => {
+    console.log($currentUser.address);
+    console.log("getting reposts for id");
+    console.log(_event.Id);
+    await fetchReposts();
+    console.log("got " + reposts.length + " reposts for id");
+    console.log(_event.Id);
+    console.log(reposts);
+  });
 </script>
 
 <Button
-    variant="ghost"
-    size="icon"
-    class="flex flex-row text-primary space-x-1 bg-transparent hover:bg-transparent"
-    on:click={repost}
+  variant="ghost"
+  size="icon"
+  class="flex flex-row text-primary space-x-1 bg-transparent hover:bg-transparent"
+  on:click={repost}
 >
-    {#if reposted}
-        <Repeat2 strokeWidth={0.8} class="text-green-400" />
-        <p class="font-thin text-green-400">{reposts.length}</p>
-    {:else}
-        <Repeat2 strokeWidth={0.8} class="text-primary hover:text-green-400" />
-        <p class="font-thin">{reposts.length}</p>
-    {/if}
+  {#if reposted}
+    <Repeat2 strokeWidth={0.8} class="text-green-400" />
+    <p class="font-thin text-green-400">{reposts.length}</p>
+  {:else}
+    <Repeat2 strokeWidth={0.8} class="text-primary hover:text-green-400" />
+    <p class="font-thin">{reposts.length}</p>
+  {/if}
 </Button>
-
 
 <!-- <script lang="ts">
   import { Button } from "$lib/components/ui/button/index.js";

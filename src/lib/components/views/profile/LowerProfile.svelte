@@ -25,7 +25,7 @@
 {#if $currentUser}
   <DropdownMenu.Root>
     <DropdownMenu.Trigger asChild let:builder>
-      <button builders={[builder]} class="flex items-center space-x-4">
+      <button class="flex items-center space-x-4">
         {#if $currentUser.picture}
           <Avatar class="h-12 w-12">
             <AvatarImage src={$currentUser.picture} alt={$currentUser.name} />
