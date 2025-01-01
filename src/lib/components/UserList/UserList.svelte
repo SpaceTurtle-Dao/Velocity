@@ -10,7 +10,6 @@
   usersProfile.subscribe((value) => {
     profiles = value.values();
   });
-  // usersProfile.fetchProfiles()
 </script>
 
 {#if $usersProfile.size > 0}
@@ -18,14 +17,14 @@
     <Card.Root
       data-x-chunk-name="UserList"
       data-x-chunk-description="A card showing a list of users."
-      class="border-border rounded p-0 min-w-[280px]"
+      class="border-border rounded p-0 min-w-[280px] max-w-[400px]"
     >
       <Card.Header>
         <Card.Title>You might like</Card.Title>
       </Card.Header>
       <Card.Content class="w-full">
         <div
-          class="grid gap-8 max-h-[80vh] overflow-y-auto scrollable-element pr-3"
+          class="grid gap-6 lg:gap-8 max-h-[60vh] lg:max-h-[80vh] overflow-y-auto scrollable-element pr-2 lg:pr-3"
         >
           {#each $usersProfile.values() as profile}
             {#if profile.address !== $currentUser.address}
