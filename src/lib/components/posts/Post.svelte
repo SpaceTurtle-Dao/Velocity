@@ -216,17 +216,15 @@
           <a use:link href={`/post/${event.From}/${event.Id}`}>
             <div>
               <div class="flex justify-start space-x-3">
-                <div class="hidden sm:flex">
-                  {#if isRepost && originalUser}
-                    <div>
-                      <ProfilePictureHoverCard profile={originalUser} />
-                    </div>
-                  {:else if profile}
-                    <div>
-                      <ProfilePictureHoverCard {profile} />
-                    </div>
-                  {/if}
-                </div>
+                {#if isRepost && originalUser}
+                  <div>
+                    <ProfilePictureHoverCard profile={originalUser} />
+                  </div>
+                {:else if profile}
+                  <div>
+                    <ProfilePictureHoverCard {profile} />
+                  </div>
+                {/if}
 
                 <div class="flex-1">
                   <div class="flex space-x-1 mb-1">

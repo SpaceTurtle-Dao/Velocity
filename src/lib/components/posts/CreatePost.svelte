@@ -6,10 +6,11 @@
   import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
-  import { Plus, Image, X } from "lucide-svelte";
+  import { Plus, Image, X, Signpost } from "lucide-svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
+  import { isMobile } from "$lib/stores/is-mobile.store";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -105,10 +106,16 @@
 
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger
-    class="w-full h-13 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring transition-colors duration-200 flex items-center justify-center"
+    class="h-13 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring flex  justify-center {$isMobile
+      ? 'w-fit px-3 fixed bottom-16 right-6'
+      : 'items-center w-full'}"
   >
-    <Plus class="w-5 h-5 mr-2" />
-    Post
+    {#if $isMobile}
+      <Signpost class="size-8" />
+    {:else}
+      <Plus class="w-5 h-5 mr-2" />
+      Post
+    {/if}
   </Dialog.Trigger>
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>

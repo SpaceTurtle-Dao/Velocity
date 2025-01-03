@@ -12,6 +12,7 @@
   import CreateProfile from "./CreateProfile.svelte";
   import { currentUser } from "$lib/stores/current-user.store";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
+  import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
 
   // Function to format Arweave transaction URLs
   function toUrl(tx: string) {
@@ -26,12 +27,7 @@
   <DropdownMenu.Root>
     <DropdownMenu.Trigger asChild let:builder>
       <button class="flex items-center space-x-4">
-        {#if $currentUser.picture}
-          <Avatar class="h-12 w-12">
-            <AvatarImage src={$currentUser.picture} alt={$currentUser.name} />
-            <AvatarFallback>{$currentUser.name}</AvatarFallback>
-          </Avatar>
-        {/if}
+        <ProfilePicture src={$currentUser.picture} name={$currentUser.name} />
         <div class="flex-grow text-left">
           <p class="font-semibold text-white">{$currentUser.name}</p>
           <p class="text-sm text-white">@{$currentUser.display_name}</p>

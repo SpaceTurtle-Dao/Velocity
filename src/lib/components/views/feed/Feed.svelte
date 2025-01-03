@@ -47,7 +47,7 @@
 
     try {
       isFetchingAlready = true;
-      
+
       const filter = {
         kinds: ["1", "6"],
         since: 1663905355000,
@@ -55,14 +55,13 @@
         limit: 100,
         tags: { marker: ["root"] },
       };
-      
+
       const _filters = JSON.stringify([filter]);
       const _events = await fetchEvents(_filters);
-      
+
       // Process and update events
       events = processEvents(_events);
       console.log("Updated events:", events);
-      
     } catch (error) {
       console.error("Error fetching feed events:", error);
     } finally {
@@ -86,7 +85,6 @@
       const _filters = JSON.stringify([filter]);
       const _events = await fetchEvents(_filters);
       events = processEvents(_events);
-      
     } catch (error) {
       console.error("Error fetching following events:", error);
     }
@@ -114,47 +112,48 @@
 </script>
 
 {#if $currentUser}
-  <div class="mt-10 max-w-prose">
-    <Tabs.Root value="for you" class="max-w-prose">
-      <Tabs.List class="grid grid-cols-2">
-        <Tabs.Trigger
-          class="underline-tabs-trigger"
-          on:click={fetchFeedEvents}
-          value="for you">For You</Tabs.Trigger
-        >
-        <Tabs.Trigger 
-          on:click={fetchFollowingEvents} 
-          value="following">Following</Tabs.Trigger
-        >
-      </Tabs.List>
-      
-      <Tabs.Content value="for you">
-        <div>
-          {#each events as event (event.Id)}
-            <div class="border border-border max-w-prose">
-              <Post
-                {event}
-                replies={event.replies}
-                on:newReply={handleNewReply}
-              />
-            </div>
-          {/each}
-        </div>
-      </Tabs.Content>
-      
-      <Tabs.Content value="following">
-        <div>
-          {#each events as event (event.Id)}
-            <div class="border border-border max-w-prose">
-              <Post
-                {event}
-                replies={event.replies}
-                on:newReply={handleNewReply}
-              />
-            </div>
-          {/each}
-        </div>
-      </Tabs.Content>
-    </Tabs.Root>
+  <div class="flex justify-center max-w-[653px] w-full mb-10">
+    <div class="md:mt-10 mt-5 max-w-prose w-full">
+      <Tabs.Root value="for you" class="max-w-prose">
+        <Tabs.List class="grid grid-cols-2 md:mx-0 mx-4 ">
+          <Tabs.Trigger
+            class="underline-tabs-trigger"
+            on:click={fetchFeedEvents}
+            value="for you">For You</Tabs.Trigger
+          >
+          <Tabs.Trigger on:click={fetchFollowingEvents} value="following"
+            >Following</Tabs.Trigger
+          >
+        </Tabs.List>
+
+        <Tabs.Content value="for you">
+          <div>
+            {#each events as event (event.Id)}
+              <div class="border border-border max-w-prose">
+                <Post
+                  {event}
+                  replies={event.replies}
+                  on:newReply={handleNewReply}
+                />
+              </div>
+            {/each}
+          </div>
+        </Tabs.Content>
+
+        <Tabs.Content value="following">
+          <div>
+            {#each events as event (event.Id)}
+              <div class="border border-border max-w-prose">
+                <Post
+                  {event}
+                  replies={event.replies}
+                  on:newReply={handleNewReply}
+                />
+              </div>
+            {/each}
+          </div>
+        </Tabs.Content>
+      </Tabs.Root>
+    </div>
   </div>
 {/if}
