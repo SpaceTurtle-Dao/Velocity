@@ -18,6 +18,8 @@
   import { myPostStore } from "$lib/stores/my-post.store";
   import { usersProfile } from "$lib/stores/users-profile.store";
   import { followListStore } from "$lib/stores/follow-list.store";
+  import Test from "$lib/components/Test.svelte";
+  import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
 
   let isLoading = true;
   let isFollowListAlreadyFetched = false;
@@ -30,6 +32,7 @@
     "/profile/:address": Profile,
     "/post/:id/:user": IndividualPost,
     "/signup": SignUp,
+    "/test": MobileTopView,
   };
 
   function handleRouteReload() {
@@ -99,9 +102,12 @@
   <Router {routes} />
 {:else if $currentUser}
   <div class="bg-background">
+    <MobileTopView />
     <div class="flex w-full bg-background justify-center">
       <Left />
-      <Middle><Router {routes} /></Middle>
+      <Middle>
+        <Router {routes} />
+      </Middle>
       <Right />
     </div>
   </div>
