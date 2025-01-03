@@ -49,8 +49,8 @@
 
 <div class="flex mt-4">
   <div class="h-full flex flex-col items-center">
-    {#if user}
-      <ProfilePictureHoverCard size="lg" profile={user} />
+    {#if originalPostProfile}
+      <ProfilePictureHoverCard size="lg" profile={originalPostProfile} />
     {/if}
     <div
       id="vertical-line"
