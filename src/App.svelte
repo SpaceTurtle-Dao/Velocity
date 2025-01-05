@@ -18,8 +18,8 @@
   import { myPostStore } from "$lib/stores/my-post.store";
   import { usersProfile } from "$lib/stores/users-profile.store";
   import { followListStore } from "$lib/stores/follow-list.store";
-  import Test from "$lib/components/Test.svelte";
   import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
+  import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
 
   let isLoading = true;
   let isFollowListAlreadyFetched = false;
@@ -110,5 +110,6 @@
       </Middle>
       <Right />
     </div>
+    <MobileBottomNavBar />
   </div>
 {/if}

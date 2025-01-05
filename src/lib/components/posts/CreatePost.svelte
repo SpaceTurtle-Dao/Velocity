@@ -107,7 +107,7 @@
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger
     class="h-13 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring flex  justify-center {$isMobile
-      ? 'w-fit px-3 fixed bottom-16 right-6'
+      ? 'w-fit px-3'
       : 'items-center w-full'}"
   >
     {#if $isMobile}

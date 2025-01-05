@@ -112,7 +112,7 @@
 </script>
 
 {#if $currentUser}
-  <div class="flex justify-center max-w-[653px] w-full mb-10">
+  <div class="flex justify-center max-w-[653px] w-full">
     <div class="md:mt-10 mt-5 max-w-prose w-full">
       <Tabs.Root value="for you" class="max-w-prose">
         <Tabs.List class="grid grid-cols-2 md:mx-0 mx-4 ">
