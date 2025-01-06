@@ -19,6 +19,7 @@
   import { usersProfile } from "$lib/stores/users-profile.store";
   import { followListStore } from "$lib/stores/follow-list.store";
   import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
+  import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
 
   let isLoading = true;
   let isFollowListAlreadyFetched = false;
@@ -109,5 +110,6 @@
       </Middle>
       <Right />
     </div>
+    <MobileBottomNavBar />
   </div>
 {/if}
