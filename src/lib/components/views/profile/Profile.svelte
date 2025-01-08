@@ -230,9 +230,9 @@
 </script>
 
 {#if profile}
-  <div class="mt-10 max-w-prose">
+  <div class="md:mt-10 max-w-prose">
     <Card
-      class="mb-10 overflow-hidden shadow-lg rounded-lg border-border relative"
+      class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"
     >
       <div class="relative mb-10">
         <!-- Increased bottom margin -->

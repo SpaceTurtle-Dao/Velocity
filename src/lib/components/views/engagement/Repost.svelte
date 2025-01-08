@@ -1,23 +1,22 @@
 <script lang="ts">
-  import { upload } from "$lib/ao/uploader";
   import { Button } from "$lib/components/ui/button/index.js";
+  import type { Tag } from "$lib/models/Tag";
   import { Repeat2 } from "lucide-svelte";
   import { onMount } from "svelte";
   import { fetchEvents, event } from "$lib/ao/relay";
-  import type { Tag } from "$lib/models/Tag";
   import { currentUser } from "$lib/stores/current-user.store";
   import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
 
   export let _event: any;
 
   let reposted = false;
-  let isQuote = false; // TO-DO: implement quote functionality
-
-  let repostArray: Array<any> = [];
+  let reposts: Array<any> = [];
   let _tags: Array<Tag> = [];
 
-  // Reactive statement to update count based on repostArray
-  $: count = repostArray.length;
+  let kind: Tag = {
+    name: "Kind",
+    value: "6",
+  };
 
   async function repost() {
     if (!_event) return;
@@ -52,35 +51,43 @@
     notifyNewPostStore.update((num) => num + 1);
 
     // Refresh reposts to ensure consistency
-    await fetchRepost();
+    await fetchReposts();
   }
 
-  async function fetchRepost() {
-  let filters: Array<any> = [];
-  repostArray = [];
-
-  let filter1 = {
-    kinds: ["6"],  // Only fetch kind 6 (repost) events
-    tags: {
-      e: [_event.Id.toString()],
-    },
-  };
-
-  let _filters = JSON.stringify([filter1]);
-  repostArray = await fetchEvents(_filters);
-
-  console.log("repostArray", repostArray);
-
-  // Check if current user has reposted
-  reposted = repostArray.some(
-    (repost) => repost.From === $currentUser.address
-  );
-}
+  async function fetchReposts() {
+    let filters: Array<any> = [];
+    reposts = [];
+    let filter1 = {
+      kinds: ["6"],
+      //since: Number(timestamp),
+      //until: Date.now(),
+      //limit: 100,
+    };
+    let filter2 = {
+      tags: {
+        e: [_event.Id],
+        //p: [_event.From]
+      },
+    };
+    filters.push(filter1, filter2);
+    let _filters = JSON.stringify(filters);
+    reposts = await fetchEvents(_filters);
+    for (var i = 0; i < reposts.length; i++) {
+      if (reposts[i].From == $currentUser.address) {
+        reposted = true;
+      }
+    }
+    filters = [];
+  }
 
   onMount(async () => {
-    console.log("Getting reposts for id:", _event.Id);
-    await fetchRepost();
-    console.log(`Got ${repostArray.length} reposts for id ${_event.Id}`);
+    console.log($currentUser.address);
+    console.log("getting reposts for id");
+    console.log(_event.Id);
+    await fetchReposts();
+    console.log("got " + reposts.length + " reposts for id");
+    console.log(_event.Id);
+    console.log(reposts);
   });
 </script>
 
@@ -92,10 +99,10 @@
 >
   {#if reposted}
     <Repeat2 strokeWidth={0.8} class="text-green-400" />
-    <p class="font-thin text-green-400">{count}</p>
+    <p class="font-thin text-green-400">{reposts.length}</p>
   {:else}
-    <Repeat2 strokeWidth={0.8} class="text-primary" />
-    <p class="font-thin">{count}</p>
+    <Repeat2 strokeWidth={0.8} class="text-primary hover:text-green-400" />
+    <p class="font-thin">{reposts.length}</p>
   {/if}
 </Button>
 

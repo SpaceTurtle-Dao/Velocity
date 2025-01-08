@@ -1,17 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-  } from "$lib/components/ui/avatar";
   import { MoreHorizontal } from "lucide-svelte";
-  import ConnectWalletButton from "$lib/components/wallet/wallet.svelte";
-  import { navigate } from "svelte-routing";
-  import { profileFromEvent, type Profile } from "$lib/models/Profile";
-  import CreateProfile from "./CreateProfile.svelte";
+  import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
+  import DisconnectButton from "$lib/components/DisconnectWallet/DisconnectWallet.svelte";
   import { currentUser } from "$lib/stores/current-user.store";
-  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
+  import { addressStore } from "$lib/stores/address.store";
+  import { writable } from "svelte/store";
+
+  let isMenuOpen = false;
+  let menuRef: HTMLDivElement;
 
   // Function to format Arweave transaction URLs
   function toUrl(tx: string) {
@@ -20,34 +17,58 @@
       tx
     );
   }
+
+  async function handleDisconnect() {
+    try {
+      // Disconnect the wallet
+      await addressStore.disconnectWallet();
+      
+      // Clear all relevant stores
+      const { subscribe, set } = writable();
+      set(undefined);
+                  
+      // Reset location and force a clean state
+      window.location.href = '/';
+    } catch (error) {
+      console.error("Error disconnecting wallet:", error);
+    }
+  }
+
+  // Close menu when clicking outside
+  function handleClickOutside(event: MouseEvent) {
+    if (menuRef && !menuRef.contains(event.target as Node)) {
+      isMenuOpen = false;
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  });
+
+  function toggleMenu() {
+    isMenuOpen = !isMenuOpen;
+  }
 </script>
 
 {#if $currentUser}
-  <DropdownMenu.Root>
-    <DropdownMenu.Trigger asChild let:builder>
-      <button builders={[builder]} class="flex items-center space-x-4">
-        {#if $currentUser.picture}
-          <Avatar class="h-12 w-12">
-            <AvatarImage src={$currentUser.picture} alt={$currentUser.name} />
-            <AvatarFallback>{$currentUser.name}</AvatarFallback>
-          </Avatar>
-        {/if}
-        <div class="flex-grow text-left">
-          <p class="font-semibold text-white">{$currentUser.name}</p>
-          <p class="text-sm text-white">@{$currentUser.display_name}</p>
-        </div>
-        <MoreHorizontal class="w-5 h-5 text-white" />
-      </button>
-    </DropdownMenu.Trigger>
-    <DropdownMenu.Content>
-      <DropdownMenu.Group>
-        <DropdownMenu.Label>Log out</DropdownMenu.Label>
-        <!-- <DropdownMenu.Separator />
-              <DropdownMenu.Item>Profile</DropdownMenu.Item>
-              <DropdownMenu.Item>Billing</DropdownMenu.Item>
-              <DropdownMenu.Item>Team</DropdownMenu.Item>
-              <DropdownMenu.Item>Subscription</DropdownMenu.Item> -->
-      </DropdownMenu.Group>
-    </DropdownMenu.Content>
-  </DropdownMenu.Root>
+  <div class="relative" bind:this={menuRef}>
+    <button 
+      on:click={toggleMenu}
+      class="flex items-center space-x-4 focus:outline-none"
+    >
+      <ProfilePicture src={$currentUser.picture} name={$currentUser.name} />
+      <div class="flex-grow text-left">
+        <p class="font-semibold text-white">{$currentUser.name}</p>
+        <p class="text-sm text-white">@{$currentUser.display_name}</p>
+      </div>
+      <MoreHorizontal class="w-5 h-5 text-white" />
+    </button>
+
+    {#if isMenuOpen}
+          <DisconnectButton />
+    {/if}
+  </div>
 {/if}

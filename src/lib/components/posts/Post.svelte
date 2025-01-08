@@ -102,8 +102,8 @@
           (async () => {
             const repostFilter = JSON.stringify([
               {
-                kinds: ["6"],
-                tags: { e: event.Id.toString() },
+                kinds: "6",
+                tags: { e: [event.Id.toString()] },
               },
             ]);
             repostArray = await fetchEvents(repostFilter);
@@ -216,17 +216,15 @@
           <a use:link href={`/post/${event.From}/${event.Id}`}>
             <div>
               <div class="flex justify-start space-x-3">
-                <div class="hidden sm:flex">
-                  {#if isRepost && originalUser}
-                    <div>
-                      <ProfilePictureHoverCard profile={originalUser} />
-                    </div>
-                  {:else if profile}
-                    <div>
-                      <ProfilePictureHoverCard {profile} />
-                    </div>
-                  {/if}
-                </div>
+                {#if isRepost && originalUser}
+                  <div>
+                    <ProfilePictureHoverCard profile={originalUser} />
+                  </div>
+                {:else if profile}
+                  <div>
+                    <ProfilePictureHoverCard {profile} />
+                  </div>
+                {/if}
 
                 <div class="flex-1">
                   <div class="flex space-x-1 mb-1">
@@ -273,7 +271,7 @@
 
           <div class="flex justify-between mt-3 engagement-buttons">
             <div class="flex items-center">
-              <Reply {event} on:newReply={handleNewReply} />
+              <Reply {event} {isRepost} on:newReply={handleNewReply} />
               {#if replyCount > 0}
                 <span class="ml-1 text-sm text-muted-foreground">
                   {replyCount}
