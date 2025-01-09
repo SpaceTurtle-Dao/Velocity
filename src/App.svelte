@@ -10,14 +10,13 @@
   import SignUp from "./lib/components/views/signup/SignUp.svelte";
   import { addressStore } from "$lib/stores/address.store";
   import { currentUser } from "$lib/stores/current-user.store";
-  import { isConnected } from "$lib/stores/is-connectec.store";
   import Feed from "$lib/components/views/feed/Feed.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
   import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
   import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
-  import { myPostStore } from "$lib/stores/my-post.store";
-  import { usersProfile } from "$lib/stores/users-profile.store";
   import { followListStore } from "$lib/stores/follow-list.store";
+  import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
+  import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
 
   let isLoading = true;
   let isFollowListAlreadyFetched = false;
@@ -30,6 +29,7 @@
     "/profile/:address": Profile,
     "/post/:id/:user": IndividualPost,
     "/signup": SignUp,
+    "/test": MobileTopView,
   };
 
   function handleRouteReload() {
@@ -99,10 +99,14 @@
   <Router {routes} />
 {:else if $currentUser}
   <div class="bg-background">
+    <MobileTopView />
     <div class="flex w-full bg-background justify-center">
       <Left />
-      <Middle><Router {routes} /></Middle>
+      <Middle>
+        <Router {routes} />
+      </Middle>
       <Right />
     </div>
+    <MobileBottomNavBar />
   </div>
 {/if}

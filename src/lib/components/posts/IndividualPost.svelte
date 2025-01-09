@@ -11,12 +11,12 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import Post from "$lib/components/posts/Post.svelte";
   import { Image } from "lucide-svelte";
-  import { afterUpdate } from "svelte";
   import type { Tag } from "$lib/models/Tag";
   import { upload } from "$lib/ao/uploader";
   import { link, push, location } from "svelte-spa-router";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import type { Profile } from "$lib/models/Profile";
+  import { isMobile } from "$lib/stores/is-mobile.store";
 
   // Reactive declaration for URL parsing
   $: {
@@ -196,7 +196,7 @@
   }
 </script>
 
-<div class="max-w-prose mx-auto mt-10 mb-10">
+<div class="max-w-prose mx-auto mb-10 {$isMobile ? "mt-0" : "mt-10"}">
   {#if post}
     <div class="border border-border hover:bg-gray-900/5">
       <Post event={post} />

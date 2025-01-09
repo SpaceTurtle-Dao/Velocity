@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button";
   import backgroundImage from "../../../../assets/Logo.png";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import { addressStore } from "$lib/stores/address.store";
   import { isConnected } from "$lib/stores/is-connectec.store";
+  import { isMobile } from "$lib/stores/is-mobile.store";
   import { Loader } from "lucide-svelte";
 
   let loader = false;
@@ -29,7 +29,17 @@
   </div>
 
   <div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8">
-    <div class="w-full max-w-md space-y-8">
+    <div class="w-full max-w-md space-y-4"> <!-- Changed space-y-8 to space-y-4 -->
+      {#if $isMobile}
+        <div class="flex justify-center mb-4"> <!-- Changed mb-8 to mb-4 -->
+          <img 
+            src={backgroundImage} 
+            alt="Velocity Logo" 
+            class="w-40 h-40 object-contain"
+          />
+        </div>
+      {/if}
+      
       <div class="text-center">
         <h1 class="text-4xl font-bold text-primary">Welcome to Velocity</h1>
         <p class="mt-2 text-xl text-muted-foreground">
