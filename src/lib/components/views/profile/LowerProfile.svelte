@@ -1,19 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
   import { MoreHorizontal } from "lucide-svelte";
-  import { currentUser } from "../../../../stores/profile.store";
-  import ConnectWalletButton from "$lib/components/wallet.svelte";
-  import { navigate } from "svelte-routing";
+  import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
+  import DisconnectButton from "$lib/components/DisconnectWallet/DisconnectWallet.svelte";
+  import { currentUser } from "$lib/stores/current-user.store";
+  import { addressStore } from "$lib/stores/address.store";
+  import { writable } from "svelte/store";
 
-  let profile: any = null;
-  let isConnected = false;
-  let isWalletConnected = false;
-
-  // Check if the wallet is connected on mount
-  onMount(async () => {
-    await checkWalletConnection();
-  });
+  let isMenuOpen = false;
+  let menuRef: HTMLDivElement;
 
   // Function to format Arweave transaction URLs
   function toUrl(tx: string) {
@@ -23,55 +18,57 @@
     );
   }
 
-  // Subscribe to the current user store
-  currentUser.subscribe((value) => {
-    profile = value;
-  });
-
-  // Function to check wallet connection status
-  async function checkWalletConnection() {
-    // @ts-ignore
-    if (window.arweaveWallet) {
-      try {
-        // @ts-ignore
-        const address = await window.arweaveWallet.getActiveAddress();
-        if (address) {
-          isConnected = true;
-          isWalletConnected = true; // Mark wallet as connected
-          await fetchProfile();
-        }
-      } catch (error) {
-        console.error("Failed to get active address:", error);
-      }
+  async function handleDisconnect() {
+    try {
+      // Disconnect the wallet
+      await addressStore.disconnectWallet();
+      
+      // Clear all relevant stores
+      const { subscribe, set } = writable();
+      set(undefined);
+                  
+      // Reset location and force a clean state
+      window.location.href = '/';
+    } catch (error) {
+      console.error("Error disconnecting wallet:", error);
     }
   }
 
-  // Function to fetch the user's profile
-  async function fetchProfile() {
-    if (!profile || !profile.Name) {
-      navigate("/CreateProfile", { replace: true });
+  // Close menu when clicking outside
+  function handleClickOutside(event: MouseEvent) {
+    if (menuRef && !menuRef.contains(event.target as Node)) {
+      isMenuOpen = false;
     }
+  }
+
+  onMount(() => {
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  });
+
+  function toggleMenu() {
+    isMenuOpen = !isMenuOpen;
   }
 </script>
 
-<!-- UI Logic -->
-{#if !isWalletConnected}
-  <!-- Show Connect Wallet Button if not connected -->
-  <ConnectWalletButton />
-{:else if !isConnected}
-  <!-- Redirect to CreateProfile if connected but no profile exists -->
-  <p>Redirecting to create profile...</p>
-{:else}
-  <!-- Show Profile Info if connected and profile exists -->
-  <button class="flex items-center space-x-4">
-    <Avatar class="h-12 w-12 ring-4 ring-primary">
-      <AvatarImage src={toUrl(profile.Image)} alt={profile.Name} />
-      <AvatarFallback>{profile.Name}</AvatarFallback>
-    </Avatar>
-    <div class="flex-grow text-left">
-      <p class="font-semibold text-white">{profile.Name}</p>
-      <p class="text-sm text-white">@{profile.Creator.slice(0, 12)}</p>
-    </div>
-    <MoreHorizontal class="w-5 h-5 text-white" />
-  </button>
+{#if $currentUser}
+  <div class="relative" bind:this={menuRef}>
+    <button 
+      on:click={toggleMenu}
+      class="flex items-center space-x-4 focus:outline-none"
+    >
+      <ProfilePicture src={$currentUser.picture} name={$currentUser.name} />
+      <div class="flex-grow text-left">
+        <p class="font-semibold text-white">{$currentUser.name}</p>
+        <p class="text-sm text-white">@{$currentUser.display_name}</p>
+      </div>
+      <MoreHorizontal class="w-5 h-5 text-white" />
+    </button>
+
+    {#if isMenuOpen}
+          <DisconnectButton />
+    {/if}
+  </div>
 {/if}

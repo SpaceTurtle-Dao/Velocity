@@ -1,131 +1,112 @@
 <script lang="ts">
-  import { Router, Route } from "svelte-routing";
   import "./app.css";
-  import Navbar from "$lib/components/Navbar.svelte";
-  import ProfileView from "$lib/components/views/profile/ProfileView.svelte";
-  import UserProfile from "$lib/components/views/profile/UserProfile.svelte";
-  import CreatePostModal from "$lib/components/CreateMeme.svelte";
-  import Feed from "$lib/components/Feed.svelte";
-  import Explore from "$lib/components/views/explore/Explore.svelte";
-  import {
-    Home as HomeIcon,
-    Search,
-    Bell,
-    User,
-    MoreHorizontal,
-    Plus,
-    Zap // New icon for Relay
-  } from "lucide-svelte";
-  import Feedpage from "$lib/components/Feedpage.svelte";
-  import RepliesPage from "$lib/components/RepliesPage.svelte";
-  import ProfileNip from "$lib/components/views/profile/ProfileNip.svelte";
-  import { currentUser } from "./stores/profile.store";
-  import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-  } from "$lib/components/ui/avatar";
-  import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
-  import RelayButtons from '$lib/components/Relay.svelte';
+  import { onMount, tick } from "svelte";
+  import Router, { location, push, replace } from "svelte-spa-router";
+  import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
+  import Spinner from "$lib/components/spinners/Spinner.svelte";
+  import Middle from "$lib/components/views/main/MiddleView.svelte";
+  import Left from "$lib/components/views/main/LeftView.svelte";
+  import Right from "$lib/components/views/main/RightView.svelte";
+  import SignUp from "./lib/components/views/signup/SignUp.svelte";
+  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/current-user.store";
+  import Feed from "$lib/components/views/feed/Feed.svelte";
+  import Profile from "$lib/components/views/profile/Profile.svelte";
+  import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
+  import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
+  import { followListStore } from "$lib/stores/follow-list.store";
+  import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
+  import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
 
-  export let url = "";
+  let isLoading = true;
+  let isFollowListAlreadyFetched = false;
 
-  let isCreatePostModalOpen = false;
-  let profile: any;
-  function toUrl(tx: string) {
-    return (
-      "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
-      tx
-    );
+  const routes = {
+    "/": LandingPage,
+    "/feed": Feed,
+    "/profile": Profile,
+    "/messages": MessagesPage,
+    "/profile/:address": Profile,
+    "/post/:id/:user": IndividualPost,
+    "/signup": SignUp,
+    "/test": MobileTopView,
+  };
+
+  function handleRouteReload() {
+    const hash = window.location.hash;
+
+    if (hash && hash !== "#/") {
+      // Redirect to home if any non-home route is reloaded
+      console.log("Reload detected on route", hash);
+
+      window.location.replace("/");
+    }
   }
-  currentUser.subscribe((value) => {
-    profile = value;
+
+  onMount(() => {
+    handleRouteReload();
+    //await myPostStore.fetch();
+    // await usersProfile.fetchProfiles();
   });
-  const menuItems = [
-    { icon: HomeIcon, label: "Home", href: "/feed" },
-    { icon: Search, label: "Explore", href: "/explore" },
-    { icon: User, label: "Profile", href: "/profile" },
-    { icon: Zap, label: "Relay", href: "/relay" }
-  ];
 
-  function toggleCreatePostModal() {
-    isCreatePostModalOpen = !isCreatePostModalOpen;
-  }
+  let waitForUserFetch = true;
 
-  //@ts-ignore
-  async function handlePostSubmit(event) {
-    console.log("New post submitted:", event.detail.content);
-  }
+  addressStore.subscribe(async ({ address }) => {
+    if (address) {
+      try {
+        console.log("Fetching User");
+        await currentUser.fetch();
+        isLoading = false;
+        waitForUserFetch = false;
+        console.log("Got User");
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      } finally {
+        isLoading = false;
+      }
+    } else {
+      console.log("Syncing");
+      await addressStore.sync();
+      console.log("Done Syncing");
+      isLoading = false;
+    }
+  });
+
+  currentUser.subscribe((user) => {
+    if (user && !isFollowListAlreadyFetched) {
+      followListStore.sync();
+      isFollowListAlreadyFetched = true;
+    }
+  });
+
+  followListStore.subscribe((followlistset) => {
+    console.log("follow list changed", Array.from(followlistset));
+  });
 </script>
 
-<Router {url}>
-  <div class="flex h-screen overflow-hidden">
-    <aside
-      class="w-64 bg-background-500 shadow-lg flex flex-col justify-between p-4"
-    >
-      <div class="space-y-4 pt-16">
-        <nav>
-          <ul class="space-y-2">
-            {#each menuItems as item}
-              <li>
-                <a
-                  href={item.href}
-                  class="flex items-center p-2 px-2 rounded-full hover:bg-background-700 transition-colors duration-200"
-                >
-                  <svelte:component
-                    this={item.icon}
-                    class="w-6 h-6 mr-4 text-primary-50"
-                  />
-                  <span class="text-lg font-medium text-white"
-                    >{item.label}</span
-                  >
-                </a>
-              </li>
-            {/each}
-            <li>
-              <button
-                on:click={toggleCreatePostModal}
-                class="flex items-center p-2 px-5 rounded-full hover:bg-background-700 transition-colors duration-200"
-              >
-                <MoreHorizontal class="w-6 h-6 mr-4 text-white" />
-                <span class="text-lg font-medium text-white">More</span>
-              </button>
-            </li>
-          </ul>
-        </nav>
-        <button
-          on:click={toggleCreatePostModal}
-          class="w-full bg-background-700 text-white rounded-full py-3 font-bold text-lg hover:bg-primary-50 transition-colors duration-200 flex items-center justify-center"
-        >
-          <Plus class="w-5 h-5 mr-2" />
-          Post
-        </button>
-      </div>
-      <div class="p-4">
-        <LowerProfile />
-      </div>
-    </aside>
-
-    <main class="flex-1 overflow-y-auto bg-background-500">
-      <Navbar />
-      <div class="container mx-auto px-4 pt-16">
-        <Route path="/feed" component={Feed} />
-        <Route path="/profile" component={ProfileNip} />
-        <Route path="/" component={Feed} />
-        <Route path="/explore" component={Explore} />
-        <Route path="/UserProfile" component={UserProfile} />
-        <Route path="/Feed" component={Feedpage} />
-        <Route path="/Feed/:id" let:params>
-          <RepliesPage memeId={params.id} />
-        </Route>
-        <Route path="/relay" component={RelayButtons} />
-      </div>
-    </main>
+{#if isLoading}
+  <div class="flex items-center justify-center h-screen bg-background">
+    <div class="space-y-4">
+      <Spinner />
+      <p class="text-muted-foreground text-center animate-pulse">
+        Connecting to wallet...
+      </p>
+    </div>
   </div>
-</Router>
-
-<CreatePostModal
-  isOpen={isCreatePostModalOpen}
-  on:close={toggleCreatePostModal}
-  on:submit={handlePostSubmit}
-/>
+{:else if waitForUserFetch}
+  <LandingPage />
+{:else if $location === "/signup"}
+  <Router {routes} />
+{:else if $currentUser}
+  <div class="bg-background">
+    <MobileTopView />
+    <div class="flex w-full bg-background justify-center">
+      <Left />
+      <Middle>
+        <Router {routes} />
+      </Middle>
+      <Right />
+    </div>
+    <MobileBottomNavBar />
+  </div>
+{/if}
