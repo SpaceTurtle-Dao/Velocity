@@ -267,19 +267,20 @@
       <CardContent>
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profile.name}</p>
-          {#if profile.address == profile.address}
-            <Button
+          {#if profile.address != $currentUser.address}
+          <Follow 
+            address={profile.address}
+          />
+          {:else}
+           <Button
               variant="outline"
               size="sm"
               class="text-primary rounded-full"
               on:click={toggleModal}
             >
               Edit Profile
-            </Button>
-          {:else}
-            <!-- <Follow
-                            userRelay={profile.address}
-                        /> -->
+        </Button>
+
           {/if}
         </div>
         <p class="text-muted-foreground">
