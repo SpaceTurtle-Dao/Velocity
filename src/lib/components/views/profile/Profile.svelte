@@ -31,7 +31,10 @@
 
   export let params: { address?: string } = {};
 
-  $: profile = $usersProfile.get(params?.address ?? "");
+  $: profile =
+    params?.address === $currentUser.address
+      ? $currentUser
+      : $usersProfile.get(params?.address ?? "");
 
   let activeTab: string = "posts";
   let events: Array<Event> = [];
@@ -268,19 +271,16 @@
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profile.name}</p>
           {#if profile.address != $currentUser.address}
-          <Follow 
-            address={profile.address}
-          />
+            <Follow address={profile.address} />
           {:else}
-           <Button
+            <Button
               variant="outline"
               size="sm"
               class="text-primary rounded-full"
               on:click={toggleModal}
             >
               Edit Profile
-        </Button>
-
+            </Button>
           {/if}
         </div>
         <p class="text-muted-foreground">
