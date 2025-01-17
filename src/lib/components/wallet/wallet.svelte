@@ -1,5 +1,4 @@
 <script>
-  import { onMount } from "svelte";
   import {
     walletAddress,
     setWalletAddress,
@@ -16,7 +15,6 @@
   import { createEventDispatcher } from "svelte";
 
   const dispatch = createEventDispatcher();
-  export let buttonClass = "";
 
   let title = "Connect Wallet";
   let isLoading = false;
@@ -81,8 +79,8 @@
           "DISPATCH",
         ],
         {
-          name: "Super Cool App",
-          logo: "https://arweave.net/jAvd7Z1CBd8gVF2D6ESj7SMCCUYxDX_z3vpp5aHdaYk",
+          name: "Velocity",
+          logo: "https://www.arweave.net/HdqPvO3mOZwjJnIT0T8-FjNh9W4ctnUeDUihbrOAvN4?ext=png",
         },
         {
           host: "g8way.io",
