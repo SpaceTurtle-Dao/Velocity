@@ -16,8 +16,8 @@ export const PERMISSIONS: PermissionType[] = [
 ];
 
 export const APP_INFO = {
-  name: "Super Cool App",
-  logo: "https://arweave.net/jAvd7Z1CBd8gVF2D6ESj7SMCCUYxDX_z3vpp5aHdaYk",
+  name: "Velocity",
+  logo: "https://www.arweave.net/HdqPvO3mOZwjJnIT0T8-FjNh9W4ctnUeDUihbrOAvN4",
 };
 
 export const GATEWAY: GatewayConfig = {

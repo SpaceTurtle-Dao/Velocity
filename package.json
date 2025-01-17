@@ -39,6 +39,7 @@
     "lucide-svelte": "^0.460.1",
     "mime": "^4.0.4",
     "mode-watcher": "^0.4.1",
+    "quick-wallet": "^0.5.0",
     "recharts": "^2.12.7",
     "svelte-jsoneditor": "^0.23.8",
     "svelte-sonner": "^0.3.27",
