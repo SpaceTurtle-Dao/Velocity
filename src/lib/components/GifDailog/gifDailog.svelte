@@ -61,7 +61,7 @@
 <Dialog.Root bind:open on:close={handleClose}>
   <Dialog.Content class="w-full max-w-2xl">
     <Dialog.Header>
-      <Dialog.Title>Search GIFs</Dialog.Title>
+      <Dialog.Title class="text-primary">Search GIFs</Dialog.Title>
       <Dialog.Description>
         Search and select a GIF to add to your post
       </Dialog.Description>
