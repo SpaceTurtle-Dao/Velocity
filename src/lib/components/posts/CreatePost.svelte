@@ -1,16 +1,18 @@
+// CreatePost.svelte
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import { event, fetchEvents } from "$lib/ao/relay";
+  import { event } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
-  import { Plus, Image, X, Signpost } from "lucide-svelte";
+  import { Plus, Image, X, Signpost, Gift } from "lucide-svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
   import { isMobile } from "$lib/stores/is-mobile.store";
+  import GifSearchDialog from "$lib/components/GifDailog/gifDailog.svelte";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -18,11 +20,14 @@
   let mediaPreviewUrl: string | null = null;
   let isLoading = false;
   let dialogOpen = false;
+  let gifSearchOpen = false;
+  let selectedGifUrl: string | null = null;
 
   function clearFields() {
     content = "";
     selectedMedia = null;
     mediaPreviewUrl = null;
+    selectedGifUrl = null;
     if (fileInput) {
       fileInput.value = "";
     }
@@ -39,11 +44,21 @@
     if (target.files && target.files.length > 0) {
       selectedMedia = target.files[0];
       mediaPreviewUrl = URL.createObjectURL(selectedMedia);
+      selectedGifUrl = null; // Clear GIF if media is selected
     }
   }
 
   function removeSelectedMedia() {
     selectedMedia = null;
+    mediaPreviewUrl = null;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  }
+
+  function handleGifSelect(url: string) {
+    selectedGifUrl = url;
+    selectedMedia = null; // Clear media if GIF is selected
     mediaPreviewUrl = null;
     if (fileInput) {
       fileInput.value = "";
@@ -62,9 +77,21 @@
     };
     let _tags: Array<Tag> = [kind, markerTag];
     let _content = content;
-    if (selectedMedia) {
+
+    if (selectedGifUrl) {
+      let urlTag: Tag = {
+        name: "url",
+        value: selectedGifUrl,
+      };
+      let mTag: Tag = {
+        name: "mimeType",
+        value: "image/gif",
+      };
+      _content = _content + " " + selectedGifUrl;
+      _tags.push(urlTag);
+      _tags.push(mTag);
+    } else if (selectedMedia) {
       let media = await upload(selectedMedia);
-      let dimisions = ""; //"3024x4032"
       let urlTag: Tag = {
         name: "url",
         value: media.url,
@@ -73,14 +100,9 @@
         name: "mimeType",
         value: media.mimeType || "",
       };
-      let dimTag: Tag = {
-        name: "dim",
-        value: dimisions,
-      };
       _content = _content + " " + media.url;
       _tags.push(urlTag);
       _tags.push(mTag);
-      _tags.push(dimTag);
     }
 
     let contentTag: Tag = {
@@ -90,13 +112,10 @@
     _tags.push(contentTag);
     await event(_tags);
 
-    console.log("///FETCHING EVENTS///");
-
-    // To notify Feed page that a new post has been created
     notifyNewPostStore.update((num) => num + 1);
-    //fetchEvents($currentUser.Process, _filters);
     isLoading = false;
     dialogOpen = false;
+    clearFields();
   }
 
   $: if (dialogOpen === false) {
@@ -106,7 +125,7 @@
 
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger
-    class="h-13 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring flex  justify-center {$isMobile
+    class="h-13 bg-primary text-secondary rounded-full py-3 font-bold text-lg hover:bg-ring flex justify-center {$isMobile
       ? 'w-fit px-3'
       : 'items-center w-full'}"
   >
@@ -135,16 +154,17 @@
             bind:value={content}
             placeholder="What's happening?!"
             class="text-lg w-full bg-background border-none focus:border-none outline-none focus:outline-none focus-visible:outline-none ring-none focus:ring-none focus-visible:ring-none ring-background overflow-y-hidden"
-          ></Textarea>
-          {#if mediaPreviewUrl}
+          />
+          
+          {#if selectedMedia && mediaPreviewUrl}
             <div class="relative p-5">
-              {#if selectedMedia && selectedMedia.type.startsWith("video")}
+              {#if selectedMedia.type.startsWith("video")}
                 <!-- svelte-ignore a11y-media-has-caption -->
                 <video
                   src={mediaPreviewUrl}
                   controls
                   class="w-full h-48 object-cover rounded-md"
-                ></video>
+                />
               {:else}
                 <img
                   src={mediaPreviewUrl}
@@ -155,6 +175,23 @@
               <Button
                 variant="ghost"
                 on:click={removeSelectedMedia}
+                class="text-muted-primary bg-muted-foreground h-18 w-18 hover:text-foreground rounded-full absolute top-2 right-2 p-1"
+              >
+                <X />
+              </Button>
+            </div>
+          {/if}
+
+          {#if selectedGifUrl}
+            <div class="relative p-5">
+              <img
+                src={selectedGifUrl}
+                alt="Selected GIF"
+                class="w-full object-cover rounded-md"
+              />
+              <Button
+                variant="ghost"
+                on:click={() => selectedGifUrl = null}
                 class="text-muted-primary bg-muted-foreground h-18 w-18 hover:text-foreground rounded-full absolute top-2 right-2 p-1"
               >
                 <X />
@@ -173,22 +210,37 @@
     </form>
     <Dialog.Footer>
       <div class="w-full flex flex-row justify-between">
-        <Button
-          type="button"
-          variant="ghost"
-          on:click={handleMediaButtonClick}
-          class="text-primary hover:bg-primary/10 rounded-full"
-        >
-          <Image size={24} />
-        </Button>
+        <div class="flex gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            on:click={handleMediaButtonClick}
+            class="text-primary hover:bg-primary/10 rounded-full"
+          >
+            <Image size={24} />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            on:click={() => gifSearchOpen = true}
+            class="text-primary hover:bg-primary/10 rounded-full"
+          >
+            <Gift size={24} />
+          </Button>
+        </div>
 
         <ButtonWithLoader
-          class="px-8 w-36 rounded-full font-semibold  text-md"
+          class="px-8 w-36 rounded-full font-semibold text-md"
           loader={isLoading}
-          disabled={isLoading || (!content && !selectedMedia)}
+          disabled={isLoading || (!content && !selectedMedia && !selectedGifUrl)}
           on:click={handleSubmit}>Post</ButtonWithLoader
         >
       </div>
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
+
+<GifSearchDialog
+  bind:open={gifSearchOpen}
+  onSelect={(url) => handleGifSelect(url)}
+/>
