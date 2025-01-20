@@ -12,6 +12,9 @@ node_modules
 dist
 dist-ssr
 
+# environment
+.env
+
 # Lock files
 package-lock.json
 bun.lockb

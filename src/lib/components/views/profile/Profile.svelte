@@ -31,7 +31,10 @@
 
   export let params: { address?: string } = {};
 
-  $: profile = $usersProfile.get(params?.address ?? "");
+  $: profile =
+    params?.address === $currentUser.address
+      ? $currentUser
+      : $usersProfile.get(params?.address ?? "");
 
   let activeTab: string = "posts";
   let events: Array<Event> = [];
@@ -267,7 +270,9 @@
       <CardContent>
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profile.name}</p>
-          {#if profile.address == profile.address}
+          {#if profile.address != $currentUser.address}
+            <Follow address={profile.address} />
+          {:else}
             <Button
               variant="outline"
               size="sm"
@@ -276,10 +281,6 @@
             >
               Edit Profile
             </Button>
-          {:else}
-            <!-- <Follow
-                            userRelay={profile.address}
-                        /> -->
           {/if}
         </div>
         <p class="text-muted-foreground">
