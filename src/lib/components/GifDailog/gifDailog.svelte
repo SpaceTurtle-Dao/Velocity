@@ -10,7 +10,7 @@
   export let open = false;
   export let onSelect: (url: string) => void;
 
-  const GIPHY_API_KEY = import.meta.env.VITE_GIPHY_API_KEY;
+  const GIPHY_API_KEY = "www.giphy.com";
   let searchTerm = "";
   let gifs: Array<{ id: string; url: string; preview: string }> = [];
   let isLoading = false;
@@ -80,7 +80,7 @@
       
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-2">
         {#if isLoading}
-          <div class="col-span-full text-center py-4">Loading...</div>
+          <div class="col-span-full text-center py-4">Loading....</div>
         {:else if gifs.length === 0 && searchTerm}
           <div class="col-span-full text-center py-4">No GIFs found</div>
         {:else}
