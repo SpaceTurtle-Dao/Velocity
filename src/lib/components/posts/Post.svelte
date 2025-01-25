@@ -17,8 +17,8 @@
   import { usersProfile } from "$lib/stores/users-profile.store";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import type { Profile } from "$lib/models/Profile";
-  import { onDestroy } from "svelte";
-
+  import { postsStore } from "$lib/stores/posts.store";
+  
   export let event: any;
   export let replies: any[] = [];
 
@@ -36,6 +36,18 @@
   let repostArray: any[] = [];
   let dialogOpen = false;
   let loadingCompletePosts = false;
+
+  function transformEventToPost(event: any, isRepost = false, originalEvent = null) {
+    return {
+      id: event.Id,
+      from: event.From,
+      timestamp: event.Timestamp,
+      content: event.Tags?.["Content"] || '',
+      isReply: event.Tags?.["marker"] === "reply",
+      isRepost,
+      originalEvent
+    };
+  }
 
   async function parseRepostContent() {
     if (!event?.Tags?.["Content"]) return null;
@@ -122,6 +134,20 @@
 
   onMount(async () => {
     if (event) {
+      // Transform and add post to store
+      const post = transformEventToPost(
+        event, 
+        isRepost, 
+        isRepost ? originalEvent : null
+      );
+      
+      // Add to posts store
+      postsStore.update(posts => {
+        // Prevent duplicates
+        const exists = posts.some(p => p.id === post.id);
+        return exists ? posts : [post, ...posts].slice(0, 100);
+      });
+
       profile = (await usersProfile.get(event.From)) as Profile;
       isLoading = false;
       fetchConcurrentData();
@@ -131,6 +157,19 @@
   const dispatch = createEventDispatcher();
 
   function handleNewReply(replyEvent: any) {
+    const newReply = transformEventToPost(
+      replyEvent.detail, 
+      true,
+      //@ts-ignore
+      { e: event.Id }
+    );
+
+    // Add reply to posts store
+    postsStore.update(posts => {
+      const exists = posts.some(p => p.id === newReply.id);
+      return exists ? posts : [newReply, ...posts].slice(0, 100);
+    });
+
     replies = [...replies, replyEvent.detail];
     dispatch("newReply", replyEvent.detail);
     replyCount += 1;
