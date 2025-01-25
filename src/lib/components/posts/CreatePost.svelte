@@ -219,14 +219,14 @@
           >
             <Image size={24} />
           </Button>
-          <Button
+          <!-- <Button
             type="button"
             variant="ghost"
             on:click={() => gifSearchOpen = true}
             class="text-primary hover:bg-primary/10 rounded-full"
           >
             <Gift size={24} />
-          </Button>
+          </Button> -->
         </div>
 
         <ButtonWithLoader

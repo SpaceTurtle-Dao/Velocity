@@ -10,7 +10,7 @@
   export let open = false;
   export let onSelect: (url: string) => void;
 
-  const GIPHY_API_KEY = import.meta.env.VITE_GIPHY_API_KEY;
+  const GIPHY_API_KEY = "www.giphy.com";
   let searchTerm = "";
   let gifs: Array<{ id: string; url: string; preview: string }> = [];
   let isLoading = false;
