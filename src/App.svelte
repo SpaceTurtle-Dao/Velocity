@@ -20,6 +20,7 @@
 
   let isLoading = true;
   let isFollowListAlreadyFetched = false;
+  let initialRoute = window.location.hash.slice(1) || '/';
 
   const routes = {
     "/": LandingPage,
@@ -32,24 +33,36 @@
     "/test": MobileTopView,
   };
 
-  function handleRouteReload() {
-    const hash = window.location.hash;
-
-    if (hash && hash !== "#/") {
-      // Redirect to home if any non-home route is reloaded
-      console.log("Reload detected on route", hash);
-
-      window.location.replace("/");
-    }
+  // Store the current route in sessionStorage when it changes
+  $: if ($location) {
+    sessionStorage.setItem('lastRoute', $location);
   }
 
-  onMount(() => {
-    handleRouteReload();
-    //await myPostStore.fetch();
-    // await usersProfile.fetchProfiles();
-  });
+  onMount(async () => {
+    // Check if there's a stored route
+    const storedRoute = sessionStorage.getItem('lastRoute');
+    if (storedRoute) {
+      initialRoute = storedRoute;
+    }
 
-  let waitForUserFetch = true;
+    try {
+      await addressStore.sync();
+      
+      if ($addressStore.address) {
+        await currentUser.fetch();
+        if ($currentUser) {
+          // Only restore the route if user is authenticated
+          if (storedRoute && storedRoute !== '/') {
+            push(storedRoute);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error during initialization:', error);
+    } finally {
+      isLoading = false;
+    }
+  });
 
   addressStore.subscribe(async ({ address }) => {
     if (address) {
@@ -57,18 +70,12 @@
         console.log("Fetching User");
         await currentUser.fetch();
         isLoading = false;
-        waitForUserFetch = false;
         console.log("Got User");
       } catch (error) {
         console.error("Error fetching current user:", error);
       } finally {
         isLoading = false;
       }
-    } else {
-      console.log("Syncing");
-      await addressStore.sync();
-      console.log("Done Syncing");
-      isLoading = false;
     }
   });
 
@@ -93,7 +100,7 @@
       </p>
     </div>
   </div>
-{:else if waitForUserFetch}
+{:else if !$currentUser && $location !== "/signup"}
   <LandingPage />
 {:else if $location === "/signup"}
   <Router {routes} />
