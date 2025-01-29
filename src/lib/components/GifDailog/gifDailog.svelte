@@ -1,4 +1,3 @@
-// GifSearchDialog.svelte
 <script lang="ts">
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Input } from "$lib/components/ui/input";
