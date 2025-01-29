@@ -41,7 +41,7 @@
       {/if}
       
       <div class="text-center">
-        <h1 class="text-4xl font-bold text-primary">Welcome to Velocity</h1>
+        <h1 class="text-4xl font-bold text-primary">Welcome to Velocity Testnet</h1>
         <p class="mt-2 text-xl text-muted-foreground">
           Your decentralized social hub on AO
         </p>
