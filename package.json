@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
-    "deploy-main": "npm run build && permaweb-deploy --ant-process tkk51D3sYyK-_Y3cCC2XvPmP6RVUBK1oertIhSeTiC8"
+    "deploy-main": "npm run build && permaweb-deploy --ant-process 87OqQaiyhnCWPyM-JbdlFTJ2mHPQUl9zpoWQ6JQ5_GE"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
