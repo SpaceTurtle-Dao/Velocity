@@ -55,7 +55,7 @@ jobs:
         uses: OutlierVentures/arweave-bundler@v0.3.2
         with:
           command: set
-          manifest-id: EvHa663GhcAFh1cNbioclep9S0goMwWBQgGFyoRyIxk
+          manifest-id: cj-_7Olikmcr_JqUIUTYd-lFyvCKPrEhwSydH_NUMnc
           directory: dist/
           private-key: ${{secrets.DEPLOY_KEY}}
           ant-address: "tkk51D3sYyK-_Y3cCC2XvPmP6RVUBK1oertIhSeTiC8"
@@ -66,7 +66,7 @@ jobs:
         uses: OutlierVentures/arweave-bundler@v0.3.2
         with:
           command: set
-          manifest-id: EvHa663GhcAFh1cNbioclep9S0goMwWBQgGFyoRyIxk
+          manifest-id: cj-_7Olikmcr_JqUIUTYd-lFyvCKPrEhwSydH_NUMnc
           directory: dist/
           private-key: ${{secrets.DEPLOY_KEY}}
           ant-address: "tkk51D3sYyK-_Y3cCC2XvPmP6RVUBK1oertIhSeTiC8"
@@ -78,7 +78,7 @@ jobs:
         uses: OutlierVentures/arweave-bundler@v0.3.2
         with:
           command: set
-          manifest-id: EvHa663GhcAFh1cNbioclep9S0goMwWBQgGFyoRyIxk
+          manifest-id: cj-_7Olikmcr_JqUIUTYd-lFyvCKPrEhwSydH_NUMnc
           directory: dist/
           private-key: ${{secrets.DEPLOY_KEY}}
           ant-address: "tkk51D3sYyK-_Y3cCC2XvPmP6RVUBK1oertIhSeTiC8"
