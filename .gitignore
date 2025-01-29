@@ -16,7 +16,6 @@ dist-ssr
 .env
 
 # Lock files
-package-lock.json
 bun.lockb
 
 # Local environment files
