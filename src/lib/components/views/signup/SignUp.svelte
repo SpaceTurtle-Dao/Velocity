@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
   import { z } from "zod";
   import type { Profile } from "$lib/models/Profile";
-  import { user } from "$lib/stores/profile.store";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import { Button } from "$lib/components/ui/button";
@@ -57,9 +56,9 @@
   let _relay: string | undefined;
   let userInfo: Profile;
 
-  // currentUser.subscribe((value) => {
-  //   userInfo = value;
-  // });
+  currentUser.subscribe((value) => {
+    userInfo = value;
+  });
 
   function handleFileChange(event: Event, type: "picture" | "banner") {
     const target = event.target as HTMLInputElement;
