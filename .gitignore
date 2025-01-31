@@ -33,3 +33,5 @@ bun.lockb
 *.sln
 *.sw?
 *.lockb
+
+package-lock.json
