@@ -7,9 +7,19 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependency directories
 node_modules
 dist
 dist-ssr
+
+# environment
+.env
+
+# Lock files
+package-lock.json
+bun.lockb
+
+# Local environment files
 *.local
 
 # Editor directories and files
@@ -22,3 +32,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.lockb
+
+package-lock.json

@@ -1,47 +1,119 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  import "./app.css";
+  import { onMount, tick } from "svelte";
+  import Router, { location, push, replace } from "svelte-spa-router";
+  import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
+  import Spinner from "$lib/components/spinners/Spinner.svelte";
+  import Middle from "$lib/components/views/main/MiddleView.svelte";
+  import Left from "$lib/components/views/main/LeftView.svelte";
+  import Right from "$lib/components/views/main/RightView.svelte";
+  import SignUp from "./lib/components/views/signup/SignUp.svelte";
+  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/current-user.store";
+  import Feed from "$lib/components/views/feed/Feed.svelte";
+  import Profile from "$lib/components/views/profile/Profile.svelte";
+  import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
+  import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
+  import { followListStore } from "$lib/stores/follow-list.store";
+  import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
+  import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
+
+  let isLoading = true;
+  let isFollowListAlreadyFetched = false;
+  let initialRoute = window.location.hash.slice(1) || "/";
+
+  const routes = {
+    "/": LandingPage,
+    "/feed": Feed,
+    "/profile": Profile,
+    "/messages": MessagesPage,
+    "/profile/:address": Profile,
+    "/post/:id/:user": IndividualPost,
+    "/signup": SignUp,
+    "/test": MobileTopView,
+  };
+
+  // Store the current route in sessionStorage when it changes
+  $: if ($location) {
+    sessionStorage.setItem("lastRoute", $location);
+  }
+
+  onMount(async () => {
+    // Check if there's a stored route
+    const storedRoute = sessionStorage.getItem("lastRoute");
+    if (storedRoute) {
+      initialRoute = storedRoute;
+    }
+
+    try {
+      await addressStore.sync();
+
+      if ($addressStore.address) {
+        await currentUser.fetch();
+        if ($currentUser) {
+          // Only restore the route if user is authenticated
+          if (storedRoute && storedRoute !== "/") {
+            push(storedRoute);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error during initialization:", error);
+    } finally {
+      isLoading = false;
+    }
+  });
+
+  addressStore.subscribe(async ({ address }) => {
+    if (address) {
+      try {
+        console.log("Fetching User");
+        await currentUser.fetch();
+        isLoading = false;
+        console.log("Got User");
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      } finally {
+        isLoading = false;
+      }
+    }
+  });
+
+  currentUser.subscribe((user) => {
+    if (user && !isFollowListAlreadyFetched) {
+      followListStore.sync();
+      isFollowListAlreadyFetched = true;
+    }
+  });
+
+  followListStore.subscribe((followlistset) => {
+    console.log("follow list changed", Array.from(followlistset));
+  });
 </script>
 
-<main>
-  <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
+{#if isLoading}
+  <div class="flex items-center justify-center h-screen bg-background">
+    <div class="space-y-4">
+      <Spinner />
+      <p class="text-muted-foreground text-center animate-pulse">
+        Connecting to wallet...
+      </p>
+    </div>
   </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
+{:else if !$currentUser && $location !== "/signup"}
+  <LandingPage />
+{:else if $location === "/signup"}
+  <Router {routes} />
+{:else if $currentUser}
+  <div class="bg-background">
+    <MobileTopView />
+    <div class="flex w-full bg-background justify-center">
+      <Left />
+      <Middle>
+        <Router {routes} />
+      </Middle>
+      <Right />
+    </div>
+    <MobileBottomNavBar />
   </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
-</main>
-
-<style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
-  }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
-  }
-</style>
+{/if}
