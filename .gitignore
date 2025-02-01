@@ -16,6 +16,7 @@ dist-ssr
 .env
 
 # Lock files
+package-lock.json
 bun.lockb
 
 # Local environment files
@@ -32,3 +33,5 @@ bun.lockb
 *.sln
 *.sw?
 *.lockb
+
+package-lock.json

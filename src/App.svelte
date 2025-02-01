@@ -20,7 +20,7 @@
 
   let isLoading = true;
   let isFollowListAlreadyFetched = false;
-  let initialRoute = window.location.hash.slice(1) || '/';
+  let initialRoute = window.location.hash.slice(1) || "/";
 
   const routes = {
     "/": LandingPage,
@@ -35,30 +35,30 @@
 
   // Store the current route in sessionStorage when it changes
   $: if ($location) {
-    sessionStorage.setItem('lastRoute', $location);
+    sessionStorage.setItem("lastRoute", $location);
   }
 
   onMount(async () => {
     // Check if there's a stored route
-    const storedRoute = sessionStorage.getItem('lastRoute');
+    const storedRoute = sessionStorage.getItem("lastRoute");
     if (storedRoute) {
       initialRoute = storedRoute;
     }
 
     try {
       await addressStore.sync();
-      
+
       if ($addressStore.address) {
         await currentUser.fetch();
         if ($currentUser) {
           // Only restore the route if user is authenticated
-          if (storedRoute && storedRoute !== '/') {
+          if (storedRoute && storedRoute !== "/") {
             push(storedRoute);
           }
         }
       }
     } catch (error) {
-      console.error('Error during initialization:', error);
+      console.error("Error during initialization:", error);
     } finally {
       isLoading = false;
     }

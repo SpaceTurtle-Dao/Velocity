@@ -4,8 +4,8 @@
   import { currentUser } from "$lib/stores/current-user.store";
   import Logo from "../../../../assets/Logo2.png";
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
-  import { writable } from 'svelte/store';
-  import { addressStore } from '$lib/stores/address.store'; // Make sure to import your address store
+  import { writable } from "svelte/store";
+  import { addressStore } from "$lib/stores/address.store"; // Make sure to import your address store
 
   let opacity = "opacity-100";
   let showDisconnect = false;
@@ -14,13 +14,13 @@
     try {
       // Disconnect the wallet
       await addressStore.disconnectWallet();
-      
+
       // This will clear the stores
       const { subscribe, set } = writable();
       set(undefined);
-                  
+
       // Reset location and force a clean state
-      window.location.href = '/';
+      window.location.href = "/";
     } catch (error) {
       console.error("Error disconnecting wallet:", error);
     }
@@ -34,7 +34,7 @@
   // Close menu when clicking outside
   function handleClickOutside(event: MouseEvent) {
     const target = event.target as HTMLElement;
-    if (!target.closest('.profile-menu')) {
+    if (!target.closest(".profile-menu")) {
       showDisconnect = false;
     }
   }
@@ -53,10 +53,7 @@
 {#if $isMobile}
   <div class="px-4 py-2 flex justify-between border-b border-gray-800">
     <div class="profile-menu relative">
-      <button 
-        on:click={toggleDisconnect}
-        class="focus:outline-none"
-      >
+      <button on:click={toggleDisconnect} class="focus:outline-none">
         <ProfilePicture
           size="sm"
           src={$currentUser.picture}
@@ -65,9 +62,7 @@
       </button>
 
       {#if showDisconnect}
-        <div 
-          class="absolute top-full left-0 mt-2 z-50"
-        >
+        <div class="absolute top-full left-0 mt-2 z-50">
           <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden w-40">
             <button
               on:click={handleDisconnect}
@@ -99,7 +94,7 @@
   </div>
 
   <div
-    class="rounded-full fixed bottom-16 right-6 z-50 {opacity} transition-opacity duration-400 ease-in-out"
+    class="rounded-full size-14 fixed bottom-32 right-6 z-50 {opacity} transition-opacity duration-400 ease-in-out"
     on:touchstart|capture={() => {
       opacity = "opacity-100";
     }}
