@@ -230,9 +230,9 @@
           </div>
         </div>
       {:else if loadError}
-        <div class="p-4 text-red-500">
+        <!--<div class="p-4 text-red-500">
           {loadError}
-        </div>
+        </div>-->
       {:else}
         <div class="p-4">
           {#if isReply}
