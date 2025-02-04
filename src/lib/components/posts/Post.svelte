@@ -130,7 +130,7 @@
       await Promise.all(promises);
     } catch (error) {
       console.error("Error loading event data:", error);
-      //loadError = "Failed to load post data";
+      loadError = "Failed to load post data";
     } finally {
       // isLoading = false;
     }
@@ -230,9 +230,9 @@
           </div>
         </div>
       {:else if loadError}
-        <!--<div class="p-4 text-red-500">
+        <div class="p-4 text-red-500">
           {loadError}
-        </div>-->
+        </div>
       {:else}
         <div class="p-4">
           {#if isReply}
