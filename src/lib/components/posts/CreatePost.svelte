@@ -103,7 +103,6 @@
       _tags.push(urlTag);
       _tags.push(mTag);
     }
-
     let contentTag: Tag = {
       name: "Content",
       value: _content,
