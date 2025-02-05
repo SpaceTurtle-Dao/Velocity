@@ -146,16 +146,23 @@ export const fetchFollowList = async (
   return followList;
 };
 
-// Returns Profile in Key value format that can be used in UsersProfileMapStore
-export const fetchProfilesForUsersProfileMap = async (): Promise<
-  Map<string, Profile>
-> => {
-  let profiles = await fetchProfiles([]);
+// Modified fetchProfilesForUsersProfileMap with pagination
+export const fetchProfilesForUsersProfileMap = async (
+  page: number = 0,
+  limit: number = 10
+): Promise<Map<string, Profile>> => {
+  // Calculate start and end indices for pagination
+  const startIndex = page * limit;
+  
+  let allProfiles = await fetchProfiles([]);
+  
+  // Paginate the profiles array
+  const paginatedProfiles = allProfiles.slice(startIndex, startIndex + limit);
 
   try {
     const map = new Map<string, Profile>();
 
-    profiles.forEach((profile) => {
+    paginatedProfiles.forEach((profile) => {
       const duplicate = map.get(profile.address);
 
       if (duplicate) {
@@ -179,4 +186,78 @@ export const fetchProfilesForUsersProfileMap = async (): Promise<
     console.error(e);
     throw e;
   }
+};
+
+// that stores all profiles and returns paginated results from cache
+export class ProfileCache {
+  private static instance: ProfileCache;
+  private profiles: Profile[] = [];
+  private lastFetch: number = 0;
+  private CACHE_DURATION = 10 * 60 * 1000; // 5 minutes
+
+  private constructor() {}
+
+  static getInstance(): ProfileCache {
+    if (!ProfileCache.instance) {
+      ProfileCache.instance = new ProfileCache();
+    }
+    return ProfileCache.instance;
+  }
+
+  private async refreshCache(): Promise<void> {
+    const now = Date.now();
+    if (now - this.lastFetch > this.CACHE_DURATION || this.profiles.length === 0) {
+      this.profiles = await fetchProfiles([]);
+      this.lastFetch = now;
+    }
+  }
+
+  async getPaginatedProfiles(page: number, limit: number): Promise<Map<string, Profile>> {
+    await this.refreshCache();
+    
+    const startIndex = page * limit;
+    const paginatedProfiles = this.profiles.slice(startIndex, startIndex + limit);
+    
+    const map = new Map<string, Profile>();
+    
+    paginatedProfiles.forEach((profile) => {
+      const duplicate = map.get(profile.address);
+
+      if (duplicate) {
+        if (
+          duplicate.updated_at !== undefined &&
+          profile.updated_at !== undefined
+        ) {
+          if (profile.updated_at > duplicate.updated_at) {
+            map.set(profile.address, profile);
+          }
+        } else if (profile.updated_at) {
+          map.set(profile.address, profile);
+        }
+      } else {
+        map.set(profile.address, profile);
+      }
+    });
+
+    return map;
+  }
+
+  hasMoreProfiles(page: number, limit: number): boolean {
+    return (page + 1) * limit < this.profiles.length;
+  }
+}
+
+// Modified version of fetchProfilesForUsersProfileMap that uses the cache
+export const fetchPaginatedProfilesForUsersProfileMap = async (
+  page: number = 0,
+  limit: number = 10
+): Promise<Map<string, Profile>> => {
+  const cache = ProfileCache.getInstance();
+  return await cache.getPaginatedProfiles(page, limit);
+};
+
+// Helper function to check if more profiles are available
+export const hasMoreProfiles = (page: number, limit: number): boolean => {
+  const cache = ProfileCache.getInstance();
+  return cache.hasMoreProfiles(page, limit);
 };
