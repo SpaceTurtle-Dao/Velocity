@@ -29,7 +29,7 @@
 {#if isSubscribed}
   <ButtonWithLoader
     {loader}
-    class="group text-sm font-bold h-8 w-[120px]  rounded-full text-primary  hover:border-red-800 border-input bg-background hover:bg-accent hover:text-accent-foreground border"
+    class="group text-sm font-bold h-8 w-[120px] rounded-full text-primary hover:border-red-800 border-input bg-background hover:bg-accent hover:text-accent-foreground border"
     loaderClass="size-5"
     on:click={unsubscribe}
     disabled={loader}

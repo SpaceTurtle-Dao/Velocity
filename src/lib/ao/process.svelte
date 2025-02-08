@@ -63,7 +63,7 @@
 			// Tags that the process will use as input.
 			tags: tags,
 		});
-		console.log(result)
+		console.log("Results from Read only Process",result)
 		if (result.Messages) {
 			let message = result.Messages.pop();
 			return message;

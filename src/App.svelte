@@ -17,6 +17,7 @@
   import { followListStore } from "$lib/stores/follow-list.store";
   import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
+  import PublicProfile from "$lib/components/views/profile/PublicProfile.svelte";
 
   let isLoading = true;
   let isFollowListAlreadyFetched = false;
@@ -29,6 +30,7 @@
     "/messages": MessagesPage,
     "/profile/:address": Profile,
     "/post/:id/:user": IndividualPost,
+    "/p/:address": PublicProfile,
     "/signup": SignUp,
     "/test": MobileTopView,
   };
@@ -89,6 +91,10 @@
   followListStore.subscribe((followlistset) => {
     console.log("follow list changed", Array.from(followlistset));
   });
+
+  const isPublicProfileRoute = (location: string) => {
+    return location.startsWith('/p/');
+  };
 </script>
 
 {#if isLoading}
@@ -100,6 +106,8 @@
       </p>
     </div>
   </div>
+{:else if isPublicProfileRoute($location)}
+  <Router {routes} />
 {:else if !$currentUser && $location !== "/signup"}
   <LandingPage />
 {:else if $location === "/signup"}

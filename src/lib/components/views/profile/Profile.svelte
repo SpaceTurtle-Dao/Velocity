@@ -8,7 +8,7 @@
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
   import { currentUser } from "$lib/stores/current-user.store";
-  import Post from "../../posts/Post.svelte";
+  import Post from "$lib/components/posts/Post.svelte";
   import Followers from "../../Followers/Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Link, CalendarDays } from "lucide-svelte";
@@ -22,9 +22,6 @@
   import { getDisplayUrl } from "$lib/utils/url.utils";
   import { formatJoinedTimestamp } from "$lib/utils/timestamp.utils";
   import type { Profile } from "$lib/models/Profile";
-  import { user } from "$lib/stores/profile.store";
-  import { event } from "$lib/ao/relay";
-
   import { usersProfile } from "$lib/stores/users-profile.store";
   import { followListStore } from "$lib/stores/follow-list.store";
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
