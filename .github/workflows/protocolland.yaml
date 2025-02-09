@@ -31,4 +31,4 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   REPO_TITLE: ${{ github.event.repository.name }}
                   REPO_DESCRIPTION: ${{ github.event.repository.description }}
-                  WALLET: ${{ secrets.DEPLOY_KEY }}
+                  WALLET: ${{ secrets.WALLET }}
