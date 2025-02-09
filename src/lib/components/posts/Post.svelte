@@ -128,9 +128,10 @@
       }
 
       await Promise.all(promises);
-    } catch (error) {
-      console.error("Error loading event data:", error);
-      loadError = "Failed to load post data";
+    } 
+    catch (error) {
+      // console.error("Error loading event data:", error);
+      // loadError = "Failed to load post data";
     } finally {
       // isLoading = false;
     }

@@ -4,12 +4,54 @@
   import { usersProfile } from "$lib/stores/users-profile.store";
   import { currentUser } from "$lib/stores/current-user.store";
   import type { Profile } from "$lib/models/Profile";
+  import { onMount } from "svelte";
 
-  let profiles;
+  const ITEMS_PER_PAGE = 10;
+  let currentPage = 0;
+  let profiles: Profile[] = [];
+  let containerRef: HTMLDivElement;
+  let loading = false;
+  let hasMore = true;
 
   usersProfile.subscribe((value) => {
-    profiles = value.values();
+    profiles = Array.from(value.values());
   });
+
+  $: usersProfile.isLoading.subscribe((value) => {
+    loading = value;
+  });
+
+  $: usersProfile.hasMore.subscribe((value) => {
+    hasMore = value;
+  });
+
+  onMount(() => {
+    loadInitialProfiles();
+  });
+
+  async function loadInitialProfiles() {
+    await usersProfile.fetchProfiles(currentPage, ITEMS_PER_PAGE);
+  }
+
+  async function loadMoreProfiles() {
+    if (loading || !hasMore) return;
+    
+    currentPage++;
+    await usersProfile.fetchProfiles(currentPage, ITEMS_PER_PAGE);
+  }
+
+  function handleScroll(event: Event) {
+    const target = event.target as HTMLDivElement;
+    const threshold = 100; // pixels from bottom to trigger load
+    
+    if (
+      target.scrollHeight - (target.scrollTop + target.clientHeight) < threshold &&
+      !loading &&
+      hasMore
+    ) {
+      loadMoreProfiles();
+    }
+  }
 </script>
 
 {#if $usersProfile.size > 0}
@@ -24,13 +66,21 @@
       </Card.Header>
       <Card.Content class="w-full">
         <div
+          bind:this={containerRef}
+          on:scroll={handleScroll}
           class="grid gap-6 lg:gap-8 max-h-[60vh] lg:max-h-[80vh] overflow-y-auto scrollable-element pr-2 lg:pr-3"
         >
-          {#each $usersProfile.values() as profile}
+          {#each profiles as profile}
             {#if profile.address !== $currentUser.address}
               <ProfileCard {profile} />
             {/if}
           {/each}
+          
+          {#if loading}
+            <div class="flex justify-center p-4">
+              <div class="animate-spin h-6 w-6 border-2 border-primary rounded-full border-t-transparent"></div>
+            </div>
+          {/if}
         </div>
       </Card.Content>
     </Card.Root>
