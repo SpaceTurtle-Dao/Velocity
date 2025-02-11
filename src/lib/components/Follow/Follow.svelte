@@ -1,27 +1,27 @@
 <script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
-  import { followListStore } from "$lib/stores/follow-list.store";
+  import { currentUser } from "$lib/stores/current-user.store";
 
   export let address: string;
 
   // let isSubscribed: boolean = $followListStore.has(address);
   let isSubscribed: boolean = false;
 
-  followListStore.subscribe((set) => {
-    isSubscribed = set.has(address);
+  currentUser.subscribe((_currentUser) => {
+    isSubscribed = _currentUser.followList.includes(address);
   });
 
   let loader = false;
 
   async function unsubscribe() {
     loader = true;
-    await followListStore.unfollow(address);
+    await currentUser.unfollow(address);
     loader = false;
   }
 
   async function subscribe() {
     loader = true;
-    await followListStore.follow(address);
+    await currentUser.follow(address);
     loader = false;
   }
 </script>

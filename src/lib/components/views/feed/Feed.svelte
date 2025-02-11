@@ -7,8 +7,6 @@
   import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
 
   let events: Array<any> = [];
-  let filters: Array<any> = [];
-  let isFetchingAlready = false;
 
   function processEvents(rawEvents: any) {
     const postMap = new Map();
@@ -43,7 +41,7 @@
   }
 
   async function fetchFeedEvents() {
-    if (isFetchingAlready || !$currentUser) return;
+    /*if (isFetchingAlready || !$currentUser) return;
 
     try {
       isFetchingAlready = true;
@@ -61,29 +59,35 @@
 
       // Process and update events
       events = processEvents(_events);
-      console.log("Updated events:", events);
+      //console.log("Updated events:", events);
     } catch (error) {
       console.error("Error fetching feed events:", error);
     } finally {
       isFetchingAlready = false;
-    }
+    }*/
   }
 
   async function fetchFollowingEvents() {
-    if (!$currentUser?.followList) return;
-
+    console.log("will get Follow List")
+    if (!$currentUser.followList) return;  
+    console.log("Got Follow List")
+    console.log($currentUser.followList)
     try {
       const filter = {
         kinds: ["1", "6"],
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
+        authors: $currentUser.followList,
+      };
+      const filter2 = {
         tags: { marker: ["root"] },
-        // authors: $currentUser.followList,
       };
 
-      const _filters = JSON.stringify([filter]);
+      const _filters = JSON.stringify([filter,filter2]);
       const _events = await fetchEvents(_filters);
+      console.log("Fetched following Events")
+      console.log(_events)
       events = processEvents(_events);
     } catch (error) {
       console.error("Error fetching following events:", error);
@@ -128,7 +132,7 @@
 
         <Tabs.Content value="for you">
           <div>
-            {#each events as event (event.Id)}
+            {#each events as event }
               <div class="border border-border max-w-prose">
                 <Post
                   {event}
@@ -142,7 +146,7 @@
 
         <Tabs.Content value="following">
           <div>
-            {#each events as event (event.Id)}
+            {#each events as event }
               <div class="border border-border max-w-prose">
                 <Post
                   {event}

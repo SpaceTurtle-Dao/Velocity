@@ -6,7 +6,6 @@
   import { onMount } from "svelte";
   import type { Profile } from "$lib/models/Profile";
   import Follow from "../Follow/Follow.svelte";
-  import { followListStore } from "$lib/stores/follow-list.store";
   import { currentUser } from "$lib/stores/current-user.store";
   import { fetchFollowList } from "$lib/ao/relay";
   import { Skeleton } from "$lib/components/ui/skeleton";
@@ -17,17 +16,13 @@
 
   let isCurrentUser = $currentUser.address === profile.address;
 
-  let followListLoading = true;
+  let followListLoading = false;
 
   onMount(() => {
     if (isCurrentUser) {
-      numberOfFollowing = $followListStore.size;
-      followListLoading = false;
-
-      followListStore.subscribe((set) => {
-        numberOfFollowing = set.size;
-      });
+      numberOfFollowing = $currentUser.followList.length;
     } else {
+      followListLoading = true
       fetchFollowList(profile.address)
         .then((followList) => {
           numberOfFollowing = followList.length;
@@ -99,9 +94,9 @@
 
       <div>
         <!-- <span class="text-sm font-bold">{userInfo.Subs}</span> -->
-        <span class="text-sm font-normal text-muted-foreground"
+        <!--<span class="text-sm font-normal text-muted-foreground"
           >Subscribers</span
-        >
+        >-->
       </div>
     </div>
   </HoverCard.Content>

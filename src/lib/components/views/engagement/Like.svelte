@@ -68,7 +68,6 @@
     onMount(async () => {
         console.log($currentUser.address)
         console.log("getting likes for id");
-        console.log(_event.Id)
         await fetchLikes()
         console.log("got "+likes.length+" likes for id");
         console.log(_event.Id)

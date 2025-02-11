@@ -6,6 +6,8 @@
   import type { Profile } from "$lib/models/Profile";
   import { onMount } from "svelte";
 
+  export let _profiles: string[] = [];
+
   const ITEMS_PER_PAGE = 10;
   let currentPage = 0;
   let profiles: Profile[] = [];
@@ -30,22 +32,26 @@
   });
 
   async function loadInitialProfiles() {
-    await usersProfile.fetchProfiles(currentPage, ITEMS_PER_PAGE);
+    console.log("follow list")
+    console.log(_profiles)
+    await usersProfile.fetchProfiles(currentPage, ITEMS_PER_PAGE, _profiles);
   }
 
   async function loadMoreProfiles() {
     if (loading || !hasMore) return;
-    
+    console.log("follow list")
+    console.log(_profiles)
     currentPage++;
-    await usersProfile.fetchProfiles(currentPage, ITEMS_PER_PAGE);
+    await usersProfile.fetchProfiles(currentPage, ITEMS_PER_PAGE, _profiles);
   }
 
   function handleScroll(event: Event) {
     const target = event.target as HTMLDivElement;
     const threshold = 100; // pixels from bottom to trigger load
-    
+
     if (
-      target.scrollHeight - (target.scrollTop + target.clientHeight) < threshold &&
+      target.scrollHeight - (target.scrollTop + target.clientHeight) <
+        threshold &&
       !loading &&
       hasMore
     ) {
@@ -75,10 +81,12 @@
               <ProfileCard {profile} />
             {/if}
           {/each}
-          
+
           {#if loading}
             <div class="flex justify-center p-4">
-              <div class="animate-spin h-6 w-6 border-2 border-primary rounded-full border-t-transparent"></div>
+              <div
+                class="animate-spin h-6 w-6 border-2 border-primary rounded-full border-t-transparent"
+              ></div>
             </div>
           {/if}
         </div>

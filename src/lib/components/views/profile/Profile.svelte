@@ -26,8 +26,8 @@
   import { event } from "$lib/ao/relay";
 
   import { usersProfile } from "$lib/stores/users-profile.store";
-  import { followListStore } from "$lib/stores/follow-list.store";
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
+  import { isNull } from "lodash";
 
   export let params: { address?: string } = {};
 
@@ -41,7 +41,7 @@
 
   let showModal = false;
   let textWithUrl = "";
-  let pTag: HTMLElement | null;
+  var pTag: HTMLElement | null;
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
   console.log("Will load thissss!!!");
@@ -141,8 +141,9 @@
   }
 
   async function fetchSubscriptions() {
-    console.log("will get subscriptions");
-    // await subscriptions(userInfo.Process, "1", "100");
+    console.log("will get subs");
+    //profile?.followList = fetchFollowList(profile!.address)
+    // await subs(userInfo.Process, "1", "100");
   }
 
   function formatDate(dateString: number): string {
@@ -173,7 +174,7 @@
             linkElement.href = part; // Set the href attribute
             linkElement.textContent = part; // Set the text content
             linkElement.target = "_blank"; // Open link in new tab
-            pTag?.appendChild(linkElement);
+            pTag.appendChild(linkElement);
           } else {
             // If the part is not a URL, append it as plain text
             pTag!.appendChild(document.createTextNode(part));
@@ -199,28 +200,16 @@
   //////////// Following/ subscribing code
   let numberOfFollowing = 0;
 
-  let followListLoading = true;
+  let followListLoading = false;
 
   async function getFollowingCount() {
-    followListLoading = true;
-
     if (profile?.address === $currentUser.address) {
-      numberOfFollowing = $followListStore.size;
-      followListLoading = false;
-
-      followListStore.subscribe((set) => {
-        numberOfFollowing = set.size;
-      });
+      numberOfFollowing = $currentUser.followList.length;
     } else {
+      followListLoading = true;
       if (profile?.address) {
-        fetchFollowList(profile?.address)
-          .then((followList) => {
-            numberOfFollowing = followList.length;
-            followListLoading = false;
-          })
-          .catch((e) => {
-            console.error(e);
-          });
+        numberOfFollowing = profile?.followList.length;
+        followListLoading = false;
       }
     }
   }
@@ -328,7 +317,7 @@
           </div>
           <div class="flex space-x-1">
             <!-- <p>{userInfo.Subs}</p> -->
-            <p class="text-muted-foreground">Subscribers</p>
+            <!--<p class="text-muted-foreground">Subscribers</p>-->
           </div>
         </div>
       </CardContent>
@@ -338,12 +327,8 @@
       <Tabs.List class="grid grid-cols-4">
         <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
         <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchSubscriptions} value="subscribed"
-          >Subscribed</Tabs.Trigger
-        >
-        <Tabs.Trigger on:click={fetchSubs} value="subscribers"
-          >Subscribers</Tabs.Trigger
-        >
+        <Tabs.Trigger on:click={fetchSubscriptions} value="subscribed">Subscribed</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchSubs} value="assets">Assets</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="post">
         <div class="">
@@ -364,9 +349,9 @@
         </div>
       </Tabs.Content>
       <Tabs.Content value="subscribed">
-        <UserList />
+        <UserList _profiles={profile.followList} />
       </Tabs.Content>
-      <Tabs.Content value="subsribers">
+      <Tabs.Content value="assets">
         <!-- {#if $user && profile}
                     <UserList />
                 {/if} -->

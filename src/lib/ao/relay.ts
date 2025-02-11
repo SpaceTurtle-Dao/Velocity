@@ -5,6 +5,7 @@ import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
 import { HUB_ID } from "$lib/constants";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
+import type { profile } from "console";
 
 export const event = async (tags: Array<Tag>) => {
   const actionTag: Tag = {
@@ -149,12 +150,13 @@ export const fetchFollowList = async (
 // Modified fetchProfilesForUsersProfileMap with pagination
 export const fetchProfilesForUsersProfileMap = async (
   page: number = 0,
-  limit: number = 10
+  limit: number = 10,
+  profiles: string []
 ): Promise<Map<string, Profile>> => {
   // Calculate start and end indices for pagination
   const startIndex = page * limit;
   
-  let allProfiles = await fetchProfiles([]);
+  let allProfiles = await fetchProfiles(profiles);
   
   // Paginate the profiles array
   const paginatedProfiles = allProfiles.slice(startIndex, startIndex + limit);

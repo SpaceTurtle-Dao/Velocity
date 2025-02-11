@@ -1,11 +1,11 @@
 // users-profile.store.ts
-import { fetchProfile, fetchProfilesForUsersProfileMap } from "$lib/ao/relay";
+import { fetchFollowList, fetchProfile, fetchProfilesForUsersProfileMap } from "$lib/ao/relay";
 import type { Profile } from "$lib/models/Profile";
 import { get, writable, type Readable } from "svelte/store";
 
 interface PaginatedProfileStore extends Readable<Map<string, Profile>> {
-  fetchProfiles: (page: number, limit: number) => Promise<void>;
-  get: (address: string) => Promise<Profile | undefined>;
+  fetchProfiles: (page: number, limit: number, _profiles:string[]) => Promise<void>;
+  get: (address: string) => Promise<Profile>;
   hasMore: Readable<boolean>;
   isLoading: Readable<boolean>;
 }
@@ -23,13 +23,13 @@ const initUsersProfileMapStore = (): PaginatedProfileStore => {
     subscribe,
     hasMore: { subscribe: subscribeToHasMore },
     isLoading: { subscribe: subscribeToLoading },
-    fetchProfiles: async (page: number, limit: number) => {
+    fetchProfiles: async (page: number, limit: number, _profiles:string[]) => {
       try {
         setLoading(true);
         console.log(`Fetching profiles - page ${page}, limit ${limit}`);
 
         // Modify your fetchProfilesForUsersProfileMap to accept pagination params
-        const profiles = await fetchProfilesForUsersProfileMap(page, limit);
+        const profiles = await fetchProfilesForUsersProfileMap(page, limit, _profiles);
 
         update((existingProfiles) => {
           // Merge new profiles with existing ones
@@ -47,16 +47,19 @@ const initUsersProfileMapStore = (): PaginatedProfileStore => {
         setLoading(false);
       }
     },
-    get: async (address: string): Promise<Profile | undefined> => {
+    get: async (address: string): Promise<Profile> => {
+      console.log("getting profile")
       try {
-        let profile = get({ subscribe }).get(address);
-        if (profile) return profile;
-
+        //let profile = get({ subscribe }).get(address);
+        //if (profile) return profile;
         const fetchedProfile = await fetchProfile(address);
+        fetchedProfile.followList = await fetchFollowList(address)
+        console.log(fetchedProfile)
         update((map) => map.set(fetchedProfile.address, fetchedProfile));
         return fetchedProfile;
       } catch (error) {
         console.error("UsersProfileMapStore.get ", error);
+        throw(error)
       }
     },
   };

@@ -14,7 +14,6 @@
   import Profile from "$lib/components/views/profile/Profile.svelte";
   import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
   import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
-  import { followListStore } from "$lib/stores/follow-list.store";
   import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
 
@@ -77,17 +76,6 @@
         isLoading = false;
       }
     }
-  });
-
-  currentUser.subscribe((user) => {
-    if (user && !isFollowListAlreadyFetched) {
-      followListStore.sync();
-      isFollowListAlreadyFetched = true;
-    }
-  });
-
-  followListStore.subscribe((followlistset) => {
-    console.log("follow list changed", Array.from(followlistset));
   });
 </script>
 

@@ -83,7 +83,6 @@
   onMount(async () => {
     console.log($currentUser.address);
     console.log("getting reposts for id");
-    console.log(_event.Id);
     await fetchReposts();
     console.log("got " + reposts.length + " reposts for id");
     console.log(_event.Id);
