@@ -16,7 +16,7 @@
   import { fetchEvents, fetchFollowList, fetchProfile } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
   import Follow from "../../Follow/Follow.svelte";
-  import UserList from "$lib/components/UserList/UserList.svelte";
+  import Users from "$lib/components/UserList/Users.svelte";
   import Process from "$lib/ao/process.svelte";
   import { X } from "lucide-svelte";
   import { getDisplayUrl } from "$lib/utils/url.utils";
@@ -349,7 +349,7 @@
         </div>
       </Tabs.Content>
       <Tabs.Content value="subscribed">
-        <UserList _profiles={profile.followList} />
+        <Users _profiles={profile.followList} />
       </Tabs.Content>
       <Tabs.Content value="assets">
         <!-- {#if $user && profile}
