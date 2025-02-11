@@ -14,6 +14,7 @@
   let loading = false;
   let hasMore = true;
 
+
   onMount(() => {
     loadInitialProfiles();
   });
@@ -21,8 +22,14 @@
   async function loadInitialProfiles() {
     console.log("follow list");
     console.log(_profiles);
-    profiles = (await fetchProfiles(_profiles)).values().toArray();
-    loadMoreProfiles();
+    profiles = (
+      await fetchProfiles(
+        _profiles,
+      )
+    )
+      .values()
+      .toArray();
+      loadMoreProfiles()
   }
 
   async function loadMoreProfiles() {
@@ -30,8 +37,14 @@
     console.log("follow list");
     console.log(_profiles);
     currentPage++;
-    let temp = (await fetchProfiles(_profiles)).values().toArray();
-    profiles.push(...temp);
+    let temp = (
+      await fetchProfiles(
+        _profiles,
+      )
+    )
+      .values()
+      .toArray();
+    profiles.push(...temp)  
     hasMore = profiles.length === ITEMS_PER_PAGE;
   }
 
@@ -55,7 +68,7 @@
     <Card.Root
       data-x-chunk-name="UserList"
       data-x-chunk-description="A card showing a list of users."
-      class="border-border rounded p-0 min-w-[280px] max-w-[400px]"
+      class="border-border rounded p-0 min-w-[280px]"
     >
       {#if _profiles.length == 0}
         <Card.Header>
@@ -67,7 +80,7 @@
         <div
           bind:this={containerRef}
           on:scroll={handleScroll}
-          class="grid gap-6 lg:gap-8 max-h-[60vh] lg:max-h-[80vh] overflow-y-auto scrollable-element pr-2 lg:pr-3"
+          class="grid gap-4 lg:gap-6 max-h-[60vh] lg:max-h-[80vh] overflow-y-auto scrollable-element pr-2 lg:pr-3"
         >
           {#each profiles as profile}
             {#if profile.address !== $currentUser.address}
