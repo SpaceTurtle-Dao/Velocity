@@ -6,17 +6,17 @@
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import { Repeat2Icon } from "lucide-svelte";
   import { currentUser } from "$lib/stores/current-user.store";
-    import { profileService } from "$lib/services/ProfileService";
-
+  import { profileService } from "$lib/services/ProfileService";
+  import { onMount } from "svelte";
   export let event: any;
   export let user: Profile | undefined;
   export let isRepost: boolean;
 
   let originalPostEvent = isRepost ? JSON.parse(event.Content) : event;
 
-  let profile = profileService.get(event.From);
+  let profile: Profile;
 
-  let originalPostProfile = profileService.get(originalPostEvent.From);
+  let originalPostProfile: Profile;
 
   function formatContent(content: string): string {
     // console.log("hhhh", JSON.parse(content));
@@ -31,6 +31,11 @@
 
     return urlReplaceContent.slice(0, 400) + "...";
   }
+
+  onMount(async () => {
+    profile = await profileService.get(event.From);
+    originalPostProfile = await profileService.get(originalPostEvent.From);
+  });
 </script>
 
 {#if isRepost}

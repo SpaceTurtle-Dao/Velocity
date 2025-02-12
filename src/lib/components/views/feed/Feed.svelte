@@ -2,8 +2,8 @@
   import Post from "$lib/components/posts/Post.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { onMount } from "svelte";
-  import { fetchEvents } from "$lib/ao/relay";
   import { currentUser } from "$lib/stores/current-user.store";
+  import { postService } from "$lib/services/PostService";
 
   let events: Array<any> = [];
 
@@ -43,24 +43,12 @@
     //if (isFetchingAlready || !$currentUser) return;
 
     try {
-      //isFetchingAlready = true;
-
-      const filter = {
-        kinds: ["1", "6"],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100
-      };
-
-      const filter2 = {
-        tags: { marker: ["root"] },
-      };
-
-      const _filters = JSON.stringify([filter, filter2]);
-      const _events = await fetchEvents(_filters);
-
+      console.log("will get feed");
+      const _events = await postService.fetchPost(1663905355000, 100, []);
+      console.log(_events);
       // Process and update events
       events = processEvents(_events);
+      console.log(events);
       //console.log("Updated events:", events);
     } catch (error) {
       console.error("Error fetching feed events:", error);
@@ -70,26 +58,16 @@
   }
 
   async function fetchFollowingEvents() {
-    console.log("will get Follow List")
-    if (!$currentUser.followList) return;  
-    console.log("Got Follow List")
-    console.log($currentUser.followList)
+    console.log("will get Follow List");
+    if (!$currentUser.followList) return;
+    console.log("Got Follow List");
+    console.log($currentUser.followList);
     try {
-      const filter = {
-        kinds: ["1", "6"],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-        authors: $currentUser.followList
-      };
-      const filter2 = {
-        tags: { marker: ["root"] },
-      };
-
-      const _filters = JSON.stringify([filter,filter2]);
-      const _events = await fetchEvents(_filters);
-      console.log("Fetched following Events")
-      console.log(_events)
+      const _events = await postService.fetchPost(
+        1663905355000,
+        100,
+        $currentUser.followList,
+      );
       events = processEvents(_events);
     } catch (error) {
       console.error("Error fetching following events:", error);
@@ -134,7 +112,7 @@
 
         <Tabs.Content value="for you">
           <div>
-            {#each events as event }
+            {#each events as event}
               <div class="border border-border max-w-prose">
                 <Post
                   {event}
@@ -148,7 +126,7 @@
 
         <Tabs.Content value="following">
           <div>
-            {#each events as event }
+            {#each events as event}
               <div class="border border-border max-w-prose">
                 <Post
                   {event}

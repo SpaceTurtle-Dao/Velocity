@@ -144,7 +144,9 @@
         isRepost ? originalEvent : null,
       );
 
-      profile = (await profileService.get(event.From)) as Profile;
+      profile = await profileService.get(event.From);
+      console.log("got profile for post")
+      console.log(profile)
       isLoading = false;
       fetchConcurrentData();
     }

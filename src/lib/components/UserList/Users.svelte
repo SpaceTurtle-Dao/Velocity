@@ -4,8 +4,8 @@
   import { currentUser } from "$lib/stores/current-user.store";
   import type { Profile } from "$lib/models/Profile";
   import { onMount } from "svelte";
-    import { profileService } from "$lib/services/ProfileService";
- 
+  import { profileService } from "$lib/services/ProfileService";
+
   export let _profiles: string[] = [];
   const ITEMS_PER_PAGE = 10;
   let currentPage = 0;
@@ -14,7 +14,6 @@
   let loading = false;
   let hasMore = true;
 
-
   onMount(() => {
     loadInitialProfiles();
   });
@@ -22,17 +21,11 @@
   async function loadInitialProfiles() {
     console.log("follow list");
     console.log(_profiles);
-    profiles = (
-      await profileService.fetchProfiles(
-        "0",
-        "100",
-        _profiles,
-      )
-    )
+    profiles = (await profileService.fetchProfiles("0", "100", _profiles))
       .values()
       .toArray();
-      console.log(profiles.length);
-      loadMoreProfiles()
+    console.log(profiles.length);
+    loadMoreProfiles();
   }
 
   async function loadMoreProfiles() {
@@ -40,16 +33,10 @@
     console.log("follow list");
     console.log(_profiles);
     currentPage++;
-    let temp = (
-      await profileService.fetchProfiles(
-        "0",
-        "100",
-        _profiles,
-      )
-    )
+    let temp = (await profileService.fetchProfiles("0", "100", _profiles))
       .values()
       .toArray();
-    profiles.push(...temp)  
+    profiles.push(...temp);
     hasMore = profiles.length === ITEMS_PER_PAGE;
   }
 

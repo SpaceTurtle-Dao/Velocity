@@ -18,7 +18,7 @@
   export let isRepost: boolean;
 
   let newReply: any;
-  let profile = profileService.get(event.From);
+  let profile:Profile;
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -133,6 +133,11 @@
   $: if (dialogOpen === false) {
     clearFields();
   }
+
+  onMount(async () => {
+    profile = await profileService.get(event.From);
+  });
+
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
