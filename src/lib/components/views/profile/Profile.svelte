@@ -60,7 +60,22 @@
   // });
 
   async function fetchMedia() {
+    console.log("will get media")
     let filters: Array<any> = [];
+    let mimeTypes: string[] = [
+      "image/apng",
+      "image/avif",
+      "image/gif",
+      "image/jpeg",
+      "image/png",
+      "image/svg+xml",
+      "image/webp",
+      "video/x-msvideo",
+      "video/mp4",
+      "video/mpeg",
+      "video/ogg",
+      "video/webm",
+    ];
     events = [];
     if (profile) {
       let filter = {
@@ -69,28 +84,32 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-      };
-      let filter2 = {
         tags: {
-          mimeType: [
-            "image/apng",
-            "image/avif",
-            "image/gif",
-            "image/jpeg",
-            "image/png",
-            "image/svg+xml",
-            "image/webp",
-            "video/x-msvideo",
-            "video/mp4",
-            "video/mpeg",
-            "video/ogg",
-            "video/webm",
-          ],
+          marker: ["root"],
         },
       };
       filters.push(filter);
-      filters.push(filter2);
+
+      /*for (let i = 0; i < mimeTypes.length; i++) {
+        let filter = {
+          tags: {
+            mimeType: mimeTypes[i],
+          },
+        };
+        filters.push(filter);
+      }*/
+
+      let filter2 = {
+          tags: {
+            mimeType: "image/jpeg",
+          },
+        };
+        filters.push(filter2);
+
       let _filters = JSON.stringify(filters);
+      console.log("Will send fetch event")
+      console.log("/////////Tags////////////")
+      console.log(_filters)
       events = await fetchEvents(_filters);
     }
     filters = [];

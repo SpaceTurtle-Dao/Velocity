@@ -3,13 +3,13 @@ import { fetchEvents, fetchFollowList, fetchProfile } from "$lib/ao/relay";
 import type { Profile } from "$lib/models/Profile";
 
 interface ProfileService {
-  fetchProfiles: (since: string, limit: string, authors:string[]) => Promise<Profile[]>;
+  fetchProfiles: (since: Number, limit: Number, authors:string[]) => Promise<Profile[]>;
   get: (address: string) => Promise<Profile>;
 }
 
 const service = (): ProfileService => {
   return {
-    fetchProfiles: async (since: string, limit: string, authors:string[]) => {
+    fetchProfiles: async (since: Number, limit: Number, authors:string[]) => {
       let filter = "";
         if (authors.length > 0) {
           filter = JSON.stringify([
@@ -25,7 +25,7 @@ const service = (): ProfileService => {
             {
               kinds: ["0"],
               since: since,
-              limit: limit
+              //limit: limit
             },
           ]);
         }

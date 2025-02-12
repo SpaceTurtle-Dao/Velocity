@@ -8,7 +8,7 @@
 
   export let _profiles: string[] = [];
   const ITEMS_PER_PAGE = 10;
-  let currentPage = 0;
+  let since = 0;
   let profiles: Profile[] = [];
   let containerRef: HTMLDivElement;
   let loading = false;
@@ -21,21 +21,23 @@
   async function loadInitialProfiles() {
     console.log("follow list");
     console.log(_profiles);
-    profiles = (await profileService.fetchProfiles("0", "100", _profiles))
-      .values()
-      .toArray();
+    profiles = await profileService.fetchProfiles(
+      since,
+      ITEMS_PER_PAGE,
+      _profiles,
+    );
     console.log(profiles.length);
-    loadMoreProfiles();
   }
 
   async function loadMoreProfiles() {
     if (loading || !hasMore) return;
     console.log("follow list");
     console.log(_profiles);
-    currentPage++;
-    let temp = (await profileService.fetchProfiles("0", "100", _profiles))
-      .values()
-      .toArray();
+    let temp = await profileService.fetchProfiles(
+      since,
+      ITEMS_PER_PAGE,
+      _profiles,
+    );
     profiles.push(...temp);
     hasMore = profiles.length === ITEMS_PER_PAGE;
   }
@@ -50,7 +52,13 @@
       !loading &&
       hasMore
     ) {
-      loadMoreProfiles();
+      if (
+        profiles.length == ITEMS_PER_PAGE &&
+        profiles[profiles.length - 1].created_at != since
+      ) {
+        since = profiles[profiles.length - 1].created_at;
+        loadMoreProfiles();
+      }
     }
   }
 </script>

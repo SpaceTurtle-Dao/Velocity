@@ -40,6 +40,7 @@
     }
 
     async function fetchLikes() {
+        if (!_event) return
         let filters: Array<any> = [];
         likes = [];
         let filter1 = {

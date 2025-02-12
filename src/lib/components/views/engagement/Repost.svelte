@@ -52,6 +52,7 @@
   }
 
   async function fetchReposts() {
+    if (!_event) return
     let filters: Array<any> = [];
     reposts = [];
     let filter1 = {

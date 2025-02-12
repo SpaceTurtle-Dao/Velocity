@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { formatTimestamp } from "$lib/utils/timestamp.utils";
   import type { Profile } from "$lib/models/Profile";
   import ProfilePictureHoverCard from "$lib/components/UserProfile/ProfilePictureHoverCard.svelte";
