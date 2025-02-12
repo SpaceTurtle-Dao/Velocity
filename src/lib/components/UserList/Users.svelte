@@ -7,7 +7,7 @@
   import { profileService } from "$lib/services/ProfileService";
 
   export let _profiles: string[] = [];
-  const ITEMS_PER_PAGE = 10;
+  const ITEMS_PER_PAGE = 100;
   let since = 0;
   let profiles: Profile[] = [];
   let containerRef: HTMLDivElement;

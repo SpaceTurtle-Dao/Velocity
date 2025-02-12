@@ -6,7 +6,6 @@
   import { postService } from "$lib/services/PostService";
 
   let events: Array<any> = [];
-
   function processEvents(rawEvents: any) {
     const postMap = new Map();
     const topLevelPosts: any = [];
@@ -80,6 +79,26 @@
     events = processEvents([...events.flat(), newReply]);
   }
 
+  function handleScroll(event: Event) {
+    const target = event.target as HTMLDivElement;
+    const threshold = 100; // pixels from bottom to trigger load
+    console.log("we are scrolling")
+    /*if (
+      target.scrollHeight - (target.scrollTop + target.clientHeight) <
+        threshold &&
+      !loading &&
+      hasMore
+    ) {
+      if (
+        profiles.length == ITEMS_PER_PAGE &&
+        profiles[profiles.length - 1].created_at != since
+      ) {
+        since = profiles[profiles.length - 1].created_at;
+        loadMoreProfiles();
+      }
+    }*/
+  }
+
   // Initialize feed
   onMount(async () => {
     await fetchFeedEvents();
@@ -141,3 +160,10 @@
     </div>
   </div>
 {/if}
+
+<style>
+  .scrollable-element {
+    scrollbar-color: hsl(0, 0%, 45%) hsl(0 0% 14.9%);
+    scrollbar-width: thin;
+  }
+</style>
