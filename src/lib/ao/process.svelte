@@ -49,7 +49,7 @@
 
 	// @ts-ignore
 	export const read = async (processId, tags) => {
-		console.log("reading data")
+		//console.log("reading data")
 		// The only 2 mandatory parameters here are process and signer
 		// connect to the extension
 		// @ts-ignore
@@ -63,7 +63,7 @@
 			// Tags that the process will use as input.
 			tags: tags,
 		});
-		console.log(result)
+		//console.log(result)
 		if (result.Messages) {
 			let message = result.Messages.pop();
 			return message;

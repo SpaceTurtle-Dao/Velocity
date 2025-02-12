@@ -4,8 +4,8 @@
   import { currentUser } from "$lib/stores/current-user.store";
   import type { Profile } from "$lib/models/Profile";
   import { onMount } from "svelte";
-  import { fetchProfiles } from "$lib/ao/relay";
-
+    import { profileService } from "$lib/services/ProfileService";
+ 
   export let _profiles: string[] = [];
   const ITEMS_PER_PAGE = 10;
   let currentPage = 0;
@@ -23,12 +23,15 @@
     console.log("follow list");
     console.log(_profiles);
     profiles = (
-      await fetchProfiles(
+      await profileService.fetchProfiles(
+        "0",
+        "100",
         _profiles,
       )
     )
       .values()
       .toArray();
+      console.log(profiles.length);
       loadMoreProfiles()
   }
 
@@ -38,7 +41,9 @@
     console.log(_profiles);
     currentPage++;
     let temp = (
-      await fetchProfiles(
+      await profileService.fetchProfiles(
+        "0",
+        "100",
         _profiles,
       )
     )

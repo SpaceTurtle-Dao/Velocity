@@ -4,7 +4,6 @@
   import { onMount } from "svelte";
   import { fetchEvents } from "$lib/ao/relay";
   import { currentUser } from "$lib/stores/current-user.store";
-  import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
 
   let events: Array<any> = [];
 
@@ -41,20 +40,23 @@
   }
 
   async function fetchFeedEvents() {
-    /*if (isFetchingAlready || !$currentUser) return;
+    //if (isFetchingAlready || !$currentUser) return;
 
     try {
-      isFetchingAlready = true;
+      //isFetchingAlready = true;
 
       const filter = {
         kinds: ["1", "6"],
         since: 1663905355000,
         until: Date.now(),
-        limit: 100,
+        limit: 100
+      };
+
+      const filter2 = {
         tags: { marker: ["root"] },
       };
 
-      const _filters = JSON.stringify([filter]);
+      const _filters = JSON.stringify([filter, filter2]);
       const _events = await fetchEvents(_filters);
 
       // Process and update events
@@ -63,8 +65,8 @@
     } catch (error) {
       console.error("Error fetching feed events:", error);
     } finally {
-      isFetchingAlready = false;
-    }*/
+      //isFetchingAlready = false;
+    }
   }
 
   async function fetchFollowingEvents() {
@@ -78,7 +80,7 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-        authors: $currentUser.followList,
+        authors: $currentUser.followList
       };
       const filter2 = {
         tags: { marker: ["root"] },
@@ -106,13 +108,13 @@
   });
 
   // Handle new post notifications
-  notifyNewPostStore.subscribe(async (value) => {
+  /*notifyNewPostStore.subscribe(async (value) => {
     if (value) {
       await fetchFeedEvents();
       // Reset the notification store
       notifyNewPostStore.set(0);
     }
-  });
+  });*/
 </script>
 
 {#if $currentUser}

@@ -41,13 +41,13 @@ export const fetchEvents = async (filters: string): Promise<any[]> => {
     }
   } catch (e) {
     console.log(e);
-    throw e;
+    //throw e;
   }
   return events;
 };
 
 export const fetchProfile = async (address: string): Promise<Profile> => {
-  console.log("Address", address);
+  //console.log("Address", address);
   const filter = JSON.stringify([
     {
       kinds: ["0"],
@@ -57,7 +57,7 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
   ]);
 
   let messages = await fetchEvents(filter);
-  console.log("Messages from App", messages);
+  //console.log("Messages from App", messages);
 
   try {
     // messages[0] give the latest profile change of this address and it  return that
@@ -67,51 +67,8 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     profile.address = message.From;
     profile.created_at = messages[0].Timestamp;
     profile.updated_at = message.Timestamp;
-    console.log("Profile from App", profile);
+    //console.log("Profile from App", profile);
     return profile;
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-};
-
-export const fetchProfiles = async (
-  authors: Array<string>
-): Promise<Profile[]> => {
-  let filter = "";
-  if (authors.length > 0) {
-    filter = JSON.stringify([
-      {
-        kinds: ["0"],
-        authors: authors,
-        //   limit: 1,
-      },
-    ]);
-  } else {
-    filter = JSON.stringify([
-      {
-        kinds: ["0"],
-        //   limit: 1,
-      },
-    ]);
-  }
-  let messages = await fetchEvents(filter);
-  // console.log("Messages from App with all profiless", messages);
-
-  try {
-    return messages.map((message) => {
-      let profile = JSON.parse(message.Content);
-
-      profile.address = message.From;
-
-      profile.created_at = messages[0].Timestamp;
-
-      profile.updated_at = message.Timestamp;
-
-      console.log("Profile from App in new Fetch all Profiles", profile);
-
-      return profile;
-    }) as Profile[];
   } catch (e) {
     console.error(e);
     throw e;
@@ -121,7 +78,7 @@ export const fetchProfiles = async (
 export const fetchFollowList = async (
   address: string
 ): Promise<Array<string>> => {
-  console.log("Address", address);
+  //console.log("Address", address);
   let followList: Array<string> = [];
   const filter = JSON.stringify([
     {
@@ -132,14 +89,14 @@ export const fetchFollowList = async (
   ]);
 
   let messages = await fetchEvents(filter);
-  console.log("Messages from App", messages);
+  //console.log("Messages from App", messages);
 
   try {
-    console.log(`Follow List messages for ${address}`, messages);
+    //console.log(`Follow List messages for ${address}`, messages);
     let message = messages[0]; // Latest Follow List at index 0
-    if (message.p) {
+    if (message && message.p) {
       followList = JSON.parse(message.p);
-      console.log(`Latest Follow List for ${address}`, followList);
+      //console.log(`Latest Follow List for ${address}`, followList);
     }
   } catch (e) {
     console.log(e);
@@ -148,7 +105,7 @@ export const fetchFollowList = async (
 };
 
 // Modified fetchProfilesForUsersProfileMap with pagination
-export const fetchProfilesForUsersProfileMap = async (
+/*export const fetchProfilesForUsersProfileMap = async (
   page: number = 0,
   limit: number = 10,
   profiles: string []
@@ -188,10 +145,10 @@ export const fetchProfilesForUsersProfileMap = async (
     console.error(e);
     throw e;
   }
-};
+};*/
 
 // that stores all profiles and returns paginated results from cache
-export class ProfileCache {
+/*export class ProfileCache {
   private static instance: ProfileCache;
   private profiles: Profile[] = [];
   private lastFetch: number = 0;
@@ -206,15 +163,15 @@ export class ProfileCache {
     return ProfileCache.instance;
   }
 
-  private async refreshCache(): Promise<void> {
+  /*private async refreshCache(): Promise<void> {
     const now = Date.now();
     if (now - this.lastFetch > this.CACHE_DURATION || this.profiles.length === 0) {
       this.profiles = await fetchProfiles([]);
       this.lastFetch = now;
     }
-  }
+  }*/
 
-  async getPaginatedProfiles(page: number, limit: number): Promise<Map<string, Profile>> {
+  /*async getPaginatedProfiles(page: number, limit: number): Promise<Map<string, Profile>> {
     await this.refreshCache();
     
     const startIndex = page * limit;
@@ -262,4 +219,4 @@ export const fetchPaginatedProfilesForUsersProfileMap = async (
 export const hasMoreProfiles = (page: number, limit: number): boolean => {
   const cache = ProfileCache.getInstance();
   return cache.hasMoreProfiles(page, limit);
-};
+};*/

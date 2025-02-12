@@ -65,6 +65,10 @@ export const DEFAULT_QUANTITY = "1000000000000000000"
 export const DECIMALS = 1000000000000;
 
 
+export const ARToken = "xU9zFkq3X2ZQ6olwNVvr1vUWIjc3kXTWr7xKQD6dh10"
+
+export const BazarUCM = "U3TjJAZWJjlWBB4KAXSHKzuky81jtyh0zqH8rUL4Wd0"
+
 export function formatNumber(num: number) {
     const suffixes = ['', 'K', 'M', 'B', 'T', 'P', 'E']; // Add more if needed
     let tier = Math.log10(Math.abs(num)) / 3 | 0;

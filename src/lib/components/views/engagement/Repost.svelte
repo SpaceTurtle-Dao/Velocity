@@ -5,7 +5,6 @@
   import { onMount } from "svelte";
   import { fetchEvents, event } from "$lib/ao/relay";
   import { currentUser } from "$lib/stores/current-user.store";
-  import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
 
   export let _event: any;
 
@@ -48,8 +47,6 @@
     // Immediately update local state
     reposted = true;
 
-    notifyNewPostStore.update((num) => num + 1);
-
     // Refresh reposts to ensure consistency
     await fetchReposts();
   }
@@ -81,12 +78,12 @@
   }
 
   onMount(async () => {
-    console.log($currentUser.address);
-    console.log("getting reposts for id");
+    //console.log($currentUser.address);
+    //console.log("getting reposts for id");
     await fetchReposts();
-    console.log("got " + reposts.length + " reposts for id");
+    /*console.log("got " + reposts.length + " reposts for id");
     console.log(_event.Id);
-    console.log(reposts);
+    console.log(reposts);*/
   });
 </script>
 

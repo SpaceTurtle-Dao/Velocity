@@ -18,15 +18,13 @@
   import { X } from "lucide-svelte";
   import { getDisplayUrl } from "$lib/utils/url.utils";
   import { formatJoinedTimestamp } from "$lib/utils/timestamp.utils";
-  import { usersProfile } from "$lib/stores/users-profile.store";
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
+  import type { Profile } from "$lib/models/Profile";
+  import { profileService } from "$lib/services/ProfileService";
 
   export let params: { address?: string } = {};
 
-  $: profile =
-    params?.address == $currentUser.address
-      ? $currentUser
-      : $usersProfile.get(params?.address ?? "");
+  let profile: Profile;
 
   let activeTab: string = "posts";
   let events: Array<Event> = [];
@@ -37,7 +35,6 @@
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
   console.log("Will load thissss!!!");
-
   // user.subscribe(async (value) => {
   //     let filters: Array<any> = [];
   //     if (value) {
@@ -151,6 +148,20 @@
   }
 
   onMount(async () => {
+    console.log(params?.address);
+    if (params.address) {
+      if (params.address == $currentUser.address) {
+        profile = $currentUser;
+      } else {
+        let temp = await profileService.get(params.address);
+        console.log(temp);
+        //let followList = await fetchFollowList(params.address)
+
+        //temp.followList = [...new Set(followList.map(value => JSON.stringify(value)))].map(value => JSON.parse(value));
+        //profile = temp
+      }
+    }
+
     if (profile) {
       await fetchPost();
       // Split the string into parts, keeping the URLs separate
@@ -319,7 +330,9 @@
       <Tabs.List class="grid grid-cols-4">
         <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
         <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchSubscriptions} value="subscribed">Subscribed</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchSubscriptions} value="subscribed"
+          >Subscribed</Tabs.Trigger
+        >
         <Tabs.Trigger on:click={fetchSubs} value="assets">Assets</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="post">

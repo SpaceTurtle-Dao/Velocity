@@ -12,13 +12,13 @@
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import PostPreview from "./PostPreview.svelte";
   import type { Profile } from "$lib/models/Profile";
-  import { usersProfile } from "$lib/stores/users-profile.store";
+  import { profileService } from "$lib/services/ProfileService";
 
   export let event: any;
   export let isRepost: boolean;
 
   let newReply: any;
-  let profile = $usersProfile.get(event.From);
+  let profile = profileService.get(event.From);
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;

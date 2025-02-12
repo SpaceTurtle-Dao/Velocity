@@ -5,8 +5,8 @@
   import ProfilePictureHoverCard from "$lib/components/UserProfile/ProfilePictureHoverCard.svelte";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import { Repeat2Icon } from "lucide-svelte";
-  import { usersProfile } from "$lib/stores/users-profile.store";
   import { currentUser } from "$lib/stores/current-user.store";
+    import { profileService } from "$lib/services/ProfileService";
 
   export let event: any;
   export let user: Profile | undefined;
@@ -14,9 +14,9 @@
 
   let originalPostEvent = isRepost ? JSON.parse(event.Content) : event;
 
-  let profile = $usersProfile.get(event.From);
+  let profile = profileService.get(event.From);
 
-  let originalPostProfile = $usersProfile.get(originalPostEvent.From);
+  let originalPostProfile = profileService.get(originalPostEvent.From);
 
   function formatContent(content: string): string {
     // console.log("hhhh", JSON.parse(content));
