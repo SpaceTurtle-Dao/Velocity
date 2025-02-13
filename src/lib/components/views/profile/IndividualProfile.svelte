@@ -15,7 +15,7 @@
   import { onMount, afterUpdate } from "svelte";
   import { fetchEvents, fetchProfile } from "$lib/ao/relay";
   import Follow from "$lib/components/Follow/Follow.svelte";
-  import UserList from "$lib/components/UserList/UserList.svelte";
+  import Users from "$lib/components/UserList/Users.svelte";
 
   import { getDisplayUrl } from "$lib/utils/url.utils";
   import { formatJoinedTimestamp } from "$lib/utils/timestamp.utils";
@@ -246,10 +246,10 @@
         </div>
       </Tabs.Content>
       <Tabs.Content value="following">
-        <UserList />
+        <Users />
       </Tabs.Content>
       <Tabs.Content value="followers">
-        <UserList />
+        <Users />
       </Tabs.Content>
     </Tabs.Root>
   </div>

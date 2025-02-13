@@ -20,6 +20,8 @@
 </script>
 
 <Avatar.Root class={sizeClass}>
-  <Avatar.Image {src} alt={name} />
-  <Avatar.Fallback class="text-primary">{getInitials(name)}</Avatar.Fallback>
+  {#if name}
+    <Avatar.Image {src} alt={name} />
+    <Avatar.Fallback class="text-primary">{getInitials(name)}</Avatar.Fallback>
+  {/if}
 </Avatar.Root>

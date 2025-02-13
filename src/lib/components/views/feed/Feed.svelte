@@ -2,14 +2,10 @@
   import Post from "$lib/components/posts/Post.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { onMount } from "svelte";
-  import { fetchEvents } from "$lib/ao/relay";
   import { currentUser } from "$lib/stores/current-user.store";
-  import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
+  import { postService } from "$lib/services/PostService";
 
   let events: Array<any> = [];
-  let filters: Array<any> = [];
-  let isFetchingAlready = false;
-
   function processEvents(rawEvents: any) {
     const postMap = new Map();
     const topLevelPosts: any = [];
@@ -43,47 +39,34 @@
   }
 
   async function fetchFeedEvents() {
-    if (isFetchingAlready || !$currentUser) return;
+    //if (isFetchingAlready || !$currentUser) return;
 
     try {
-      isFetchingAlready = true;
-
-      const filter = {
-        kinds: ["1", "6"],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-        tags: { marker: ["root"] },
-      };
-
-      const _filters = JSON.stringify([filter]);
-      const _events = await fetchEvents(_filters);
-
+      console.log("will get feed");
+      const _events = await postService.fetchPost(1663905355000, 100, []);
+      console.log(_events);
       // Process and update events
       events = processEvents(_events);
-      console.log("Updated events:", events);
+      console.log(events);
+      //console.log("Updated events:", events);
     } catch (error) {
       console.error("Error fetching feed events:", error);
     } finally {
-      isFetchingAlready = false;
+      //isFetchingAlready = false;
     }
   }
 
   async function fetchFollowingEvents() {
-    if (!$currentUser?.followList) return;
-
+    console.log("will get Follow List");
+    if (!$currentUser.followList) return;
+    console.log("Got Follow List");
+    console.log($currentUser.followList);
     try {
-      const filter = {
-        kinds: ["1", "6"],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-        tags: { marker: ["root"] },
-        // authors: $currentUser.followList,
-      };
-
-      const _filters = JSON.stringify([filter]);
-      const _events = await fetchEvents(_filters);
+      const _events = await postService.fetchPost(
+        1663905355000,
+        100,
+        $currentUser.followList,
+      );
       events = processEvents(_events);
     } catch (error) {
       console.error("Error fetching following events:", error);
@@ -96,19 +79,39 @@
     events = processEvents([...events.flat(), newReply]);
   }
 
+  function handleScroll(event: Event) {
+    const target = event.target as HTMLDivElement;
+    const threshold = 100; // pixels from bottom to trigger load
+    console.log("we are scrolling")
+    /*if (
+      target.scrollHeight - (target.scrollTop + target.clientHeight) <
+        threshold &&
+      !loading &&
+      hasMore
+    ) {
+      if (
+        profiles.length == ITEMS_PER_PAGE &&
+        profiles[profiles.length - 1].created_at != since
+      ) {
+        since = profiles[profiles.length - 1].created_at;
+        loadMoreProfiles();
+      }
+    }*/
+  }
+
   // Initialize feed
   onMount(async () => {
     await fetchFeedEvents();
   });
 
   // Handle new post notifications
-  notifyNewPostStore.subscribe(async (value) => {
+  /*notifyNewPostStore.subscribe(async (value) => {
     if (value) {
       await fetchFeedEvents();
       // Reset the notification store
       notifyNewPostStore.set(0);
     }
-  });
+  });*/
 </script>
 
 {#if $currentUser}
@@ -128,7 +131,7 @@
 
         <Tabs.Content value="for you">
           <div>
-            {#each events as event (event.Id)}
+            {#each events as event}
               <div class="border border-border max-w-prose">
                 <Post
                   {event}
@@ -142,7 +145,7 @@
 
         <Tabs.Content value="following">
           <div>
-            {#each events as event (event.Id)}
+            {#each events as event}
               <div class="border border-border max-w-prose">
                 <Post
                   {event}
@@ -157,3 +160,10 @@
     </div>
   </div>
 {/if}
+
+<style>
+  .scrollable-element {
+    scrollbar-color: hsl(0, 0%, 45%) hsl(0 0% 14.9%);
+    scrollbar-width: thin;
+  }
+</style>

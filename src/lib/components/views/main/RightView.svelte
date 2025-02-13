@@ -1,9 +1,11 @@
 <script lang="ts">
-  import UserList from "$lib/components/UserList/UserList.svelte";
+  import Users from "$lib/components/UserList/Users.svelte";
+    import { isMobile } from "$lib/stores/is-mobile.store";
 </script>
-
+{#if !$isMobile}
 <div
-  class="hidden lg:flex justify-start pt-4 lg:pt-10 px-2 lg:pl-10 w-full lg:w-1/3"
+  class="flex p-10 lg:w-1/4"
 >
-  <UserList />
+  <Users _profiles = {[]}/>
 </div>
+{/if}

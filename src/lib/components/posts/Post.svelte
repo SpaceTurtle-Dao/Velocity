@@ -14,10 +14,9 @@
   import * as Dialog from "$lib/components/ui/dialog";
   import ProfilePictureHoverCard from "../UserProfile/ProfilePictureHoverCard.svelte";
   import { formatTimestamp } from "$lib/utils/timestamp.utils";
-  import { usersProfile } from "$lib/stores/users-profile.store";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import type { Profile } from "$lib/models/Profile";
-  import { postsStore } from "$lib/stores/posts.store";
+  import { profileService } from "$lib/services/ProfileService";
 
   export let event: any;
   export let replies: any[] = [];
@@ -40,7 +39,7 @@
   function transformEventToPost(
     event: any,
     isRepost = false,
-    originalEvent = null
+    originalEvent = null,
   ) {
     return {
       id: event.Id,
@@ -86,9 +85,9 @@
           parseRepostContent().then(async (parsedContent) => {
             if (parsedContent) {
               originalEvent = parsedContent;
-              originalUser = $usersProfile.get(parsedContent.From);
+              originalUser = profileService.get(parsedContent.From);
             }
-          })
+          }),
         );
       }
 
@@ -109,7 +108,7 @@
 
           const replies = await fetchEvents(replyFilter);
           replyCount = replies.length;
-        })()
+        })(),
       );
 
       // Count reposts if it's an original post
@@ -123,13 +122,12 @@
               },
             ]);
             repostArray = await fetchEvents(repostFilter);
-          })()
+          })(),
         );
       }
 
       await Promise.all(promises);
-    } 
-    catch (error) {
+    } catch (error) {
       // console.error("Error loading event data:", error);
       // loadError = "Failed to load post data";
     } finally {
@@ -143,17 +141,12 @@
       const post = transformEventToPost(
         event,
         isRepost,
-        isRepost ? originalEvent : null
+        isRepost ? originalEvent : null,
       );
 
-      // Add to posts store
-      postsStore.update((posts) => {
-        // Prevent duplicates
-        const exists = posts.some((p) => p.id === post.id);
-        return exists ? posts : [post, ...posts].slice(0, 100);
-      });
-
-      profile = (await usersProfile.get(event.From)) as Profile;
+      profile = await profileService.get(event.From);
+      console.log("got profile for post")
+      console.log(profile)
       isLoading = false;
       fetchConcurrentData();
     }
@@ -166,14 +159,8 @@
       replyEvent.detail,
       true,
       //@ts-ignore
-      { e: event.Id }
+      { e: event.Id },
     );
-
-    // Add reply to posts store
-    postsStore.update((posts) => {
-      const exists = posts.some((p) => p.id === newReply.id);
-      return exists ? posts : [newReply, ...posts].slice(0, 100);
-    });
 
     replies = [...replies, replyEvent.detail];
     dispatch("newReply", replyEvent.detail);

@@ -7,6 +7,8 @@
   export let size: "sm" | "base" | "lg" | "xl" = "sm";
 </script>
 
-<ProfileHoverCard {profile}>
-  <ProfilePicture name={profile.name} src={profile.picture} {size} />
-</ProfileHoverCard>
+{#if profile}
+  <ProfileHoverCard {profile}>
+    <ProfilePicture name={profile.name} src={profile.picture} {size} />
+  </ProfileHoverCard>
+{/if}
