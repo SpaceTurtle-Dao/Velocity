@@ -5,7 +5,7 @@
   import { currentUser } from "$lib/stores/current-user.store";
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
-
+  
   let events: Array<any> = [];
 
   postService.subscribe((value) => {
@@ -43,10 +43,10 @@
     // Process events including the new reply
     //events = processEvents([...events.flat(), newReply]);
   }
-
+  let container;
   function handleScroll(event: Event) {
-    const target = event.target as HTMLDivElement;
-    const threshold = 100; // pixels from bottom to trigger load
+    //const target = event.target as HTMLDivElement;
+    //const threshold = 100; // pixels from bottom to trigger load
     console.log("we are scrolling");
     /*if (
       target.scrollHeight - (target.scrollTop + target.clientHeight) <
@@ -80,51 +80,46 @@
 </script>
 
 {#if $currentUser}
-  <div class="flex justify-center max-w-[653px] w-full">
-    <div class="md:mt-10 mt-5 max-w-prose w-full">
-      <Tabs.Root value="for you" class="max-w-prose">
-        <Tabs.List class="grid grid-cols-2 md:mx-0 mx-4 ">
-          <Tabs.Trigger
-            class="underline-tabs-trigger"
-            on:click={fetchFeedEvents}
-            value="for you">For You</Tabs.Trigger
-          >
-          <Tabs.Trigger on:click={fetchFollowingEvents} value="following"
-            >Following</Tabs.Trigger
-          >
-        </Tabs.List>
-
-        <Tabs.Content value="for you">
-          <div>
-            {#each events as event}
-              <div class="border border-border max-w-prose">
-                <Post {event} />
-              </div>
-            {/each}
-          </div>
-        </Tabs.Content>
-
-        <Tabs.Content value="following">
-          <div>
-            {#each events as event}
-              <div class="border border-border max-w-prose">
-                <Post
-                  {event}
-                  replies={event.replies}
-                  on:newReply={handleNewReply}
-                />
-              </div>
-            {/each}
-          </div>
-        </Tabs.Content>
-      </Tabs.Root>
+  <div class="relative">
+    <div bind:this={container} on:scroll={handleScroll}>
+      <div class="md:mt-10 mt-5 max-w-prose w-full">
+        <Tabs.Root value="for you" class="max-w-prose">
+          <Tabs.List class="grid grid-cols-2 md:mx-0 mx-4 ">
+            <Tabs.Trigger
+              class="underline-tabs-trigger"
+              on:click={fetchFeedEvents}
+              value="for you">For You</Tabs.Trigger
+            >
+            <Tabs.Trigger on:click={fetchFollowingEvents} value="following"
+              >Following</Tabs.Trigger
+            >
+          </Tabs.List>
+  
+          <Tabs.Content value="for you">
+            <div>
+              {#each events as event}
+                <div class="border border-border max-w-prose">
+                  <Post {event} />
+                </div>
+              {/each}
+            </div>
+          </Tabs.Content>
+  
+          <Tabs.Content value="following">
+            <div>
+              {#each events as event}
+                <div class="border border-border max-w-prose">
+                  <Post
+                    {event}
+                    replies={event.replies}
+                    on:newReply={handleNewReply}
+                  />
+                </div>
+              {/each}
+            </div>
+          </Tabs.Content>
+        </Tabs.Root>
+      </div>
     </div>
   </div>
 {/if}
-
-<style>
-  .scrollable-element {
-    scrollbar-color: hsl(0, 0%, 45%) hsl(0 0% 14.9%);
-    scrollbar-width: thin;
-  }
-</style>

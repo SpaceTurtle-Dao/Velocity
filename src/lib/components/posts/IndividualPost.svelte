@@ -42,7 +42,6 @@
   let mediaPreviewUrl: string | null = null;
 
   postService.subscribe(value => {
-    console.log("got indiviual post")
     console.log(value.get(id))
     post = value.get(id)
   })
@@ -50,6 +49,10 @@
   async function loadPost(userId: string, postId: string) {
     console.log(userId);
     console.log(postId);
+    if($postService.has(id)){
+      console.log("post exist")
+      post = $postService.get(id)
+    }
     try {
       // First, try to fetch the specific post
       let promises = [
@@ -58,7 +61,9 @@
         fetchReplies(postId),
       ];
       let results = await Promise.all(promises);
-      console.log(results);
+      console.log("got indiviual post")
+      post = results[0]
+      console.log(results[0]);
     } catch (error) {
       console.error("Error loading post:", error);
       post = null;
