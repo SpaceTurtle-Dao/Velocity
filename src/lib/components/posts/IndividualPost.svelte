@@ -17,6 +17,8 @@
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import type { Profile } from "$lib/models/Profile";
   import { isMobile } from "$lib/stores/is-mobile.store";
+  import { postService } from "$lib/services/PostService";
+  import { profileService } from "$lib/services/ProfileService";
 
   // Reactive declaration for URL parsing
   $: {
@@ -30,8 +32,6 @@
 
   let post: any = null;
   let replies: any[] = [];
-  let _user: any;
-  let profile: Profile;
   let id: string;
   let user: string;
 
@@ -41,30 +41,24 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
+  postService.subscribe(value => {
+    console.log("got indiviual post")
+    console.log(value.get(id))
+    post = value.get(id)
+  })
+
   async function loadPost(userId: string, postId: string) {
+    console.log(userId);
+    console.log(postId);
     try {
       // First, try to fetch the specific post
-      let postFilter = JSON.stringify([
-        {
-          ids: [postId],
-          kinds: ["1", "6"],
-        },
-      ]);
-
-      let postResults = await fetchEvents(postFilter);
-
-      if (postResults.length > 0) {
-        post = postResults[0];
-        post.Tags = post.Tags || {};
-        // _user = await info(post.From);
-        profile = _user?.Profile;
-
-        // After loading the post, fetch its replies
-        await fetchReplies(postId);
-      } else {
-        console.error("Post not found");
-        post = null;
-      }
+      let promises = [
+        postService.get(id),
+        //profileService.get(userId),
+        fetchReplies(postId),
+      ];
+      let results = await Promise.all(promises);
+      console.log(results);
     } catch (error) {
       console.error("Error loading post:", error);
       post = null;
@@ -119,7 +113,7 @@
             // user: replyUser,
             // profile: replyUser?.Profile,
           };
-        })
+        }),
       );
     } catch (error) {
       console.error("Error fetching replies:", error);
@@ -196,7 +190,7 @@
   }
 </script>
 
-<div class="max-w-prose mx-auto mb-10 {$isMobile ? "mt-0" : "mt-10"}">
+<div class="max-w-prose mx-auto mb-10 {$isMobile ? 'mt-0' : 'mt-10'}">
   {#if post}
     <div class="border border-border hover:bg-gray-900/5">
       <Post event={post} />

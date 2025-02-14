@@ -23,7 +23,7 @@
   import { profileService } from "$lib/services/ProfileService";
 
   export let params: { address?: string } = {};
-
+  
   let profile: Profile;
 
   let activeTab: string = "posts";
@@ -34,30 +34,7 @@
   var pTag: HTMLElement | null;
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
-  console.log("Will load thissss!!!");
-  // user.subscribe(async (value) => {
-  //     let filters: Array<any> = [];
-  //     if (value) {
-  //         let filter = {
-  //             kinds: [1],
-  //             since: 1663905355000,
-  //             until: Date.now(),
-  //             limit: 100,
-  //         };
-  //         filters.push(filter);
-  //         userInfo = value;
-  //         let _filters = JSON.stringify(filters);
-  //         if (userInfo) {
-  //             document.getElementById(profile.address);
-  //             await fetchEvents(_filters);
-  //         }
-  //         if (profile.about) {
-  //             textWithUrl = profile.about;
-  //         }
-  //     }
-  //     filters = [];
-  //     console.log("Will load thissss!!!", filters);
-  // });
+
 
   async function fetchMedia() {
     console.log("will get media")
@@ -154,30 +131,44 @@
     // await subs(userInfo.Process, "1", "100");
   }
 
-  function formatDate(dateString: number): string {
-    return new Date(dateString).toLocaleDateString();
-  }
-
-  function setActiveTab(tab: string) {
-    activeTab = tab;
-  }
 
   function toggleModal() {
     showModal = !showModal;
   }
 
   onMount(async () => {
-    console.log(params?.address);
+    setup()
+  });
+
+  const onAddressParamChange = async () => {
+    console.log("got new params!!!!!!")
+    console.log(params.address)
+    setup()
+    /*value = "post";
+    events = [];
+    await fetchPost();*/
+  };
+
+  $: {
     if (params.address) {
-      if (params.address == $currentUser.address) {
+      onAddressParamChange();
+    }
+  }
+  let value = "post";
+
+  //////////// Following/ subscribing code
+  let numberOfFollowing = 0;
+
+  let followListLoading = false;
+
+  async function setup(){
+    if (params.address) {
+      if ($currentUser && params.address == $currentUser.address) {
         profile = $currentUser;
       } else {
         let temp = await profileService.get(params.address);
         console.log(temp);
-        //let followList = await fetchFollowList(params.address)
-
-        //temp.followList = [...new Set(followList.map(value => JSON.stringify(value)))].map(value => JSON.parse(value));
-        //profile = temp
+        profile = temp
       }
     }
 
@@ -204,25 +195,7 @@
         }
       });
     }
-  });
-
-  const onAddressParamChange = async () => {
-    value = "post";
-    events = [];
-    await fetchPost();
-  };
-
-  $: {
-    if (params.address) {
-      onAddressParamChange();
-    }
   }
-  let value = "post";
-
-  //////////// Following/ subscribing code
-  let numberOfFollowing = 0;
-
-  let followListLoading = false;
 
   async function getFollowingCount() {
     if (profile?.address === $currentUser.address) {

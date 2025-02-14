@@ -7,6 +7,8 @@
   import { currentUser } from "$lib/stores/current-user.store";
   import { profileService } from "$lib/services/ProfileService";
   import { onMount } from "svelte";
+    import { fetchProfile } from "$lib/ao/relay";
+  
   export let event: any;
   export let user: Profile | undefined;
   export let isRepost: boolean;
@@ -16,6 +18,10 @@
   let profile: Profile;
 
   let originalPostProfile: Profile;
+
+  profileService.subscribe(value => {
+    profile = value.get(event.From)
+  })
 
   function formatContent(content: string): string {
     // console.log("hhhh", JSON.parse(content));
@@ -32,8 +38,8 @@
   }
 
   onMount(async () => {
-    profile = await profileService.get(event.From);
-    originalPostProfile = await profileService.get(originalPostEvent.From);
+    profileService.get(event.From);
+    originalPostProfile = await fetchProfile(originalPostEvent.From)
   });
 </script>
 

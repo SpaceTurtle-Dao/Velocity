@@ -18,10 +18,14 @@
     loadInitialProfiles();
   });
 
+  profileService.subscribe(value => {
+    profiles = value.values().toArray()
+  })
+
   async function loadInitialProfiles() {
     console.log("follow list");
     console.log(_profiles);
-    profiles = await profileService.fetchProfiles(
+    profileService.fetchProfiles(
       since,
       ITEMS_PER_PAGE,
       _profiles,
@@ -33,12 +37,11 @@
     if (loading || !hasMore) return;
     console.log("follow list");
     console.log(_profiles);
-    let temp = await profileService.fetchProfiles(
+    profileService.fetchProfiles(
       since,
       ITEMS_PER_PAGE,
       _profiles,
     );
-    profiles.push(...temp);
     hasMore = profiles.length === ITEMS_PER_PAGE;
   }
 

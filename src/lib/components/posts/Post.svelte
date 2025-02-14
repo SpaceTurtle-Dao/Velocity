@@ -137,14 +137,13 @@
 
   onMount(async () => {
     if (event) {
+      profile = event.profile
       // Transform and add post to store
       const post = transformEventToPost(
         event,
         isRepost,
         isRepost ? originalEvent : null,
       );
-
-      profile = await profileService.get(event.From);
       console.log("got profile for post")
       console.log(profile)
       isLoading = false;
