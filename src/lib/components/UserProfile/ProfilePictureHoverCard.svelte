@@ -9,6 +9,6 @@
 
 {#if profile}
   <ProfileHoverCard {profile}>
-    
+    <ProfilePicture name={profile.name} src={profile.picture} {size} />
   </ProfileHoverCard>
 {/if}

@@ -58,7 +58,7 @@ const service = (): ProfileService => {
 
         }
         set(profiles)
-        console.log("Profiles are")
+        //console.log("Profiles are")
         console.log(get(profileService))
       } catch (e) {
         throw e;
@@ -66,7 +66,7 @@ const service = (): ProfileService => {
       return profiles
     },
     get: async (address: string): Promise<Profile> => {
-      console.log("getting profile for", address)
+      //console.log("getting profile for", address)
       let profiles = get(profileService);
       try {
         const fetchedProfile = await fetchProfile(address);

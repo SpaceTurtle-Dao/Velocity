@@ -35,7 +35,7 @@ const service = (): PostService => {
                     for (var i = 0; i < events.length; i++) {
                         let post = events[i];
                         post.profile = profiles.get(post.From);
-                        posts.set(events[i].From, events[i])
+                        posts.set(post.From, post)
                     }
                     set(posts)
                 } else {
@@ -58,15 +58,6 @@ const service = (): PostService => {
                         posts.set(post.From, post)
                     }
                     set(posts)
-                    /*const profiles = new Map(temp.map((profile) => [profile.address, profile]))
-
-                    for (var i = 0; i < _events.length; i++) {
-                        const event = _events[i];
-                        const profile = profiles.get(event.From)
-                        event.profile = profile;
-                        events.push(event)
-                    }
-                    return events*/
                 }
 
 
