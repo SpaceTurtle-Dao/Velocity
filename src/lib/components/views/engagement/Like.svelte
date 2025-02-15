@@ -40,6 +40,7 @@
     }
 
     async function fetchLikes() {
+        if (!_event) return
         let filters: Array<any> = [];
         likes = [];
         let filter1 = {
@@ -66,13 +67,12 @@
     }
 
     onMount(async () => {
-        console.log($currentUser.address)
-        console.log("getting likes for id");
-        console.log(_event.Id)
+        //console.log($currentUser.address)
+        //console.log("getting likes for id");
         await fetchLikes()
-        console.log("got "+likes.length+" likes for id");
+        /*console.log("got "+likes.length+" likes for id");
         console.log(_event.Id)
-        console.log(likes);
+        console.log(likes);*/
     });
 </script>
 

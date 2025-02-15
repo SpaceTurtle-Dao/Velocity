@@ -17,6 +17,8 @@
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import type { Profile } from "$lib/models/Profile";
   import { isMobile } from "$lib/stores/is-mobile.store";
+  import { postService } from "$lib/services/PostService";
+  import { profileService } from "$lib/services/ProfileService";
 
   // Reactive declaration for URL parsing
   $: {
@@ -30,8 +32,6 @@
 
   let post: any = null;
   let replies: any[] = [];
-  let _user: any;
-  let profile: Profile;
   let id: string;
   let user: string;
 
@@ -41,33 +41,20 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
+  postService.subscribe(value => {
+    console.log(value.get(id))
+    post = value.get(id)
+  })
+
   async function loadPost(userId: string, postId: string) {
-    try {
-      // First, try to fetch the specific post
-      let postFilter = JSON.stringify([
-        {
-          ids: [postId],
-          kinds: ["1", "6"],
-        },
-      ]);
-
-      let postResults = await fetchEvents(postFilter);
-
-      if (postResults.length > 0) {
-        post = postResults[0];
-        post.Tags = post.Tags || {};
-        // _user = await info(post.From);
-        profile = _user?.Profile;
-
-        // After loading the post, fetch its replies
-        await fetchReplies(postId);
-      } else {
-        console.error("Post not found");
-        post = null;
-      }
-    } catch (error) {
-      console.error("Error loading post:", error);
-      post = null;
+    console.log(userId);
+    console.log(postId);
+    if($postService.has(id)){
+      console.log("post exist")
+      post = $postService.get(id)
+    }else{
+      post = await postService.get(id);
+      replies = (await postService.fetchReplies(0,1000,id)).values().toArray()
     }
   }
 
@@ -96,35 +83,6 @@
       await loadPost(user, id);
     }
   });
-
-  async function fetchReplies(postId: string) {
-    try {
-      let replyFilter = JSON.stringify([
-        {
-          kinds: ["1"],
-          limit: 100,
-          tags: { marker: ["reply"] },
-        },
-        {
-          tags: { e: [postId] },
-        },
-      ]);
-      replies = await fetchEvents(replyFilter);
-      replies = await Promise.all(
-        replies.map(async (reply) => {
-          // const replyUser = await info(reply.From);
-          return {
-            ...reply,
-            Tags: reply.Tags || {},
-            // user: replyUser,
-            // profile: replyUser?.Profile,
-          };
-        })
-      );
-    } catch (error) {
-      console.error("Error fetching replies:", error);
-    }
-  }
 
   function handleMediaSelect() {
     fileInput?.click();
@@ -196,7 +154,7 @@
   }
 </script>
 
-<div class="max-w-prose mx-auto mb-10 {$isMobile ? "mt-0" : "mt-10"}">
+<div class="max-w-prose mx-auto mb-10 {$isMobile ? 'mt-0' : 'mt-10'}">
   {#if post}
     <div class="border border-border hover:bg-gray-900/5">
       <Post event={post} />

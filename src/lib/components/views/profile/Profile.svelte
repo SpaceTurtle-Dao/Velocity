@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { fly } from "svelte/transition";
   import { Card, CardContent } from "$lib/components/ui/card";
   import {
     Avatar,
@@ -9,69 +8,51 @@
   import { Button } from "$lib/components/ui/button";
   import { currentUser } from "$lib/stores/current-user.store";
   import Post from "../../posts/Post.svelte";
-  import Followers from "../../Followers/Followers.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Link, CalendarDays } from "lucide-svelte";
   import { onMount } from "svelte";
   import { fetchEvents, fetchFollowList, fetchProfile } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
   import Follow from "../../Follow/Follow.svelte";
-  import UserList from "$lib/components/UserList/UserList.svelte";
-  import Process from "$lib/ao/process.svelte";
+  import Users from "$lib/components/UserList/Users.svelte";
   import { X } from "lucide-svelte";
   import { getDisplayUrl } from "$lib/utils/url.utils";
   import { formatJoinedTimestamp } from "$lib/utils/timestamp.utils";
-  import type { Profile } from "$lib/models/Profile";
-  import { user } from "$lib/stores/profile.store";
-  import { event } from "$lib/ao/relay";
-
-  import { usersProfile } from "$lib/stores/users-profile.store";
-  import { followListStore } from "$lib/stores/follow-list.store";
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
+  import type { Profile } from "$lib/models/Profile";
+  import { profileService } from "$lib/services/ProfileService";
 
   export let params: { address?: string } = {};
-
-  $: profile =
-    params?.address === $currentUser.address
-      ? $currentUser
-      : $usersProfile.get(params?.address ?? "");
+  
+  let profile: Profile;
 
   let activeTab: string = "posts";
   let events: Array<Event> = [];
 
   let showModal = false;
   let textWithUrl = "";
-  let pTag: HTMLElement | null;
+  var pTag: HTMLElement | null;
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
-  console.log("Will load thissss!!!");
 
-  // user.subscribe(async (value) => {
-  //     let filters: Array<any> = [];
-  //     if (value) {
-  //         let filter = {
-  //             kinds: [1],
-  //             since: 1663905355000,
-  //             until: Date.now(),
-  //             limit: 100,
-  //         };
-  //         filters.push(filter);
-  //         userInfo = value;
-  //         let _filters = JSON.stringify(filters);
-  //         if (userInfo) {
-  //             document.getElementById(profile.address);
-  //             await fetchEvents(_filters);
-  //         }
-  //         if (profile.about) {
-  //             textWithUrl = profile.about;
-  //         }
-  //     }
-  //     filters = [];
-  //     console.log("Will load thissss!!!", filters);
-  // });
 
   async function fetchMedia() {
+    console.log("will get media")
     let filters: Array<any> = [];
+    let mimeTypes: string[] = [
+      "image/apng",
+      "image/avif",
+      "image/gif",
+      "image/jpeg",
+      "image/png",
+      "image/svg+xml",
+      "image/webp",
+      "video/x-msvideo",
+      "video/mp4",
+      "video/mpeg",
+      "video/ogg",
+      "video/webm",
+    ];
     events = [];
     if (profile) {
       let filter = {
@@ -80,28 +61,32 @@
         since: 1663905355000,
         until: Date.now(),
         limit: 100,
-      };
-      let filter2 = {
         tags: {
-          mimeType: [
-            "image/apng",
-            "image/avif",
-            "image/gif",
-            "image/jpeg",
-            "image/png",
-            "image/svg+xml",
-            "image/webp",
-            "video/x-msvideo",
-            "video/mp4",
-            "video/mpeg",
-            "video/ogg",
-            "video/webm",
-          ],
+          marker: ["root"],
         },
       };
       filters.push(filter);
-      filters.push(filter2);
+
+      /*for (let i = 0; i < mimeTypes.length; i++) {
+        let filter = {
+          tags: {
+            mimeType: mimeTypes[i],
+          },
+        };
+        filters.push(filter);
+      }*/
+
+      let filter2 = {
+          tags: {
+            mimeType: "image/jpeg",
+          },
+        };
+        filters.push(filter2);
+
       let _filters = JSON.stringify(filters);
+      console.log("Will send fetch event")
+      console.log("/////////Tags////////////")
+      console.log(_filters)
       events = await fetchEvents(_filters);
     }
     filters = [];
@@ -141,23 +126,52 @@
   }
 
   async function fetchSubscriptions() {
-    console.log("will get subscriptions");
-    // await subscriptions(userInfo.Process, "1", "100");
+    console.log("will get subs");
+    //profile?.followList = fetchFollowList(profile!.address)
+    // await subs(userInfo.Process, "1", "100");
   }
 
-  function formatDate(dateString: number): string {
-    return new Date(dateString).toLocaleDateString();
-  }
-
-  function setActiveTab(tab: string) {
-    activeTab = tab;
-  }
 
   function toggleModal() {
     showModal = !showModal;
   }
 
   onMount(async () => {
+    setup()
+  });
+
+  const onAddressParamChange = async () => {
+    console.log("got new params!!!!!!")
+    console.log(params.address)
+    setup()
+    /*value = "post";
+    events = [];
+    await fetchPost();*/
+  };
+
+  $: {
+    if (params.address) {
+      onAddressParamChange();
+    }
+  }
+  let value = "post";
+
+  //////////// Following/ subscribing code
+  let numberOfFollowing = 0;
+
+  let followListLoading = false;
+
+  async function setup(){
+    if (params.address) {
+      if ($currentUser && params.address == $currentUser.address) {
+        profile = $currentUser;
+      } else {
+        let temp = await profileService.get(params.address);
+        console.log(temp);
+        profile = temp
+      }
+    }
+
     if (profile) {
       await fetchPost();
       // Split the string into parts, keeping the URLs separate
@@ -173,7 +187,7 @@
             linkElement.href = part; // Set the href attribute
             linkElement.textContent = part; // Set the text content
             linkElement.target = "_blank"; // Open link in new tab
-            pTag?.appendChild(linkElement);
+            pTag.appendChild(linkElement);
           } else {
             // If the part is not a URL, append it as plain text
             pTag!.appendChild(document.createTextNode(part));
@@ -181,46 +195,16 @@
         }
       });
     }
-  });
-
-  const onAddressParamChange = async () => {
-    value = "post";
-    events = [];
-    await fetchPost();
-  };
-
-  $: {
-    if (params.address) {
-      onAddressParamChange();
-    }
   }
-  let value = "post";
-
-  //////////// Following/ subscribing code
-  let numberOfFollowing = 0;
-
-  let followListLoading = true;
 
   async function getFollowingCount() {
-    followListLoading = true;
-
     if (profile?.address === $currentUser.address) {
-      numberOfFollowing = $followListStore.size;
-      followListLoading = false;
-
-      followListStore.subscribe((set) => {
-        numberOfFollowing = set.size;
-      });
+      numberOfFollowing = $currentUser.followList.length;
     } else {
+      followListLoading = true;
       if (profile?.address) {
-        fetchFollowList(profile?.address)
-          .then((followList) => {
-            numberOfFollowing = followList.length;
-            followListLoading = false;
-          })
-          .catch((e) => {
-            console.error(e);
-          });
+        numberOfFollowing = profile?.followList.length;
+        followListLoading = false;
       }
     }
   }
@@ -328,7 +312,7 @@
           </div>
           <div class="flex space-x-1">
             <!-- <p>{userInfo.Subs}</p> -->
-            <p class="text-muted-foreground">Subscribers</p>
+            <!--<p class="text-muted-foreground">Subscribers</p>-->
           </div>
         </div>
       </CardContent>
@@ -341,9 +325,7 @@
         <Tabs.Trigger on:click={fetchSubscriptions} value="subscribed"
           >Subscribed</Tabs.Trigger
         >
-        <Tabs.Trigger on:click={fetchSubs} value="subscribers"
-          >Subscribers</Tabs.Trigger
-        >
+        <Tabs.Trigger on:click={fetchSubs} value="assets">Assets</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="post">
         <div class="">
@@ -364,9 +346,9 @@
         </div>
       </Tabs.Content>
       <Tabs.Content value="subscribed">
-        <UserList />
+        <Users _profiles={profile.followList} />
       </Tabs.Content>
-      <Tabs.Content value="subsribers">
+      <Tabs.Content value="assets">
         <!-- {#if $user && profile}
                     <UserList />
                 {/if} -->

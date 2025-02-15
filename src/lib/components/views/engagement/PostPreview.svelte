@@ -1,22 +1,27 @@
 <script lang="ts">
-  import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { formatTimestamp } from "$lib/utils/timestamp.utils";
   import type { Profile } from "$lib/models/Profile";
   import ProfilePictureHoverCard from "$lib/components/UserProfile/ProfilePictureHoverCard.svelte";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import { Repeat2Icon } from "lucide-svelte";
-  import { usersProfile } from "$lib/stores/users-profile.store";
   import { currentUser } from "$lib/stores/current-user.store";
-
+  import { profileService } from "$lib/services/ProfileService";
+  import { onMount } from "svelte";
+    import { fetchProfile } from "$lib/ao/relay";
+  
   export let event: any;
   export let user: Profile | undefined;
   export let isRepost: boolean;
 
   let originalPostEvent = isRepost ? JSON.parse(event.Content) : event;
 
-  let profile = $usersProfile.get(event.From);
+  let profile: Profile;
 
-  let originalPostProfile = $usersProfile.get(originalPostEvent.From);
+  let originalPostProfile: Profile;
+
+  profileService.subscribe(value => {
+    profile = value.get(event.From)
+  })
 
   function formatContent(content: string): string {
     // console.log("hhhh", JSON.parse(content));
@@ -31,6 +36,11 @@
 
     return urlReplaceContent.slice(0, 400) + "...";
   }
+
+  onMount(async () => {
+    profileService.get(event.From);
+    originalPostProfile = await fetchProfile(originalPostEvent.From)
+  });
 </script>
 
 {#if isRepost}

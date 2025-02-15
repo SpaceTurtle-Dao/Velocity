@@ -9,7 +9,6 @@
   import { Plus, Image, X, Signpost, Gift } from "lucide-svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
-  import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import GifSearchDialog from "$lib/components/GifDailog/gifDailog.svelte";
 
@@ -109,8 +108,6 @@
     };
     _tags.push(contentTag);
     await event(_tags);
-
-    notifyNewPostStore.update((num) => num + 1);
     isLoading = false;
     dialogOpen = false;
     clearFields();
