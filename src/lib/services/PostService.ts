@@ -55,7 +55,7 @@ const service = (): PostService => {
                     for (var i = 0; i < events.length; i++) {
                         let post = events[i];
                         post.profile = profiles.get(post.From);
-                        posts.set(post.From, post)
+                        posts.set(post.Id, post)
                     }
                     set(posts)
                 }
