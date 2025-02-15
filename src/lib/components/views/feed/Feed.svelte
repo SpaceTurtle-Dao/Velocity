@@ -5,7 +5,7 @@
   import { currentUser } from "$lib/stores/current-user.store";
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
-  
+
   let events: Array<any> = [];
 
   postService.subscribe((value) => {
@@ -111,8 +111,6 @@
                 <div class="border border-border max-w-prose">
                   <Post
                     {event}
-                    replies={event.replies}
-                    on:newReply={handleNewReply}
                   />
                 </div>
               {/each}

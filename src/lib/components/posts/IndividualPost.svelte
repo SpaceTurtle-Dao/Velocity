@@ -52,21 +52,9 @@
     if($postService.has(id)){
       console.log("post exist")
       post = $postService.get(id)
-    }
-    try {
-      // First, try to fetch the specific post
-      let promises = [
-        postService.get(id),
-        //profileService.get(userId),
-        fetchReplies(postId),
-      ];
-      let results = await Promise.all(promises);
-      console.log("got indiviual post")
-      post = results[0]
-      console.log(results[0]);
-    } catch (error) {
-      console.error("Error loading post:", error);
-      post = null;
+    }else{
+      post = await postService.get(id);
+      replies = (await postService.fetchReplies(0,1000,id)).values().toArray()
     }
   }
 
@@ -95,35 +83,6 @@
       await loadPost(user, id);
     }
   });
-
-  async function fetchReplies(postId: string) {
-    try {
-      let replyFilter = JSON.stringify([
-        {
-          kinds: ["1"],
-          limit: 100,
-          tags: { marker: ["reply"] },
-        },
-        {
-          tags: { e: [postId] },
-        },
-      ]);
-      replies = await fetchEvents(replyFilter);
-      replies = await Promise.all(
-        replies.map(async (reply) => {
-          // const replyUser = await info(reply.From);
-          return {
-            ...reply,
-            Tags: reply.Tags || {},
-            // user: replyUser,
-            // profile: replyUser?.Profile,
-          };
-        }),
-      );
-    } catch (error) {
-      console.error("Error fetching replies:", error);
-    }
-  }
 
   function handleMediaSelect() {
     fileInput?.click();

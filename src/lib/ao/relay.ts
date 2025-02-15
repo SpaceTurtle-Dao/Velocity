@@ -65,7 +65,6 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     //console.log("Profile from App", profile);
     return profile;
   } catch (e) {
-    console.error(e);
     throw e;
   }
 };

@@ -6,6 +6,7 @@ import { profileService } from "./ProfileService";
 
 export interface PostService extends Readable<Map<string, any>> {
     fetchPost: (since: Number, limit: Number, authors: string[]) => void;
+    fetchReplies: (since: Number, limit: Number, id: string) => Promise<Map<string, any>>;
     get: (id: string) => void;
 }
 
@@ -60,6 +61,42 @@ const service = (): PostService => {
                     set(posts)
                 }
 
+
+            } catch (error) {
+                throw (error)
+            }
+        },
+        fetchReplies: async (since: Number, limit: Number, id: string): Promise<Map<string, any>> => {
+            let posts = get(postService);
+            let replies:Map<string, any> = new Map<string, any>();
+            try {
+                const filter = {
+                    kinds: ["1"],
+                    //since: since,
+                    //limit: limit
+                };
+                const filter2 = {
+                    tags: { marker: ["reply"] },
+                };
+
+                const filter3 = {
+                    tags: { e: [id] },
+                };
+
+                const _filters = JSON.stringify([filter, filter2, filter3]);
+                let events = await fetchEvents(_filters)
+                const authors = events.map(event => event.From);
+                let profiles = await profileService.fetchProfiles(0, 10000, authors)
+                for (var i = 0; i < events.length; i++) {
+                    let post = events[i];
+                    post.profile = profiles.get(post.From);
+                    posts.set(post.From, post)
+                    replies.set(post.From, post)
+                }
+                set(posts)
+                console.log("got replies")
+                console.log(replies)
+                return replies
 
             } catch (error) {
                 throw (error)
