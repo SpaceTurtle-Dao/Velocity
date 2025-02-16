@@ -17,6 +17,7 @@
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
+    import { postService } from "$lib/services/PostService";
 
   export let event: any;
   export let replies: any[] = [];
@@ -85,7 +86,11 @@
           parseRepostContent().then(async (parsedContent) => {
             if (parsedContent) {
               originalEvent = parsedContent;
-              originalUser = profileService.get(parsedContent.From);
+              try{
+                originalUser = await profileService.get(parsedContent.From);
+              }catch(e){
+                console.log(e)
+              }
             }
           }),
         );
@@ -106,7 +111,7 @@
             },
           ]);
 
-          const replies = await fetchEvents(replyFilter);
+          const replies = (await postService.fetchReplies(0,10000,event.Id)).values().toArray();
           replyCount = replies.length;
         })(),
       );
@@ -137,14 +142,13 @@
 
   onMount(async () => {
     if (event) {
+      profile = event.profile
       // Transform and add post to store
       const post = transformEventToPost(
         event,
         isRepost,
         isRepost ? originalEvent : null,
       );
-
-      profile = await profileService.get(event.From);
       console.log("got profile for post")
       console.log(profile)
       isLoading = false;

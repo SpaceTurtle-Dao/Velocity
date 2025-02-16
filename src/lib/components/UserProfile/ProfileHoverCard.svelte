@@ -44,9 +44,11 @@
     </HoverCard.Trigger>
     <HoverCard.Content align="start">
       <div class="flex justify-between">
+        {#if profile.picture}
         <a href="/profile/{profile.address}" use:link>
           <ProfilePicture name={profile.name} src={profile.picture} size="xl" />
         </a>
+        {/if}
 
         {#if !isCurrentUser}
           <Follow address={profile.address} />

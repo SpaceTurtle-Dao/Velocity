@@ -1,67 +1,79 @@
 import { fetchEvents, fetchFollowList, fetchProfile } from "$lib/ao/relay";
 import type { Profile } from "$lib/models/Profile";
+import { get, writable, type Readable } from "svelte/store";
 
-interface ProfileService {
-  fetchProfiles: (since: Number, limit: Number, authors:string[]) => Promise<Profile[]>;
+interface ProfileService extends Readable<Map<string, any>> {
+  fetchProfiles: (since: Number, limit: Number, authors: string[]) => Promise<Map<string, any>>;
   get: (address: string) => Promise<Profile>;
 }
 
 const service = (): ProfileService => {
+  const { subscribe, set, update } = writable<Map<string, any>>(
+    new Map<string, any>()
+  );
   return {
-    fetchProfiles: async (since: Number, limit: Number, authors:string[]) => {
-      let filter = "";
+    subscribe,
+    fetchProfiles: async (since: Number, limit: Number, authors: string[]): Promise<Map<string, any>> => {
+      let profiles = get(profileService);
+      let filters = "";
+      try {
         if (authors.length > 0) {
-          filter = JSON.stringify([
+          filters = JSON.stringify([
             {
               kinds: ["0"],
               authors: authors,
+            },
+          ]);
+        } else {
+          filters = JSON.stringify([
+            {
+              kinds: ["0"],
               since: since,
               limit: limit
             },
           ]);
-        } else {
-          filter = JSON.stringify([
-            {
-              kinds: ["0"],
-              since: since,
-              //limit: limit
-            },
-          ]);
         }
-        let messages = await fetchEvents(filter);
-        // console.log("Messages from App with all profiless", messages);
-      
-        try {
-          return messages.map((message) => {
-            let profile = JSON.parse(message.Content);
-      
-            profile.address = message.From;
-      
-            profile.created_at = messages[0].Timestamp;
-      
-            profile.updated_at = message.Timestamp;
-      
-            //console.log("Profile from App in new Fetch all Profiles", profile);
-      
-            return profile;
-          }) as Profile[];
-        } catch (e) {
-          console.error(e);
-          throw e;
+        let events = await fetchEvents(filters);
+        let _profiles = events.map((event) => {
+          let profile = JSON.parse(event.Content);
+
+          profile.address = event.From;
+
+          profile.created_at = event.Timestamp;
+
+          profile.updated_at = event.Timestamp;
+
+          return profile;
+        }) as Profile[];
+        for (var i = 0; i < _profiles.length; i++) {
+          let currentProfile = profiles.get(_profiles[i].address);
+          if (currentProfile) {
+            if (currentProfile.created_at < _profiles[i].created_at) {
+              profiles.set(_profiles[i].address, _profiles[i])
+            }
+          } else {
+            profiles.set(_profiles[i].address, _profiles[i])
+          }
+
         }
+        set(profiles)
+        //console.log("Profiles are")
+        console.log(get(profileService))
+      } catch (e) {
+        throw e;
+      }
+      return profiles
     },
     get: async (address: string): Promise<Profile> => {
-      console.log("getting profile")
+      //console.log("getting profile for", address)
+      let profiles = get(profileService);
       try {
-        //let profile = get({ subscribe }).get(address);
-        //if (profile) return profile;
         const fetchedProfile = await fetchProfile(address);
         fetchedProfile.followList = await fetchFollowList(address)
-        console.log(fetchedProfile)
-        return fetchedProfile;
+        profiles.set(fetchedProfile.address, fetchedProfile)
+        return fetchedProfile
       } catch (error) {
-        console.error("UsersProfileMapStore.get ", error);
-        throw(error)
+        throw (error)
       }
     },
   };

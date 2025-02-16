@@ -31,12 +31,7 @@ export const fetchEvents = async (filters: string): Promise<any[]> => {
     let message = FetchEvents(filters);
     let result = await read(HUB_ID(), message);
     if (result) {
-      //console.log(result);
       let json = JSON.parse(result.Data);
-      /*console.log("***Filters***")
-      console.log(JSON.parse(filters));
-      console.log("***Got Events***")
-      console.log(json);*/
       events = json;
     }
   } catch (e) {
@@ -70,7 +65,6 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     //console.log("Profile from App", profile);
     return profile;
   } catch (e) {
-    console.error(e);
     throw e;
   }
 };
