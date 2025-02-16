@@ -1,0 +1,134 @@
+<script lang="ts">
+  import { Search as SearchIcon } from "lucide-svelte";
+  import { onMount } from "svelte";
+  import { fetchEvents } from "$lib/ao/relay";
+  import type { Profile, UserInfo } from "$lib/models/Profile";
+  import { profileFromEvent } from "$lib/models/Profile";
+  import { link } from "svelte-spa-router";
+  
+  let searchQuery = "";
+  let searchResults: Profile[] = [];
+  let isLoading = false;
+  let debounceTimer: NodeJS.Timeout;
+
+  async function handleSearch() {
+  if (!searchQuery.trim()) {
+    searchResults = [];
+    return;
+  }
+  
+  isLoading = true;
+  try {
+    const filter = JSON.stringify([
+      {
+        kinds: ["0"],
+        search: searchQuery.toLowerCase()
+      }
+    ]);
+
+    const events = await fetchEvents(filter);
+    
+    // Filter profiles based on name or display_name
+    //@ts-ignore
+    searchResults = events.map(event => {
+      try {
+        const profile = profileFromEvent(event);
+        return {
+          ...profile,
+          address: event.From,
+          created_at: event.Timestamp,
+          updated_at: event.Timestamp,
+          followList: []
+        };
+      } catch (e) {
+        console.error("Error parsing profile:", e);
+        return null;
+      }
+    }).filter(profile => {
+      if (!profile) return false;
+    
+      const nameMatch = profile.name?.toLowerCase().includes(searchQuery.toLowerCase());
+      const displayNameMatch = profile.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      return nameMatch || displayNameMatch;
+    });
+    
+  } catch (error) {
+    console.error("Search error:", error);
+    searchResults = [];
+  } finally {
+    isLoading = false;
+  }
+}
+
+  // Debounce search to avoid too many API calls
+  function debounceSearch() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(handleSearch, 300);
+  }
+
+  // Clean up debounce timer
+  onMount(() => {
+    return () => {
+      clearTimeout(debounceTimer);
+    };
+  });
+</script>
+
+<div class="max-w-2xl mx-auto p-4 space-y-6 mt-5">
+  <div class="flex items-center space-x-4 bg-background-700 rounded-full p-3">
+    <SearchIcon class="w-5 h-5 text-muted-foreground" />
+    <input
+      type="text"
+      bind:value={searchQuery}
+      placeholder="Search profiles..."
+      class="w-full bg-transparent focus:outline-none text-primary"
+      on:input={debounceSearch}
+    />
+  </div>
+
+  {#if isLoading}
+    <div class="flex justify-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
+    </div>
+  {:else if searchResults.length > 0}
+    <div class="space-y-4">
+      {#each searchResults as profile}
+        <a
+          href="/profile/{profile.address}"
+          use:link
+          class="block p-4 bg-background-700 rounded-lg hover:bg-background-600 transition-colors duration-200"
+        >
+          <div class="flex items-center space-x-4">
+            {#if profile.picture}
+              <img
+                src={profile.picture}
+                alt={profile.display_name || profile.name}
+                class="w-12 h-12 rounded-full object-cover"
+              />
+            {:else}
+              <div class="w-12 h-12 rounded-full bg-background-500 flex items-center justify-center">
+                <span class="text-lg text-primary">
+                  {(profile.display_name || profile.name || profile.address).charAt(0).toUpperCase()}
+                </span>
+              </div>
+            {/if}
+            
+            <div>
+              <h3 class="text-primary font-medium">
+                {profile.display_name || profile.name || profile.address.slice(0, 8) + '...'}
+              </h3>
+              {#if profile.about}
+                <p class="text-sm text-muted-foreground line-clamp-2">
+                  {profile.about}
+                </p>
+              {/if}
+            </div>
+          </div>
+        </a>
+      {/each}
+    </div>
+  {:else if searchQuery}
+    <p class="text-center text-muted-foreground">No profiles found</p>
+  {/if}
+</div>
