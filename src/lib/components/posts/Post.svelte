@@ -138,12 +138,11 @@
           {#if post.rePost}
             <div class="flex items-center text-muted-foreground mb-2">
               <Repeat2Icon size={16} class="mr-2" />
-              <span class="text-sm"
-                >
+              <span class="text-sm">
                 {#if post.profile.address == $currentUser?.address}
                   You Reposted
                 {:else}
-                Reposted by @{post.profile.name}
+                  Reposted by @{post.profile.name}
                 {/if}
               </span>
             </div>
@@ -156,12 +155,25 @@
                   <div>
                     <ProfilePictureHoverCard profile={post.rePost.profile} />
                   </div>
+                {:else}
                   <div>
                     <ProfilePictureHoverCard profile={post.profile} />
                   </div>
                 {/if}
                 <div class="flex-1">
                   <div class="flex space-x-1 mb-1">
+                    {#if post.rePost}
+                    <ProfileHoverCard profile={post.profile}>
+                      <div class="flex space-x-1">
+                        <p class="font-medium text-primary">
+                          {post.rePost.profile.name}
+                        </p>
+                        <span class="text-muted-foreground pl-0.5 text-ellipsis"
+                          >@{post.rePost.profile.display_name}</span
+                        >
+                      </div>
+                    </ProfileHoverCard>
+                    {:else}
                     <ProfileHoverCard profile={post.profile}>
                       <div class="flex space-x-1">
                         <p class="font-medium text-primary">
@@ -172,17 +184,7 @@
                         >
                       </div>
                     </ProfileHoverCard>
-                    <ProfileHoverCard profile={post.profile}>
-                      <div class="flex space-x-1">
-                        <p class="font-medium text-primary">
-                          {post.profile.name}
-                        </p>
-                        <span class="text-muted-foreground pl-0.5 text-ellipsis"
-                          >@{post.profile.display_name}</span
-                        >
-                      </div>
-                    </ProfileHoverCard>
-
+                    {/if}
                     <span class="text-muted-foreground"
                       >· {formatTimestamp(post.timestamp)}</span
                     >

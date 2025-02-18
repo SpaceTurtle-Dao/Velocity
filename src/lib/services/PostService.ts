@@ -137,6 +137,9 @@ function postFactory(event: any, profile:Profile): Post {
         default:
             postType = PostType.Root
     }
+
+    if( event.Kind == "6") postType = PostType.Repost;
+    
     let _post: Post = {
         id: event.Id,
         from: event.From,
