@@ -80,7 +80,7 @@
   });*/
 </script>
 
-{#if $currentUser}
+{#if $currentUser && posts.length > 0}
   <div class="relative">
     <div bind:this={container} on:scroll={handleScroll}>
       <div class="md:mt-10 mt-5 max-w-prose w-full">

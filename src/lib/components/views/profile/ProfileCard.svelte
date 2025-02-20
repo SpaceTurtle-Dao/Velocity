@@ -4,8 +4,14 @@
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import { getDisplayUrl } from "$lib/utils/url.utils";
+  import { profileService } from "$lib/services/ProfileService";
+  import { onMount } from "svelte";
 
-  export let profile: Profile;
+  export let address: string;
+  let profile: Profile;
+  onMount(async () => {
+    profile = await profileService.get(address);
+  });
 </script>
 
 {#if profile}

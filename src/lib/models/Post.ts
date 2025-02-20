@@ -5,7 +5,6 @@ export interface Post {
   from: string;
   timestamp: number;
   content: string;
-  profile: Profile;
   mimeType:string | undefined;
   url:string | undefined;
   rePost:Post | undefined;

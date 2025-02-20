@@ -8,7 +8,6 @@ import { PostType, type Post } from "$lib/models/Post";
 export interface PostService extends Readable<Map<string, Post>> {
     fetchPost: (since: Number, limit: Number, authors: string[]) => Promise<Map<string, Post>>;
     fetchReplies: (id: string) => Promise<Map<string, Post>>;
-    update: (post: Post) => void;
     get: (id: string) => Promise<Post>;
 }
 
@@ -27,18 +26,15 @@ const service = (): PostService => {
                         kinds: ["1", "6"],
                         authors: authors
                     };
-                    const _filters = JSON.stringify([filter]);
-                    let results = await Promise.all([fetchEvents(_filters), profileService.fetchProfiles(0, 10000, authors)])
-                    let events = results[0]
-                    let profiles = results[1]
+                    const filter2 = {
+                        tags: { marker: ["root"] },
+                    };
+                    const _filters = JSON.stringify([filter,filter2]);
+                    let events = await fetchEvents(_filters)
                     for (var i = 0; i < events.length; i++) {
-                        let profile = profiles.get(events[i].From);
-                        if (profile) {
-                            let post = postFactory(events[i], profile);
-                            _posts.set(post.id, post)
-                            posts.set(post.id, post)
-                        }
-
+                        let post = postFactory(events[i]);
+                        _posts.set(post.id, post)
+                        posts.set(post.id, post)
                     }
                     set(posts)
                     return _posts
@@ -54,15 +50,10 @@ const service = (): PostService => {
 
                     const _filters = JSON.stringify([filter, filter2]);
                     let events = await fetchEvents(_filters);
-                    const authors = events.map(event => event.From);
-                    let profiles = await profileService.fetchProfiles(0, 1000, authors)
                     for (var i = 0; i < events.length; i++) {
                         if (events[i].Content) {
-                            let profile = profiles.get(events[i].From);
-                            if (profile) {
-                                let post = postFactory(events[i], profile);
-                                posts.set(post.id, post)
-                            }
+                            let post = postFactory(events[i]);
+                            posts.set(post.id, post)
 
                         }
                     }
@@ -89,16 +80,11 @@ const service = (): PostService => {
                 const _filters = JSON.stringify([filter, filter2]);
                 let events = await fetchEvents(_filters)
                 const authors = events.map(event => event.From);
-                let profiles = await profileService.fetchProfiles(0, 10000, authors)
                 for (var i = 0; i < events.length; i++) {
                     if (events[i].Content) {
-                        let profile = profiles.get(events[i].From);
-                        if (profile) {
-                            let post = postFactory(events[i], profile);
-                            post.profile = profile;
-                            posts.set(post.from, post)
-                            replies.set(post.from, post)
-                        }
+                        let post = postFactory(events[i]);
+                        posts.set(post.from, post)
+                        replies.set(post.from, post)
                     }
                 }
                 set(posts)
@@ -110,11 +96,6 @@ const service = (): PostService => {
                 throw (error)
             }
         },
-        update: async (post: Post) => {
-            let posts = get(postService)
-            posts.set(post.id, post)
-            set(posts)
-        },
         get: async (id: string): Promise<Post> => {
             let posts = get(postService)
             try {
@@ -125,8 +106,7 @@ const service = (): PostService => {
                 const _filters = JSON.stringify([filter]);
                 let result = await fetchEvents(_filters)
                 if (result.length == 0) throw ("Not Found")
-                let profile = await profileService.get(result[0].From)
-                let post = postFactory(result[0], profile);
+                let post = postFactory(result[0]);
                 post = await getRepost(post)
                 if (post.content) {
                     posts.set(id, post)
@@ -142,7 +122,7 @@ const service = (): PostService => {
     };
 };
 
-function postFactory(event: any, profile: Profile): Post {
+function postFactory(event: any): Post {
     let postType: PostType;
     switch (event.Tags["marker"]) {
         case "media":
@@ -165,7 +145,6 @@ function postFactory(event: any, profile: Profile): Post {
         from: event.From,
         timestamp: event.Timestamp,
         content: event.Content,
-        profile: profile,
         type: postType,
         rePost: undefined,
         replies: [],
@@ -180,8 +159,7 @@ async function getRepost(post: Post): Promise<Post> {
     let _post = post;
     if (_post.type == PostType.Repost) {
         const content = JSON.parse(_post.content);
-        let profile = await profileService.get(content.From)
-        _post.rePost = postFactory(content, profile);
+        _post.rePost = postFactory(content);
     }
     return _post
 }

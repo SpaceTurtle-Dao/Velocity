@@ -6,10 +6,9 @@
   import { onMount } from "svelte";
   import { profileService } from "$lib/services/ProfileService";
 
-  export let _profiles: string[] = [];
+  export let addresss: string[] = [];
   const ITEMS_PER_PAGE = 100;
   let since = 0;
-  let profiles: Profile[] = [];
   let containerRef: HTMLDivElement;
   let loading = false;
   let hasMore = true;
@@ -23,24 +22,24 @@
   })*/
 
   async function loadInitialProfiles() {
-    console.log("follow list");
+    /*console.log("follow list");
     console.log(_profiles);
     profiles = (await profileService.fetchProfiles(0, 1000, _profiles))
       .values()
       .toArray();
-    console.log(profiles.length);
+    console.log(profiles.length);*/
   }
 
   async function loadMoreProfiles() {
-    if (loading || !hasMore) return;
+    /*if (loading || !hasMore) return;
     console.log("follow list");
     console.log(_profiles);
     profileService.fetchProfiles(since, ITEMS_PER_PAGE, _profiles);
-    hasMore = profiles.length === ITEMS_PER_PAGE;
+    hasMore = profiles.length === ITEMS_PER_PAGE;*/
   }
 
   function handleScroll(event: Event) {
-    const target = event.target as HTMLDivElement;
+    /*const target = event.target as HTMLDivElement;
     const threshold = 100; // pixels from bottom to trigger load
 
     if (
@@ -56,32 +55,26 @@
         since = profiles[profiles.length - 1].created_at;
         loadMoreProfiles();
       }
-    }
+    }*/
   }
 </script>
 
-{#if profiles.length > 0}
+{#if addresss.length > 0}
   <div class="w-full h-full">
     <Card.Root
       data-x-chunk-name="UserList"
       data-x-chunk-description="A card showing a list of users."
       class="border-border rounded p-0 min-w-[280px]"
     >
-      {#if _profiles.length == 0}
-        <Card.Header>
-          <Card.Title>You might like</Card.Title>
-        </Card.Header>
-      {/if}
-
       <Card.Content class="w-full pt-5">
         <div
           bind:this={containerRef}
           on:scroll={handleScroll}
           class="grid gap-4 lg:gap-6 max-h-[60vh] lg:max-h-[80vh] overflow-y-auto scrollable-element pr-2 lg:pr-3"
         >
-          {#each profiles as profile}
-            {#if profile.address !== $currentUser.address}
-              <ProfileCard {profile} />
+          {#each addresss as address}
+            {#if address !== $currentUser.address}
+              <ProfileCard {address} />
             {/if}
           {/each}
 

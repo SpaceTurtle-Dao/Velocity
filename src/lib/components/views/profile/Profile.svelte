@@ -21,11 +21,11 @@
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
-    import { postService } from "$lib/services/PostService";
-    import type { Post } from "$lib/models/Post";
+  import { postService } from "$lib/services/PostService";
+  import type { Post } from "$lib/models/Post";
 
   export let params: { address?: string } = {};
-  
+
   let profile: Profile;
 
   let activeTab: string = "posts";
@@ -35,8 +35,6 @@
   let textWithUrl = "";
   var pTag: HTMLElement | null;
   const urlPattern = /(https?:\/\/[^\s]+)/g;
-
-
 
   async function fetchMedia() {
     /*console.log("will get media")
@@ -80,7 +78,11 @@
   }
 
   async function fetchPost() {
-    posts = (await postService.fetchPost(0,1000,[profile.address])).values().toArray()
+    console.log(profile.address);
+    posts = (await postService.fetchPost(0, 1000, [profile.address]))
+      .values()
+      .toArray();
+    console.log(posts);
   }
 
   async function fetchSubs() {
@@ -90,24 +92,23 @@
 
   async function fetchSubscriptions() {
     console.log("will get subs");
-    console.log(profile.followList)
+    console.log(profile.followList);
     //profile.followList = fetchFollowList(profile!.address)
     // await subs(userInfo.Process, "1", "100");
   }
-
 
   function toggleModal() {
     showModal = !showModal;
   }
 
   onMount(async () => {
-    setup()
+    setup();
   });
 
   const onAddressParamChange = async () => {
-    console.log("got new params!!!!!!")
-    console.log(params.address)
-    setup()
+    console.log("got new params!!!!!!");
+    console.log(params.address);
+    setup();
     /*value = "post";
     events = [];
     await fetchPost();*/
@@ -125,21 +126,21 @@
 
   let followListLoading = false;
 
-  async function setup(){
+  async function setup() {
     if (params.address) {
       if ($currentUser && params.address == $currentUser.address) {
-        console.log("is current user")
+        console.log("is current user");
         profile = $currentUser;
       } else {
-        console.log("is other user")
+        console.log("is other user");
         let temp = await profileService.get(params.address);
         console.log(temp);
-        profile = temp
+        profile = temp;
       }
     }
 
     if (profile) {
-      console.log("getting post")
+      console.log("getting post");
       await fetchPost();
       // Split the string into parts, keeping the URLs separate
       const parts = textWithUrl.split(urlPattern);
@@ -295,25 +296,21 @@
         <Tabs.Trigger on:click={fetchSubs} value="assets">Assets</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="post">
-        <div class="">
-          {#each posts as post}
-            <div class="border border-border max-w-prose">
-              <PostComponent {post} />
-            </div>
-          {/each}
-        </div>
+        {#each posts as post}
+          <div class="border border-border">
+            <PostComponent {post} />
+          </div>
+        {/each}
       </Tabs.Content>
       <Tabs.Content value="media">
-        <div class="">
-          {#each posts as post}
+        {#each posts as post}
             <div class="border border-border max-w-prose">
               <PostComponent {post} />
             </div>
           {/each}
-        </div>
       </Tabs.Content>
       <Tabs.Content value="subscribed">
-        <Users _profiles={profile.followList} />
+        <Users addresss={profile.followList} />
       </Tabs.Content>
       <Tabs.Content value="assets">
         <!-- {#if $user && profile}
