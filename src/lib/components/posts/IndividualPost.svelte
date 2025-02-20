@@ -31,7 +31,6 @@
   }
 
   let post: any = null;
-  let replies: any[] = [];
   let id: string;
   let user: string;
 
@@ -41,10 +40,10 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
-  postService.subscribe(value => {
+  /*postService.subscribe(value => {
     console.log(value.get(id))
     post = value.get(id)
-  })
+  })*/
 
   async function loadPost(userId: string, postId: string) {
     console.log(userId);
@@ -54,8 +53,10 @@
       post = $postService.get(id)
     }else{
       post = await postService.get(id);
-      replies = (await postService.fetchReplies(0,1000,id)).values().toArray()
+      post.replies = (await postService.fetchReplies(id)).values().toArray()
+      postService.update(post)
     }
+    console.log(post)
   }
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
@@ -157,7 +158,7 @@
 <div class="max-w-prose mx-auto mb-10 {$isMobile ? 'mt-0' : 'mt-10'}">
   {#if post}
     <div class="border border-border hover:bg-gray-900/5">
-      <Post event={post} />
+      <Post {post} />
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
@@ -246,14 +247,14 @@
       </div>
     </div>
 
-    {#each replies as reply (reply.Id)}
+    {#each post.replies as reply}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
-        <Post event={reply} />
+        <Post post={reply} />
       </div>
     {/each}
   {:else}

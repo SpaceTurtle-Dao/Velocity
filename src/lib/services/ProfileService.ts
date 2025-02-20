@@ -4,7 +4,7 @@ import type { Profile } from "$lib/models/Profile";
 import { get, writable, type Readable } from "svelte/store";
 
 interface ProfileService extends Readable<Map<string, any>> {
-  fetchProfiles: (since: Number, limit: Number, authors: string[]) => Promise<Map<string, any>>;
+  fetchProfiles: (since: Number, limit: Number, authors: string[]) => Promise<Map<string, Profile>>;
   get: (address: string) => Promise<Profile>;
 }
 
@@ -14,8 +14,9 @@ const service = (): ProfileService => {
   );
   return {
     subscribe,
-    fetchProfiles: async (since: Number, limit: Number, authors: string[]): Promise<Map<string, any>> => {
+    fetchProfiles: async (since: Number, limit: Number, authors: string[]): Promise<Map<string, Profile>> => {
       let profiles = get(profileService);
+      let _profiles:Map<string, Profile> = new Map<string, Profile>()
       let filters = "";
       try {
         if (authors.length > 0) {
@@ -35,35 +36,37 @@ const service = (): ProfileService => {
           ]);
         }
         let events = await fetchEvents(filters);
-        let _profiles = events.map((event) => {
-          let profile = JSON.parse(event.Content);
+        let temp = events.map((event) => {
+        let profile = JSON.parse(event.Content);
 
-          profile.address = event.From;
+        profile.address = event.From;
 
-          profile.created_at = event.Timestamp;
+        profile.created_at = event.Timestamp;
 
-          profile.updated_at = event.Timestamp;
+        profile.updated_at = event.Timestamp;
 
           return profile;
         }) as Profile[];
-        for (var i = 0; i < _profiles.length; i++) {
-          let currentProfile = profiles.get(_profiles[i].address);
+        for (var i = 0; i < temp.length; i++) {
+          let currentProfile = profiles.get(temp[i].address);
           if (currentProfile) {
-            if (currentProfile.created_at < _profiles[i].created_at) {
-              profiles.set(_profiles[i].address, _profiles[i])
+            if (currentProfile.created_at < temp[i].created_at) {
+              profiles.set(temp[i].address, temp[i])
+              _profiles.set(temp[i].address, temp[i])
             }
           } else {
-            profiles.set(_profiles[i].address, _profiles[i])
+            profiles.set(temp[i].address, temp[i])
+            _profiles.set(temp[i].address, temp[i])
           }
 
         }
         set(profiles)
         //console.log("Profiles are")
-        console.log(get(profileService))
+        //console.log(get(profileService))
       } catch (e) {
         throw e;
       }
-      return profiles
+      return _profiles
     },
     get: async (address: string): Promise<Profile> => {
       //console.log("getting profile for", address)

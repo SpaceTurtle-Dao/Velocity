@@ -27,9 +27,7 @@
 
   let isLoading: boolean = false;
   let loadError: string | null = null;
-  let repostArray: any[] = [];
   let dialogOpen = false;
-  let loadingCompletePosts = false;
 
   function transformEventToPost(
     event: any,
@@ -48,11 +46,30 @@
   }
 
   onMount(async () => {
+    isLoading = true;
     if (post.type == PostType.Repost) {
-      isLoading = true;
-      post = await postService.get(post.id);
-      console.log("got profile for post");
-      isLoading = false;
+      let _post = postService.get(post.id);
+      console.log("getting replies");
+      let _replies = postService.fetchReplies(post.id);
+      Promise.all([_post, _replies]).then((results) => {
+        post = results[0];
+        replies = results[1].values().toArray();
+        replyCount = replies.length;
+        post.replies = replies;
+        postService.update(post)
+        console.log(`got ${replyCount} Replies`);
+        isLoading = false;
+      });
+    } else {
+      //console.log("getting replies");
+      postService.fetchReplies(post.id).then((_replies) => {
+        replies = _replies.values().toArray();
+        replyCount = replies.length;
+        post.replies = replies;
+        postService.update(post)
+        //console.log(`got ${replyCount} Replies`);
+        isLoading = false;
+      });
     }
   });
 
@@ -163,31 +180,33 @@
                 <div class="flex-1">
                   <div class="flex space-x-1 mb-1">
                     {#if post.rePost}
-                    <ProfileHoverCard profile={post.profile}>
-                      <div class="flex space-x-1">
-                        <p class="font-medium text-primary">
-                          {post.rePost.profile.name}
-                        </p>
-                        <span class="text-muted-foreground pl-0.5 text-ellipsis"
-                          >@{post.rePost.profile.display_name}</span
-                        >
-                      </div>
-                    </ProfileHoverCard>
+                      <ProfileHoverCard profile={post.profile}>
+                        <div class="flex space-x-1">
+                          <p class="font-medium text-primary">
+                            {post.rePost.profile.name}
+                          </p>
+                          <span
+                            class="text-muted-foreground pl-0.5 text-ellipsis"
+                            >@{post.rePost.profile.display_name}</span
+                          >
+                        </div>
+                      </ProfileHoverCard>
                     {:else}
-                    <ProfileHoverCard profile={post.profile}>
-                      <div class="flex space-x-1">
-                        <p class="font-medium text-primary">
-                          {post.profile.name}
-                        </p>
-                        <span class="text-muted-foreground pl-0.5 text-ellipsis"
-                          >@{post.profile.display_name}</span
-                        >
-                      </div>
-                    </ProfileHoverCard>
+                      <ProfileHoverCard profile={post.profile}>
+                        <div class="flex space-x-1">
+                          <p class="font-medium text-primary">
+                            {post.profile.name}
+                          </p>
+                          <span
+                            class="text-muted-foreground pl-0.5 text-ellipsis"
+                            >@{post.profile.display_name}</span
+                          >
+                        </div>
+                      </ProfileHoverCard>
                     {/if}
-                    <span class="text-muted-foreground"
+                    <!--<span class="text-muted-foreground"
                       >· {formatTimestamp(post.timestamp)}</span
-                    >
+                    >-->
                   </div>
 
                   <div class="text-gray-200">
@@ -205,11 +224,9 @@
           <div class="flex justify-between mt-3 engagement-buttons">
             <div class="flex items-center">
               <Reply {post} on:newReply={handleNewReply} />
-              {#if replyCount > 0}
-                <span class="ml-1 text-sm text-muted-foreground">
-                  {replyCount}
-                </span>
-              {/if}
+              <span class="ml-1 text-sm text-muted-foreground">
+                {replyCount}
+              </span>
             </div>
             <!--<Repost {post} />
             <Like {post} />-->

@@ -18,18 +18,16 @@
     loadInitialProfiles();
   });
 
-  profileService.subscribe(value => {
+  /*profileService.subscribe(value => {
     profiles = value.values().toArray()
-  })
+  })*/
 
   async function loadInitialProfiles() {
     console.log("follow list");
     console.log(_profiles);
-    profileService.fetchProfiles(
-      since,
-      ITEMS_PER_PAGE,
-      _profiles,
-    );
+    profiles = (await profileService.fetchProfiles(0, 1000, _profiles))
+      .values()
+      .toArray();
     console.log(profiles.length);
   }
 
@@ -37,11 +35,7 @@
     if (loading || !hasMore) return;
     console.log("follow list");
     console.log(_profiles);
-    profileService.fetchProfiles(
-      since,
-      ITEMS_PER_PAGE,
-      _profiles,
-    );
+    profileService.fetchProfiles(since, ITEMS_PER_PAGE, _profiles);
     hasMore = profiles.length === ITEMS_PER_PAGE;
   }
 

@@ -9,6 +9,8 @@ export interface Post {
   mimeType:string | undefined;
   url:string | undefined;
   rePost:Post | undefined;
+  replies:Post[];
+  reposted:Post[];
   type: PostType;
 }
 

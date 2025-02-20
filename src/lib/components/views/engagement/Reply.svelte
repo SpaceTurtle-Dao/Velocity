@@ -83,7 +83,6 @@
       }
 
       tags.push({ name: "Content", value: _content });
-      tags.push({ name: "action", value: "reply" });
 
       newReply = await aoEvent(tags);
 

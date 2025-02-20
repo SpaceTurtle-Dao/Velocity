@@ -90,7 +90,8 @@
 
   async function fetchSubscriptions() {
     console.log("will get subs");
-    //profile?.followList = fetchFollowList(profile!.address)
+    console.log(profile.followList)
+    //profile.followList = fetchFollowList(profile!.address)
     // await subs(userInfo.Process, "1", "100");
   }
 
@@ -127,8 +128,10 @@
   async function setup(){
     if (params.address) {
       if ($currentUser && params.address == $currentUser.address) {
+        console.log("is current user")
         profile = $currentUser;
       } else {
+        console.log("is other user")
         let temp = await profileService.get(params.address);
         console.log(temp);
         profile = temp

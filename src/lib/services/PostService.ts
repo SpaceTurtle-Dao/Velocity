@@ -7,7 +7,8 @@ import { PostType, type Post } from "$lib/models/Post";
 
 export interface PostService extends Readable<Map<string, Post>> {
     fetchPost: (since: Number, limit: Number, authors: string[]) => Promise<Map<string, Post>>;
-    fetchReplies: (since: Number, limit: Number, id: string) => Promise<Map<string, Post>>;
+    fetchReplies: (id: string) => Promise<Map<string, Post>>;
+    update: (post: Post) => void;
     get: (id: string) => Promise<Post>;
 }
 
@@ -21,19 +22,23 @@ const service = (): PostService => {
             let posts = get(postService)
             try {
                 if (authors.length > 0) {
-                    let _posts:Map<string, Post> = new Map<string, Post>()
+                    let _posts: Map<string, Post> = new Map<string, Post>()
                     const filter = {
                         kinds: ["1", "6"],
                         authors: authors
                     };
                     const _filters = JSON.stringify([filter]);
-                    let events = await fetchEvents(_filters)
-                    let profiles = await profileService.fetchProfiles(0, 10000, authors)
+                    let results = await Promise.all([fetchEvents(_filters), profileService.fetchProfiles(0, 10000, authors)])
+                    let events = results[0]
+                    let profiles = results[1]
                     for (var i = 0; i < events.length; i++) {
                         let profile = profiles.get(events[i].From);
-                        let post = postFactory(events[i], profile);
-                        _posts.set(post.id, post)
-                        posts.set(post.id, post)
+                        if (profile) {
+                            let post = postFactory(events[i], profile);
+                            _posts.set(post.id, post)
+                            posts.set(post.id, post)
+                        }
+
                     }
                     set(posts)
                     return _posts
@@ -52,9 +57,14 @@ const service = (): PostService => {
                     const authors = events.map(event => event.From);
                     let profiles = await profileService.fetchProfiles(0, 1000, authors)
                     for (var i = 0; i < events.length; i++) {
-                        let profile = profiles.get(events[i].From);
-                        let post = postFactory(events[i], profile) ;
-                        posts.set(post.id, post)
+                        if (events[i].Content) {
+                            let profile = profiles.get(events[i].From);
+                            if (profile) {
+                                let post = postFactory(events[i], profile);
+                                posts.set(post.id, post)
+                            }
+
+                        }
                     }
                     set(posts)
                     return posts
@@ -63,7 +73,7 @@ const service = (): PostService => {
                 throw (error)
             }
         },
-        fetchReplies: async (since: Number, limit: Number, id: string): Promise<Map<string, any>> => {
+        fetchReplies: async (id: string): Promise<Map<string, any>> => {
             let posts = get(postService);
             let replies: Map<string, any> = new Map<string, any>();
             try {
@@ -73,31 +83,37 @@ const service = (): PostService => {
                     //limit: limit
                 };
                 const filter2 = {
-                    tags: { marker: ["reply"] },
-                };
-
-                const filter3 = {
                     tags: { e: [id] },
                 };
 
-                const _filters = JSON.stringify([filter, filter2, filter3]);
+                const _filters = JSON.stringify([filter, filter2]);
                 let events = await fetchEvents(_filters)
                 const authors = events.map(event => event.From);
                 let profiles = await profileService.fetchProfiles(0, 10000, authors)
                 for (var i = 0; i < events.length; i++) {
-                    let post = events[i];
-                    post.profile = profiles.get(post.From);
-                    posts.set(post.From, post)
-                    replies.set(post.From, post)
+                    if (events[i].Content) {
+                        let profile = profiles.get(events[i].From);
+                        if (profile) {
+                            let post = postFactory(events[i], profile);
+                            post.profile = profile;
+                            posts.set(post.from, post)
+                            replies.set(post.from, post)
+                        }
+                    }
                 }
                 set(posts)
-                console.log("got replies")
-                console.log(replies)
+                //console.log("got replies ", replies.size)
+                //console.log(replies)
                 return replies
 
             } catch (error) {
                 throw (error)
             }
+        },
+        update: async (post: Post) => {
+            let posts = get(postService)
+            posts.set(post.id, post)
+            set(posts)
         },
         get: async (id: string): Promise<Post> => {
             let posts = get(postService)
@@ -110,11 +126,15 @@ const service = (): PostService => {
                 let result = await fetchEvents(_filters)
                 if (result.length == 0) throw ("Not Found")
                 let profile = await profileService.get(result[0].From)
-                let post = postFactory(result[0],profile);
+                let post = postFactory(result[0], profile);
                 post = await getRepost(post)
-                posts.set(id, post)
-                set(posts)
-                return post
+                if (post.content) {
+                    posts.set(id, post)
+                    set(posts)
+                    return post
+                } else {
+                    throw ("no content for post")
+                }
             } catch (error) {
                 throw (error)
             }
@@ -122,7 +142,7 @@ const service = (): PostService => {
     };
 };
 
-function postFactory(event: any, profile:Profile): Post {
+function postFactory(event: any, profile: Profile): Post {
     let postType: PostType;
     switch (event.Tags["marker"]) {
         case "media":
@@ -138,8 +158,8 @@ function postFactory(event: any, profile:Profile): Post {
             postType = PostType.Root
     }
 
-    if( event.Kind == "6") postType = PostType.Repost;
-    
+    if (event.Kind == "6") postType = PostType.Repost;
+
     let _post: Post = {
         id: event.Id,
         from: event.From,
@@ -148,18 +168,20 @@ function postFactory(event: any, profile:Profile): Post {
         profile: profile,
         type: postType,
         rePost: undefined,
+        replies: [],
+        reposted: [],
         mimeType: event.mimeType,
         url: event.url
     }
     return _post
 }
 
-async function getRepost(post:Post):Promise<Post> {
+async function getRepost(post: Post): Promise<Post> {
     let _post = post;
-    if(_post.type == PostType.Repost){
+    if (_post.type == PostType.Repost) {
         const content = JSON.parse(_post.content);
         let profile = await profileService.get(content.From)
-        _post.rePost = postFactory(content,profile);
+        _post.rePost = postFactory(content, profile);
     }
     return _post
 }

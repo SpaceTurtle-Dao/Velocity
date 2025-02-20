@@ -33,7 +33,7 @@
     console.log("Got Follow List");
     console.log($currentUser.followList);
     try {
-      postService.fetchPost(1663905355000, 100, $currentUser.followList);
+      postService.fetchPost(0, 1000, $currentUser.followList);
     } catch (error) {
       console.error("Error fetching following events:", error);
     }

@@ -25,10 +25,14 @@ const initCurrentUserStore = () => {
       try {
         if (address) {
           console.log("fetching Profile");
-          const profile = await fetchProfile(address);
-          profile.followList = await fetchFollowList(address)
+          let _profile = fetchProfile(address);
+          let _followList = fetchFollowList(address);
+          let promises = [_profile,_followList];
+          let results = await Promise.all(promises)
+          let profile:Profile = results[0] as Profile;
+          let followList:string[] = results[1] as string[];
+          profile.followList = followList
           console.log("Got Profiles");
-
           set(profile);
           push("/feed");
         }
