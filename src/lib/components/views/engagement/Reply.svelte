@@ -147,7 +147,7 @@
   </Dialog.Trigger>
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
-      <PostPreview {post} />
+      <!--<PostPreview {post} />-->
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">

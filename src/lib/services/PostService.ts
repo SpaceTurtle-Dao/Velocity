@@ -6,9 +6,10 @@ import { profileService } from "./ProfileService";
 import { PostType, type Post } from "$lib/models/Post";
 
 export interface PostService extends Readable<Map<string, Post>> {
-    fetchPost: (since: Number, limit: Number, authors: string[]) => Promise<Map<string, Post>>;
-    fetchReplies: (id: string) => Promise<Map<string, Post>>;
-    get: (id: string) => Promise<Post>;
+    fetchPost: (since: Number, limit: Number, authors: string[]) => void;
+    fetchReplies: (id: string) => void;
+    fetchRepost: (id: string) => void;
+    get: (id: string) => void;
 }
 
 const service = (): PostService => {
@@ -17,19 +18,19 @@ const service = (): PostService => {
     );
     return {
         subscribe,
-        fetchPost: async (since: Number, limit: Number, authors: string[] = []): Promise<Map<string, Post>> => {
+        fetchPost: async (since: Number, limit: Number, authors: string[] = []) => {
             let posts = get(postService)
             try {
                 if (authors.length > 0) {
                     let _posts: Map<string, Post> = new Map<string, Post>()
                     const filter = {
-                        kinds: ["1", "6"],
+                        kinds: ["1"],
                         authors: authors
                     };
                     const filter2 = {
                         tags: { marker: ["root"] },
                     };
-                    const _filters = JSON.stringify([filter,filter2]);
+                    const _filters = JSON.stringify([filter, filter2]);
                     let events = await fetchEvents(_filters)
                     for (var i = 0; i < events.length; i++) {
                         let post = postFactory(events[i]);
@@ -58,15 +59,14 @@ const service = (): PostService => {
                         }
                     }
                     set(posts)
-                    return posts
                 }
             } catch (error) {
                 throw (error)
             }
         },
-        fetchReplies: async (id: string): Promise<Map<string, any>> => {
+        fetchReplies: async (id: string) => {
+            //console.log("getting Replies")
             let posts = get(postService);
-            let replies: Map<string, any> = new Map<string, any>();
             try {
                 const filter = {
                     kinds: ["1"],
@@ -79,24 +79,44 @@ const service = (): PostService => {
 
                 const _filters = JSON.stringify([filter, filter2]);
                 let events = await fetchEvents(_filters)
-                const authors = events.map(event => event.From);
                 for (var i = 0; i < events.length; i++) {
                     if (events[i].Content) {
                         let post = postFactory(events[i]);
                         posts.set(post.from, post)
-                        replies.set(post.from, post)
                     }
                 }
                 set(posts)
-                //console.log("got replies ", replies.size)
-                //console.log(replies)
-                return replies
-
             } catch (error) {
                 throw (error)
             }
         },
-        get: async (id: string): Promise<Post> => {
+        fetchRepost: async (id: string) => {
+            console.log("getting Replies")
+            let posts = get(postService);
+            try {
+                const filter = {
+                    kinds: ["6"],
+                    //since: since,
+                    //limit: limit
+                };
+                const filter2 = {
+                    tags: { e: [id] },
+                };
+
+                const _filters = JSON.stringify([filter, filter2]);
+                let events = await fetchEvents(_filters)
+                for (var i = 0; i < events.length; i++) {
+                    if (events[i].Content) {
+                        let post = postFactory(events[i]);
+                        posts.set(post.from, post)
+                    }
+                }
+                set(posts)
+            } catch (error) {
+                throw (error)
+            }
+        },
+        get: async (id: string) => {
             let posts = get(postService)
             try {
                 const filter = {
@@ -104,17 +124,17 @@ const service = (): PostService => {
                     ids: [id]
                 };
                 const _filters = JSON.stringify([filter]);
-                let result = await fetchEvents(_filters)
-                if (result.length == 0) throw ("Not Found")
-                let post = postFactory(result[0]);
-                post = await getRepost(post)
-                if (post.content) {
-                    posts.set(id, post)
-                    set(posts)
-                    return post
-                } else {
-                    throw ("no content for post")
-                }
+                fetchEvents(_filters).then(async (events) => {
+                    if (events.length == 0) throw ("Not Found")
+                    let post = postFactory(events[0]);
+                    post = await getRepost(post)
+                    if (post.content) {
+                        posts.set(id, post)
+                        set(posts)
+                    } else {
+                        throw ("no content for post")
+                    }
+                })
             } catch (error) {
                 throw (error)
             }
@@ -139,7 +159,6 @@ function postFactory(event: any): Post {
     }
 
     if (event.Kind == "6") postType = PostType.Repost;
-
     let _post: Post = {
         id: event.Id,
         from: event.From,
@@ -147,10 +166,11 @@ function postFactory(event: any): Post {
         content: event.Content,
         type: postType,
         rePost: undefined,
-        replies: [],
         reposted: [],
         mimeType: event.mimeType,
-        url: event.url
+        url: event.url,
+        e: event.e,
+        p: event.p
     }
     return _post
 }

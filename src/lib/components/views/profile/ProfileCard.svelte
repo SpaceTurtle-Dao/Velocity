@@ -9,8 +9,14 @@
 
   export let address: string;
   let profile: Profile;
+
+  profileService.subscribe((profiles) => {
+    if (!profiles.has(address)) return;
+    profile = profiles.get(address);
+  });
+
   onMount(async () => {
-    profile = await profileService.get(address);
+    profileService.get(address);
   });
 </script>
 

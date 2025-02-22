@@ -6,10 +6,11 @@
   import { Home as HomeIcon, User, MoreHorizontal, Mail } from "lucide-svelte";
   import { currentUser } from "$lib/stores/current-user.store";
   import { isMobile } from "$lib/stores/is-mobile.store";
+  import { addressStore } from "$lib/stores/address.store";
 
   const menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
-    { icon: User, label: "Profile", href: `/profile/${$currentUser.address}` },
+    { icon: User, label: "Profile", href: `/profile/${$addressStore.address}` },
     { icon: Mail, label: "Messages", href: "/messages" },
   ];
 

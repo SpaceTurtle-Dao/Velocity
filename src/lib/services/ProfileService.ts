@@ -4,7 +4,7 @@ import type { Profile } from "$lib/models/Profile";
 import { get, writable, type Readable } from "svelte/store";
 
 interface ProfileService extends Readable<Map<string, any>> {
-  get: (address: string) => Promise<Profile>;
+  get: (address: string) => void;
 }
 
 const service = (): ProfileService => {
@@ -13,14 +13,16 @@ const service = (): ProfileService => {
   );
   return {
     subscribe,
-    get: async (address: string): Promise<Profile> => {
+    get: async (address: string) => {
       let profiles = get(profileService);
       try {
-        const fetchedProfile = await fetchProfile(address);
-        fetchedProfile.followList = await fetchFollowList(address)
-        profiles.set(fetchedProfile.address, fetchedProfile)
-        set(profiles)
-        return fetchedProfile
+        fetchProfile(address).then((profile) => {
+          fetchFollowList(address).then((followList) => {
+            profile.followList = followList;
+            profiles.set(profile.address, profile)
+            set(profiles)
+          })
+        })
       } catch (error) {
         throw (error)
       }

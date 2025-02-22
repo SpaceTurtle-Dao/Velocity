@@ -9,7 +9,7 @@
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import Post from "$lib/components/posts/Post.svelte";
+  import PostComponent from "$lib/components/posts/Post.svelte";
   import { Image } from "lucide-svelte";
   import type { Tag } from "$lib/models/Tag";
   import { upload } from "$lib/ao/uploader";
@@ -19,6 +19,7 @@
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
+    import type { Post } from "$lib/models/Post";
 
   // Reactive declaration for URL parsing
   $: {
@@ -26,11 +27,13 @@
     id = urlParts[urlParts.length - 1] || "/";
     user = urlParts[urlParts.length - 2] || "/";
     if (id !== "/" && user !== "/") {
-      loadPost(user, id);
+      loadPost();
     }
   }
 
-  let post: any = null;
+  let post: Post;
+  let replies:Post[];
+  let replyCount = 0;
   let id: string;
   let user: string;
 
@@ -40,23 +43,25 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
-  /*postService.subscribe(value => {
-    console.log(value.get(id))
-    post = value.get(id)
-  })*/
+  postService.subscribe((posts) => {
+    if(!id) return;
+    if (posts.has(id)){
+      post = posts.get(id)!
+    };
+    replies = posts
+      .values()
+      .filter((value) => value.e == id)
+      .toArray();
+    replyCount = replies.length;
+    console.log(`got ${replyCount} Replies`)
+  });
 
-  async function loadPost(userId: string, postId: string) {
-    console.log(userId);
-    console.log(postId);
-    if($postService.has(id)){
-      console.log("post exist")
-      post = $postService.get(id)
-    }else{
-      post = await postService.get(id);
-      post.replies = (await postService.fetchReplies(id)).values().toArray()
-      postService.update(post)
-    }
-    console.log(post)
+  async function loadPost() {
+    console.log(user);
+    console.log(id);
+    postService.get(user);
+    postService.fetchReplies(id);
+    postService.fetchRepost(id);
   }
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
@@ -71,18 +76,18 @@
     if (fileInput) fileInput.value = "";
   }
 
-  async function refreshPage() {
+  /*async function refreshPage() {
     const scrollPos = window.scrollY;
-    await loadPost(user, id);
+    await loadPost();
     setTimeout(() => {
       window.scrollTo(0, scrollPos);
     }, 100);
   }
-
+*/
   onMount(async () => {
-    if (id !== "/" && user !== "/") {
-      await loadPost(user, id);
-    }
+    /*if (id !== "/" && user !== "/") {
+      await loadPost();
+    }*/
   });
 
   function handleMediaSelect() {
@@ -104,15 +109,15 @@
   }
 
   async function handleReply() {
-    if (!replyContent.trim() && !selectedMedia) return;
+    /*if (!replyContent.trim() && !selectedMedia) return;
 
     isSubmitting = true;
     try {
       const tags: Tag[] = [
         { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
-        { name: "e", value: post.Id },
-        { name: "p", value: post.From },
+        { name: "e", value: post.id },
+        { name: "p", value: post.from },
       ];
 
       const postTags: Tag[] = Array.isArray(post.Tags) ? post.Tags : [];
@@ -120,7 +125,7 @@
 
       tags.push({
         name: "root",
-        value: rootValue || post.Id,
+        value: rootValue || post.id,
       });
 
       let _content = replyContent;
@@ -146,7 +151,7 @@
       console.error("Error creating reply:", error);
     } finally {
       isSubmitting = false;
-    }
+    }*/
   }
 
   async function handleReplyClick(reply: any, e: MouseEvent) {
@@ -158,7 +163,7 @@
 <div class="max-w-prose mx-auto mb-10 {$isMobile ? 'mt-0' : 'mt-10'}">
   {#if post}
     <div class="border border-border hover:bg-gray-900/5">
-      <Post {post} />
+      <PostComponent {post} />
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
@@ -247,14 +252,14 @@
       </div>
     </div>
 
-    {#each post.replies as reply}
+    {#each replies as reply}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
-        <Post post={reply} />
+        <PostComponent post={reply} />
       </div>
     {/each}
   {:else}

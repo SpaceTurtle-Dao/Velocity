@@ -21,14 +21,41 @@
   import { PostType, type Post } from "$lib/models/Post";
 
   export let post: Post;
-  export let replies: Post[] = [];
+  let replies: Post[] = [];
   let profile: Profile;
-
+  let replyingTo: Profile;
   let replyCount = 0;
 
   let isLoading: boolean = false;
   let loadError: string | null = null;
   let dialogOpen = false;
+
+  postService.subscribe((posts) => {
+    /*if (posts.has(post.id)) {
+      post = posts.get(post.id) as Post;
+    }
+    replies = posts
+      .values()
+      .filter((value) => value.e == post.id)
+      .toArray();
+    replyCount = replies.length;
+    console.log(`got ${replyCount} Replies`)*/
+  });
+
+  profileService.subscribe((profiles) => {
+    if (post.type == PostType.Repost) {
+      if (!post.p || !profiles.has(post.p)) return;
+      profile = profiles.get(post.p);
+    } else if (post.type == PostType.Reply) {
+      if (!post.p || !profiles.has(post.p)) return;
+      replyingTo = profiles.get(post.p);
+      if (!profiles.has(post.from)) return;
+      profile = profiles.get(post.from);
+    } else {
+      if (!profiles.has(post.from)) return;
+      profile = profiles.get(post.from);
+    }
+  });
 
   function transformEventToPost(
     event: any,
@@ -47,15 +74,16 @@
   }
 
   async function loadData(from: string, postId: string) {
-    postService.fetchReplies(postId).then(values => replies = values.values().toArray()).catch(console.log)
-    profile = await profileService.get(from);
-    isLoading = false;
+    profileService.get(from);
+    //postService.fetchReplies(postId);
+    //postService.fetchRepost(postId);
   }
 
   onMount(async () => {
-    isLoading = true;
+  //isLoading = true;
     if (post.type == PostType.Repost) {
-      loadData(post.rePost!.from, post.id);
+      if (!post.p) return;
+      loadData(post.p, post.id);
     } else {
       loadData(post.from, post.id);
     }
@@ -84,149 +112,153 @@
   }
 </script>
 
-{#if profile}
-  <div class="cursor-pointer border-b border-gray-800">
-    <Dialog.Root>
-      <Dialog.Trigger asChild>
-        {#if isLoading}
-          <div class="p-4">
+<div class="cursor-pointer border-b border-gray-800">
+  <Dialog.Root>
+    <Dialog.Trigger asChild>
+      {#if isLoading}
+        <div class="p-4">
+          <div>
+            <div class="flex items-center text-gray-500 mb-2">
+              <div class="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
             <div>
-              <div class="flex items-center text-gray-500 mb-2">
-                <div class="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+              <div class="flex justify-start space-x-2">
+                <div
+                  class="hidden sm:block h-9 w-9 rounded-full bg-gray-200 animate-pulse"
+                ></div>
+
+                <div class="flex-1">
+                  <div
+                    class="h-5 w-24 bg-gray-200 rounded animate-pulse mb-2"
+                  ></div>
+                  <div class="space-y-2">
+                    <div
+                      class="h-4 w-full bg-gray-200 rounded animate-pulse"
+                    ></div>
+                    <div
+                      class="h-4 w-3/4 bg-gray-200 rounded animate-pulse"
+                    ></div>
+                    <div
+                      class="h-4 w-1/2 bg-gray-200 rounded animate-pulse"
+                    ></div>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <div class="flex justify-start space-x-2">
+              <div class="flex justify-between py-4">
+                {#each Array(5) as _}
+                  <div class="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+                {/each}
+              </div>
+            </div>
+          </div>
+        </div>
+      {:else if loadError}
+        <div class="p-4 text-red-500">
+          {loadError}
+        </div>
+      {:else}
+        <div class="p-4">
+          {#if post.type == PostType.Reply && replyingTo}
+            <div class="flex items-center text-muted-foreground mb-2">
+              <CornerDownRight size={16} class="mr-2" />
+              <!--<span class="text-sm">Replying to @{replyingTo}</span>-->
+              <span class="text-sm">Replying to @{replyingTo.name}</span>
+            </div>
+          {/if}
+
+          {#if post.rePost}
+            <div class="flex items-center text-muted-foreground mb-2">
+              <Repeat2Icon size={16} class="mr-2" />
+              <span class="text-sm">
+                {#if profile.address == $currentUser?.address}
+                  You Reposted
+                {:else}
+                  Reposted by @{profile.name}
+                {/if}
+              </span>
+            </div>
+          {/if}
+
+          <a use:link href={`/post/${post.from}/${post.id}`}>
+            <div>
+              <div class="flex justify-start space-x-3">
+                {#if post.rePost && profile}
+                  <div>
+                    <ProfilePictureHoverCard {profile} />
+                  </div>
+                {:else if profile}
+                  <div>
+                    <ProfilePictureHoverCard {profile} />
+                  </div>
+                {:else}
                   <div
                     class="hidden sm:block h-9 w-9 rounded-full bg-gray-200 animate-pulse"
                   ></div>
-
-                  <div class="flex-1">
-                    <div
-                      class="h-5 w-24 bg-gray-200 rounded animate-pulse mb-2"
-                    ></div>
-                    <div class="space-y-2">
-                      <div
-                        class="h-4 w-full bg-gray-200 rounded animate-pulse"
-                      ></div>
-                      <div
-                        class="h-4 w-3/4 bg-gray-200 rounded animate-pulse"
-                      ></div>
-                      <div
-                        class="h-4 w-1/2 bg-gray-200 rounded animate-pulse"
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="flex justify-between py-4">
-                  {#each Array(5) as _}
-                    <div
-                      class="h-6 w-6 bg-gray-200 rounded animate-pulse"
-                    ></div>
-                  {/each}
-                </div>
-              </div>
-            </div>
-          </div>
-        {:else if loadError}
-          <div class="p-4 text-red-500">
-            {loadError}
-          </div>
-        {:else}
-          <div class="p-4">
-            {#if post.type == PostType.Reply}
-              <div class="flex items-center text-muted-foreground mb-2">
-                <CornerDownRight size={16} class="mr-2" />
-                <!--<span class="text-sm">Replying to @{replyingTo}</span>-->
-                <span class="text-sm">Replying to @ someone fix</span>
-              </div>
-            {/if}
-
-            {#if post.rePost}
-              <div class="flex items-center text-muted-foreground mb-2">
-                <Repeat2Icon size={16} class="mr-2" />
-                <span class="text-sm">
-                  {#if profile.address == $currentUser?.address}
-                    You Reposted
-                  {:else}
-                    Reposted by @{profile.name}
-                  {/if}
-                </span>
-              </div>
-            {/if}
-
-            <a use:link href={`/post/${post.from}/${post.id}`}>
-              <div>
-                <div class="flex justify-start space-x-3">
-                  {#if post.rePost}
-                    <div>
-                      <ProfilePictureHoverCard {profile} />
-                    </div>
-                  {:else}
-                    <div>
-                      <ProfilePictureHoverCard {profile} />
-                    </div>
-                  {/if}
-                  <div class="flex-1">
-                    <div class="flex space-x-1 mb-1">
-                      {#if post.rePost}
-                        <ProfileHoverCard {profile}>
-                          <div class="flex space-x-1">
-                            <p class="font-medium text-primary">
-                              {profile.name}
-                            </p>
-                            <span
-                              class="text-muted-foreground pl-0.5 text-ellipsis"
-                              >@{profile.display_name}</span
-                            >
-                          </div>
-                        </ProfileHoverCard>
+                {/if}
+                <div class="flex-1">
+                  <div class="flex space-x-1 mb-1">
+                    {#if post.rePost && profile}
+                      <ProfileHoverCard {profile}>
+                        <div class="flex space-x-1">
+                          <p class="font-medium text-primary">
+                            {profile.name}
+                          </p>
+                          <span
+                            class="text-muted-foreground pl-0.5 text-ellipsis"
+                            >@{profile.display_name}</span
+                          >
+                        </div>
+                      </ProfileHoverCard>
+                    {:else if profile}
+                      <ProfileHoverCard {profile}>
+                        <div class="flex space-x-1">
+                          <p class="font-medium text-primary">
+                            {profile.name}
+                          </p>
+                          <span
+                            class="text-muted-foreground pl-0.5 text-ellipsis"
+                            >@{profile.display_name}</span
+                          >
+                        </div>
+                      </ProfileHoverCard>
                       {:else}
-                        <ProfileHoverCard {profile}>
-                          <div class="flex space-x-1">
-                            <p class="font-medium text-primary">
-                              {profile.name}
-                            </p>
-                            <span
-                              class="text-muted-foreground pl-0.5 text-ellipsis"
-                              >@{profile.display_name}</span
-                            >
-                          </div>
-                        </ProfileHoverCard>
-                      {/if}
-                      <!--<span class="text-muted-foreground"
+                      <div
+                    class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
+                  ></div>
+                    {/if}
+                    <!--<span class="text-muted-foreground"
                       >· {formatTimestamp(post.timestamp)}</span
                     >-->
-                    </div>
+                  </div>
 
-                    <div class="text-gray-200">
-                      {#if post.rePost}
-                        <Nip92 post={post.rePost} />
-                      {:else}
-                        <Nip92 {post} />
-                      {/if}
-                    </div>
+                  <div class="text-gray-200">
+                    {#if post.rePost}
+                      <Nip92 post={post.rePost} />
+                    {:else}
+                      <Nip92 {post} />
+                    {/if}
                   </div>
                 </div>
               </div>
-            </a>
-
-            <div class="flex justify-between mt-3 engagement-buttons">
-              <div class="flex items-center">
-                <Reply {post} on:newReply={handleNewReply} />
-                <span class="ml-1 text-sm text-muted-foreground">
-                  {replyCount}
-                </span>
-              </div>
-              <!--<Repost {post} />
-            <Like {post} />-->
-              <Buy />
-              <Share />
             </div>
+          </a>
+
+          <div class="flex justify-between mt-3 engagement-buttons">
+            <div class="flex items-center">
+              <Reply {post} on:newReply={handleNewReply} />
+              <span class="ml-1 text-sm text-muted-foreground">
+                {replyCount}
+              </span>
+            </div>
+            <!--<Repost {post} />
+            <Like {post} />-->
+            <Buy />
+            <Share />
           </div>
-        {/if}
-      </Dialog.Trigger>
-    </Dialog.Root>
-  </div>
-{/if}
+        </div>
+      {/if}
+    </Dialog.Trigger>
+  </Dialog.Root>
+</div>

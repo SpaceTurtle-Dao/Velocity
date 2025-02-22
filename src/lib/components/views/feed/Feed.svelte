@@ -3,7 +3,6 @@
   import type { Post } from "$lib/models/Post";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { onMount } from "svelte";
-  import { currentUser } from "$lib/stores/current-user.store";
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
 
@@ -13,12 +12,14 @@
     posts = value.values().toArray();
   });
 
+
+
   async function fetchFeedEvents() {
     //if (isFetchingAlready || !$currentUser) return;
 
     try {
       console.log("will get feed");
-      postService.fetchPost(0, 1000, []);
+      postService.fetchPost(0, 100, []);
       console.log(posts);
     } catch (error) {
       console.error("Error fetching feed events:", error);
@@ -28,15 +29,15 @@
   }
 
   async function fetchFollowingEvents() {
-    console.log("will get Follow List");
+    /*console.log("will get Follow List");
     if (!$currentUser.followList) return;
     console.log("Got Follow List");
     console.log($currentUser.followList);
     try {
-      postService.fetchPost(0, 1000, $currentUser.followList);
+      postService.fetchPost(0, 100, $currentUser.followList);
     } catch (error) {
       console.error("Error fetching following events:", error);
-    }
+    }*/
   }
 
   function handleNewReply(event: any) {
@@ -80,7 +81,7 @@
   });*/
 </script>
 
-{#if $currentUser && posts.length > 0}
+{#if posts.length > 0}
   <div class="relative">
     <div bind:this={container} on:scroll={handleScroll}>
       <div class="md:mt-10 mt-5 max-w-prose w-full">

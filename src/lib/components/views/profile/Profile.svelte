@@ -30,59 +30,50 @@
 
   let activeTab: string = "posts";
   let posts: Array<Post> = [];
+  let media: Array<Post> = [];
+
+  let mimeTypes: string[] = [
+    "image/apng",
+    "image/avif",
+    "image/gif",
+    "image/jpeg",
+    "image/png",
+    "image/svg+xml",
+    "image/webp",
+    "video/x-msvideo",
+    "video/mp4",
+    "video/mpeg",
+    "video/ogg",
+    "video/webm",
+  ];
 
   let showModal = false;
   let textWithUrl = "";
   var pTag: HTMLElement | null;
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
-  async function fetchMedia() {
-    /*console.log("will get media")
-    let filters: Array<any> = [];
-    let mimeTypes: string[] = [
-      "image/apng",
-      "image/avif",
-      "image/gif",
-      "image/jpeg",
-      "image/png",
-      "image/svg+xml",
-      "image/webp",
-      "video/x-msvideo",
-      "video/mp4",
-      "video/mpeg",
-      "video/ogg",
-      "video/webm",
-    ];
-    events = [];
-    if (profile) {
-      let filter = {
-        kinds: ["1", "6"],
-        authors: [profile.address],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-        tags: {
-          marker: ["root"],
-        },
-      };
-      filters.push(filter);
+  profileService.subscribe((profiles) => {
+    if (!params.address || !profiles.has(params.address)) return;
+    profile = profiles.get(profile.address);
+  });
 
-      /*for (let i = 0; i < mimeTypes.length; i++) {
-        let filter = {
-          tags: {
-            mimeType: mimeTypes[i],
-          },
-        };
-        filters.push(filter);
-      }*/
-  }
+  postService.subscribe((value) => {
+    if (!params.address) return;
+    posts = value
+      .values()
+      .filter((value) => (value.from = params.address!))
+      .toArray();
+    media = posts.filter((value) => {
+      if (value.mimeType) {
+        return mimeTypes.includes(value.mimeType);
+      } else {
+        return false;
+      }
+    });
+  });
 
   async function fetchPost() {
-    console.log(profile.address);
-    posts = (await postService.fetchPost(0, 1000, [profile.address]))
-      .values()
-      .toArray();
-    console.log(posts);
+    postService.fetchPost(0, 1000, [profile.address]);
   }
 
   async function fetchSubs() {
@@ -130,13 +121,10 @@
     if (params.address) {
       if ($currentUser && params.address == $currentUser.address) {
         console.log("is current user");
-        profile = $currentUser;
       } else {
         console.log("is other user");
-        let temp = await profileService.get(params.address);
-        console.log(temp);
-        profile = temp;
       }
+      profileService.get(params.address);
     }
 
     if (profile) {
@@ -289,7 +277,7 @@
     <Tabs.Root bind:value class="max-w-prose ">
       <Tabs.List class="grid grid-cols-4">
         <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchPost} value="media">Media</Tabs.Trigger>
         <Tabs.Trigger on:click={fetchSubscriptions} value="subscribed"
           >Subscribed</Tabs.Trigger
         >
@@ -303,11 +291,11 @@
         {/each}
       </Tabs.Content>
       <Tabs.Content value="media">
-        {#each posts as post}
-            <div class="border border-border max-w-prose">
-              <PostComponent {post} />
-            </div>
-          {/each}
+        {#each media as post}
+          <div class="border border-border max-w-prose">
+            <PostComponent {post} />
+          </div>
+        {/each}
       </Tabs.Content>
       <Tabs.Content value="subscribed">
         <Users addresss={profile.followList} />

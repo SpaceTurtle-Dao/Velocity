@@ -16,6 +16,8 @@
   import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
   import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
+  import { postService } from "$lib/services/PostService";
+  import { profileService } from "$lib/services/ProfileService";
 
   let isLoading = true;
   let isFollowListAlreadyFetched = false;
@@ -32,6 +34,15 @@
     "/test": MobileTopView,
   };
 
+  profileService.subscribe((profiles) => {
+    if($addressStore.address && profiles.has($addressStore.address)) {
+      //console.log("Got User");
+      //console.log(profiles.get($addressStore.address))
+      //isLoading = false;
+      replace("/feed");
+    }
+  })
+
   // Store the current route in sessionStorage when it changes
   $: if ($location) {
     sessionStorage.setItem("lastRoute", $location);
@@ -40,21 +51,21 @@
   onMount(async () => {
     // Check if there's a stored route
     const storedRoute = sessionStorage.getItem("lastRoute");
-    if (storedRoute) {
+    /*if (storedRoute) {
       initialRoute = storedRoute;
-    }
-
+    }*/
     try {
+      postService.fetchPost(0, 100, []);
       await addressStore.sync();
-
       if ($addressStore.address) {
-        await currentUser.fetch();
+        profileService.get($addressStore.address);
+        /*push("/feed");
         if ($currentUser) {
           // Only restore the route if user is authenticated
           if (storedRoute && storedRoute !== "/") {
             push(storedRoute);
           }
-        }
+        }*/
       }
     } catch (error) {
       console.error("Error during initialization:", error);
@@ -63,7 +74,7 @@
     }
   });
 
-  addressStore.subscribe(async ({ address }) => {
+  /*addressStore.subscribe(async ({ address }) => {
     if (address) {
       try {
         console.log("Fetching User");
@@ -76,7 +87,7 @@
         isLoading = false;
       }
     }
-  });
+  });*/
 </script>
 
 {#if isLoading}
@@ -88,11 +99,11 @@
       </p>
     </div>
   </div>
-{:else if !$currentUser && $location !== "/signup"}
+{:else if $addressStore.address && !$profileService.has($addressStore.address) && $location !== "/signup"}
   <LandingPage />
 {:else if $location === "/signup"}
   <Router {routes} />
-{:else if $currentUser}
+{:else if $addressStore.address && $profileService.has($addressStore.address)}
   <div class="bg-background">
     <MobileTopView />
     <div class="flex w-full bg-background justify-center">

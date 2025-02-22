@@ -11,6 +11,7 @@
   import { PostType, type Post } from "$lib/models/Post";
 
   export let post: Post;
+  export let profile: Profile;
 
   function formatContent(content: string): string {
     // console.log("hhhh", JSON.parse(content));
@@ -36,10 +37,10 @@
     <Repeat2Icon size={16} class="mr-2" />
     <span class="text-sm"
       >Reposted by
-      {#if post.profile.address == $currentUser.address}
+      {#if profile.address == $currentUser.address}
         You
       {:else}
-        @{post.profile.display_name}
+        @{profile.display_name}
       {/if}
     </span>
   </div>
@@ -48,7 +49,7 @@
 <div class="flex mt-4">
   <div class="h-full flex flex-col items-center">
     {#if post.rePost}
-      <ProfilePictureHoverCard size="lg" profile={post.rePost.profile} />
+      <ProfilePictureHoverCard size="lg" profile={profile} />
     {/if}
     <div
       id="vertical-line"
@@ -60,25 +61,25 @@
       class="h-12 w-full flex items-center min-w-0 overflow-hidden whitespace-nowrap"
     >
       {#if post.rePost}
-        <ProfileHoverCard profile={post.rePost.profile}>
+        <ProfileHoverCard profile={profile}>
           <div class="flex space-x-1">
             <div class="text-primary text-base font-medium mr-1 ml-2">
-              {post.rePost.profile.name}
+              {profile.name}
             </div>
 
             <div class="text-muted-foreground text-base font-light truncate">
-              {"@" + post.rePost.profile.display_name}
+              {"@" + profile.display_name}
             </div>
           </div>
         </ProfileHoverCard>
-        <ProfileHoverCard profile={post.profile}>
+        <ProfileHoverCard profile={profile}>
           <div class="flex space-x-1">
             <div class="text-primary text-base font-medium mr-1 ml-2">
-              {post.profile.name}
+              {profile.name}
             </div>
 
             <div class="text-muted-foreground text-base font-light truncate">
-              {"@" + post.profile.display_name}
+              {"@" + profile.display_name}
             </div>
           </div>
         </ProfileHoverCard>
@@ -98,7 +99,7 @@
 
     <div class="text-start text-muted-foreground mt-5">
       {"Replying to "}
-      <span class="text-sky-500">{"@" + post.profile.display_name}</span>
+      <span class="text-sky-500">{"@" + profile.display_name}</span>
     </div>
   </div>
 </div>

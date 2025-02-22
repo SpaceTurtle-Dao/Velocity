@@ -19,7 +19,7 @@
   };
 
   async function repost() {
-    if (!post) return;
+    /*if (!post) return;
 
     let _tags: Array<Tag> = [
       {
@@ -49,11 +49,11 @@
     reposted = true;
 
     // Refresh reposts to ensure consistency
-    await fetchReposts();
+    await fetchReposts();*/
   }
 
   async function fetchReposts() {
-    if (!_event) return;
+    /*if (!_event) return;
     let filters: Array<any> = [];
     reposts = [];
     let filter1 = {
@@ -76,7 +76,7 @@
         reposted = true;
       }
     }
-    filters = [];
+    filters = [];*/
   }
 
   onMount(async () => {

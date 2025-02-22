@@ -4,6 +4,7 @@ import { event, fetchFollowList, fetchProfile } from "$lib/ao/relay";
 import { addressStore } from "./address.store";
 import { push } from "svelte-spa-router";
 import type { Tag } from "$lib/models/Tag";
+import { profileService } from "$lib/services/ProfileService";
 
 export interface CurrentUserStore extends Readable<Profile> {
   fetch: () => Promise<void>;
@@ -15,26 +16,13 @@ const initCurrentUserStore = () => {
 
   return {
     subscribe,
-    set: (profile: Profile) => {
-      set(profile);
-    },
     fetch: async () => {
       console.log("checking for address");
       const { address } = get(addressStore);
       console.log("got address");
       try {
         if (address) {
-          console.log("fetching Profile");
-          let _profile = fetchProfile(address);
-          let _followList = fetchFollowList(address);
-          let promises = [_profile,_followList];
-          let results = await Promise.all(promises)
-          let profile:Profile = results[0] as Profile;
-          let followList:string[] = results[1] as string[];
-          profile.followList = followList
-          console.log("Got Profiles");
-          set(profile);
-          push("/feed");
+          
         }
       } catch (error) {
         console.error(error);
