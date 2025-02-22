@@ -30,19 +30,7 @@
   let loadError: string | null = null;
   let dialogOpen = false;
 
-  postService.subscribe((posts) => {
-    /*if (posts.has(post.id)) {
-      post = posts.get(post.id) as Post;
-    }
-    replies = posts
-      .values()
-      .filter((value) => value.e == post.id)
-      .toArray();
-    replyCount = replies.length;
-    console.log(`got ${replyCount} Replies`)*/
-  });
-
-  profileService.subscribe((profiles) => {
+  /*profileService.subscribe((profiles) => {
     if (post.type == PostType.Repost) {
       if (!post.p || !profiles.has(post.p)) return;
       profile = profiles.get(post.p);
@@ -55,7 +43,7 @@
       if (!profiles.has(post.from)) return;
       profile = profiles.get(post.from);
     }
-  });
+  });*/
 
   function transformEventToPost(
     event: any,
@@ -74,8 +62,13 @@
   }
 
   async function loadData(from: string, postId: string) {
-    profileService.get(from);
-    //postService.fetchReplies(postId);
+    profileService.get(from).then((value) => {
+      profile = value
+    });
+    postService.fetchReplies(postId).then((values) => {
+      replies = values
+      replyCount = replies.length
+    });
     //postService.fetchRepost(postId);
   }
 
@@ -160,13 +153,13 @@
         </div>
       {:else}
         <div class="p-4">
-          {#if post.type == PostType.Reply && replyingTo}
+          <!--{#if post.type == PostType.Reply}
             <div class="flex items-center text-muted-foreground mb-2">
               <CornerDownRight size={16} class="mr-2" />
-              <!--<span class="text-sm">Replying to @{replyingTo}</span>-->
-              <span class="text-sm">Replying to @{replyingTo.name}</span>
+              <span class="text-sm">Replying to @{replyingTo}</span>
+              <span class="text-sm">Replying to @{profile.name}</span>
             </div>
-          {/if}
+          {/if}-->
 
           {#if post.rePost}
             <div class="flex items-center text-muted-foreground mb-2">
