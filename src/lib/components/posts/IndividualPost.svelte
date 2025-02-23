@@ -32,7 +32,7 @@
   }
 
   let post: Post;
-  let replies: Post[];
+  let replies: Post[] = [];
   let replyCount = 0;
   let id: string;
   let user: string;
@@ -60,7 +60,7 @@
     console.log(user);
     console.log(id);
     post = await postService.get(id);
-    //replies = await postService.fetchReplies(id);
+    replies = await postService.fetchReplies(id);
     //postService.fetchRepost(id);
   }
 
@@ -253,15 +253,16 @@
         </div>
       </div>
     </div>
-
-    <!--{#each replies as reply}
+    {#each replies as reply}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
         <PostComponent post={reply} />
       </div>
-    {/each}-->
+    {/each}
   {:else}
     <div class="flex justify-center items-center h-32">
       <p class="text-gray-500">Loading...</p>

@@ -203,9 +203,9 @@
                         class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
                       ></div>
                     {/if}
-                    <!--<span class="text-muted-foreground"
+                    <span class="text-muted-foreground"
                       >· {formatTimestamp(post.timestamp)}</span
-                    >-->
+                    >
                   </div>
 
                   <div class="text-gray-200">
@@ -227,8 +227,8 @@
                 {replyCount}
               </span>
             </div>
-            <!--<Repost {post} />
-            <Like {post} />-->
+            <Repost {post} />
+            <Like {post} />
             <Buy />
             <Share />
           </div>
