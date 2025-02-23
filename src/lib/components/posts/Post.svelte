@@ -230,15 +230,27 @@
             </a>
 
             <div class="flex justify-between mt-3 engagement-buttons">
-              <div class="flex items-center">
-                <Reply {post} on:newReply={handleNewReply} />
-                <span class="ml-1 text-sm text-muted-foreground">
-                  {replyCount}
-                </span>
-              </div>
-              <Repost {post} />
-              <Like {post} />
-              <Buy />
+              {#if post.rePost}
+                <div class="flex items-center">
+                  <Reply post={post.rePost} on:newReply={handleNewReply} />
+                  <span class="ml-1 text-sm text-muted-foreground">
+                    {replyCount}
+                  </span>
+                </div>
+                <Repost post={post.rePost} />
+                <Like post={post.rePost} />
+                <Buy />
+              {:else}
+                <div class="flex items-center">
+                  <Reply {post} on:newReply={handleNewReply} />
+                  <span class="ml-1 text-sm text-muted-foreground">
+                    {replyCount}
+                  </span>
+                </div>
+                <Repost {post} />
+                <Like {post} />
+                <Buy />
+              {/if}
               <Share />
             </div>
           </div>
