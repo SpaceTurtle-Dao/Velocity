@@ -9,7 +9,7 @@ export interface PostService extends Readable<Map<string, Post>> {
     fetchPost: (since: Number, limit: Number) => Promise<Post[]>;
     fetchPostWithAuthors: (authors: string[]) => Promise<Post[]>;
     fetchReplies: (id: string) => Promise<Post[]>;
-    fetchRepost: (id: string) => void;
+    fetchRepost: (id: string) => Promise<Post[]>;
     get: (id: string) => Promise<Post>;
 }
 
@@ -161,8 +161,9 @@ const service = (): PostService => {
             }
             return replies
         },
-        fetchRepost: async (id: string) => {
+        fetchRepost: async (id: string): Promise<Post[]> => {
             let posts = get(postService);
+            let rePosts: Post[] = []
             try {
                 const filter = {
                     kinds: ["6"],
@@ -179,12 +180,14 @@ const service = (): PostService => {
                     if (events[i].Content) {
                         let post = postFactory(events[i]);
                         posts.set(post.from, post)
+                        rePosts.push(post)
                     }
                 }
                 set(posts)
             } catch (error) {
                 throw (error)
             }
+            return rePosts
         },
         get: async (id: string): Promise<Post> => {
             let posts = get(postService)
@@ -265,6 +268,7 @@ function postFactory(event: any): Post {
         mimeType: event.mimeType,
         url: event.url,
         e: event.e,
+        event:event,
         p: event.p
     }
     return _post

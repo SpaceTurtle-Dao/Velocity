@@ -12,6 +12,7 @@ export interface Post {
   type: PostType;
   e:string | undefined;
   p:string | undefined;
+  event:any;
 }
 
 
