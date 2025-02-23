@@ -4,7 +4,6 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Image, X } from "lucide-svelte";
@@ -14,6 +13,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
+  import { addressStore } from "$lib/stores/address.store";
 
   export let post: Post;
 
@@ -117,9 +117,7 @@
     clearFields();
   }
 
-  onMount(async () => {
-
-  });
+  onMount(async () => {});
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
@@ -151,12 +149,15 @@
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        <ProfilePicture
-          size="lg"
-          src={$currentUser?.picture}
-          name={$currentUser?.name}
-        />
-
+        {#if $addressStore.address}
+        {#await profileService.get($addressStore.address) then profile}
+          <ProfilePicture
+            size="lg"
+            src={profile.picture}
+            name={profile.name}
+          />
+        {/await}
+        {/if}
         <div class="w-full ml-3">
           <Textarea
             bind:value={content}

@@ -20,6 +20,7 @@
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
+    import { addressStore } from "$lib/stores/address.store";
 
   // Reactive declaration for URL parsing
   $: {
@@ -76,14 +77,13 @@
     if (fileInput) fileInput.value = "";
   }
 
-  /*async function refreshPage() {
+  async function refreshPage() {
     const scrollPos = window.scrollY;
     await loadPost();
     setTimeout(() => {
       window.scrollTo(0, scrollPos);
     }, 100);
   }
-*/
   onMount(async () => {
     /*if (id !== "/" && user !== "/") {
       await loadPost();
@@ -109,7 +109,7 @@
   }
 
   async function handleReply() {
-    /*if (!replyContent.trim() && !selectedMedia) return;
+    if (!replyContent.trim() && !selectedMedia) return;
 
     isSubmitting = true;
     try {
@@ -119,14 +119,6 @@
         { name: "e", value: post.id },
         { name: "p", value: post.from },
       ];
-
-      const postTags: Tag[] = Array.isArray(post.Tags) ? post.Tags : [];
-      const rootValue = findTagValue(postTags, "root");
-
-      tags.push({
-        name: "root",
-        value: rootValue || post.id,
-      });
 
       let _content = replyContent;
       if (selectedMedia) {
@@ -151,7 +143,7 @@
       console.error("Error creating reply:", error);
     } finally {
       isSubmitting = false;
-    }*/
+    }
   }
 
   async function handleReplyClick(reply: any, e: MouseEvent) {
@@ -167,20 +159,22 @@
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
-          <Avatar class="h-12 w-12 text-primary">
-            {#await profileService.get(user) then profile}
-            {#if profile.picture}
-            <AvatarImage
-              src={profile.picture}
-              alt={profile.name || "Current User"}
-            />
-          {:else}
-            <AvatarFallback>
-              {profile.name?.[0] || "U"}
-            </AvatarFallback>
+          {#if $addressStore.address}
+          {#await profileService.get($addressStore.address) then profile}
+            <Avatar class="h-12 w-12 text-primary">
+              {#if profile.picture}
+                <AvatarImage
+                  src={profile.picture}
+                  alt={profile.name || "Current User"}
+                />
+              {:else}
+                <AvatarFallback>
+                  {profile.name?.[0] || "U"}
+                </AvatarFallback>
+              {/if}
+            </Avatar>
+          {/await}
           {/if}
-            {/await}
-          </Avatar>
           <div class="flex-1">
             <Textarea
               bind:value={replyContent}

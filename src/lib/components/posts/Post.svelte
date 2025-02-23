@@ -65,7 +65,7 @@
       replyEvent.detail,
       true,
       //@ts-ignore
-      { e: event.Id },
+      { e: post.id },
     );
 
     replies = [...replies, replyEvent.detail];
