@@ -25,15 +25,11 @@
   }
 
   async function fetchFollowingEvents() {
-    console.log("getting following post");
     if (!$addressStore.address) return;
     try {
       //console.log("will get feed");
       let profile = await profileService.get($addressStore.address);
-      console.log("following");
-      console.log(profile.followList)
       following = await postService.fetchPostWithAuthors(profile.followList);
-      console.log(following);
       //console.log(posts);
     } catch (error) {
       //console.error("Error fetching feed events:", error);
