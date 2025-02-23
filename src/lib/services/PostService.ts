@@ -24,12 +24,12 @@ const service = (): PostService => {
             if (posts.size > 0) {
                 try {
                     const filter = {
-                        kinds: ["1"],
+                        kinds: ["1", "6"],
                         since: since,
                         limit: limit
                     };
                     const filter2 = {
-                        tags: { marker: ["root"] },
+                        tags: { marker: ["root", "repost"] },
                     };
 
                     const _filters = JSON.stringify([filter, filter2]);
@@ -50,12 +50,12 @@ const service = (): PostService => {
             } else {
                 try {
                     const filter = {
-                        kinds: ["1"],
+                        kinds: ["1", "6"],
                         since: since,
                         limit: limit
                     };
                     const filter2 = {
-                        tags: { marker: ["root"] },
+                        tags: { marker: ["root", "repost"] },
                     };
 
                     const _filters = JSON.stringify([filter, filter2]);
@@ -82,11 +82,11 @@ const service = (): PostService => {
             if (_posts.length > 0) {
                 try {
                     const filter = {
-                        kinds: ["1"],
-                        authors:authors
+                        kinds: ["1", "6"],
+                        authors: authors
                     };
                     const filter2 = {
-                        tags: { marker: ["root"] },
+                        tags: { marker: ["root", "repost"] },
                     };
 
                     const _filters = JSON.stringify([filter, filter2]);
@@ -106,11 +106,11 @@ const service = (): PostService => {
             } else {
                 try {
                     const filter = {
-                        kinds: ["1"],
-                        authors:authors
+                        kinds: ["1", "6"],
+                        authors: authors
                     };
                     const filter2 = {
-                        tags: { marker: ["root"] },
+                        tags: { marker: ["root", "repost"] },
                     };
 
                     const _filters = JSON.stringify([filter, filter2]);
@@ -242,6 +242,7 @@ const service = (): PostService => {
 
 function postFactory(event: any): Post {
     let postType: PostType;
+    let repost: Post | undefined;
     switch (event.Tags["marker"]) {
         case "media":
             postType = PostType.Media
@@ -251,24 +252,31 @@ function postFactory(event: any): Post {
             break
         case "repost":
             postType = PostType.Repost
+            let _event = JSON.parse(event.Content);
+            postType = PostType.Repost;
+            repost = postFactory(_event);
             break
         default:
             postType = PostType.Root
     }
 
-    if (event.Kind == "6") postType = PostType.Repost;
+    if (event.Kind == "6") {
+        let _event = JSON.parse(event.Content);
+        postType = PostType.Repost;
+        repost = postFactory(_event);
+    };
     let _post: Post = {
         id: event.Id,
         from: event.From,
         timestamp: event.Timestamp,
         content: event.Content,
         type: postType,
-        rePost: undefined,
+        rePost: repost,
         reposted: [],
         mimeType: event.mimeType,
         url: event.url,
         e: event.e,
-        event:event,
+        event: event,
         p: event.p
     }
     return _post

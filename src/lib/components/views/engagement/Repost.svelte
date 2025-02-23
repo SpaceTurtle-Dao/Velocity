@@ -3,16 +3,15 @@
   import type { Tag } from "$lib/models/Tag";
   import { Repeat2 } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { fetchEvents, event } from "$lib/ao/relay";
-  import { currentUser } from "$lib/stores/current-user.store";
+  import { event } from "$lib/ao/relay";
   import type { Post } from "$lib/models/Post";
-    import { postService } from "$lib/services/PostService";
-    import { addressStore } from "$lib/stores/address.store";
+  import { postService } from "$lib/services/PostService";
+  import { addressStore } from "$lib/stores/address.store";
 
   export let post: Post;
 
   let reposted = false;
-  let reposts: Post [] = [];
+  let reposts: Post[] = [];
   let _tags: Array<Tag> = [];
 
   let kind: Tag = {
@@ -21,7 +20,7 @@
   };
 
   async function repost() {
-    if (!post) return;
+    if (!$addressStore.address && !post) return;
 
     let _tags: Array<Tag> = [
       {
@@ -32,7 +31,7 @@
         name: "Content",
         value: JSON.stringify({
           ...post.event,
-          repostedBy: $currentUser.address,
+          repostedBy: !$addressStore.address,
         }),
       },
       {
@@ -56,8 +55,9 @@
 
   onMount(async () => {
     reposts = await postService.fetchRepost(post.id);
-    if(!$addressStore.address) return
-    reposted = (reposts.filter((value) => value.from == $addressStore.address)).length > 0
+    if (!$addressStore.address) return;
+    reposted =
+      reposts.filter((value) => value.from == $addressStore.address).length > 0;
   });
 </script>
 
