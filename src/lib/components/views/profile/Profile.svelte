@@ -54,6 +54,7 @@
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
   async function fetchPost() {
+    posts = []
     if (!params.address) return;
     posts = await postService.fetchPostWithAuthors([params.address]);
     console.log(posts)

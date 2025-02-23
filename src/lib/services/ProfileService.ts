@@ -20,6 +20,7 @@ const service = (): ProfileService => {
           fetchFollowList(address).then((followList) => {
             profile.followList = followList
             profiles.set(profile.address,profile)
+            set(profiles)
           })
         })
         return profiles.get(address)

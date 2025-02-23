@@ -19,7 +19,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { postService } from "$lib/services/PostService";
   import { PostType, type Post } from "$lib/models/Post";
-    import { addressStore } from "$lib/stores/address.store";
+  import { addressStore } from "$lib/stores/address.store";
 
   export let post: Post;
   let replies: Post[] = [];
@@ -30,21 +30,6 @@
   let isLoading: boolean = false;
   let loadError: string | null = null;
   let dialogOpen = false;
-
-  /*profileService.subscribe((profiles) => {
-    if (post.type == PostType.Repost) {
-      if (!post.p || !profiles.has(post.p)) return;
-      profile = profiles.get(post.p);
-    } else if (post.type == PostType.Reply) {
-      if (!post.p || !profiles.has(post.p)) return;
-      replyingTo = profiles.get(post.p);
-      if (!profiles.has(post.from)) return;
-      profile = profiles.get(post.from);
-    } else {
-      if (!profiles.has(post.from)) return;
-      profile = profiles.get(post.from);
-    }
-  });*/
 
   function transformEventToPost(
     event: any,
@@ -63,13 +48,9 @@
   }
 
   async function loadData(from: string, postId: string) {
-    profileService.get(from).then((value) => {
-      profile = value;
-    });
-    postService.fetchReplies(postId).then((values) => {
-      replies = values;
-      replyCount = replies.length;
-    });
+    profile = await profileService.get(from);
+    replies = await postService.fetchReplies(postId);
+    replyCount = replies.length;
     //postService.fetchRepost(postId);
   }
 
@@ -162,7 +143,7 @@
               {/await}
             </div>
           {/if}
-          {#if post.rePost}
+          {#if post.rePost && profile}
             <div class="flex items-center text-muted-foreground mb-2">
               <Repeat2Icon size={16} class="mr-2" />
               <span class="text-sm">
