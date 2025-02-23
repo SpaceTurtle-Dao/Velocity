@@ -23,7 +23,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { postService } from "$lib/services/PostService";
   import type { Post } from "$lib/models/Post";
-    import { addressStore } from "$lib/stores/address.store";
+  import { addressStore } from "$lib/stores/address.store";
 
   export let params: { address?: string } = {};
 
@@ -53,12 +53,10 @@
   var pTag: HTMLElement | null;
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
-  postService.subscribe((value) => {
+  async function fetchPost() {
     if (!params.address) return;
-    posts = value
-      .values()
-      .filter((value) => (value.from = params.address!))
-      .toArray();
+    posts = await postService.fetchPostWithAuthors([params.address]);
+    console.log(posts)
     media = posts.filter((value) => {
       if (value.mimeType) {
         return mimeTypes.includes(value.mimeType);
@@ -66,11 +64,6 @@
         return false;
       }
     });
-  });
-
-  async function fetchPost() {
-    if (!params.address) return;
-    postService.fetchPost(0, 1000, [params.address]);
   }
 
   async function fetchSubs() {

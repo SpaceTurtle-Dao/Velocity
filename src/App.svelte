@@ -9,7 +9,6 @@
   import Right from "$lib/components/views/main/RightView.svelte";
   import SignUp from "./lib/components/views/signup/SignUp.svelte";
   import { addressStore } from "$lib/stores/address.store";
-  import { currentUser } from "$lib/stores/current-user.store";
   import Feed from "$lib/components/views/feed/Feed.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
   import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
@@ -20,8 +19,8 @@
   import { profileService } from "$lib/services/ProfileService";
 
   let isLoading = true;
-  let isFollowListAlreadyFetched = false;
-  let initialRoute = window.location.hash.slice(1) || "/";
+  //let isFollowListAlreadyFetched = false;
+  //let initialRoute = window.location.hash.slice(1) || "/";
 
   const routes = {
     "/": LandingPage,
@@ -34,30 +33,13 @@
     "/test": MobileTopView,
   };
 
-  // Store the current route in sessionStorage when it changes
-  /*$: if ($location) {
-    sessionStorage.setItem("lastRoute", $location);
-  }*/
-
   onMount(async () => {
-    // Check if there's a stored route
-    const storedRoute = sessionStorage.getItem("lastRoute");
-    /*if (storedRoute) {
-      initialRoute = storedRoute;
-    }*/
     try {
-      postService.fetchPost(0, 100, []);
+      postService.fetchPost(0, 100);
       await addressStore.sync();
       if ($addressStore.address) {
         await profileService.get($addressStore.address);
         replace("/feed");
-        /*push("/feed");
-        if ($currentUser) {
-          // Only restore the route if user is authenticated
-          if (storedRoute && storedRoute !== "/") {
-            push(storedRoute);
-          }
-        }*/
       }
     } catch (error) {
       console.error("Error during initialization:", error);
@@ -65,21 +47,6 @@
       isLoading = false;
     }
   });
-
-  /*addressStore.subscribe(async ({ address }) => {
-    if (address) {
-      try {
-        console.log("Fetching User");
-        await currentUser.fetch();
-        isLoading = false;
-        console.log("Got User");
-      } catch (error) {
-        console.error("Error fetching current user:", error);
-      } finally {
-        isLoading = false;
-      }
-    }
-  });*/
 </script>
 
 {#if isLoading}

@@ -5,7 +5,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { onMount } from "svelte";
   import { profileService } from "$lib/services/ProfileService";
-    import { addressStore } from "$lib/stores/address.store";
+  import { addressStore } from "$lib/stores/address.store";
 
   export let addresss: string[] = [];
   const ITEMS_PER_PAGE = 100;

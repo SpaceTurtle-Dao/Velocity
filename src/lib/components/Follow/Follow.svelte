@@ -1,8 +1,9 @@
 <script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { currentUser } from "$lib/stores/current-user.store";
-    import { onMount } from "svelte";
-    import { profileService } from "$lib/services/ProfileService";
+  import { onMount } from "svelte";
+  import { profileService } from "$lib/services/ProfileService";
+    import { addressStore } from "$lib/stores/address.store";
 
   export let address: string;
 
@@ -22,9 +23,10 @@
     loader = false;
   }
   onMount(async () => {
-    let profile = await profileService.get(address)
+    if(!$addressStore.address) return;
+    let profile = await profileService.get($addressStore.address);
     isSubscribed = profile.followList.includes(address);
-  })
+  });
 </script>
 
 {#if isSubscribed}

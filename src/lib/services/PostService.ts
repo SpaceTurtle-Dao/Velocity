@@ -6,7 +6,8 @@ import { profileService } from "./ProfileService";
 import { PostType, type Post } from "$lib/models/Post";
 
 export interface PostService extends Readable<Map<string, Post>> {
-    fetchPost: (since: Number, limit: Number, authors: string[]) => void;
+    fetchPost: (since: Number, limit: Number) => Promise<Post[]>;
+    fetchPostWithAuthors: (authors: string[]) => Promise<Post[]>;
     fetchReplies: (id: string) => Promise<Post[]>;
     fetchRepost: (id: string) => void;
     get: (id: string) => Promise<Post>;
@@ -18,28 +19,36 @@ const service = (): PostService => {
     );
     return {
         subscribe,
-        fetchPost: async (since: Number, limit: Number, authors: string[] = []) => {
+        fetchPost: async (since: Number, limit: Number): Promise<Post[]> => {
             let posts = get(postService)
-            try {
-                if (authors.length > 0) {
-                    let _posts: Map<string, Post> = new Map<string, Post>()
+            if (posts.size > 0) {
+                try {
                     const filter = {
                         kinds: ["1"],
-                        authors: authors
+                        since: since,
+                        limit: limit
                     };
                     const filter2 = {
                         tags: { marker: ["root"] },
                     };
+
                     const _filters = JSON.stringify([filter, filter2]);
-                    let events = await fetchEvents(_filters)
-                    for (var i = 0; i < events.length; i++) {
-                        let post = postFactory(events[i]);
-                        _posts.set(post.id, post)
-                        posts.set(post.id, post)
-                    }
-                    set(posts)
-                    return _posts
-                } else {
+                    fetchEvents(_filters).then((events) => {
+                        for (var i = 0; i < events.length; i++) {
+                            if (events[i].Content) {
+                                let post = postFactory(events[i]);
+                                posts.set(post.id, post)
+
+                            }
+                        }
+                        set(posts)
+                    });
+                    return posts.values().toArray()
+                } catch (error) {
+                    throw (error)
+                }
+            } else {
+                try {
                     const filter = {
                         kinds: ["1"],
                         since: since,
@@ -59,9 +68,68 @@ const service = (): PostService => {
                         }
                     }
                     set(posts)
+                    return posts.values().toArray()
+                } catch (error) {
+                    throw (error)
                 }
-            } catch (error) {
-                throw (error)
+            }
+        },
+        fetchPostWithAuthors: async (authors: string[] = []): Promise<Post[]> => {
+            let posts = get(postService)
+            let _posts = posts.values().toArray().filter((post) => {
+                return authors.includes(post.from)
+            })
+            if (_posts.length > 0) {
+                try {
+                    const filter = {
+                        kinds: ["1"],
+                        authors:authors
+                    };
+                    const filter2 = {
+                        tags: { marker: ["root"] },
+                    };
+
+                    const _filters = JSON.stringify([filter, filter2]);
+                    fetchEvents(_filters).then((events) => {
+                        for (var i = 0; i < events.length; i++) {
+                            if (events[i].Content) {
+                                let post = postFactory(events[i]);
+                                posts.set(post.id, post)
+                            }
+                        }
+                        set(posts)
+                    });
+                    return _posts
+                } catch (error) {
+                    throw (error)
+                }
+            } else {
+                try {
+                    const filter = {
+                        kinds: ["1"],
+                        authors:authors
+                    };
+                    const filter2 = {
+                        tags: { marker: ["root"] },
+                    };
+
+                    const _filters = JSON.stringify([filter, filter2]);
+                    let events = await fetchEvents(_filters);
+                    for (var i = 0; i < events.length; i++) {
+                        if (events[i].Content) {
+                            let post = postFactory(events[i]);
+                            posts.set(post.id, post)
+
+                        }
+                    }
+                    set(posts)
+                    let _posts = posts.values().toArray().filter((post) => {
+                        return authors.includes(post.from)
+                    })
+                    return _posts
+                } catch (error) {
+                    throw (error)
+                }
             }
         },
         fetchReplies: async (id: string): Promise<Post[]> => {
