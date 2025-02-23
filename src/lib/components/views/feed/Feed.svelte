@@ -18,11 +18,11 @@
     //if (isFetchingAlready || !$currentUser) return;
 
     try {
-      console.log("will get feed");
+      //console.log("will get feed");
       postService.fetchPost(0, 100, []);
-      console.log(posts);
+      //console.log(posts);
     } catch (error) {
-      console.error("Error fetching feed events:", error);
+      //console.error("Error fetching feed events:", error);
     } finally {
       //isFetchingAlready = false;
     }
@@ -49,7 +49,7 @@
   function handleScroll(event: Event) {
     //const target = event.target as HTMLDivElement;
     //const threshold = 100; // pixels from bottom to trigger load
-    console.log("we are scrolling");
+    //console.log("we are scrolling");
     /*if (
       target.scrollHeight - (target.scrollTop + target.clientHeight) <
         threshold &&

@@ -34,19 +34,10 @@
     "/test": MobileTopView,
   };
 
-  profileService.subscribe((profiles) => {
-    if($addressStore.address && profiles.has($addressStore.address)) {
-      //console.log("Got User");
-      //console.log(profiles.get($addressStore.address))
-      //isLoading = false;
-      replace("/feed");
-    }
-  })
-
   // Store the current route in sessionStorage when it changes
-  $: if ($location) {
+  /*$: if ($location) {
     sessionStorage.setItem("lastRoute", $location);
-  }
+  }*/
 
   onMount(async () => {
     // Check if there's a stored route
@@ -58,7 +49,8 @@
       postService.fetchPost(0, 100, []);
       await addressStore.sync();
       if ($addressStore.address) {
-        profileService.get($addressStore.address);
+        await profileService.get($addressStore.address);
+        replace("/feed");
         /*push("/feed");
         if ($currentUser) {
           // Only restore the route if user is authenticated

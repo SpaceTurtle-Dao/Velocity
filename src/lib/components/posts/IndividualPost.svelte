@@ -44,7 +44,7 @@
   let mediaPreviewUrl: string | null = null;
 
   postService.subscribe((posts) => {
-    if (!id) return;
+    /*if (!id) return;
     if (posts.has(id)) {
       post = posts.get(id)!;
     }
@@ -53,15 +53,15 @@
       .filter((value) => value.e == id)
       .toArray();
     replyCount = replies.length;
-    console.log(`got ${replyCount} Replies`);
+    console.log(`got ${replyCount} Replies`);*/
   });
 
   async function loadPost() {
     console.log(user);
     console.log(id);
-    postService.get(user);
-    postService.fetchReplies(id);
-    postService.fetchRepost(id);
+    post = await postService.get(id);
+    //replies = await postService.fetchReplies(id);
+    //postService.fetchRepost(id);
   }
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
@@ -254,16 +254,14 @@
       </div>
     </div>
 
-    {#each replies as reply}
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!--{#each replies as reply}
       <div
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
         <PostComponent post={reply} />
       </div>
-    {/each}
+    {/each}-->
   {:else}
     <div class="flex justify-center items-center h-32">
       <p class="text-gray-500">Loading...</p>

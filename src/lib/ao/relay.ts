@@ -57,8 +57,8 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
   try {
     // messages[0] give the latest profile change of this address and it  return that
     let message = messages[0];
+    if (!message) throw("message is empty");
     let profile = JSON.parse(message.Content);
-
     profile.address = message.From;
     profile.created_at = messages[0].Timestamp;
     profile.updated_at = message.Timestamp;

@@ -19,6 +19,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { postService } from "$lib/services/PostService";
   import { PostType, type Post } from "$lib/models/Post";
+    import { addressStore } from "$lib/stores/address.store";
 
   export let post: Post;
   let replies: Post[] = [];
@@ -165,7 +166,7 @@
             <div class="flex items-center text-muted-foreground mb-2">
               <Repeat2Icon size={16} class="mr-2" />
               <span class="text-sm">
-                {#if profile.address == $currentUser?.address}
+                {#if profile.address == $addressStore?.address}
                   You Reposted
                 {:else}
                   Reposted by @{profile.name}

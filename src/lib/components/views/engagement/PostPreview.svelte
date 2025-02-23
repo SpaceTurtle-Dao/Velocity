@@ -9,6 +9,7 @@
   import { onMount } from "svelte";
   import { fetchProfile } from "$lib/ao/relay";
   import { PostType, type Post } from "$lib/models/Post";
+    import { addressStore } from "$lib/stores/address.store";
 
   export let post: Post;
   export let profile: Profile;
@@ -37,7 +38,7 @@
     <Repeat2Icon size={16} class="mr-2" />
     <span class="text-sm"
       >Reposted by
-      {#if profile.address == $currentUser.address}
+      {#if profile.address == $addressStore.address}
         You
       {:else}
         @{profile.display_name}

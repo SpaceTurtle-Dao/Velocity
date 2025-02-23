@@ -9,7 +9,7 @@ export interface PostService extends Readable<Map<string, Post>> {
     fetchPost: (since: Number, limit: Number, authors: string[]) => void;
     fetchReplies: (id: string) => Promise<Post[]>;
     fetchRepost: (id: string) => void;
-    get: (id: string) => void;
+    get: (id: string) => Promise<Post>;
 }
 
 const service = (): PostService => {
@@ -118,28 +118,53 @@ const service = (): PostService => {
                 throw (error)
             }
         },
-        get: async (id: string) => {
+        get: async (id: string): Promise<Post> => {
             let posts = get(postService)
-            try {
-                const filter = {
-                    kinds: ["1", "6"],
-                    ids: [id]
-                };
-                const _filters = JSON.stringify([filter]);
-                fetchEvents(_filters).then(async (events) => {
+            if (posts.has(id)) {
+                try {
+                    const filter = {
+                        kinds: ["1", "6"],
+                        ids: [id]
+                    };
+                    const _filters = JSON.stringify([filter]);
+                    fetchEvents(_filters).then(async (events) => {
+                        if (events.length == 0) return;
+                        let post = postFactory(events[0]);
+                        post = await getRepost(post)
+                        if (post.content) {
+                            posts.set(id, post)
+                            set(posts)
+                        } else {
+                            throw ("Content is Empty")
+                        }
+                    })
+                } catch (error) {
+                    throw (error)
+                }
+                return posts.get(id)!
+            } else {
+                try {
+                    const filter = {
+                        kinds: ["1", "6"],
+                        ids: [id]
+                    };
+                    const _filters = JSON.stringify([filter]);
+                    let events = await fetchEvents(_filters);
                     if (events.length == 0) throw ("Not Found")
                     let post = postFactory(events[0]);
                     post = await getRepost(post)
                     if (post.content) {
                         posts.set(id, post)
                         set(posts)
+                        return post
                     } else {
-                        throw ("no content for post")
+                        throw ("Content is Empty")
                     }
-                })
-            } catch (error) {
-                throw (error)
+                } catch (error) {
+                    throw (error)
+                }
             }
+
         },
     };
 };

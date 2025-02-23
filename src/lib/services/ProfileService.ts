@@ -31,7 +31,8 @@ const service = (): ProfileService => {
           set(profiles)
           return profile
         } catch (error) {
-          throw (error)
+          console.log(error)
+          //throw (error)
         }
       }
     },
