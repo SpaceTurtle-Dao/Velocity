@@ -14,11 +14,6 @@
   let reposts: Post[] = [];
   let _tags: Array<Tag> = [];
 
-  let kind: Tag = {
-    name: "Kind",
-    value: "6",
-  };
-
   async function repost() {
     if (!$addressStore.address && !post) return;
 

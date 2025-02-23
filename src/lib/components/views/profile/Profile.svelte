@@ -57,7 +57,6 @@
     posts = []
     if (!params.address) return;
     posts = await postService.fetchPostWithAuthors([params.address]);
-    console.log(posts)
     media = posts.filter((value) => {
       if (value.mimeType) {
         return mimeTypes.includes(value.mimeType);
