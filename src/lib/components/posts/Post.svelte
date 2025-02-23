@@ -63,17 +63,17 @@
 
   async function loadData(from: string, postId: string) {
     profileService.get(from).then((value) => {
-      profile = value
+      profile = value;
     });
     postService.fetchReplies(postId).then((values) => {
-      replies = values
-      replyCount = replies.length
+      replies = values;
+      replyCount = replies.length;
     });
     //postService.fetchRepost(postId);
   }
 
   onMount(async () => {
-  //isLoading = true;
+    //isLoading = true;
     if (post.type == PostType.Repost) {
       if (!post.p) return;
       loadData(post.p, post.id);
@@ -153,14 +153,14 @@
         </div>
       {:else}
         <div class="p-4">
-          <!--{#if post.type == PostType.Reply}
+          {#if post.type == PostType.Reply && post.p}
             <div class="flex items-center text-muted-foreground mb-2">
               <CornerDownRight size={16} class="mr-2" />
-              <span class="text-sm">Replying to @{replyingTo}</span>
-              <span class="text-sm">Replying to @{profile.name}</span>
+              {#await profileService.get(post.p) then _profile}
+                <span class="text-sm">Replying to @{_profile.name}</span>
+              {/await}
             </div>
-          {/if}-->
-
+          {/if}
           {#if post.rePost}
             <div class="flex items-center text-muted-foreground mb-2">
               <Repeat2Icon size={16} class="mr-2" />
@@ -216,10 +216,10 @@
                           >
                         </div>
                       </ProfileHoverCard>
-                      {:else}
+                    {:else}
                       <div
-                    class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
-                  ></div>
+                        class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
+                      ></div>
                     {/if}
                     <!--<span class="text-muted-foreground"
                       >· {formatTimestamp(post.timestamp)}</span

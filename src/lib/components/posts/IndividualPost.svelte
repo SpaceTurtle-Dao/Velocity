@@ -19,7 +19,7 @@
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
-    import type { Post } from "$lib/models/Post";
+  import type { Post } from "$lib/models/Post";
 
   // Reactive declaration for URL parsing
   $: {
@@ -32,7 +32,7 @@
   }
 
   let post: Post;
-  let replies:Post[];
+  let replies: Post[];
   let replyCount = 0;
   let id: string;
   let user: string;
@@ -44,16 +44,16 @@
   let mediaPreviewUrl: string | null = null;
 
   postService.subscribe((posts) => {
-    if(!id) return;
-    if (posts.has(id)){
-      post = posts.get(id)!
-    };
+    if (!id) return;
+    if (posts.has(id)) {
+      post = posts.get(id)!;
+    }
     replies = posts
       .values()
       .filter((value) => value.e == id)
       .toArray();
     replyCount = replies.length;
-    console.log(`got ${replyCount} Replies`)
+    console.log(`got ${replyCount} Replies`);
   });
 
   async function loadPost() {
@@ -168,16 +168,18 @@
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
           <Avatar class="h-12 w-12 text-primary">
-            {#if $currentUser?.picture}
-              <AvatarImage
-                src={$currentUser.picture}
-                alt={$currentUser.name || "Current User"}
-              />
-            {:else}
-              <AvatarFallback>
-                {$currentUser?.name?.[0] || "U"}
-              </AvatarFallback>
-            {/if}
+            {#await profileService.get(user) then profile}
+            {#if profile.picture}
+            <AvatarImage
+              src={profile.picture}
+              alt={profile.name || "Current User"}
+            />
+          {:else}
+            <AvatarFallback>
+              {profile.name?.[0] || "U"}
+            </AvatarFallback>
+          {/if}
+            {/await}
           </Avatar>
           <div class="flex-1">
             <Textarea

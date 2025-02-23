@@ -1,16 +1,13 @@
 <script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { currentUser } from "$lib/stores/current-user.store";
+    import { onMount } from "svelte";
+    import { profileService } from "$lib/services/ProfileService";
 
   export let address: string;
 
   // let isSubscribed: boolean = $followListStore.has(address);
-  let isSubscribed: boolean = false;
-
-  currentUser.subscribe((_currentUser) => {
-    isSubscribed = _currentUser.followList.includes(address);
-  });
-
+  let isSubscribed: boolean;
   let loader = false;
 
   async function unsubscribe() {
@@ -24,6 +21,10 @@
     await currentUser.follow(address);
     loader = false;
   }
+  onMount(async () => {
+    let profile = await profileService.get(address)
+    isSubscribed = profile.followList.includes(address);
+  })
 </script>
 
 {#if isSubscribed}

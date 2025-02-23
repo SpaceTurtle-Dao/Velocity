@@ -23,6 +23,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { postService } from "$lib/services/PostService";
   import type { Post } from "$lib/models/Post";
+    import { addressStore } from "$lib/stores/address.store";
 
   export let params: { address?: string } = {};
 
@@ -52,11 +53,6 @@
   var pTag: HTMLElement | null;
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
-  profileService.subscribe((profiles) => {
-    if (!params.address || !profiles.has(params.address)) return;
-    profile = profiles.get(profile.address);
-  });
-
   postService.subscribe((value) => {
     if (!params.address) return;
     posts = value
@@ -73,7 +69,8 @@
   });
 
   async function fetchPost() {
-    postService.fetchPost(0, 1000, [profile.address]);
+    if (!params.address) return;
+    postService.fetchPost(0, 1000, [params.address]);
   }
 
   async function fetchSubs() {
@@ -118,15 +115,8 @@
   let followListLoading = false;
 
   async function setup() {
-    if (params.address) {
-      if ($currentUser && params.address == $currentUser.address) {
-        console.log("is current user");
-      } else {
-        console.log("is other user");
-      }
-      profileService.get(params.address);
-    }
-
+    if (!params.address) return;
+    profile = await profileService.get(params.address);
     if (profile) {
       console.log("getting post");
       await fetchPost();
@@ -150,24 +140,6 @@
           }
         }
       });
-    }
-  }
-
-  async function getFollowingCount() {
-    if (profile?.address === $currentUser.address) {
-      numberOfFollowing = $currentUser.followList.length;
-    } else {
-      followListLoading = true;
-      if (profile?.address) {
-        numberOfFollowing = profile?.followList.length;
-        followListLoading = false;
-      }
-    }
-  }
-
-  $: {
-    if (profile) {
-      getFollowingCount();
     }
   }
 </script>
@@ -210,7 +182,7 @@
       <CardContent>
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profile.name}</p>
-          {#if profile.address != $currentUser.address}
+          {#if profile.address != $addressStore.address}
             <Follow address={profile.address} />
           {:else}
             <Button

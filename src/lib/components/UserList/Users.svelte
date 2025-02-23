@@ -5,6 +5,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { onMount } from "svelte";
   import { profileService } from "$lib/services/ProfileService";
+    import { addressStore } from "$lib/stores/address.store";
 
   export let addresss: string[] = [];
   const ITEMS_PER_PAGE = 100;
@@ -73,7 +74,7 @@
           class="grid gap-4 lg:gap-6 max-h-[60vh] lg:max-h-[80vh] overflow-y-auto scrollable-element pr-2 lg:pr-3"
         >
           {#each addresss as address}
-            {#if address !== $currentUser.address}
+            {#if address !== $addressStore.address}
               <ProfileCard {address} />
             {/if}
           {/each}

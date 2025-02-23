@@ -15,14 +15,24 @@ const service = (): ProfileService => {
     subscribe,
     get: async (address: string) => {
       let profiles = get(profileService);
-      try {
-        let profile = await fetchProfile(address)
-        profile.followList = await fetchFollowList(address)
-        profiles.set(profile.address, profile)
-        set(profiles)
-        return profile
-      } catch (error) {
-        throw (error)
+      if(profiles.has(address)){
+        fetchProfile(address).then((profile) => {
+          fetchFollowList(address).then((followList) => {
+            profile.followList = followList
+            profiles.set(profile.address,profile)
+          })
+        })
+        return profiles.get(address)
+      }else{
+        try {
+          let profile = await fetchProfile(address)
+          profile.followList = await fetchFollowList(address)
+          profiles.set(profile.address, profile)
+          set(profiles)
+          return profile
+        } catch (error) {
+          throw (error)
+        }
       }
     },
   };
