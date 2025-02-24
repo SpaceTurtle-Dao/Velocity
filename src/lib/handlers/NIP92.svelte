@@ -9,12 +9,15 @@
   let processedContent: string;
 
   function parseTags() {
-    let match = post.content.match(/https?:\/\/[^\s]+/);
-    if (match == null) return;
-    inlineUrl = match[0];
+    if (post.content != undefined) {
+      let match = post.content.toString().match(/https?:\/\/[^\s]+/);
+      if (match == null) return;
+      inlineUrl = match[0];
+    }
   }
 
   onMount(() => {
+    if (!post) return;
     parseTags();
   });
 </script>

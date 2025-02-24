@@ -6,6 +6,7 @@
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import { writable } from "svelte/store";
   import { addressStore } from "$lib/stores/address.store"; // Make sure to import your address store
+  import { profileService } from "$lib/services/ProfileService";
 
   let opacity = "opacity-100";
   let showDisconnect = false;
@@ -54,11 +55,15 @@
   <div class="px-4 py-2 flex justify-between border-b border-gray-800">
     <div class="profile-menu relative">
       <button on:click={toggleDisconnect} class="focus:outline-none">
-        <ProfilePicture
-          size="sm"
-          src={$currentUser.picture}
-          name={$currentUser.name}
-        />
+        {#if $addressStore.address}
+          {#await profileService.get($addressStore.address) then profile}
+            <ProfilePicture
+              size="sm"
+              src={profile.picture}
+              name={profile.name}
+            />
+          {/await}
+        {/if}
       </button>
 
       {#if showDisconnect}

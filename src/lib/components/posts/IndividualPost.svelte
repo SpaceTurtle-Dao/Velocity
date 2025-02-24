@@ -9,7 +9,7 @@
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import Post from "$lib/components/posts/Post.svelte";
+  import PostComponent from "$lib/components/posts/Post.svelte";
   import { Image } from "lucide-svelte";
   import type { Tag } from "$lib/models/Tag";
   import { upload } from "$lib/ao/uploader";
@@ -19,6 +19,8 @@
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
+  import type { Post } from "$lib/models/Post";
+    import { addressStore } from "$lib/stores/address.store";
 
   // Reactive declaration for URL parsing
   $: {
@@ -26,12 +28,13 @@
     id = urlParts[urlParts.length - 1] || "/";
     user = urlParts[urlParts.length - 2] || "/";
     if (id !== "/" && user !== "/") {
-      loadPost(user, id);
+      loadPost();
     }
   }
 
-  let post: any = null;
-  let replies: any[] = [];
+  let post: Post;
+  let replies: Post[] = [];
+  let replyCount = 0;
   let id: string;
   let user: string;
 
@@ -41,21 +44,25 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
-  postService.subscribe(value => {
-    console.log(value.get(id))
-    post = value.get(id)
-  })
-
-  async function loadPost(userId: string, postId: string) {
-    console.log(userId);
-    console.log(postId);
-    if($postService.has(id)){
-      console.log("post exist")
-      post = $postService.get(id)
-    }else{
-      post = await postService.get(id);
-      replies = (await postService.fetchReplies(0,1000,id)).values().toArray()
+  postService.subscribe((posts) => {
+    /*if (!id) return;
+    if (posts.has(id)) {
+      post = posts.get(id)!;
     }
+    replies = posts
+      .values()
+      .filter((value) => value.e == id)
+      .toArray();
+    replyCount = replies.length;
+    console.log(`got ${replyCount} Replies`);*/
+  });
+
+  async function loadPost() {
+    console.log(user);
+    console.log(id);
+    post = await postService.get(id);
+    replies = await postService.fetchReplies(id);
+    //postService.fetchRepost(id);
   }
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
@@ -72,16 +79,15 @@
 
   async function refreshPage() {
     const scrollPos = window.scrollY;
-    await loadPost(user, id);
+    await loadPost();
     setTimeout(() => {
       window.scrollTo(0, scrollPos);
     }, 100);
   }
-
   onMount(async () => {
-    if (id !== "/" && user !== "/") {
-      await loadPost(user, id);
-    }
+    /*if (id !== "/" && user !== "/") {
+      await loadPost();
+    }*/
   });
 
   function handleMediaSelect() {
@@ -110,17 +116,9 @@
       const tags: Tag[] = [
         { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
-        { name: "e", value: post.Id },
-        { name: "p", value: post.From },
+        { name: "e", value: post.id },
+        { name: "p", value: post.from },
       ];
-
-      const postTags: Tag[] = Array.isArray(post.Tags) ? post.Tags : [];
-      const rootValue = findTagValue(postTags, "root");
-
-      tags.push({
-        name: "root",
-        value: rootValue || post.Id,
-      });
 
       let _content = replyContent;
       if (selectedMedia) {
@@ -157,22 +155,26 @@
 <div class="max-w-prose mx-auto mb-10 {$isMobile ? 'mt-0' : 'mt-10'}">
   {#if post}
     <div class="border border-border hover:bg-gray-900/5">
-      <Post event={post} />
+      <PostComponent {post} />
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
-          <Avatar class="h-12 w-12 text-primary">
-            {#if $currentUser?.picture}
-              <AvatarImage
-                src={$currentUser.picture}
-                alt={$currentUser.name || "Current User"}
-              />
-            {:else}
-              <AvatarFallback>
-                {$currentUser?.name?.[0] || "U"}
-              </AvatarFallback>
-            {/if}
-          </Avatar>
+          {#if $addressStore.address}
+          {#await profileService.get($addressStore.address) then profile}
+            <Avatar class="h-12 w-12 text-primary">
+              {#if profile.picture}
+                <AvatarImage
+                  src={profile.picture}
+                  alt={profile.name || "Current User"}
+                />
+              {:else}
+                <AvatarFallback>
+                  {profile.name?.[0] || "U"}
+                </AvatarFallback>
+              {/if}
+            </Avatar>
+          {/await}
+          {/if}
           <div class="flex-1">
             <Textarea
               bind:value={replyContent}
@@ -245,15 +247,14 @@
         </div>
       </div>
     </div>
-
-    {#each replies as reply (reply.Id)}
+    {#each replies as reply}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
-        <Post event={reply} />
+        <PostComponent post={reply} />
       </div>
     {/each}
   {:else}

@@ -6,12 +6,13 @@
     import { fetchEvents, event } from "$lib/ao/relay";
     import { currentUser } from "$lib/stores/current-user.store";
     import type { Post } from "$lib/models/Post";
+    import { postService } from "$lib/services/PostService";
+    import { addressStore } from "$lib/stores/address.store";
 
     export let post: Post;
 
     let liked = false;
     let likes: Array<any> = [];
-    let _tags: Array<Tag> = [];
 
     let kind: Tag = {
         name: "Kind",
@@ -19,61 +20,54 @@
     };
 
     async function like() {
+        let _tags: Array<Tag> = [];
+
         let contentTag: Tag = {
             name: "Content",
             value: "+",
         };
         let eventTag: Tag = {
             name: "e",
-            value: _event.Id.toString(),
+            value: post.id,
         };
         let pubkeyTag: Tag = {
             name: "p",
-            value: _event.From,
+            value: post.from,
         };
         _tags.push(kind);
         _tags.push(contentTag);
         _tags.push(eventTag);
         _tags.push(pubkeyTag);
-        liked = !liked;
-        await event(_tags);
-        await fetchLikes();
-    }
-
-    async function fetchLikes() {
-        if (!_event) return;
-        let filters: Array<any> = [];
-        likes = [];
-        let filter1 = {
-            kinds: ["7"],
-            //since: Number(timestamp),
-            //until: Date.now(),
-            //limit: 100,
-        };
-        let filter2 = {
-            tags: {
-                e: [_event.Id],
-                //p: [_event.From]
-            },
-        };
-        filters.push(filter1, filter2);
-        let _filters = JSON.stringify(filters);
-        likes = await fetchEvents(_filters);
-        for (var i = 0; i < likes.length; i++) {
-            if (likes[i].From == $currentUser.address) {
-                liked = true;
-            }
+        if (liked) {
+            let temp = likes.filter((like) => {
+                return like.From != $addressStore.address;
+            });
+            likes = temp;
+            liked = false;
+        } else {
+            let temp = likes;
+            temp.push({});
+            likes = temp;
+            liked = true;
         }
-        filters = [];
+        await event(_tags);
+        postService.fetchLikes(post.id).then((_likes) => {
+            likes = _likes;
+            let temp = likes.filter((like) => {
+                return like.From == $addressStore.address;
+            });
+            liked = temp.length > 0;
+        });
     }
 
     onMount(async () => {
-        //console.log($currentUser.address)
-        //console.log("getting likes for id");
-        await fetchLikes();
-        /*console.log("got "+likes.length+" likes for id");
-        console.log(_event.Id)
-        console.log(likes);*/
+        postService.fetchLikes(post.id).then((_likes) => {
+            likes = _likes;
+            let temp = likes.filter((like) => {
+                return like.From == $addressStore.address;
+            });
+            liked = temp.length > 0;
+        });
     });
 </script>
 

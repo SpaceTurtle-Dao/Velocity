@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Users from "$lib/components/UserList/Users.svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { Search as SearchIcon } from "lucide-svelte";
   import { onMount } from "svelte";
@@ -87,7 +86,7 @@
     }
   }
 
-   const assetData = {
+  const assetData = {
     name: "Llama Coin",
     owners: 12722,
     price: 0.2555,

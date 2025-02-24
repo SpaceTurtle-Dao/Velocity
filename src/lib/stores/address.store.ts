@@ -12,7 +12,7 @@ export interface AddressStoreData {
 
 export interface AddressStore extends Readable<AddressStoreData> {
   sync: () => Promise<void>;
-
+  isConnected: () => Promise<boolean>;
   connectWallet: () => Promise<void>;
 
   disconnectWallet: () => Promise<void>;
@@ -35,8 +35,27 @@ const initAddressStore = (): AddressStore => {
         if (get(addressStore).address !== null) set({ address: null });
       }
     },
+    isConnected: async (): Promise<boolean> => {
+      try {
+        const address = await window.arweaveWallet.getActiveAddress();
+        let permissions = await window.arweaveWallet.getPermissions()
+        let hasPermissions = true
+        for(var i = 0; i<0; i++){
+          let permission = PERMISSIONS[i];
+          if(!permissions.includes(permission)) hasPermissions = false;
+        }
+        if(hasPermissions) set({ address });
+        return hasPermissions
+      } catch (error: unknown) {
+        console.error(error);
 
+        // To avoding loop of callbacks on address.subscribe callbacks
+        if (get(addressStore).address !== null) set({ address: null });
+        return false
+      }
+    },
     connectWallet: async () => {
+      if(get(addressStore).address) return;
       try {
         await window.arweaveWallet.connect(PERMISSIONS, APP_INFO, GATEWAY);
 
