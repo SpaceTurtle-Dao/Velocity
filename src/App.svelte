@@ -34,7 +34,12 @@
   };
 
   onMount(async () => {
-  
+    console.log("getting connected status")
+    let isConnected = await addressStore.isConnected()
+    console.log("got status")
+    if (isConnected && $addressStore.address){
+      profileService.get($addressStore.address)
+    }
   });
 </script>
 

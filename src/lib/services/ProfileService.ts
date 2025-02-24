@@ -15,16 +15,16 @@ const service = (): ProfileService => {
     subscribe,
     get: async (address: string) => {
       let profiles = get(profileService);
-      if(profiles.has(address)){
+      if (profiles.has(address)) {
         fetchProfile(address).then((profile) => {
           fetchFollowList(address).then((followList) => {
             profile.followList = followList
-            profiles.set(profile.address,profile)
+            profiles.set(profile.address, profile)
             set(profiles)
           })
         })
         return profiles.get(address)
-      }else{
+      } else {
         try {
           let profile = await fetchProfile(address)
           profile.followList = await fetchFollowList(address)
@@ -33,6 +33,22 @@ const service = (): ProfileService => {
           return profile
         } catch (error) {
           console.log(error)
+          let profile: Profile = {
+            name: "Anonymous",
+            about: undefined,
+            picture: undefined,
+            display_name: "Anonymous",
+            address: address,
+            followList: [],
+            website: undefined,
+            banner: undefined,
+            bot: undefined,
+            created_at: 1740359833,
+            updated_at: undefined
+          }
+          profiles.set(profile.address, profile)
+          set(profiles)
+          return profile
           //throw (error)
         }
       }

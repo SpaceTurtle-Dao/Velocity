@@ -38,11 +38,6 @@
     }
   }
 
-  function handleNewReply(event: any) {
-    const newReply = event.detail;
-    // Process events including the new reply
-    //events = processEvents([...events.flat(), newReply]);
-  }
   let container;
   function handleScroll(event: Event) {
     //const target = event.target as HTMLDivElement;
