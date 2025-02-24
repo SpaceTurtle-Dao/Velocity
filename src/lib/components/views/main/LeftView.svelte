@@ -12,11 +12,26 @@
 
   let loader = false;
 
+  if ($addressStore.address) {
+  }
+
   let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
     { icon: User, label: "Profile", href: "/feed" },
     { icon: Mail, label: "Messages", href: "/messages" },
   ];
+
+  function menuItems2() {
+    return [
+      { icon: HomeIcon, label: "Home", href: "/feed" },
+      {
+        icon: User,
+        label: "Profile",
+        href: `/profile/${$addressStore.address}`,
+      },
+      { icon: Mail, label: "Messages", href: "/messages" },
+    ];
+  }
 
   // width 259 plus widthpadding 8
 </script>
@@ -29,23 +44,43 @@
           <li>
             <img class="w-10 h-10" src={Logo} alt="Logo" />
           </li>
-          {#each menuItems as item}
-            <li>
-              <a
-                href={item.href}
-                use:link
-                class="flex items-center p-2 px-2 rounded-full hover:bg-background-700 transition-colors duration-200"
-              >
-                <svelte:component
-                  this={item.icon}
-                  class="w-6 h-6 mr-4 text-primary"
-                />
-                <span class="text-lg font-medium text-primary"
-                  >{item.label}</span
+          {#if $addressStore.address}
+            {#each menuItems2() as item}
+              <li>
+                <a
+                  href={item.href}
+                  use:link
+                  class="flex items-center p-2 px-2 rounded-full hover:bg-background-700 transition-colors duration-200"
                 >
-              </a>
-            </li>
-          {/each}
+                  <svelte:component
+                    this={item.icon}
+                    class="w-6 h-6 mr-4 text-primary"
+                  />
+                  <span class="text-lg font-medium text-primary"
+                    >{item.label}</span
+                  >
+                </a>
+              </li>
+            {/each}
+          {:else}
+            {#each menuItems as item}
+              <li>
+                <a
+                  href={item.href}
+                  use:link
+                  class="flex items-center p-2 px-2 rounded-full hover:bg-background-700 transition-colors duration-200"
+                >
+                  <svelte:component
+                    this={item.icon}
+                    class="w-6 h-6 mr-4 text-primary"
+                  />
+                  <span class="text-lg font-medium text-primary"
+                    >{item.label}</span
+                  >
+                </a>
+              </li>
+            {/each}
+          {/if}
           <li>
             <div
               class="flex items-center p-2 px-5 rounded-full hover:bg-background-700 transition-colors duration-200"
@@ -72,15 +107,6 @@
                 loader = true;
                 await addressStore.connectWallet();
                 loader = false;
-                menuItems = [
-                  { icon: HomeIcon, label: "Home", href: "/feed" },
-                  {
-                    icon: User,
-                    label: "Profile",
-                    href: `/profile/${$addressStore.address}`,
-                  },
-                  { icon: Mail, label: "Messages", href: "/messages" },
-                ];
               }}>Connect Wallet</ButtonWithLoader
             >
           {/if}
