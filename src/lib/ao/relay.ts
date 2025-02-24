@@ -8,7 +8,7 @@ import type { Profile } from "$lib/models/Profile";
 import { addressStore } from "$lib/stores/address.store";
 
 export const event = async (tags: Array<Tag>) => {
-  await addressStore.sync();
+  await addressStore.connectWallet();
   const actionTag: Tag = {
     name: "Action",
     value: "Event",

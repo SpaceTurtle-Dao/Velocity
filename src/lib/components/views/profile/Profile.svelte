@@ -54,7 +54,7 @@
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
   async function fetchPost() {
-    posts = []
+    posts = [];
     if (!params.address) return;
     posts = await postService.fetchPostWithAuthors([params.address]);
     media = posts.filter((value) => {
@@ -101,9 +101,6 @@
     }
   }
   let value = "post";
-
-  //////////// Following/ subscribing code
-  let numberOfFollowing = 0;
 
   let followListLoading = false;
 
@@ -223,7 +220,7 @@
               <Skeleton class="h-5 w-[102px] rounded-full" />
             {:else}
               <div>
-                <span class="font-bold mr-1">{numberOfFollowing}</span>
+                <span class="font-bold mr-1">{profile.followList.length}</span>
 
                 <span class="font-normal text-muted-foreground"
                   >Subscribing</span

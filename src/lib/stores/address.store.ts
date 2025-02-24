@@ -37,6 +37,7 @@ const initAddressStore = (): AddressStore => {
     },
 
     connectWallet: async () => {
+      if(get(addressStore).address) return;
       try {
         await window.arweaveWallet.connect(PERMISSIONS, APP_INFO, GATEWAY);
 
