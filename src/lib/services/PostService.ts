@@ -10,6 +10,7 @@ export interface PostService extends Readable<Map<string, Post>> {
     fetchPostWithAuthors: (authors: string[]) => Promise<Post[]>;
     fetchReplies: (id: string) => Promise<Post[]>;
     fetchRepost: (id: string) => Promise<Post[]>;
+    fetchLikes: (id: string) => Promise<any[]>;
     get: (id: string) => Promise<Post>;
 }
 
@@ -188,6 +189,23 @@ const service = (): PostService => {
                 throw (error)
             }
             return rePosts
+        },
+        fetchLikes: async (id: string): Promise<any[]> => {
+            let likes: any[] = []
+            try {
+                const filter = {
+                    kinds: ["7"]
+                };
+                const filter2 = {
+                    tags: { e: [id] },
+                };
+
+                const _filters = JSON.stringify([filter, filter2]);
+                likes = await fetchEvents(_filters)
+            } catch (error) {
+                throw (error)
+            }
+            return likes
         },
         get: async (id: string): Promise<Post> => {
             let posts = get(postService)
