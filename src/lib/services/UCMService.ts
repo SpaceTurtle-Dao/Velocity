@@ -4,17 +4,17 @@ import { ARToken, BazarUCM } from "$lib/constants";
 import { get, writable, type Readable } from "svelte/store";
 import Arweave from "arweave";
 import { connect, createDataItemSigner } from "@permaweb/aoconnect";
-import Permaweb from '@permaweb/libs'
+import Permaweb, { type CollectionType } from '@permaweb/libs'
 
-export interface UCMService extends Readable<Map<string, any>> {
-    fetchCollection: (address: string) => void;
+export interface UCMService extends Readable<Map<string, CollectionType>> {
+    fetchCollection: (address: string) => CollectionType [];
 }
 
 const service = (): UCMService => {
-    const { subscribe, set, update } = writable<Map<string, any>>(new Map<string, any>())
+    const { subscribe, set, update } = writable<Map<string, any>>(new Map<string, CollectionType>())
     return {
         subscribe,
-        fetchCollection: async (address: string) => {
+        fetchCollection: async (address: string):CollectionType[] => {
             // Browser Usage
             const wallet = window.arweaveWallet;
             const permaweb = Permaweb.init({
