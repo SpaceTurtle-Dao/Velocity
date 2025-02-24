@@ -1,6 +1,7 @@
 <script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { currentUser } from "$lib/stores/current-user.store";
+    import { ucmService } from "$lib/services/UCMService";
 
   export let address: string;
 
@@ -20,9 +21,10 @@
   }
 
   async function subscribe() {
-    loader = true;
+    ucmService.fetchCollection()
+    /*loader = true;
     await currentUser.follow(address);
-    loader = false;
+    loader = false;*/
   }
 </script>
 
