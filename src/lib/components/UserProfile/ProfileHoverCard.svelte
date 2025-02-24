@@ -6,21 +6,21 @@
   import { onMount } from "svelte";
   import type { Profile } from "$lib/models/Profile";
   import Follow from "../Follow/Follow.svelte";
-  import { currentUser } from "$lib/stores/current-user.store";
   import { fetchFollowList } from "$lib/ao/relay";
   import { Skeleton } from "$lib/components/ui/skeleton";
+    import { addressStore } from "$lib/stores/address.store";
 
   export let profile: Profile;
 
   let numberOfFollowing = 0;
 
-  let isCurrentUser = $currentUser.address === profile.address;
+  let isCurrentUser = $addressStore.address === profile.address;
 
   let followListLoading = false;
 
   onMount(() => {
     if (isCurrentUser) {
-      numberOfFollowing = $currentUser.followList.length;
+      numberOfFollowing = profile.followList.length;
     } else {
       followListLoading = true;
       fetchFollowList(profile.address)

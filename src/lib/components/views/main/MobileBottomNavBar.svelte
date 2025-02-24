@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { addressStore } from "$lib/stores/address.store";
   import { currentUser } from "$lib/stores/current-user.store";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { House, MessagesSquare, User, UserRound } from "lucide-svelte";
@@ -16,9 +17,9 @@
       /></a
     >
 
-    <a href="/profile/{$currentUser.address}" use:link
+    <a href="/profile/{$addressStore.address}" use:link
       ><User
-        class={$location === `/profile/${$currentUser.address}`
+        class={$location === `/profile/${$addressStore.address}`
           ? ""
           : "text-muted-foreground"}
         size={28}

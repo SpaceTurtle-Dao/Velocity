@@ -7,7 +7,7 @@
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
   import { currentUser } from "$lib/stores/current-user.store";
-  import Post from "../../posts/Post.svelte";
+  import PostComponent from "../../posts/Post.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Link, CalendarDays } from "lucide-svelte";
   import { onMount } from "svelte";
@@ -21,103 +21,49 @@
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
+  import { postService } from "$lib/services/PostService";
+  import type { Post } from "$lib/models/Post";
+  import { addressStore } from "$lib/stores/address.store";
 
   export let params: { address?: string } = {};
-  
+
   let profile: Profile;
 
   let activeTab: string = "posts";
-  let events: Array<Event> = [];
+  let posts: Array<Post> = [];
+  let media: Array<Post> = [];
+
+  let mimeTypes: string[] = [
+    "image/apng",
+    "image/avif",
+    "image/gif",
+    "image/jpeg",
+    "image/png",
+    "image/svg+xml",
+    "image/webp",
+    "video/x-msvideo",
+    "video/mp4",
+    "video/mpeg",
+    "video/ogg",
+    "video/webm",
+  ];
 
   let showModal = false;
   let textWithUrl = "";
   var pTag: HTMLElement | null;
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
-
-
-  async function fetchMedia() {
-    console.log("will get media")
-    let filters: Array<any> = [];
-    let mimeTypes: string[] = [
-      "image/apng",
-      "image/avif",
-      "image/gif",
-      "image/jpeg",
-      "image/png",
-      "image/svg+xml",
-      "image/webp",
-      "video/x-msvideo",
-      "video/mp4",
-      "video/mpeg",
-      "video/ogg",
-      "video/webm",
-    ];
-    events = [];
-    if (profile) {
-      let filter = {
-        kinds: ["1", "6"],
-        authors: [profile.address],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-        tags: {
-          marker: ["root"],
-        },
-      };
-      filters.push(filter);
-
-      /*for (let i = 0; i < mimeTypes.length; i++) {
-        let filter = {
-          tags: {
-            mimeType: mimeTypes[i],
-          },
-        };
-        filters.push(filter);
-      }*/
-
-      let filter2 = {
-          tags: {
-            mimeType: "image/jpeg",
-          },
-        };
-        filters.push(filter2);
-
-      let _filters = JSON.stringify(filters);
-      console.log("Will send fetch event")
-      console.log("/////////Tags////////////")
-      console.log(_filters)
-      events = await fetchEvents(_filters);
-    }
-    filters = [];
-  }
-
   async function fetchPost() {
-    let filters: Array<any> = [];
-    //events = [];
-    if (profile) {
-      let filter = {
-        kinds: ["1", "6"],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-        tags: {
-          marker: ["root"],
-        },
-      };
-      let filter2 = {
-        tags: {
-          From: [profile.address],
-        },
-      };
-      filters.push(filter);
-      filters.push(filter2);
-      let _filters = JSON.stringify(filters);
-      if (profile) {
-        events = await fetchEvents(_filters);
+    posts = [];
+    if (!params.address) return;
+    posts = await postService.fetchPostWithAuthors([params.address]);
+    media = posts.filter((value) => {
+      if (value.mimeType) {
+        return mimeTypes.includes(value.mimeType);
+      } else {
+        return false;
       }
-    }
-    filters = [];
+    });
   }
 
   async function fetchSubs() {
@@ -127,23 +73,23 @@
 
   async function fetchSubscriptions() {
     console.log("will get subs");
-    //profile?.followList = fetchFollowList(profile!.address)
+    console.log(profile.followList);
+    //profile.followList = fetchFollowList(profile!.address)
     // await subs(userInfo.Process, "1", "100");
   }
-
 
   function toggleModal() {
     showModal = !showModal;
   }
 
   onMount(async () => {
-    setup()
+    setup();
   });
 
   const onAddressParamChange = async () => {
-    console.log("got new params!!!!!!")
-    console.log(params.address)
-    setup()
+    console.log("got new params!!!!!!");
+    console.log(params.address);
+    setup();
     /*value = "post";
     events = [];
     await fetchPost();*/
@@ -156,23 +102,13 @@
   }
   let value = "post";
 
-  //////////// Following/ subscribing code
-  let numberOfFollowing = 0;
-
   let followListLoading = false;
 
-  async function setup(){
-    if (params.address) {
-      if ($currentUser && params.address == $currentUser.address) {
-        profile = $currentUser;
-      } else {
-        let temp = await profileService.get(params.address);
-        console.log(temp);
-        profile = temp
-      }
-    }
-
+  async function setup() {
+    if (!params.address) return;
+    profile = await profileService.get(params.address);
     if (profile) {
+      console.log("getting post");
       await fetchPost();
       // Split the string into parts, keeping the URLs separate
       const parts = textWithUrl.split(urlPattern);
@@ -194,24 +130,6 @@
           }
         }
       });
-    }
-  }
-
-  async function getFollowingCount() {
-    if (profile?.address === $currentUser.address) {
-      numberOfFollowing = $currentUser.followList.length;
-    } else {
-      followListLoading = true;
-      if (profile?.address) {
-        numberOfFollowing = profile?.followList.length;
-        followListLoading = false;
-      }
-    }
-  }
-
-  $: {
-    if (profile) {
-      getFollowingCount();
     }
   }
 </script>
@@ -254,7 +172,7 @@
       <CardContent>
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profile.name}</p>
-          {#if profile.address != $currentUser.address}
+          {#if profile.address != $addressStore.address}
             <Follow address={profile.address} />
           {:else}
             <Button
@@ -302,7 +220,7 @@
               <Skeleton class="h-5 w-[102px] rounded-full" />
             {:else}
               <div>
-                <span class="font-bold mr-1">{numberOfFollowing}</span>
+                <span class="font-bold mr-1">{profile.followList.length}</span>
 
                 <span class="font-normal text-muted-foreground"
                   >Subscribing</span
@@ -321,32 +239,28 @@
     <Tabs.Root bind:value class="max-w-prose ">
       <Tabs.List class="grid grid-cols-4">
         <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchMedia} value="media">Media</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchPost} value="media">Media</Tabs.Trigger>
         <Tabs.Trigger on:click={fetchSubscriptions} value="subscribed"
           >Subscribed</Tabs.Trigger
         >
         <Tabs.Trigger on:click={fetchSubs} value="assets">Assets</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="post">
-        <div class="">
-          {#each events as event}
-            <div class="border border-border max-w-prose">
-              <Post {event} />
-            </div>
-          {/each}
-        </div>
+        {#each posts as post}
+          <div class="border border-border">
+            <PostComponent {post} />
+          </div>
+        {/each}
       </Tabs.Content>
       <Tabs.Content value="media">
-        <div class="">
-          {#each events as event}
-            <div class="border border-border max-w-prose">
-              <Post {event} />
-            </div>
-          {/each}
-        </div>
+        {#each media as post}
+          <div class="border border-border max-w-prose">
+            <PostComponent {post} />
+          </div>
+        {/each}
       </Tabs.Content>
       <Tabs.Content value="subscribed">
-        <Users _profiles={profile.followList} />
+        <Users addresss={profile.followList} />
       </Tabs.Content>
       <Tabs.Content value="assets">
         <!-- {#if $user && profile}
