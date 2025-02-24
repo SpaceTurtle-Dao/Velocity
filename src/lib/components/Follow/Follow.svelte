@@ -19,7 +19,7 @@
   }
 
   async function subscribe() {
-    ucmService.fetchCollection();
+    ucmService.fetchCollection(address);
     /*loader = true;
     await currentUser.follow(address);
     loader = false;*/
