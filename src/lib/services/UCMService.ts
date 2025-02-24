@@ -7,14 +7,14 @@ import { connect, createDataItemSigner } from "@permaweb/aoconnect";
 import Permaweb, { type CollectionType } from '@permaweb/libs'
 
 export interface UCMService extends Readable<Map<string, CollectionType>> {
-    fetchCollection: (address: string) => CollectionType [];
+    fetchCollection: (address: string) => Promise<CollectionType[]>;
 }
 
 const service = (): UCMService => {
     const { subscribe, set, update } = writable<Map<string, any>>(new Map<string, CollectionType>())
     return {
         subscribe,
-        fetchCollection: async (address: string):CollectionType[] => {
+        fetchCollection: async (address: string):Promise<CollectionType[]> => {
             // Browser Usage
             const wallet = window.arweaveWallet;
             const permaweb = Permaweb.init({
@@ -28,7 +28,12 @@ const service = (): UCMService => {
             });
 
             const collections = await permaweb.getCollections({});
-            console.log(collections)
+            if(collections){
+                console.log(collections)
+                return collections
+            }else{
+                return []
+            }
         }
     }
 }
