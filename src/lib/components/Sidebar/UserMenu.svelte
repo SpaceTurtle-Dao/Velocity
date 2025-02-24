@@ -5,15 +5,13 @@
        import { profileFromEvent, type Profile } from "$lib/models/Profile";
        import { addressStore } from "$lib/stores/address.store";
        import { currentUser } from "$lib/stores/profile.store";
+       import { onMount } from "svelte";
        import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+       import { profileService } from "$lib/services/ProfileService";
 
        // import {}
 
        let profile: Profile;
-
-       currentUser.subscribe((value) => {
-              profile = profileFromEvent(value.Profile);
-       });
 
        function toUrl(tx: string) {
               return ARWEAVE_ADDRESS + tx;
@@ -22,6 +20,11 @@
        async function diconnectWallet() {
               await addressStore.disconnectWallet();
        }
+
+       onMount(async () => {
+              if (!$addressStore.address) return;
+              profile = await profileService.get($addressStore.address);
+       });
 </script>
 
 <DropdownMenu.Root>

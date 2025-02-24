@@ -3,7 +3,6 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import { event } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Plus, Image, X, Signpost, Gift } from "lucide-svelte";
@@ -11,6 +10,8 @@
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import GifSearchDialog from "$lib/components/GifDailog/gifDailog.svelte";
+  import { profileService } from "$lib/services/ProfileService";
+  import { addressStore } from "$lib/stores/address.store";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -138,11 +139,15 @@
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        <ProfilePicture
-          src={$currentUser?.picture}
-          name={$currentUser?.name}
-          size="lg"
-        />
+        {#if $addressStore.address}
+          {#await profileService.get($addressStore.address) then profile}
+            <ProfilePicture
+              src={profile.picture}
+              name={profile.name}
+              size="lg"
+            />
+          {/await}
+        {/if}
 
         <div class="w-full">
           <Textarea
@@ -150,7 +155,7 @@
             placeholder="What's happening?!"
             class="text-lg w-full bg-background border-none focus:border-none outline-none focus:outline-none focus-visible:outline-none ring-none focus:ring-none focus-visible:ring-none ring-background overflow-y-hidden"
           />
-          
+
           {#if selectedMedia && mediaPreviewUrl}
             <div class="relative p-5">
               {#if selectedMedia.type.startsWith("video")}
@@ -186,7 +191,7 @@
               />
               <Button
                 variant="ghost"
-                on:click={() => selectedGifUrl = null}
+                on:click={() => (selectedGifUrl = null)}
                 class="text-muted-primary bg-muted-foreground h-18 w-18 hover:text-foreground rounded-full absolute top-2 right-2 p-1"
               >
                 <X />
@@ -227,7 +232,8 @@
         <ButtonWithLoader
           class="px-8 w-36 rounded-full font-semibold text-md"
           loader={isLoading}
-          disabled={isLoading || (!content && !selectedMedia && !selectedGifUrl)}
+          disabled={isLoading ||
+            (!content && !selectedMedia && !selectedGifUrl)}
           on:click={handleSubmit}>Post</ButtonWithLoader
         >
       </div>

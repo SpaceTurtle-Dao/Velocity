@@ -6,6 +6,6 @@
 <div
   class="flex p-10 lg:w-1/4"
 >
-  <Users _profiles = {[]}/>
+  <!--<Users _profiles = {[]}/>-->
 </div>
 {/if}

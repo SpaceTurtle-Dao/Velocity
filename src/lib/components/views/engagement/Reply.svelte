@@ -4,7 +4,6 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Image, X } from "lucide-svelte";
@@ -13,12 +12,12 @@
   import PostPreview from "./PostPreview.svelte";
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
+  import type { Post } from "$lib/models/Post";
+  import { addressStore } from "$lib/stores/address.store";
 
-  export let event: any;
-  export let isRepost: boolean;
+  export let post: Post;
 
   let newReply: any;
-  let profile:Profile;
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -65,24 +64,9 @@
       const tags: Tag[] = [
         { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
-        { name: "e", value: event.Id },
-        { name: "p", value: event.From },
+        { name: "e", value: post.id },
+        { name: "p", value: post.from },
       ];
-
-      // Check if the event is already a reply
-      const eventTags: Tag[] = Array.isArray(event.Tags) ? event.Tags : [];
-      const markerValue = findTagValue(eventTags, "marker");
-      const parentEventId = findTagValue(eventTags, "e");
-      const rootValue = findTagValue(eventTags, "root");
-
-      // Add root tag based on the event type
-      if (rootValue) {
-        tags.push({ name: "root", value: rootValue });
-      } else if (markerValue === "reply" && parentEventId) {
-        tags.push({ name: "root", value: parentEventId });
-      } else {
-        tags.push({ name: "root", value: event.Id });
-      }
 
       let _content = content;
 
@@ -99,7 +83,6 @@
       }
 
       tags.push({ name: "Content", value: _content });
-      tags.push({ name: "action", value: "reply" });
 
       newReply = await aoEvent(tags);
 
@@ -134,10 +117,7 @@
     clearFields();
   }
 
-  onMount(async () => {
-    profile = await profileService.get(event.From);
-  });
-
+  onMount(async () => {});
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
@@ -165,16 +145,19 @@
   </Dialog.Trigger>
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
-      <PostPreview {event} {isRepost} user={profile} />
+      <!--<PostPreview {post} />-->
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        <ProfilePicture
-          size="lg"
-          src={$currentUser?.picture}
-          name={$currentUser?.name}
-        />
-
+        {#if $addressStore.address}
+        {#await profileService.get($addressStore.address) then profile}
+          <ProfilePicture
+            size="lg"
+            src={profile.picture}
+            name={profile.name}
+          />
+        {/await}
+        {/if}
         <div class="w-full ml-3">
           <Textarea
             bind:value={content}
