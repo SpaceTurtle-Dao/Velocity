@@ -7,10 +7,14 @@
   import { currentUser } from "$lib/stores/current-user.store";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { addressStore } from "$lib/stores/address.store";
+  import { Loader } from "lucide-svelte";
+  import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
 
-  const menuItems = [
+  let loader = false;
+
+  let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
-    { icon: User, label: "Profile", href: `/profile/${$addressStore.address}` },
+    { icon: User, label: "Profile", href: "/feed" },
     { icon: Mail, label: "Messages", href: "/messages" },
   ];
 
@@ -54,7 +58,34 @@
         </ul>
       </nav>
 
-      <CreatePostModal />
+      {#if $addressStore.address}
+        <CreatePostModal />
+      {:else}
+        <div class="mt-8 flex flex-col items-center justify-center">
+          {#if loader}
+            <Loader class="animate-spin w-12 h-12" />
+          {:else}
+            <ButtonWithLoader
+              {loader}
+              class="w-full"
+              on:click={async () => {
+                loader = true;
+                await addressStore.connectWallet();
+                loader = false;
+                menuItems = [
+                  { icon: HomeIcon, label: "Home", href: "/feed" },
+                  {
+                    icon: User,
+                    label: "Profile",
+                    href: `/profile/${$addressStore.address}`,
+                  },
+                  { icon: Mail, label: "Messages", href: "/messages" },
+                ];
+              }}>Connect Wallet</ButtonWithLoader
+            >
+          {/if}
+        </div>
+      {/if}
 
       <div class="p-4">
         <LowerProfile />

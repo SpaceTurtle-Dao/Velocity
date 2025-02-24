@@ -5,9 +5,10 @@ import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
 import { HUB_ID } from "$lib/constants";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
-import type { profile } from "console";
+import { addressStore } from "$lib/stores/address.store";
 
 export const event = async (tags: Array<Tag>) => {
+  await addressStore.sync();
   const actionTag: Tag = {
     name: "Action",
     value: "Event",

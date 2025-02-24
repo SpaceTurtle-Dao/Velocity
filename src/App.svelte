@@ -18,12 +18,12 @@
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
 
-  let isLoading = true;
+  let isLoading = false;
   //let isFollowListAlreadyFetched = false;
   //let initialRoute = window.location.hash.slice(1) || "/";
 
   const routes = {
-    "/": LandingPage,
+    "/": Feed,
     "/feed": Feed,
     "/profile": Profile,
     "/messages": MessagesPage,
@@ -34,44 +34,18 @@
   };
 
   onMount(async () => {
-    try {
-      postService.fetchPost(0, 100);
-      await addressStore.sync();
-      if ($addressStore.address) {
-        await profileService.get($addressStore.address);
-        replace("/feed");
-      }
-    } catch (error) {
-      console.error("Error during initialization:", error);
-    } finally {
-      isLoading = false;
-    }
+  
   });
 </script>
 
-{#if isLoading}
-  <div class="flex items-center justify-center h-screen bg-background">
-    <div class="space-y-4">
-      <Spinner />
-      <p class="text-muted-foreground text-center animate-pulse">
-        Connecting to wallet...
-      </p>
-    </div>
+<div class="bg-background">
+  <MobileTopView />
+  <div class="flex w-full bg-background justify-center">
+    <Left />
+    <Middle>
+      <Router {routes} />
+    </Middle>
+    <Right />
   </div>
-{:else if $addressStore.address && !$profileService.has($addressStore.address) && $location !== "/signup"}
-  <LandingPage />
-{:else if $location === "/signup"}
-  <Router {routes} />
-{:else if $addressStore.address && $profileService.has($addressStore.address)}
-  <div class="bg-background">
-    <MobileTopView />
-    <div class="flex w-full bg-background justify-center">
-      <Left />
-      <Middle>
-        <Router {routes} />
-      </Middle>
-      <Right />
-    </div>
-    <MobileBottomNavBar />
-  </div>
-{/if}
+  <MobileBottomNavBar />
+</div>
