@@ -15,7 +15,7 @@
 
     try {
       //console.log("will get feed");
-      feed = await postService.fetchPost(0, 100);
+      feed = await postService.fetchPost(0, 10000);
       //console.log(posts);
     } catch (error) {
       //console.error("Error fetching feed events:", error);

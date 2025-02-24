@@ -38,17 +38,25 @@
         _tags.push(contentTag);
         _tags.push(eventTag);
         _tags.push(pubkeyTag);
-        liked = true;
-        let temp = likes;
-        temp.push({});
-        likes = temp;
+        if (liked) {
+            let temp = likes.filter((like) => {
+                return like.From != $addressStore.address;
+            });
+            likes = temp;
+            liked = false;
+        } else {
+            let temp = likes;
+            temp.push({});
+            likes = temp;
+            liked = true;
+        }
         await event(_tags);
         postService.fetchLikes(post.id).then((_likes) => {
             likes = _likes;
             let temp = likes.filter((like) => {
-                return like.From == $addressStore.address
-            })
-            liked = (temp.length > 0)
+                return like.From == $addressStore.address;
+            });
+            liked = temp.length > 0;
         });
     }
 
@@ -56,9 +64,9 @@
         postService.fetchLikes(post.id).then((_likes) => {
             likes = _likes;
             let temp = likes.filter((like) => {
-                return like.From == $addressStore.address
-            })
-            liked = (temp.length > 0)
+                return like.From == $addressStore.address;
+            });
+            liked = temp.length > 0;
         });
     });
 </script>
