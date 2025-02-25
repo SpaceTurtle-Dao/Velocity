@@ -4,17 +4,23 @@ import { ARToken, BazarUCM } from "$lib/constants";
 import { get, writable, type Readable } from "svelte/store";
 import Arweave from "arweave";
 import { connect, createDataItemSigner } from "@permaweb/aoconnect";
-import Permaweb, { type CollectionType } from '@permaweb/libs'
+import Permaweb, { type AssetCreateArgsType, type AssetDetailType, type AssetHeaderType, type CollectionDetailType, type CollectionType, } from '@permaweb/libs'
+
 
 export interface UCMService extends Readable<Map<string, CollectionType>> {
-    fetchCollection: (address: string) => Promise<CollectionType[]>;
+    fetchCollections: () => Promise<CollectionType[]>;
+    getCollection: (id: string) => Promise<CollectionDetailType>;
+    getAtomicAsset: (id: string, args?: {useGateway?: boolean}) => Promise<AssetDetailType>;
+    fetchAtomicAssets: (id: string []) => Promise<AssetHeaderType []>;
+    createAtomicAsset: (args:AssetCreateArgsType) => Promise<string>;
 }
 
 const service = (): UCMService => {
     const { subscribe, set, update } = writable<Map<string, any>>(new Map<string, CollectionType>())
     return {
         subscribe,
-        fetchCollection: async (address: string):Promise<CollectionType[]> => {
+        fetchCollections: async ():Promise<CollectionType[]> => {
+
             // Browser Usage
             const wallet = window.arweaveWallet;
             const permaweb = Permaweb.init({
@@ -34,7 +40,80 @@ const service = (): UCMService => {
             }else{
                 return []
             }
+        },
+        getCollection: async (collectionId: string):Promise<CollectionDetailType> => {
+            const wallet = window.arweaveWallet;
+            const permaweb = Permaweb.init({
+                ao: connect(),
+                arweave: Arweave.init({
+                    host: "arweave.net",
+                    port: 443,
+                    protocol: "https",
+                }),
+                signer: createDataItemSigner(wallet),
+            });
+            const collection = permaweb.getCollection(collectionId)
+            if(collection){
+                console.log(collection)
+                return collection
+            }else{
+                throw("Not Found")
+            }
+        },
+        getAtomicAsset: async (id: string, args?: {useGateway?: boolean}):Promise<AssetDetailType> => {
+            const wallet = window.arweaveWallet;
+            const permaweb = Permaweb.init({
+                ao: connect(),
+                arweave: Arweave.init({
+                    host: "arweave.net",
+                    port: 443,
+                    protocol: "https",
+                }),
+                signer: createDataItemSigner(wallet),
+            });
+            const asset = await permaweb.getAtomicAsset(id,args)
+            if(asset){
+                console.log(asset)
+                return asset
+            }else{
+                throw("Not Found")
+            }
+        },
+        fetchAtomicAssets: async (ids: string []):Promise<AssetHeaderType []> => {
+            const wallet = window.arweaveWallet;
+            const permaweb = Permaweb.init({
+                ao: connect(),
+                arweave: Arweave.init({
+                    host: "arweave.net",
+                    port: 443,
+                    protocol: "https",
+                }),
+                signer: createDataItemSigner(wallet),
+            });
+            const assets = await permaweb.getAtomicAssets(ids)
+            if(assets){
+                console.log(assets)
+                return assets
+            }else{
+                throw("Not Found")
+            }
+        },
+        createAtomicAsset: async (args:AssetCreateArgsType): Promise<string> => {
+            const wallet = window.arweaveWallet;
+            const permaweb = Permaweb.init({
+                ao: connect(),
+                arweave: Arweave.init({
+                    host: "arweave.net",
+                    port: 443,
+                    protocol: "https",
+                }),
+                signer: createDataItemSigner(wallet),
+            });
+            
+            let assetId = await permaweb.createAtomicAsset(args)
+            return assetId
         }
+
     }
 }
 

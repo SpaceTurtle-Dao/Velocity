@@ -1,7 +1,6 @@
 <script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { currentUser } from "$lib/stores/current-user.store";
-  import { ucmService } from "$lib/services/UCMService";
   import { onMount } from "svelte";
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
@@ -19,10 +18,9 @@
   }
 
   async function subscribe() {
-    ucmService.fetchCollection(address);
-    /*loader = true;
+    loader = true;
     await currentUser.follow(address);
-    loader = false;*/
+    loader = false;
   }
   onMount(async () => {
     if (!$addressStore.address) return;
