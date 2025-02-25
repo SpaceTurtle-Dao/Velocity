@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@permaweb/aoconnect": "^0.0.59",
-    "@permaweb/libs": "file:../permaweb-libs/sdk",
+    "@permaweb/libs": "https://gitpkg.vercel.app/ALLiDoizCode/permaweb-libs/sdk?main",
     "@sveltejs/kit": "^2.16.1",
     "ao-tokens": "^0.0.4",
     "arweave": "^1.15.1",
