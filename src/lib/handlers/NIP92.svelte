@@ -22,14 +22,11 @@
       if (match == null) return;
       inlineUrl = match[0];
       
-      // Check if the URL is a Bazar link
       isBazarLink = inlineUrl.includes("bazar.arweave.net");
       
-      // Check if the URL is for a single asset from bazar.arweave.net
       const bazarAssetRegex = /https:\/\/bazar\.arweave\.net\/#\/asset\/([a-zA-Z0-9_-]+)/;
       const bazarAssetMatch = inlineUrl.match(bazarAssetRegex);
       
-      // Check if the URL is for a collection from bazar.arweave.net
       const bazarCollectionRegex = /https:\/\/bazar\.arweave\.net\/#\/collection\/([a-zA-Z0-9_-]+)\/assets\//;
       const bazarCollectionMatch = inlineUrl.match(bazarCollectionRegex);
       
@@ -48,8 +45,6 @@
     error = null;
     
     try {
-      // Assuming there's a getAsset method in your service
-      // If not, you might need to adjust this accordingly
       const asset = await ucmService.getAsset(id);
       assetDetails = asset;
     } catch (err) {
@@ -74,11 +69,6 @@
     } finally {
       loading = false;
     }
-  }
-
-  function handleViewAsset() {
-    // This function will be replaced by the redirect in TokenCard
-    console.log("View clicked for asset:", inlineUrl);
   }
 
   onMount(() => {
@@ -117,7 +107,6 @@
         imageUrl={assetDetails.thumbnail || ""}
         bannerUrl={assetDetails.banner}
         assetUrl={inlineUrl}
-        on:view={handleViewAsset}
       />
     </div>
   {/if}

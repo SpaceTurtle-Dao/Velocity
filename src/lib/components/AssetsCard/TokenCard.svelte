@@ -5,11 +5,10 @@
   export let name: string = "";
 //   export let price: number = 0;
   export let imageUrl: string = "";
-  export let bannerUrl: string = ""; // Added for background banner
+  export let bannerUrl: string = "";
   export let assetUrl: string = "";
 
   function handleView(event) {
-    // Stop event propagation to prevent the parent post click handler from firing
     event.stopPropagation();
     
     window.open(assetUrl, "_blank", "noopener,noreferrer");
@@ -41,14 +40,11 @@
     <div class="absolute inset-0 bg-black bg-opacity-40"></div>
   </div>
   
-  <!-- Content -->
   <div class="relative z-10 flex flex-col h-full p-4">
-    <!-- Title at top -->
     <div class="mb-2">
       <div class="text-white font-bold text-lg truncate">{name}</div>
     </div>
     
-    <!-- Main content area - centered image -->
     <div class="flex-grow flex items-center justify-center mb-4">
       {#if imageUrl}
         <img
