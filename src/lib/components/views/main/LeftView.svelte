@@ -9,6 +9,7 @@
   import { addressStore } from "$lib/stores/address.store";
   import { Loader } from "lucide-svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
+  import SearchBar from "$lib/components/Search/Search.svelte";
 
   let loader = false;
 
@@ -17,6 +18,7 @@
 
   let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
+    { icon: Search, label: "Search", href: "/search"},
     { icon: User, label: "Profile", href: "/feed" },
     { icon: Mail, label: "Messages", href: "/messages" },
   ];
@@ -24,6 +26,7 @@
   function menuItems2() {
     return [
       { icon: HomeIcon, label: "Home", href: "/feed" },
+      { icon: Search, label: "Search", href: "/search" },
       {
         icon: User,
         label: "Profile",

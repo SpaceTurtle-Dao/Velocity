@@ -7,6 +7,7 @@
   import { profileFromEvent } from "$lib/models/Profile";
   import { link } from "svelte-spa-router";
   import AssetCard from "$lib/components/AssetsCard/AssetCard.svelte";
+  import TrendingAssets from "$lib/components/AssetsCard/TrendingAssets.svelte"
   
   let searchQuery = "";
   let searchResults: Profile[] = [];
@@ -107,9 +108,14 @@
   <div class="bg-background-800 rounded-lg p-4 shadow-lg">
     <!-- Search container -->
     <div class="relative">
-      <div class="flex items-center space-x-4 bg-background-700 rounded-full p-3 border transition-all duration-200"
-          class:border-primary={isSearchFocused}
-          class:border-transparent={!isSearchFocused}>
+      <div 
+        class="flex items-center space-x-4 bg-background-700 rounded-full p-3 border border-opacity-30 transition-all duration-200"
+        class:border-primary={isSearchFocused}
+        class:border-border={!isSearchFocused}
+        class:ring-2={isSearchFocused}
+        class:ring-primary-400={isSearchFocused}
+        class:ring-opacity-50={isSearchFocused}
+      >
         <SearchIcon class="w-5 h-5 text-muted-foreground" />
         <input
           type="text"
@@ -176,13 +182,14 @@
     {/if}
   </div>
 
-   <AssetCard 
+   <!-- <AssetCard 
     name={assetData.name}
     owners={assetData.owners}
     price={assetData.price}
     quantity={assetData.quantity}
     maxQuantity={assetData.maxQuantity}
     imageUrl={assetData.imageUrl}
-  />
+  /> -->
+  <TrendingAssets />
 </div>
 {/if}
