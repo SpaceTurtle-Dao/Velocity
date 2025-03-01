@@ -2,8 +2,8 @@
   import "./app.css";
   import { onMount, tick } from "svelte";
   import Router, { location, push, replace } from "svelte-spa-router";
-  import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
-  import Spinner from "$lib/components/spinners/Spinner.svelte";
+  //import LandingPage from "$lib/components/views/landingPage/LandingPage.svelte";
+  //import Spinner from "$lib/components/spinners/Spinner.svelte";
   import Middle from "$lib/components/views/main/MiddleView.svelte";
   import Left from "$lib/components/views/main/LeftView.svelte";
   import Right from "$lib/components/views/main/RightView.svelte";
@@ -15,10 +15,10 @@
   import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
   import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
-  import { postService } from "$lib/services/PostService";
+  //import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
   import PublicProfile from "$lib/components/views/profile/PublicProfile.svelte";
-  import Search from "$lib/components/search/Search.svelte";
+  import Search from "$lib/components/Search/SearchPage.svelte";
 
   let isLoading = false;
   //let isFollowListAlreadyFetched = false;
