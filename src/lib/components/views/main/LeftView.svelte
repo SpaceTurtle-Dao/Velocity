@@ -9,7 +9,7 @@
   import { addressStore } from "$lib/stores/address.store";
   import { Loader } from "lucide-svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-  import SearchBar from "$lib/components/Search/Search.svelte";
+  import SearchBar from "$lib/components/Search/SearchPage.svelte";
 
   let loader = false;
 
