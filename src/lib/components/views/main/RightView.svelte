@@ -105,7 +105,7 @@
 
 {#if !$isMobile}
 <div class="flex flex-col p-5 lg:w-1/4 space-y-4">
-  <div class="bg-background-800 rounded-lg p-4 shadow-lg">
+  <div class="bg-background-800 rounded-lg p-4 shadow-lg lg:w-3/4">
     <!-- Search container -->
     <div class="relative">
       <div 
