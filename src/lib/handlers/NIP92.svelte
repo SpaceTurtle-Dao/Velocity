@@ -3,9 +3,10 @@
   import { Video } from "flowbite-svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import type { Post } from "$lib/models/Post";
-  import TokenCard from "$lib/components/Assetscard/TokenCard.svelte";
+
   import { ucmService } from "$lib/services/UCMService";
-  
+  import TokenCard from "$lib/components/Assets_Card/TokenCard.svelte";
+
   export let post: Post;
   let inlineUrl: string;
   let processedContent: string;
@@ -21,15 +22,17 @@
       let match = post.content.toString().match(/https?:\/\/[^\s]+/);
       if (match == null) return;
       inlineUrl = match[0];
-      
+
       isBazarLink = inlineUrl.includes("bazar.arweave.net");
-      
-      const bazarAssetRegex = /https:\/\/bazar\.arweave\.net\/#\/asset\/([a-zA-Z0-9_-]+)/;
+
+      const bazarAssetRegex =
+        /https:\/\/bazar\.arweave\.net\/#\/asset\/([a-zA-Z0-9_-]+)/;
       const bazarAssetMatch = inlineUrl.match(bazarAssetRegex);
-      
-      const bazarCollectionRegex = /https:\/\/bazar\.arweave\.net\/#\/collection\/([a-zA-Z0-9_-]+)\/assets\//;
+
+      const bazarCollectionRegex =
+        /https:\/\/bazar\.arweave\.net\/#\/collection\/([a-zA-Z0-9_-]+)\/assets\//;
       const bazarCollectionMatch = inlineUrl.match(bazarCollectionRegex);
-      
+
       if (bazarAssetMatch && bazarAssetMatch[1]) {
         assetId = bazarAssetMatch[1];
         fetchCollectionDetails(assetId);
@@ -39,13 +42,13 @@
       }
     }
   }
-  
+
   async function fetchAssetDetails(id: string) {
     loading = true;
     error = null;
-    
+
     try {
-      const asset = await ucmService.getAsset(id);
+      const asset = await ucmService.getAtomicAsset(id);
       assetDetails = asset;
     } catch (err) {
       console.error("Failed to fetch asset details:", err);
@@ -54,11 +57,11 @@
       loading = false;
     }
   }
-  
+
   async function fetchCollectionDetails(id: string) {
     loading = true;
     error = null;
-    
+
     try {
       const collection = await ucmService.getCollection(id);
       console.log("Collection data:", collection);
@@ -94,24 +97,23 @@
   <article class="justify-left text-primary text-wrap ...">
     <p>{post.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
   </article>
-  
+
   {#if (assetId || collectionId) && loading}
     <div class="py-4 text-center">
       <p>Loading asset details...</p>
     </div>
   {:else if (assetId || collectionId) && assetDetails}
     <div class="py-4">
-      <TokenCard 
-        name={assetDetails.title || "Unknown Asset"} 
-        price={assetDetails.price || 0}
+      <TokenCard
+        name={assetDetails.title || "Unknown Asset"}
         imageUrl={assetDetails.thumbnail || ""}
         bannerUrl={assetDetails.banner}
         assetUrl={inlineUrl}
       />
     </div>
   {/if}
-  
-  {#if !isBazarLink || ((assetId === null && collectionId === null) && !assetDetails)}
+
+  {#if !isBazarLink || (assetId === null && collectionId === null && !assetDetails)}
     <a
       href={inlineUrl}
       class="pl-0 pb-6 text-blue-500 hover:underline"
