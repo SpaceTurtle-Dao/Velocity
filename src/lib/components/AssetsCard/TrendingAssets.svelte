@@ -20,6 +20,13 @@
   function truncateCreator(creator: string): string {
     return creator.slice(0, 14);
   }
+  
+  function truncateTitle(title: string): string {
+    if (title.length > 30) {
+      return title.slice(0, 30) + "....";
+    }
+    return title;
+  }
 </script>
 
 <div class="bg-background-800 rounded-lg p-4 shadow-lg border border-border">
@@ -42,7 +49,7 @@
           {/if}
 
           <div class="flex flex-col">
-            <span class="text-sm text-primary font-medium truncate">{collection.title}</span>
+            <span class="text-sm text-primary font-medium">{truncateTitle(collection.title)}</span>
             <span class="text-xs text-muted-foreground">
               Creator: {truncateCreator(collection.creator)}.....
             </span>
