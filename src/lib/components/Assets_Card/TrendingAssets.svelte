@@ -23,13 +23,13 @@
   
   function truncateTitle(title: string): string {
     if (title.length > 30) {
-      return title.slice(0, 30) + "....";
+      return title.slice(0, 30) + ".....";
     }
     return title;
   }
 </script>
 
-<div class="bg-background-800 rounded-lg p-4 shadow-lg border border-border lg:w-3/4">
+<div class="bg-background-800 rounded-lg p-4 shadow-lg border border-border lg:w-3/4 md:w-3/4">
   <h2 class="text-lg font-medium text-primary mb-3">Trending Collections</h2>
 
   <div class="space-y-2 max-h-96 overflow-y-auto scrollbar-hidden">
