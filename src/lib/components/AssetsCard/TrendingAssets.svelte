@@ -32,7 +32,7 @@
 <div class="bg-background-800 rounded-lg p-4 shadow-lg border border-border">
   <h2 class="text-lg font-medium text-primary mb-3">Trending Collections</h2>
 
-  <div class="space-y-2 max-h-96 overflow-y-auto">
+  <div class="space-y-2 max-h-96 overflow-y-auto scrollbar-hidden">
     {#each collections as collection (collection.id)}
       <div class="flex items-center justify-between bg-background-700 rounded-lg p-2 w-full border border-border">
         <div class="flex items-center gap-2">
@@ -68,3 +68,12 @@
     {/each}
   </div>
 </div>
+
+<style>
+  .scrollbar-hidden {
+    scrollbar-width: none;
+  }
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+</style>
