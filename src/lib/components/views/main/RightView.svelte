@@ -6,8 +6,8 @@
   import type { Profile } from "$lib/models/Profile";
   import { profileFromEvent } from "$lib/models/Profile";
   import { link } from "svelte-spa-router";
-  import AssetCard from "$lib/components/AssetsCard/AssetCard.svelte";
-  import TrendingAssets from "$lib/components/AssetsCard/TrendingAssets.svelte"
+  import AssetCard from "$lib/components/Assets_Card/AssetCard.svelte";
+  import TrendingAssets from "$lib/components/Assets_Card/TrendingAssets.svelte"
   
   let searchQuery = "";
   let searchResults: Profile[] = [];
