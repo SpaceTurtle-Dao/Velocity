@@ -9,23 +9,29 @@
 
   let feed: Array<Post> = [];
   let following: Array<Post> = [];
+  let isLoadingFeed = true;
+  let isLoadingFollowing = false;
 
   async function fetchFeedEvents() {
     //if (isFetchingAlready || !$currentUser) return;
+    isLoadingFeed = true;
 
     try {
       //console.log("will get feed");
-      feed = await postService.fetchPost(0, 10000);
+      feed = await postService.fetchPost(0, 1000);
       //console.log(posts);
     } catch (error) {
       //console.error("Error fetching feed events:", error);
     } finally {
       //isFetchingAlready = false;
+      isLoadingFeed = false;
     }
   }
 
   async function fetchFollowingEvents() {
     if (!$addressStore.address) return;
+    isLoadingFollowing = true;
+    
     try {
       //console.log("will get feed");
       let profile = await profileService.get($addressStore.address);
@@ -35,6 +41,7 @@
       //console.error("Error fetching feed events:", error);
     } finally {
       //isFetchingAlready = false;
+      isLoadingFollowing = false;
     }
   }
 
@@ -44,7 +51,7 @@
     //const threshold = 100; // pixels from bottom to trigger load
     //console.log("we are scrolling");
     /*if (
-      target.scrollHeight - (target.scrollTop + target.clientHeight) <
+      target.scrollHeight - (target.scrollTop + target.clientHeight) 
         threshold &&
       !loading &&
       hasMore
@@ -90,23 +97,41 @@
         </Tabs.List>
 
         <Tabs.Content value="for you">
-          <div>
-            {#each feed as post}
-              <div class="border border-border max-w-prose">
-                <PostComponent {post} />
+          {#if isLoadingFeed}
+            <div class="flex justify-center items-center py-16">
+              <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" role="status">
+                <span class="sr-only">Loading...</span>
               </div>
-            {/each}
-          </div>
+              <span class="ml-3 text-muted-foreground">Loading posts...</span>
+            </div>
+          {:else}
+            <div>
+              {#each feed as post}
+                <div class="max-w-prose">
+                  <PostComponent {post} />
+                </div>
+              {/each}
+            </div>
+          {/if}
         </Tabs.Content>
 
         <Tabs.Content value="following">
-          <div>
-            {#each following as post}
-              <div class="border border-border max-w-prose">
-                <PostComponent {post} />
+          {#if isLoadingFollowing}
+            <div class="flex justify-center items-center py-16">
+              <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" role="status">
+                <span class="sr-only">Loading...</span>
               </div>
-            {/each}
-          </div>
+              <span class="ml-3 text-muted-foreground">Loading following...</span>
+            </div>
+          {:else}
+            <div>
+              {#each following as post}
+                <div class="border border-border max-w-prose">
+                  <PostComponent {post} />
+                </div>
+              {/each}
+            </div>
+          {/if}
         </Tabs.Content>
       </Tabs.Root>
     </div>

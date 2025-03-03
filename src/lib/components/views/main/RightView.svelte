@@ -6,7 +6,6 @@
   import type { Profile } from "$lib/models/Profile";
   import { profileFromEvent } from "$lib/models/Profile";
   import { link } from "svelte-spa-router";
-  import AssetCard from "$lib/components/Assets_Card/AssetCard.svelte";
   import TrendingAssets from "$lib/components/Assets_Card/TrendingAssets.svelte"
   
   let searchQuery = "";
@@ -15,10 +14,8 @@
   let debounceTimer: NodeJS.Timeout;
   let isSearchFocused = false;
 
-  // Clear search results when focus is lost
   function handleBlur() {
     isSearchFocused = false;
-    // Add a small delay to allow for clicking on search results
     setTimeout(() => {
       if (!isSearchFocused) {
         searchResults = [];

@@ -82,7 +82,7 @@
 </script>
 
 {#if post && profile}
-  <div class="cursor-pointer border-b border-gray-800">
+  <div class="cursor-pointer border border-border">
     <Dialog.Root>
       <Dialog.Trigger asChild>
         {#if isLoading}
