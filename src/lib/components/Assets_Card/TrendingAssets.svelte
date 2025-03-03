@@ -3,12 +3,17 @@
   import { Coins } from "lucide-svelte";
   import { ucmService } from "$lib/services/UCMService";
   import { onMount } from "svelte";
+  import {type CollectionType, } from '@permaweb/libs'
 
-  let collections = [];
+
+  let collections: CollectionType[] = [];
+  const MAX_COLLECTIONS = 200;
 
   onMount(async () => {
-    collections = await ucmService.fetchCollections("JAHF1fo4MECRZZFKGcT0B6XM94Lqe-3FtB4Ht_kTEK0");
-    console.log("Fetched Collections:", collections);
+    const allCollections = await ucmService.fetchCollections();
+    // Take only the first 200 collections
+    collections = allCollections.slice(0, MAX_COLLECTIONS);
+    console.log("Fetched Collections (limited to 200):", collections);
   });
 
   function handleBuy(collectionId: string) {
