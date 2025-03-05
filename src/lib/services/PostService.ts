@@ -1,8 +1,6 @@
 // users-profile.store.ts
-import { fetchEvents, fetchFollowList, fetchProfile } from "$lib/ao/relay";
-import type { Profile } from "$lib/models/Profile";
+import { fetchEvents } from "$lib/ao/relay";
 import { get, writable, type Readable } from "svelte/store";
-import { profileService } from "./ProfileService";
 import { PostType, type Post } from "$lib/models/Post";
 
 export interface PostService extends Readable<Map<string, Post>> {

@@ -6,6 +6,7 @@
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
+  import { timestampService } from "$lib/utils/date-time";
 
   let feed: Array<Post> = [];
   let following: Array<Post> = [];
@@ -17,8 +18,17 @@
     isLoadingFeed = true;
 
     try {
-      //console.log("will get feed");
-      feed = await postService.fetchPost(0, 1000);
+      let now = new Date(Date.now());
+      let since = timestampService.subtract(now, 7, "day");
+      console.log("since",since)
+      if(feed.length == 0){
+        feed = await postService.fetchPost(0, 10000);
+        console.log("feed 0",feed)
+      }
+      else{
+        feed = await postService.fetchPost(feed[feed.length - 1].timestamp, 10);
+        console.log("feed",feed)
+      }
       //console.log(posts);
     } catch (error) {
       //console.error("Error fetching feed events:", error);
