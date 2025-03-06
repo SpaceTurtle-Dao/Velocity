@@ -8,6 +8,7 @@
   export let bannerUrl: string = "";
   export let assetUrl: string = "";
 
+  //@ts-ignore
   function handleView(event) {
     event.stopPropagation();
     
@@ -27,11 +28,6 @@
         src={bannerUrl.startsWith("http") ? bannerUrl : `https://arweave.net/${bannerUrl}`}
         alt="Banner"
         class="w-full h-full object-cover opacity-60"
-        on:error={(e) => {
-          e.target.onerror = null;
-          e.target.src = "";
-          e.target.classList.add("bg-gradient-to-br", "from-background-700", "to-background-900");
-        }}
       />
     {:else}
       <div class="w-full h-full bg-gradient-to-br from-background-700 to-background-900"></div>
@@ -51,11 +47,6 @@
           src={imageUrl.startsWith("http") ? imageUrl : `https://arweave.net/${imageUrl}`}
           alt={name}
           class="w-28 h-28 object-contain drop-shadow-lg"
-          on:error={(e) => {
-            e.target.onerror = null;
-            e.target.src = "";
-            e.target.classList.add("bg-background-700", "rounded-full");
-          }}
         />
       {:else}
         <div class="w-28 h-28 bg-background-700 rounded-full flex items-center justify-center">

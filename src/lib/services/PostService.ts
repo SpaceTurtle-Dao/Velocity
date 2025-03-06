@@ -1,8 +1,5 @@
-// users-profile.store.ts
-import { fetchEvents, fetchFollowList, fetchProfile } from "$lib/ao/relay";
-import type { Profile } from "$lib/models/Profile";
+import { fetchEvents } from "$lib/ao/relay";
 import { get, writable, type Readable } from "svelte/store";
-import { profileService } from "./ProfileService";
 import { PostType, type Post } from "$lib/models/Post";
 
 export interface PostService extends Readable<Map<string, Post>> {
@@ -21,8 +18,10 @@ const service = (): PostService => {
     return {
         subscribe,
         fetchPost: async (since: Number, limit: Number): Promise<Post[]> => {
+            console.log("since",since);
+            console.log("limit",limit);
             let posts = get(postService)
-            if (posts.size > 0) {
+            if (posts && posts.size > 0) {
                 try {
                     const filter = {
                         kinds: ["1", "6"],
@@ -42,6 +41,8 @@ const service = (): PostService => {
 
                             }
                         }
+
+                        console.log("posts 2",posts.size)
                         set(posts)
                     });
                     return posts.values().toArray()
@@ -58,6 +59,7 @@ const service = (): PostService => {
                     const filter2 = {
                         tags: { marker: ["root", "repost"] },
                     };
+                    console.log("filter",filter);
 
                     const _filters = JSON.stringify([filter, filter2]);
                     let events = await fetchEvents(_filters);
@@ -68,6 +70,7 @@ const service = (): PostService => {
 
                         }
                     }
+                    console.log("posts 1", posts.size);
                     set(posts)
                     return posts.values().toArray()
                 } catch (error) {

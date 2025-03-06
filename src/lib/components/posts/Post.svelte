@@ -1,7 +1,6 @@
 <script lang="ts">
   import Reply from "$lib/components/views/engagement/Reply.svelte";
   import { onMount } from "svelte";
-  import { fetchEvents } from "$lib/ao/relay";
   import { CornerDownRight, Repeat2Icon } from "lucide-svelte";
   import Nip92 from "$lib/handlers/NIP92.svelte";
   import Like from "$lib/components/views/engagement/Like.svelte";
@@ -9,7 +8,6 @@
   import Buy from "$lib/components/views/engagement/Buy.svelte";
   import Share from "$lib/components/views/engagement/Share.svelte";
   import { createEventDispatcher } from "svelte";
-  import { currentUser } from "$lib/stores/current-user.store";
   import { link } from "svelte-spa-router";
   import * as Dialog from "$lib/components/ui/dialog";
   import ProfilePictureHoverCard from "../UserProfile/ProfilePictureHoverCard.svelte";

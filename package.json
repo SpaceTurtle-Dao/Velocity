@@ -36,6 +36,7 @@
     "@permaweb/libs": "https://gitpkg.vercel.app/ALLiDoizCode/permaweb-libs/sdk?main",
     "@permaweb/ucm": "^0.0.6",
     "@sveltejs/kit": "^2.16.1",
+    "add-subtract-date": "^1.0.16",
     "ao-tokens": "^0.0.4",
     "arweave": "^1.15.1",
     "bits-ui": "^0.21.16",

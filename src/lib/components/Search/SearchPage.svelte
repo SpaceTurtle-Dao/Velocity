@@ -4,6 +4,7 @@
   import { fetchEvents } from "$lib/ao/relay";
   import type { Profile } from "$lib/models/Profile";
   import { profileFromEvent } from "$lib/models/Profile";
+  import { link } from "svelte-spa-router";
   
   let searchQuery = "";
   let searchResults: Profile[] = [];
@@ -97,9 +98,10 @@
           <div class="max-w-3xl mx-auto space-y-4 p-2">
             {#each searchResults as profile}
               <a
-                href="/profile/{profile.address}"
-                class="block p-4 bg-background-700 rounded-lg hover:bg-background-600 transition-colors duration-200"
-              >
+              href="/profile/{profile.address}"
+              use:link
+              class="block hover:border-blue-400 transition-colors duration-200 rounded-lg overflow-hidden"
+            >
                 <div class="flex items-center space-x-4">
                   {#if profile.picture}
                     <img

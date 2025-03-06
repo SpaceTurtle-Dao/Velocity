@@ -6,19 +6,40 @@
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
+  import { timestampService } from "$lib/utils/date-time";
 
   let feed: Array<Post> = [];
   let following: Array<Post> = [];
   let isLoadingFeed = true;
   let isLoadingFollowing = false;
+  let newfeed: Array<Post> = [];
+
+    postService.subscribe(async (posts) => {
+      feed = posts.values().toArray();
+      // console.log("feed",feed);
+    });
 
   async function fetchFeedEvents() {
     //if (isFetchingAlready || !$currentUser) return;
     isLoadingFeed = true;
 
     try {
-      //console.log("will get feed");
-      feed = await postService.fetchPost(0, 1000);
+      let now = new Date(Date.now());
+      let since = timestampService.subtract(now, 100, "day");
+      // console.log("since",since)
+      if(feed.length == 0){
+        await postService.fetchPost(since.getTime(), 1);
+        console.log("feed 0",feed[feed.length - 1].id);
+        setTimeout(async () => {
+          await postService.fetchPost(feed[feed.length - 1].timestamp, 2);
+        }, 5000);
+        console.log("feed[feed.length - 1].timestamp",feed[feed.length - 1].timestamp)
+        // console.log("newfeed",newfeed)
+      }
+      else{
+        // feed = await postService.fetchPost(feed[feed.length - 1].timestamp, 1000);
+        // console.log("feed",feed)
+      }
       //console.log(posts);
     } catch (error) {
       //console.error("Error fetching feed events:", error);
@@ -88,7 +109,6 @@
         <Tabs.List class="grid grid-cols-2 md:mx-0 mx-4 ">
           <Tabs.Trigger
             class="underline-tabs-trigger"
-            on:click={fetchFeedEvents}
             value="for you">For You</Tabs.Trigger
           >
           <Tabs.Trigger on:click={fetchFollowingEvents} value="following"
