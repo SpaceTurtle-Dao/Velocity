@@ -13,11 +13,11 @@
     const allCollections = await ucmService.fetchCollections();
     // Take only the first 200 collections
     collections = allCollections.slice(0, MAX_COLLECTIONS);
-    console.log("Fetched Collections (limited to 200):", collections);
+    // console.log("Fetched Collections (limited to 200):", collections);
   });
 
   function handleBuy(collectionId: string) {
-    console.log("View clicked for collection ID:", collectionId);
+    // console.log("View clicked for collection ID:", collectionId);
     const url = `https://bazar.arweave.net/#/collection/${collectionId}/assets/`;
     window.open(url, '_blank');
   }

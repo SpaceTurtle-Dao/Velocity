@@ -12,6 +12,12 @@
   let following: Array<Post> = [];
   let isLoadingFeed = true;
   let isLoadingFollowing = false;
+  let newfeed: Array<Post> = [];
+
+    postService.subscribe(async (posts) => {
+      feed = posts.values().toArray();
+      // console.log("feed",feed);
+    });
 
   async function fetchFeedEvents() {
     //if (isFetchingAlready || !$currentUser) return;
@@ -19,15 +25,20 @@
 
     try {
       let now = new Date(Date.now());
-      let since = timestampService.subtract(now, 7, "day");
-      console.log("since",since)
+      let since = timestampService.subtract(now, 100, "day");
+      // console.log("since",since)
       if(feed.length == 0){
-        feed = await postService.fetchPost(0, 10000);
-        console.log("feed 0",feed)
+        await postService.fetchPost(since.getTime(), 1);
+        console.log("feed 0",feed[feed.length - 1].id);
+        setTimeout(async () => {
+          await postService.fetchPost(feed[feed.length - 1].timestamp, 2);
+        }, 5000);
+        console.log("feed[feed.length - 1].timestamp",feed[feed.length - 1].timestamp)
+        // console.log("newfeed",newfeed)
       }
       else{
-        feed = await postService.fetchPost(feed[feed.length - 1].timestamp, 10);
-        console.log("feed",feed)
+        // feed = await postService.fetchPost(feed[feed.length - 1].timestamp, 1000);
+        // console.log("feed",feed)
       }
       //console.log(posts);
     } catch (error) {
@@ -98,7 +109,6 @@
         <Tabs.List class="grid grid-cols-2 md:mx-0 mx-4 ">
           <Tabs.Trigger
             class="underline-tabs-trigger"
-            on:click={fetchFeedEvents}
             value="for you">For You</Tabs.Trigger
           >
           <Tabs.Trigger on:click={fetchFollowingEvents} value="following"

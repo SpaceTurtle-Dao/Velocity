@@ -38,7 +38,7 @@ const service = (): UCMService => {
 
             const collections = await permaweb.getCollections({});
             if (collections) {
-                console.log(collections)
+                // console.log(collections)
                 return collections
             } else {
                 return []
@@ -57,7 +57,7 @@ const service = (): UCMService => {
             });
             const collection = permaweb.getCollection(collectionId)
             if (collection) {
-                console.log(collection)
+                // console.log(collection)
                 return collection
             } else {
                 throw ("Not Found")

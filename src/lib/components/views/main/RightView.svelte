@@ -178,15 +178,6 @@
       <p class="text-center text-muted-foreground mt-4">No profiles found</p>
     {/if}
   </div>
-
-   <!-- <AssetCard 
-    name={assetData.name}
-    owners={assetData.owners}
-    price={assetData.price}
-    quantity={assetData.quantity}
-    maxQuantity={assetData.maxQuantity}
-    imageUrl={assetData.imageUrl}
-  /> -->
   <TrendingAssets />
 </div>
 {/if}
