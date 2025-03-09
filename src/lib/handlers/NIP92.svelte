@@ -64,7 +64,7 @@
 
     try {
       const collection = await ucmService.getCollection(id);
-      console.log("Collection data:", collection);
+      // console.log("Collection data:", collection);
       assetDetails = collection;
     } catch (err) {
       console.error("Failed to fetch collection details:", err);

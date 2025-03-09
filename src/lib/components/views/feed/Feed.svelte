@@ -2,7 +2,7 @@
   import PostComponent from "$lib/components/posts/Post.svelte";
   import type { Post } from "$lib/models/Post";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
@@ -12,39 +12,39 @@
   let following: Array<Post> = [];
   let isLoadingFeed = true;
   let isLoadingFollowing = false;
-  let newfeed: Array<Post> = [];
+  let isLoadingMore = false;
+  let lastLoadedTimestamp: number | null = null;
+  let scrollContainer: HTMLElement | null = null;
 
-    postService.subscribe(async (posts) => {
-      feed = posts.values().toArray();
-      // console.log("feed",feed);
-    });
+  postService.subscribe(async (posts) => {
+    // feed = posts.values().toArray();
+    // console.log("feed",feed);
+  });
 
   async function fetchFeedEvents() {
-    //if (isFetchingAlready || !$currentUser) return;
     isLoadingFeed = true;
 
     try {
-      let now = new Date(Date.now());
-      let since = timestampService.subtract(now, 100, "day");
-      // console.log("since",since)
-      if(feed.length == 0){
-        await postService.fetchPost(since.getTime(), 1);
-        console.log("feed 0",feed[feed.length - 1].id);
+      const now = new Date();
+      const since = timestampService.subtract(new Date(), 10, "days").getTime();
+      const until = now.getTime();
+      
+      if (feed.length === 0) {
+        feed = await postService.fetchPost(since, until);
+        lastLoadedTimestamp = since;
+      } else {
         setTimeout(async () => {
-          await postService.fetchPost(feed[feed.length - 1].timestamp, 2);
+          const latestPostTimestamp = feed[0].timestamp;
+          const newPosts = await postService.fetchPost(since, latestPostTimestamp);
+          // Filter out duplicates based on post ID
+          const existingIds = new Set(feed.map(post => post.id));
+          const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post.id));
+          feed = [...uniqueNewPosts, ...feed];
         }, 5000);
-        console.log("feed[feed.length - 1].timestamp",feed[feed.length - 1].timestamp)
-        // console.log("newfeed",newfeed)
       }
-      else{
-        // feed = await postService.fetchPost(feed[feed.length - 1].timestamp, 1000);
-        // console.log("feed",feed)
-      }
-      //console.log(posts);
     } catch (error) {
-      //console.error("Error fetching feed events:", error);
+      console.error("Error fetching feed events:", error);
     } finally {
-      //isFetchingAlready = false;
       isLoadingFeed = false;
     }
   }
@@ -66,94 +66,140 @@
     }
   }
 
-  let container;
-  function handleScroll(event: Event) {
-    //const target = event.target as HTMLDivElement;
-    //const threshold = 100; // pixels from bottom to trigger load
-    //console.log("we are scrolling");
-    /*if (
-      target.scrollHeight - (target.scrollTop + target.clientHeight) 
-        threshold &&
-      !loading &&
-      hasMore
-    ) {
-      if (
-        profiles.length == ITEMS_PER_PAGE &&
-        profiles[profiles.length - 1].created_at != since
-      ) {
-        since = profiles[profiles.length - 1].created_at;
-        loadMoreProfiles();
+  async function loadMorePosts() {
+    if (isLoadingMore || !lastLoadedTimestamp) return;
+    
+    isLoadingMore = true;
+    console.log("Loading more posts...");
+    
+    try {
+      const until = lastLoadedTimestamp;
+      const since = timestampService.subtract(new Date(until), 10, "days").getTime();
+      
+      const olderPosts = await postService.fetchPost(since, until);
+      if (olderPosts.length > 0) {
+        // Filter out duplicates based on post ID
+        const existingIds = new Set(feed.map(post => post.id));
+        const uniqueOlderPosts = olderPosts.filter(post => !existingIds.has(post.id));
+        
+        if (uniqueOlderPosts.length > 0) {
+          feed = [...feed, ...uniqueOlderPosts];
+          console.log("Added more posts", uniqueOlderPosts.length);
+          lastLoadedTimestamp = since;
+        } else {
+          console.log("No new unique posts to load");
+        }
+      } else {
+        console.log("No more posts to load");
       }
-    }*/
+    } catch (error) {
+      console.error("Error loading more posts:", error);
+    } finally {
+      isLoadingMore = false;
+    }
   }
 
-  // Initialize feed
-  onMount(async () => {
-    fetchFeedEvents();
+  function handleScroll() {
+    // Get the correct scrollable container
+    if (!scrollContainer) return;
+    
+    const scrollPosition = scrollContainer.scrollTop + scrollContainer.clientHeight;
+    const scrollHeight = scrollContainer.scrollHeight;
+    const threshold = 200; // Increased threshold for better detection
+    
+    if (scrollHeight - scrollPosition < threshold && !isLoadingMore) {
+      console.log("Scroll threshold reached!", scrollHeight - scrollPosition);
+      loadMorePosts();
+    }
+  }
+
+  onMount(() => {
+    // Find the correct scrollable parent container
+    scrollContainer = document.querySelector('.scrollbar-hidden');
+    
+    if (scrollContainer) {
+      console.log("Found scroll container, attaching event listener");
+      scrollContainer.addEventListener('scroll', handleScroll);
+      
+      // Initialize feed
+      fetchFeedEvents();
+    } else {
+      console.error("Could not find scrollable container with class .scrollbar-hidden");
+    }
   });
 
-  // Handle new post notifications
-  /*notifyNewPostStore.subscribe(async (value) => {
-    if (value) {
-      await fetchFeedEvents();
-      // Reset the notification store
-      notifyNewPostStore.set(0);
+  onDestroy(() => {
+    if (scrollContainer) {
+      scrollContainer.removeEventListener('scroll', handleScroll);
     }
-  });*/
+  });
 </script>
 
-<div class="relative">
-  <div bind:this={container} on:scroll={handleScroll}>
-    <div class="md:mt-10 mt-5 max-w-prose w-full">
-      <Tabs.Root value="for you" class="max-w-prose">
-        <Tabs.List class="grid grid-cols-2 md:mx-0 mx-4 ">
-          <Tabs.Trigger
-            class="underline-tabs-trigger"
-            value="for you">For You</Tabs.Trigger
-          >
-          <Tabs.Trigger on:click={fetchFollowingEvents} value="following"
-            >Following</Tabs.Trigger
-          >
-        </Tabs.List>
+<div class="relative h-full">
+  <div class="md:mt-10 mt-5 max-w-prose w-full">
+    <Tabs.Root value="for you" class="max-w-prose">
+      <Tabs.List class="grid grid-cols-2 md:mx-0 mx-4">
+        <Tabs.Trigger
+          class="underline-tabs-trigger"
+          on:click={fetchFeedEvents}
+          value="for you">For You</Tabs.Trigger
+        >
+        <Tabs.Trigger on:click={fetchFollowingEvents} value="following"
+          >Following</Tabs.Trigger
+        >
+      </Tabs.List>
 
-        <Tabs.Content value="for you">
-          {#if isLoadingFeed}
-            <div class="flex justify-center items-center py-16">
-              <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" role="status">
-                <span class="sr-only">Loading...</span>
+      <Tabs.Content value="for you">
+        {#if isLoadingFeed && feed.length === 0}
+          <div class="flex justify-center items-center py-16">
+            <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+            <span class="ml-3 text-muted-foreground">Loading posts...</span>
+          </div>
+        {:else}
+          <div>
+            {#each feed as post}
+              <div class="max-w-prose">
+                <PostComponent {post} />
               </div>
-              <span class="ml-3 text-muted-foreground">Loading posts...</span>
-            </div>
-          {:else}
-            <div>
-              {#each feed as post}
-                <div class="max-w-prose">
-                  <PostComponent {post} />
+            {/each}
+            
+            <div class="sticky bottom-0 bg-background/80 backdrop-blur-sm">
+              {#if isLoadingMore}
+                <div class="flex justify-center items-center py-4">
+                  <div class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" role="status">
+                    <span class="sr-only">Loading more...</span>
+                  </div>
+                  <span class="ml-3 text-muted-foreground">Loading more posts...</span>
                 </div>
-              {/each}
+              {/if}
             </div>
-          {/if}
-        </Tabs.Content>
+            
+            <!-- Sentinel element for intersection observer alternative -->
+            <div id="scroll-sentinel" class="h-4"></div>
+          </div>
+        {/if}
+      </Tabs.Content>
 
-        <Tabs.Content value="following">
-          {#if isLoadingFollowing}
-            <div class="flex justify-center items-center py-16">
-              <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" role="status">
-                <span class="sr-only">Loading...</span>
+      <Tabs.Content value="following">
+        {#if isLoadingFollowing}
+          <div class="flex justify-center items-center py-16">
+            <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+            <span class="ml-3 text-muted-foreground">Loading following...</span>
+          </div>
+        {:else}
+          <div>
+            {#each following as post}
+              <div class="max-w-prose">
+                <PostComponent {post} />
               </div>
-              <span class="ml-3 text-muted-foreground">Loading following...</span>
-            </div>
-          {:else}
-            <div>
-              {#each following as post}
-                <div class="border border-border max-w-prose">
-                  <PostComponent {post} />
-                </div>
-              {/each}
-            </div>
-          {/if}
-        </Tabs.Content>
-      </Tabs.Root>
-    </div>
+            {/each}
+          </div>
+        {/if}
+      </Tabs.Content>
+    </Tabs.Root>
   </div>
 </div>
