@@ -101,24 +101,24 @@
 </script>
 
 {#if !$isMobile}
-<div class="flex flex-col p-5 lg:w-1/4 space-y-4">
-  <div class="bg-background-800 rounded-lg p-4 shadow-lg lg:w-3/4 md:w-3/4">
+<div class="flex flex-col px-5 w-1/3">
+  <div class="bg-background-800 rounded-lg p-4 shadow-lg">
     <!-- Search container -->
     <div class="relative">
       <div 
-        class="flex items-center space-x-4 bg-background-700 rounded-full p-3 border border-opacity-30 transition-all duration-200"
+        class="flex items-center space-x-2 bg-background-700 rounded-full p-2 border border-opacity-30 transition-all duration-200"
         class:border-primary={isSearchFocused}
         class:border-border={!isSearchFocused}
         class:ring-2={isSearchFocused}
         class:ring-primary-400={isSearchFocused}
         class:ring-opacity-50={isSearchFocused}
       >
-        <SearchIcon class="w-5 h-5 text-muted-foreground" />
+        <SearchIcon class="w-4 h-4 text-muted-foreground" />
         <input
           type="text"
           bind:value={searchQuery}
           placeholder="Search profiles..."
-          class="w-full bg-transparent focus:outline-none text-primary"
+          class="bg-transparent focus:outline-none text-primary"
           on:input={debounceSearch}
           on:focus={() => {
             isSearchFocused = true;
@@ -178,6 +178,8 @@
       <p class="text-center text-muted-foreground mt-4">No profiles found</p>
     {/if}
   </div>
-  <TrendingAssets />
+  <div class="px-5">
+    <TrendingAssets />
+  </div>
 </div>
 {/if}
