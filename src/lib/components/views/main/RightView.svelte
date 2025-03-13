@@ -5,7 +5,7 @@
   import { fetchEvents } from "$lib/ao/relay";
   import type { Profile } from "$lib/models/Profile";
   import { profileFromEvent } from "$lib/models/Profile";
-  import { link } from "svelte-spa-router";
+  import { link, push } from "svelte-spa-router";
   import TrendingAssets from "$lib/components/Assets_Card/TrendingAssets.svelte"
   
   let searchQuery = "";
@@ -13,14 +13,18 @@
   let isLoading = false;
   let debounceTimer: NodeJS.Timeout;
   let isSearchFocused = false;
+  let clickedProfile = false;
 
   function handleBlur() {
-    isSearchFocused = false;
-    setTimeout(() => {
-      if (!isSearchFocused) {
-        searchResults = [];
-      }
-    }, 200);
+    if (!clickedProfile) {
+      isSearchFocused = false;
+      setTimeout(() => {
+        if (!isSearchFocused && !clickedProfile) {
+          searchResults = [];
+        }
+        clickedProfile = false;
+      }, 200);
+    }
   }
 
   async function handleSearch() {
@@ -41,8 +45,7 @@
       ]);
 
       const events = await fetchEvents(filter);
-      
-      // Only process results if search is still focused and query is not empty
+
       if (isSearchFocused && searchQuery.trim()) {
         //@ts-ignore
         searchResults = events.map(event => {
@@ -72,6 +75,13 @@
     } finally {
       isLoading = false;
     }
+  }
+
+  function navigateToProfile(address: string, event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    clickedProfile = true;
+    push(`/profile/${address}`);
   }
 
   function debounceSearch() {
@@ -139,10 +149,13 @@
       <div class="mt-4 max-h-[320px] overflow-y-auto bg-card text-card-foreground border border-border rounded shadow-sm p-2">
         <div class="space-y-2">
           {#each searchResults as profile}
-            <a
-              href="/profile/{profile.address}"
-              use:link
-              class="block hover:border-blue-400 transition-colors duration-200 rounded-lg overflow-hidden"
+            <!-- Changed from link to on:click handler -->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div
+              on:click={(e) => navigateToProfile(profile.address, e)}
+              on:mousedown={() => clickedProfile = true}
+              class="block hover:bg-background-600 cursor-pointer transition-colors duration-200 rounded-lg overflow-hidden"
             >
               <div class="flex items-center space-x-3 p-3 bg-background-700">
                 {#if profile.picture}
@@ -170,7 +183,7 @@
                   {/if}
                 </div>
               </div>
-            </a>
+            </div>
           {/each}
         </div>
       </div>
