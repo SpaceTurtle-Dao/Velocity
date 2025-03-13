@@ -1,5 +1,3 @@
-import type { Profile } from "./Profile";
-
 export interface Post {
   id: string;
   from: string;

@@ -19,8 +19,8 @@ const service = (): PostService => {
     return {
         subscribe,
         fetchPost: async (since: Number, until: Number): Promise<Post[]> => {
-            console.log("since",since);
-            console.log("limit",until);
+            // console.log("since",since);
+            // console.log("limit",until);
             let posts = get(postService)
             if (posts && posts.size > 0) {
                 try {
@@ -42,8 +42,7 @@ const service = (): PostService => {
 
                             }
                         }
-                        
-                        console.log("posts 2",posts.size)
+                        // console.log("posts 2",posts.size)
                         set(posts)
                     });
                     return posts.values().toArray()
@@ -60,7 +59,7 @@ const service = (): PostService => {
                     const filter2 = {
                         tags: { marker: ["root", "repost"] },
                     };
-                    console.log("filter",filter);
+                    // console.log("filter",filter);
 
                     const _filters = JSON.stringify([filter, filter2]);
                     let events = await fetchEvents(_filters);
@@ -71,7 +70,7 @@ const service = (): PostService => {
 
                         }
                     }
-                    console.log("posts 1", posts.size);
+                    // console.log("posts 1", posts.size);
                     set(posts)
                     return posts.values().toArray()
                 } catch (error) {

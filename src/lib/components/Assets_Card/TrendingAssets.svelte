@@ -3,8 +3,8 @@
   import { Coins } from "lucide-svelte";
   import { ucmService } from "$lib/services/UCMService";
   import { onMount } from "svelte";
-  import {type CollectionType, } from '@permaweb/libs'
-
+  import { type CollectionType } from '@permaweb/libs';
+  import TrendingAssetHoverCard from "./TrendingAssetsHoverCard.svelte";
 
   let collections: CollectionType[] = [];
   const MAX_COLLECTIONS = 200;
@@ -13,11 +13,9 @@
     const allCollections = await ucmService.fetchCollections();
     // Take only the first 200 collections
     collections = allCollections.slice(0, MAX_COLLECTIONS);
-    // console.log("Fetched Collections (limited to 200):", collections);
   });
 
   function handleBuy(collectionId: string) {
-    // console.log("View clicked for collection ID:", collectionId);
     const url = `https://bazar.arweave.net/#/collection/${collectionId}/assets/`;
     window.open(url, '_blank');
   }
@@ -39,37 +37,39 @@
 
   <div class="space-y-2 max-h-96 overflow-y-auto scrollbar-hidden">
     {#each collections as collection (collection.id)}
-      <div class="flex items-center justify-between bg-background-700 rounded-lg p-2 w-full border border-border">
-        <div class="flex items-center gap-2">
-          {#if collection.thumbnail}
-            <img
-              src={`https://arweave.net/${collection.thumbnail}`}
-              alt={collection.title}
-              class="w-8 h-8 rounded-full object-cover"
-            />
-          {:else}
-            <div class="w-8 h-8 bg-background-600 rounded-full flex items-center justify-center">
-              <Coins class="w-4 h-4 text-primary opacity-70" />
+      <TrendingAssetHoverCard {collection}>
+        <div class="flex items-center justify-between bg-background-700 rounded-lg p-2 w-full border border-border">
+          <div class="flex items-center gap-2">
+            {#if collection.thumbnail}
+              <img
+                src={`https://arweave.net/${collection.thumbnail}`}
+                alt={collection.title}
+                class="w-8 h-8 rounded-full object-cover"
+              />
+            {:else}
+              <div class="w-8 h-8 bg-background-600 rounded-full flex items-center justify-center">
+                <Coins class="w-4 h-4 text-primary opacity-70" />
+              </div>
+            {/if}
+
+            <div class="flex flex-col">
+              <span class="text-sm text-primary font-medium">{truncateTitle(collection.title)}</span>
+              <span class="text-xs text-muted-foreground">
+                Creator: {truncateCreator(collection.creator)}.....
+              </span>
             </div>
-          {/if}
-
-          <div class="flex flex-col">
-            <span class="text-sm text-primary font-medium">{truncateTitle(collection.title)}</span>
-            <span class="text-xs text-muted-foreground">
-              Creator: {truncateCreator(collection.creator)}.....
-            </span>
           </div>
-        </div>
 
-        <Button
-          variant="default"
-          size="sm"
-          class="text-xs h-7 px-3 py-1 bg-primary hover:bg-primary/90"
-          on:click={() => handleBuy(collection.id)}
-        >
-          View
-        </Button>
-      </div>
+          <Button
+            variant="default"
+            size="sm"
+            class="text-xs h-7 px-3 py-1 bg-primary hover:bg-primary/90"
+            on:click={() => handleBuy(collection.id)}
+          >
+            View
+          </Button>
+        </div>
+      </TrendingAssetHoverCard>
     {/each}
   </div>
 </div>
