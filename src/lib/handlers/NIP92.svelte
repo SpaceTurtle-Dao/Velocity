@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Video } from "flowbite-svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
   import type { Post } from "$lib/models/Post";
 
   import { ucmService } from "$lib/services/UCMService";
