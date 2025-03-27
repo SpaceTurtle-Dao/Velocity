@@ -3,7 +3,7 @@ import { fetchEvents } from "$lib/ao/relay";
 import { get, writable, type Readable } from "svelte/store";
 import { PostType, type Post } from "$lib/models/Post";
 
-export interface PostService extends Readable<Map<string, Post>> {
+export interface HubService extends Readable<Map<string, Post>> {
     fetchPost: (since: Number, until: Number) => Promise<Post[]>;
     fetchPostWithAuthors: (authors: string[]) => Promise<Post[]>;
     fetchReplies: (id: string) => Promise<Post[]>;
@@ -12,7 +12,7 @@ export interface PostService extends Readable<Map<string, Post>> {
     get: (id: string) => Promise<Post>;
 }
 
-const service = (): PostService => {
+const service = (): HubService => {
     const { subscribe, set, update } = writable<Map<string, Post>>(
         new Map<string, any>()
     );
@@ -21,7 +21,7 @@ const service = (): PostService => {
         fetchPost: async (since: Number, until: Number): Promise<Post[]> => {
             // console.log("since",since);
             // console.log("limit",until);
-            let posts = get(postService)
+            let posts = get(hubService)
             if (posts && posts.size > 0) {
                 try {
                     const filter = {
@@ -79,7 +79,7 @@ const service = (): PostService => {
             }
         },
         fetchPostWithAuthors: async (authors: string[] = []): Promise<Post[]> => {
-            let posts = get(postService)
+            let posts = get(hubService)
             let _posts = posts.values().toArray().filter((post) => {
                 return authors.includes(post.from)
             })
@@ -138,7 +138,7 @@ const service = (): PostService => {
         },
         fetchReplies: async (id: string): Promise<Post[]> => {
             //console.log("getting Replies")
-            let posts = get(postService);
+            let posts = get(hubService);
             let replies: Post[] = []
             try {
                 const filter = {
@@ -166,7 +166,7 @@ const service = (): PostService => {
             return replies
         },
         fetchRepost: async (id: string): Promise<Post[]> => {
-            let posts = get(postService);
+            let posts = get(hubService);
             let rePosts: Post[] = []
             try {
                 const filter = {
@@ -211,7 +211,7 @@ const service = (): PostService => {
             return likes
         },
         get: async (id: string): Promise<Post> => {
-            let posts = get(postService)
+            let posts = get(hubService)
             if (posts.has(id)) {
                 try {
                     const filter = {
@@ -312,4 +312,4 @@ async function getRepost(post: Post): Promise<Post> {
     return _post
 }
 
-export const postService = service();
+export const hubService = service();

@@ -15,7 +15,7 @@
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
-  import { postService } from "$lib/services/PostService";
+  import { hubService } from "$lib/services/HubService";
   import { PostType, type Post } from "$lib/models/Post";
   import { addressStore } from "$lib/stores/address.store";
 
@@ -47,9 +47,9 @@
 
   async function loadData(from: string, postId: string) {
     profile = await profileService.get(from);
-    replies = await postService.fetchReplies(postId);
+    replies = await hubService.fetchReplies(postId);
     replyCount = replies.length;
-    //postService.fetchRepost(postId);
+    //hubService.fetchRepost(postId);
   }
 
   onMount(async () => {
