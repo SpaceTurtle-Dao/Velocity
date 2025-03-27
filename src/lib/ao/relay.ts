@@ -5,8 +5,9 @@ import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
 import { addressStore } from "$lib/stores/address.store";
+import { REGISTRY_ID } from "$lib/constants";
 
-export const event = async (hub:string, tags: Array<Tag>) => {
+export const event = async (hub: string, tags: Array<Tag>) => {
   await addressStore.connectWallet();
   const actionTag: Tag = {
     name: "Action",
@@ -24,7 +25,7 @@ export const event = async (hub:string, tags: Array<Tag>) => {
   }
 };
 
-export const fetchEvents = async (hub:string, filters: string): Promise<any[]> => {
+export const fetchEvents = async (hub: string, filters: string): Promise<any[]> => {
   let events: any[] = [];
   try {
     // @ts-ignore
@@ -41,7 +42,7 @@ export const fetchEvents = async (hub:string, filters: string): Promise<any[]> =
   return events;
 };
 
-export const fetchProfile = async (hub:string, address: string): Promise<Profile> => {
+export const fetchProfile = async (hub: string, address: string): Promise<Profile> => {
   //console.log("Address", address);
   const filter = JSON.stringify([
     {
@@ -57,7 +58,7 @@ export const fetchProfile = async (hub:string, address: string): Promise<Profile
   try {
     // messages[0] give the latest profile change of this address and it  return that
     let message = messages[0];
-    if (!message) throw("message is empty");
+    if (!message) throw ("message is empty");
     let profile = JSON.parse(message.Content);
     profile.address = message.From;
     profile.created_at = messages[0].Timestamp;
@@ -70,7 +71,7 @@ export const fetchProfile = async (hub:string, address: string): Promise<Profile
 };
 
 export const fetchFollowList = async (
-  hub:string, address: string
+  hub: string, address: string
 ): Promise<Array<string>> => {
   //console.log("Address", address);
   let followList: Array<string> = [];
@@ -98,119 +99,19 @@ export const fetchFollowList = async (
   return followList;
 };
 
-// Modified fetchProfilesForUsersProfileMap with pagination
-/*export const fetchProfilesForUsersProfileMap = async (
-  page: number = 0,
-  limit: number = 10,
-  profiles: string []
-): Promise<Map<string, Profile>> => {
-  // Calculate start and end indices for pagination
-  const startIndex = page * limit;
-  
-  let allProfiles = await fetchProfiles(profiles);
-  
-  // Paginate the profiles array
-  const paginatedProfiles = allProfiles.slice(startIndex, startIndex + limit);
-
+export const getZones = async (filters: string, page: Number, limit: Number): Promise<any[]> => {
+  let events: any[] = [];
   try {
-    const map = new Map<string, Profile>();
-
-    paginatedProfiles.forEach((profile) => {
-      const duplicate = map.get(profile.address);
-
-      if (duplicate) {
-        if (
-          duplicate.updated_at !== undefined &&
-          profile.updated_at !== undefined
-        ) {
-          if (profile.updated_at > duplicate.updated_at) {
-            map.set(profile.address, profile);
-          }
-        } else if (profile.updated_at) {
-          map.set(profile.address, profile);
-        }
-      } else {
-        map.set(profile.address, profile);
-      }
-    });
-
-    return map;
+    // @ts-ignore
+    let message = GetZones(filters, page, limit);
+    let result = await read(REGISTRY_ID(), message);
+    if (result) {
+      let json = JSON.parse(result.Data);
+      events = json;
+    }
   } catch (e) {
-    console.error(e);
-    throw e;
+    console.log(e);
+    //throw e;
   }
-};*/
-
-// that stores all profiles and returns paginated results from cache
-/*export class ProfileCache {
-  private static instance: ProfileCache;
-  private profiles: Profile[] = [];
-  private lastFetch: number = 0;
-  private CACHE_DURATION = 10 * 60 * 1000; // 5 minutes
-
-  private constructor() {}
-
-  static getInstance(): ProfileCache {
-    if (!ProfileCache.instance) {
-      ProfileCache.instance = new ProfileCache();
-    }
-    return ProfileCache.instance;
-  }
-
-  /*private async refreshCache(): Promise<void> {
-    const now = Date.now();
-    if (now - this.lastFetch > this.CACHE_DURATION || this.profiles.length === 0) {
-      this.profiles = await fetchProfiles([]);
-      this.lastFetch = now;
-    }
-  }*/
-
-  /*async getPaginatedProfiles(page: number, limit: number): Promise<Map<string, Profile>> {
-    await this.refreshCache();
-    
-    const startIndex = page * limit;
-    const paginatedProfiles = this.profiles.slice(startIndex, startIndex + limit);
-    
-    const map = new Map<string, Profile>();
-    
-    paginatedProfiles.forEach((profile) => {
-      const duplicate = map.get(profile.address);
-
-      if (duplicate) {
-        if (
-          duplicate.updated_at !== undefined &&
-          profile.updated_at !== undefined
-        ) {
-          if (profile.updated_at > duplicate.updated_at) {
-            map.set(profile.address, profile);
-          }
-        } else if (profile.updated_at) {
-          map.set(profile.address, profile);
-        }
-      } else {
-        map.set(profile.address, profile);
-      }
-    });
-
-    return map;
-  }
-
-  hasMoreProfiles(page: number, limit: number): boolean {
-    return (page + 1) * limit < this.profiles.length;
-  }
-}
-
-// Modified version of fetchProfilesForUsersProfileMap that uses the cache
-export const fetchPaginatedProfilesForUsersProfileMap = async (
-  page: number = 0,
-  limit: number = 10
-): Promise<Map<string, Profile>> => {
-  const cache = ProfileCache.getInstance();
-  return await cache.getPaginatedProfiles(page, limit);
+  return events;
 };
-
-// Helper function to check if more profiles are available
-export const hasMoreProfiles = (page: number, limit: number): boolean => {
-  const cache = ProfileCache.getInstance();
-  return cache.hasMoreProfiles(page, limit);
-};*/
