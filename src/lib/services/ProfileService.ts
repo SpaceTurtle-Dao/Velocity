@@ -3,7 +3,7 @@ import type { Profile } from "$lib/models/Profile";
 import { get, writable, type Readable } from "svelte/store";
 
 interface ProfileService extends Readable<Map<string, any>> {
-  get: (address: string) => Promise<Profile>;
+  get: (hub:string, address: string) => Promise<Profile>;
 }
 
 const service = (): ProfileService => {
@@ -12,11 +12,11 @@ const service = (): ProfileService => {
   );
   return {
     subscribe,
-    get: async (address: string) => {
+    get: async (hub:string, address: string) => {
       let profiles = get(profileService);
       if (profiles.has(address)) {
-        fetchProfile(address).then((profile) => {
-          fetchFollowList(address).then((followList) => {
+        fetchProfile(hub,address).then((profile) => {
+          fetchFollowList(hub,address).then((followList) => {
             profile.followList = followList
             profiles.set(profile.address, profile)
             set(profiles)
@@ -25,8 +25,8 @@ const service = (): ProfileService => {
         return profiles.get(address)
       } else {
         try {
-          let profile = await fetchProfile(address)
-          profile.followList = await fetchFollowList(address)
+          let profile = await fetchProfile(hub,address)
+          profile.followList = await fetchFollowList(hub,address)
           profiles.set(profile.address, profile)
           set(profiles)
           return profile

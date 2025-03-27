@@ -2,12 +2,11 @@
 import { send, read } from "$lib/ao/process.svelte";
 //@ts-ignore
 import { FetchEvents } from "$lib/ao/messegeFactory.svelte";
-import { HUB_ID } from "$lib/constants";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
 import { addressStore } from "$lib/stores/address.store";
 
-export const event = async (tags: Array<Tag>) => {
+export const event = async (hub:string, tags: Array<Tag>) => {
   await addressStore.connectWallet();
   const actionTag: Tag = {
     name: "Action",
@@ -18,19 +17,19 @@ export const event = async (tags: Array<Tag>) => {
     console.log("***TAGS***");
     console.log(tags);
     // @ts-ignore
-    let result = await send(HUB_ID(), tags, null);
+    let result = await send(hub, tags, null);
     console.log(result);
   } catch (e) {
     console.log(e);
   }
 };
 
-export const fetchEvents = async (filters: string): Promise<any[]> => {
+export const fetchEvents = async (hub:string, filters: string): Promise<any[]> => {
   let events: any[] = [];
   try {
     // @ts-ignore
     let message = FetchEvents(filters);
-    let result = await read(HUB_ID(), message);
+    let result = await read(hub, message);
     if (result) {
       let json = JSON.parse(result.Data);
       events = json;
@@ -42,7 +41,7 @@ export const fetchEvents = async (filters: string): Promise<any[]> => {
   return events;
 };
 
-export const fetchProfile = async (address: string): Promise<Profile> => {
+export const fetchProfile = async (hub:string, address: string): Promise<Profile> => {
   //console.log("Address", address);
   const filter = JSON.stringify([
     {
@@ -52,7 +51,7 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     },
   ]);
 
-  let messages = await fetchEvents(filter);
+  let messages = await fetchEvents(hub, filter);
   //console.log("Messages from App", messages);
 
   try {
@@ -71,7 +70,7 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
 };
 
 export const fetchFollowList = async (
-  address: string
+  hub:string, address: string
 ): Promise<Array<string>> => {
   //console.log("Address", address);
   let followList: Array<string> = [];
@@ -83,7 +82,7 @@ export const fetchFollowList = async (
     },
   ]);
 
-  let messages = await fetchEvents(filter);
+  let messages = await fetchEvents(hub, filter);
   //console.log("Messages from App", messages);
 
   try {
