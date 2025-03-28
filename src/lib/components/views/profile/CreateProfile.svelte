@@ -10,11 +10,21 @@
     import { navigate } from "svelte-routing";
     import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
     import { profileService } from "$lib/services/ProfileService";
+    import { upload } from "$lib/ao/uploader";
+    import { Camera } from "lucide-svelte";
+    import { 
+        Avatar, 
+        AvatarFallback, 
+        AvatarImage 
+    } from "$lib/components/ui/avatar";
 
     const initialProfileSchema = z.object({
         name: z.string().min(1, "Name is required"),
         display_name: z.string().min(1, "Display Name is required"),
-        description: z.string().optional()
+        description: z.string().optional(),
+        thumbnail: z.string().optional(),
+        banner: z.string().optional(),
+        website: z.string().url().optional().or(z.literal("")),
     });
 
     type InitialProfileSchemaType = z.infer<typeof initialProfileSchema>;
@@ -22,12 +32,37 @@
     let profile: InitialProfileSchemaType = {
         name: "",
         display_name: "",
-        description: ""
+        description: "",
+        thumbnail: "",
+        banner: "",
+        website: "" 
     };
 
     let isOpen = false;
     let isLoading = false;
     let errors: Partial<Record<keyof InitialProfileSchemaType, string>> = {};
+
+    // New variables for file handling
+    let pictureFile: File | null = null;
+    let bannerFile: File | null = null;
+
+    function handleFileChange(event: Event, type: "picture" | "banner") {
+        const target = event.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (file) {
+            if (type === "picture") {
+                pictureFile = file;
+            } else {
+                bannerFile = file;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                //@ts-ignore
+                profile[type] = e.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
 
     async function createProfile() {
         isLoading = true;
@@ -35,15 +70,24 @@
             initialProfileSchema.parse(profile);
             errors = {};
 
-            // const address = $walletAddress;
-            // if (!address) {
-            //     throw new Error("Wallet address not found");
-            // }
+            // Upload picture if exists
+            if (pictureFile) {
+                let _pictureFile = await upload(pictureFile);
+                profile.thumbnail = _pictureFile.url;
+            }
+
+            // Upload banner if exists
+            if (bannerFile) {
+                let _bannerFile = await upload(bannerFile);
+                profile.banner = _bannerFile.url;
+            }
 
             const profileId = await profileService.create({
                 userName: profile.name,
                 displayName: profile.display_name,
-                description: profile.description
+                description: profile.description,
+                thumbnail: profile.thumbnail,
+                banner: profile.banner
             });
 
             const newProfile = await profileService.getById(profileId);
@@ -88,6 +132,57 @@
             <Dialog.Title class="text-primary">Create Your Profile</Dialog.Title>
         </Dialog.Header>
         <form on:submit|preventDefault={() => {}} class="space-y-6">
+            <!-- Banner Upload Section -->
+            <div class="relative mb-16">
+                <div class="h-32 bg-gray-200 relative">
+                    {#if profile.banner}
+                        <img
+                            src={profile.banner}
+                            alt="Banner"
+                            class="w-full h-full object-cover"
+                        />
+                    {/if}
+                    <label
+                        for="banner"
+                        class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer"
+                    >
+                        <Camera size={24} class="text-white" />
+                    </label>
+                    <Input
+                        id="banner"
+                        type="file"
+                        accept="image/*"
+                        class="hidden"
+                        on:change={(e) => handleFileChange(e, "banner")}
+                    />
+                </div>
+                <div class="absolute bottom-0 left-4 transform translate-y-1/3">
+                    <div class="relative">
+                        <Avatar class="w-24 h-24 border-4 border-white">
+                            <AvatarImage src={profile.thumbnail} alt={profile.name} />
+                            <AvatarFallback>
+                                {profile.name 
+                                    ? profile.name[0].toUpperCase() 
+                                    : "A"}
+                            </AvatarFallback>
+                        </Avatar>
+                        <label
+                            for="picture"
+                            class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full cursor-pointer"
+                        >
+                            <Camera size={20} class="text-white" />
+                        </label>
+                        <Input
+                            id="picture"
+                            type="file"
+                            accept="image/*"
+                            class="hidden"
+                            on:change={(e) => handleFileChange(e, "picture")}
+                        />
+                    </div>
+                </div>
+            </div>
+
             <div class="space-y-2">
                 <Label for="name" class="text-lg font-medium text-primary">Name</Label>
                 <Input
