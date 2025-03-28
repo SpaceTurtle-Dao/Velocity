@@ -32,6 +32,7 @@
 			// Tags that the process will use as input.
 			tags: tags,
 			data: "",
+			scheduler: '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA',
 			// A signer function used to build the message "signature"
 			// @ts-ignore
 			signer: createDataItemSigner(window.arweaveWallet),
@@ -68,16 +69,10 @@
 	};
 
 	export const createProcess = async () => {
-		let _tags = [
-			{ name: "Authority", value: "fcoN_xJeisVsPXA-trzVAuIiqO3ydLQxM-L4XbrQKzY" }
-		];
 		const processId = await spawn({
 			// The Arweave TXID of the ao Module
-			module: "bkjb55i07GUCUSWROtKK4HU1mBS_X0TyH3M5jMV6aPg",
-			// The Arweave wallet address of a Scheduler Unit
-			scheduler: "_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA",
-			tags:_tags,
-			// A signer function containing your wallet
+			module: 'Do_Uc2Sju_ffp6Ev0AnLVdPtot15rvMjP-a9VVaA5fM',
+			scheduler: '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA',
 			// @ts-ignore
 			signer: createDataItemSigner(window.arweaveWallet),
 		});

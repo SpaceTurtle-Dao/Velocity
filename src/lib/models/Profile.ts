@@ -7,16 +7,17 @@ export type UserInfo = {
 };
 
 export type Profile = {
-  name: string;
+  displayName: string;
   about?: string;
-  picture?: string;
-  display_name: string;
-  address: string;
-  followList: string[];
+  profileImage?: string;
+  userName: string;
+  description?: string;
+  address?: string;
+  followList?: string[];
   website?: string;
-  banner?: string;
+  thumbnail?: string;
   bot?: boolean;
-  created_at: number;
+  dateCreated: number;
   updated_at?: number;
 };
 

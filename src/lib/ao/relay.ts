@@ -6,6 +6,21 @@ import { HUB_ID } from "$lib/constants";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
 import { addressStore } from "$lib/stores/address.store";
+//@ts-ignore
+import { Eval } from "./messegeFactory.svelte";
+
+export const evalProcess = async (data: string, processId: string) => {
+  await addressStore.connectWallet();
+  
+  try {
+    const tags = Eval();
+    // @ts-ignore
+    let result = await send(processId, tags, data,);
+    console.log(result);
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 export const event = async (tags: Array<Tag>) => {
   await addressStore.connectWallet();
@@ -63,7 +78,7 @@ export const fetchProfile = async (address: string): Promise<Profile> => {
     profile.address = message.From;
     profile.created_at = messages[0].Timestamp;
     profile.updated_at = message.Timestamp;
-    //console.log("Profile from App", profile);
+    console.log("Profile from App", profile);
     return profile;
   } catch (e) {
     throw e;
