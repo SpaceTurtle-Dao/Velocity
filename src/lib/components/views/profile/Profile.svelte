@@ -6,12 +6,11 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
-  import { currentUser } from "$lib/stores/current-user.store";
+  import { addressStore } from "$lib/stores/address.store";
   import PostComponent from "../../posts/Post.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Link, CalendarDays } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { fetchEvents, fetchFollowList, fetchProfile } from "$lib/ao/relay";
   import UpdateProfile from "./UpdateProfile.svelte";
   import Follow from "../../Follow/Follow.svelte";
   import Users from "$lib/components/UserList/Users.svelte";
@@ -23,12 +22,10 @@
   import { profileService } from "$lib/services/ProfileService";
   import { postService } from "$lib/services/PostService";
   import type { Post } from "$lib/models/Post";
-  import { addressStore } from "$lib/stores/address.store";
 
   export let params: { address?: string } = {};
 
   let profile: Profile;
-
   let activeTab: string = "posts";
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
@@ -49,9 +46,7 @@
   ];
 
   let showModal = false;
-  let textWithUrl = "";
-  var pTag: HTMLElement | null;
-  const urlPattern = /(https?:\/\/[^\s]+)/g;
+  let followListLoading = false;
 
   async function fetchPost() {
     posts = [];
@@ -66,16 +61,15 @@
     });
   }
 
-  async function fetchSubs() {
-    console.log("will get subs");
-    // await subs(userInfo.Process, "1", "100");
+  // Placeholder functions - implement as needed
+  async function fetchSubscriptions() {
+    console.log("Fetching subscriptions");
+    // Implement subscription fetching logic
   }
 
-  async function fetchSubscriptions() {
-    console.log("will get subs");
-    console.log(profile.followList);
-    //profile.followList = fetchFollowList(profile!.address)
-    // await subs(userInfo.Process, "1", "100");
+  async function fetchSubs() {
+    console.log("Fetching subs");
+    // Implement subs fetching logic
   }
 
   function toggleModal() {
@@ -83,16 +77,11 @@
   }
 
   onMount(async () => {
-    setup();
+    await setup();
   });
 
   const onAddressParamChange = async () => {
-    console.log("got new params!!!!!!");
-    console.log(params.address);
-    setup();
-    /*value = "post";
-    events = [];
-    await fetchPost();*/
+    await setup();
   };
 
   $: {
@@ -100,36 +89,18 @@
       onAddressParamChange();
     }
   }
-  let value = "post";
 
-  let followListLoading = false;
+  let value = "post";
 
   async function setup() {
     if (!params.address) return;
-    profile = await profileService.get(params.address);
-    if (profile) {
-      console.log("getting post");
-      await fetchPost();
-      // Split the string into parts, keeping the URLs separate
-      const parts = textWithUrl.split(urlPattern);
-
-      // Loop over the parts and create text or links accordingly
-      parts.forEach((part) => {
-        if (pTag) {
-          if (urlPattern.test(part)) {
-            // If the part is a URL, create an <a> tag
-            const linkElement = document.createElement("a");
-            linkElement.className = "text-blue-400";
-            linkElement.href = part; // Set the href attribute
-            linkElement.textContent = part; // Set the text content
-            linkElement.target = "_blank"; // Open link in new tab
-            pTag.appendChild(linkElement);
-          } else {
-            // If the part is not a URL, append it as plain text
-            pTag!.appendChild(document.createTextNode(part));
-          }
-        }
-      });
+    try {
+      profile = await profileService.get(params.address);
+      if (profile) {
+        await fetchPost();
+      }
+    } catch (error) {
+      console.error("Error setting up profile:", error);
     }
   }
 </script>
@@ -140,11 +111,10 @@
       class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"
     >
       <div class="relative mb-10">
-        <!-- Increased bottom margin -->
         <div class="bg-gray-200 relative">
-          {#if profile?.banner}
+          {#if profile?.thumbnail}
             <img
-              src={profile?.banner}
+              src={profile?.thumbnail}
               alt="Banner"
               class="w-full max-h-48 object-cover"
             />
@@ -155,12 +125,12 @@
         <div class="absolute bottom-0 left-4 transform translate-y-1/3">
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
-              {#if profile?.picture}
-                <AvatarImage src={profile?.picture} alt={profile.name} />
+              {#if profile?.profileImage}
+                <AvatarImage src={profile?.profileImage} alt={profile.displayName} />
               {/if}
               <AvatarFallback
-                >{profile.name
-                  ? profile.name[0].toUpperCase()
+                >{profile.displayName
+                  ? profile.displayName[0].toUpperCase()
                   : "U"}</AvatarFallback
               >
             </Avatar>
@@ -168,13 +138,12 @@
         </div>
       </div>
 
-      <!-- Card Content with Blur Effect -->
       <CardContent>
         <div class="flex justify-between space-x-2">
-          <p class="font-bold text-2xl">{profile.name}</p>
-          {#if profile.address != $addressStore.address}
-            <Follow address={profile.address} />
-          {:else}
+          <p class="font-bold text-2xl">{profile.displayName}</p>
+          <!-- {#if profile.owner != $addressStore.address} -->
+            <!-- <Follow address={profile.owner} /> -->
+          <!-- {:else} -->
             <Button
               variant="outline"
               size="sm"
@@ -183,14 +152,14 @@
             >
               Edit Profile
             </Button>
-          {/if}
+          <!-- {/if} -->
         </div>
         <p class="text-muted-foreground">
-          @{profile.display_name}
+          @{profile.userName}
         </p>
-        {#if profile.about}
-          <p class="pt-2.5" id={profile.address}>
-            {profile.about}
+        {#if profile.description}
+          <p class="pt-2.5">
+            {profile.description}
           </p>
         {/if}
         <div class="flex flex-row space-x-5 pt-2.5">
@@ -210,7 +179,7 @@
           >
             <CalendarDays size={16} />
             <p>
-              Joined {formatJoinedTimestamp(profile.created_at)}
+              Joined {formatJoinedTimestamp(profile.dateCreated)}
             </p>
           </div>
         </div>
@@ -220,17 +189,12 @@
               <Skeleton class="h-5 w-[102px] rounded-full" />
             {:else}
               <div>
-                <span class="font-bold mr-1">{profile.followList.length}</span>
-
+                <span class="font-bold mr-1">0</span>
                 <span class="font-normal text-muted-foreground"
                   >Subscribing</span
                 >
               </div>
             {/if}
-          </div>
-          <div class="flex space-x-1">
-            <!-- <p>{userInfo.Subs}</p> -->
-            <!--<p class="text-muted-foreground">Subscribers</p>-->
           </div>
         </div>
       </CardContent>
@@ -260,22 +224,27 @@
         {/each}
       </Tabs.Content>
       <Tabs.Content value="subscribed">
-        <Users addresss={profile.followList} />
+        <!-- Placeholder for subscribed users list -->
+        <Users addresss={[]} />
       </Tabs.Content>
       <Tabs.Content value="assets">
-        <!-- {#if $user && profile}
-                    <UserList />
-                {/if} -->
+        <!-- Placeholder for assets -->
+        <p>No assets available</p>
       </Tabs.Content>
     </Tabs.Root>
   </div>
 {/if}
+
 <!-- Modal for UpdateProfile -->
 {#if showModal && profile}
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
     class="fixed inset-0 bg-black bg-opacity-85 flex items-center justify-center z-50"
     on:click={toggleModal}
   >
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div class="rounded-lg p-6 max-w-2xl w-full" on:click|stopPropagation>
       <div class="flex justify-end">
         <Button
@@ -284,7 +253,17 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile initialProfile={profile} on:profileUpdated={toggleModal} />
+      <UpdateProfile 
+        initialProfile={{
+          userName: profile.userName,
+          displayName: profile.displayName,
+          description: profile.description,
+          profileImage: profile.profileImage,
+          thumbnail: profile.thumbnail,
+          updated_at: profile.updated_at
+        }} 
+        on:profileUpdated={toggleModal} 
+      />
     </div>
   </div>
 {/if}

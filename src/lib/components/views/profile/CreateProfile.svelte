@@ -1,26 +1,30 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { z } from "zod";
-    import type { Profile } from "$lib/models/Profile";
     import { currentUser } from "$lib/stores/profile.store";
     import { Input } from "$lib/components/ui/input";
     import { Label } from "$lib/components/ui/label";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
-    import {
-        event as _event,
-    } from "$lib/ao/relay";
     import { walletAddress } from "$lib/stores/walletStore";
-    import { add } from "date-fns/fp/add";
     import { navigate } from "svelte-routing";
-    import { createProcess, send } from "$lib/ao/process.svelte";
-    import type { Tag } from "$lib/models/Tag";
     import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
+    import { profileService } from "$lib/services/ProfileService";
+    import { upload } from "$lib/ao/uploader";
+    import { Camera } from "lucide-svelte";
+    import { 
+        Avatar, 
+        AvatarFallback, 
+        AvatarImage 
+    } from "$lib/components/ui/avatar";
 
-    // Zod schema for initial profile validation
     const initialProfileSchema = z.object({
         name: z.string().min(1, "Name is required"),
         display_name: z.string().min(1, "Display Name is required"),
+        description: z.string().optional(),
+        thumbnail: z.string().optional(),
+        banner: z.string().optional(),
+        website: z.string().url().optional().or(z.literal("")),
     });
 
     type InitialProfileSchemaType = z.infer<typeof initialProfileSchema>;
@@ -28,98 +32,78 @@
     let profile: InitialProfileSchemaType = {
         name: "",
         display_name: "",
+        description: "",
+        thumbnail: "",
+        banner: "",
+        website: "" 
     };
 
     let isOpen = false;
-    let spawnInterval: any;
-    let evalInterval: any;
-    let address: string;
-    let _relay: string | undefined;
-    let profileEvent: string;
     let isLoading = false;
-    let userInfo: Profile;
     let errors: Partial<Record<keyof InitialProfileSchemaType, string>> = {};
 
-    currentUser.subscribe((value) => {
-        userInfo = value;
-    });
+    // New variables for file handling
+    let pictureFile: File | null = null;
+    let bannerFile: File | null = null;
 
-    function sleep(ms: number) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
+    function handleFileChange(event: Event, type: "picture" | "banner") {
+        const target = event.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (file) {
+            if (type === "picture") {
+                pictureFile = file;
+            } else {
+                bannerFile = file;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                //@ts-ignore
+                profile[type] = e.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        }
     }
-
-    /*async function checkEvaluated() {
-    let owner = await getOwner(_relay);
-    console.log(owner);
-    console.log(address);
-    if (owner == address) {
-      clearInterval(evalInterval);
-      console.log("evaluated");
-      await _event(profileEvent, _relay!);
-      isLoading = false;
-      navigate("/profile", { replace: true });
-      isOpen = false; // Close the dialog
-    } else {
-      console.log("polling for eval");
-    }
-  }
-
-  async function checkSpawned() {
-    let __relay = await relay(address);
-    if (__relay) {
-      _relay = __relay;
-      clearInterval(spawnInterval);
-      console.log("relay");
-      console.log(_relay);
-      evalInterval = setInterval(checkEvaluated, 1000);
-    } else {
-      console.log("polling for relay");
-    }
-  }*/
 
     async function createProfile() {
-        let tags: Array<Tag> = [];
         isLoading = true;
         try {
-            // Validate the profile data
             initialProfileSchema.parse(profile);
             errors = {};
 
-            // Prepare the content for the event
-            const content = JSON.stringify({
-                name: profile.name,
-                display_name: profile.display_name,
+            // Upload picture if exists
+            if (pictureFile) {
+                let _pictureFile = await upload(pictureFile);
+                profile.thumbnail = _pictureFile.url;
+            }
+
+            // Upload banner if exists
+            if (bannerFile) {
+                let _bannerFile = await upload(bannerFile);
+                profile.banner = _bannerFile.url;
+            }
+
+            const profileId = await profileService.create({
+                userName: profile.name,
+                displayName: profile.display_name,
+                description: profile.description,
+                thumbnail: profile.thumbnail,
+                banner: profile.banner
             });
 
-            const kindTag: Tag = {
-                name: "Kind",
-                value: "0", // Kind 0 is for metadata events in Nostr
-            };
+            const newProfile = await profileService.getById(profileId);
+            currentUser.set(newProfile);
 
-            const contentTag: Tag = {
-                name: "Content",
-                value: content,
-            };
-            tags.push(kindTag);
-            tags.push(contentTag);
-            profileEvent = JSON.stringify(event);
-            try {
-                // _relay = await spawnRelay();
-                console.log("Got Relay " + _relay);
-                await _event(tags);
-                // await setRelay(_relay!);
-                isLoading = false;
-                navigate("/profile", { replace: true });
-                isOpen = false; // Close the dialog
-            } catch (error) {
-                console.error("Error creating profile:", error);
-                isLoading = false;
-            }
+            // Navigate and close dialog
+            isLoading = false;
+            navigate("/profile", { replace: true });
+            isOpen = false;
         } catch (err) {
             if (err instanceof z.ZodError) {
                 errors = err.flatten().fieldErrors as Partial<
                     Record<keyof InitialProfileSchemaType, string>
                 >;
+            } else {
+                console.error("Error creating profile:", err);
             }
             isLoading = false;
         }
@@ -145,14 +129,62 @@
     </Dialog.Trigger>
     <Dialog.Content class="sm:max-w-[425px]">
         <Dialog.Header>
-            <Dialog.Title class="text-primary">Create Your Profile</Dialog.Title
-            >
+            <Dialog.Title class="text-primary">Create Your Profile</Dialog.Title>
         </Dialog.Header>
         <form on:submit|preventDefault={() => {}} class="space-y-6">
+            <!-- Banner Upload Section -->
+            <div class="relative mb-16">
+                <div class="h-32 bg-gray-200 relative">
+                    {#if profile.banner}
+                        <img
+                            src={profile.banner}
+                            alt="Banner"
+                            class="w-full h-full object-cover"
+                        />
+                    {/if}
+                    <label
+                        for="banner"
+                        class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer"
+                    >
+                        <Camera size={24} class="text-white" />
+                    </label>
+                    <Input
+                        id="banner"
+                        type="file"
+                        accept="image/*"
+                        class="hidden"
+                        on:change={(e) => handleFileChange(e, "banner")}
+                    />
+                </div>
+                <div class="absolute bottom-0 left-4 transform translate-y-1/3">
+                    <div class="relative">
+                        <Avatar class="w-24 h-24 border-4 border-white">
+                            <AvatarImage src={profile.thumbnail} alt={profile.name} />
+                            <AvatarFallback>
+                                {profile.name 
+                                    ? profile.name[0].toUpperCase() 
+                                    : "A"}
+                            </AvatarFallback>
+                        </Avatar>
+                        <label
+                            for="picture"
+                            class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full cursor-pointer"
+                        >
+                            <Camera size={20} class="text-white" />
+                        </label>
+                        <Input
+                            id="picture"
+                            type="file"
+                            accept="image/*"
+                            class="hidden"
+                            on:change={(e) => handleFileChange(e, "picture")}
+                        />
+                    </div>
+                </div>
+            </div>
+
             <div class="space-y-2">
-                <Label for="name" class="text-lg font-medium text-primary"
-                    >Name</Label
-                >
+                <Label for="name" class="text-lg font-medium text-primary">Name</Label>
                 <Input
                     id="name"
                     bind:value={profile.name}
@@ -179,15 +211,30 @@
                     <p class="text-red-500 text-sm">{errors.display_name}</p>
                 {/if}
             </div>
+
+            <div class="space-y-2">
+                <Label
+                    for="description"
+                    class="text-lg font-medium text-primary">Description (Optional)</Label
+                >
+                <Input
+                    id="description"
+                    bind:value={profile.description}
+                    placeholder="Tell us about yourself"
+                    class="w-full p-2 border rounded text-primary"
+                />
+            </div>
+
             <Dialog.Footer>
                 <div class="flex w-full justify-center">
                     <ButtonWithLoader
-                        class="w-48 py-2 px-4  rounded-full text-md font-bold"
+                        class="w-48 py-2 px-4 rounded-full text-md font-bold"
                         disabled={isLoading}
                         loader={isLoading}
                         on:click={createProfile}
-                        >Create Profile</ButtonWithLoader
                     >
+                        Create Profile
+                    </ButtonWithLoader>
                 </div>
             </Dialog.Footer>
         </form>
