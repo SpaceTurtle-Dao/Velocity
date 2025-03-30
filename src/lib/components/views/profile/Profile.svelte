@@ -112,9 +112,9 @@
     >
       <div class="relative mb-10">
         <div class="bg-gray-200 relative">
-          {#if profile?.thumbnail}
+          {#if profile?.coverImage}
             <img
-              src={profile?.thumbnail}
+              src={profile?.coverImage}
               alt="Banner"
               class="w-full max-h-48 object-cover"
             />
@@ -259,7 +259,8 @@
           displayName: profile.displayName,
           description: profile.description,
           profileImage: profile.profileImage,
-          thumbnail: profile.thumbnail,
+          coverImage: profile.coverImage,
+          dateCreated: profile.dateCreated,
           updated_at: profile.updated_at
         }} 
         on:profileUpdated={toggleModal} 

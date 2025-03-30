@@ -30,14 +30,11 @@
 
   async function handleDisconnect() {
     try {
-      // Disconnect the wallet
       await addressStore.disconnectWallet();
 
-      // Clear all relevant stores
       const { subscribe, set } = writable();
       set(undefined);
 
-      // Reset location and force a clean state
       window.location.href = "/";
     } catch (error) {
       console.error("Error disconnecting wallet:", error);
@@ -69,10 +66,10 @@
       on:click={toggleMenu}
       class="flex items-center space-x-4 focus:outline-none"
     >
-      <ProfilePicture src={profile.picture} name={profile.name} />
+      <ProfilePicture src={profile.profileImage} name={profile.userName} />
       <div class="flex-grow text-left">
-        <p class="font-semibold text-white">{profile.name}</p>
-        <p class="text-sm text-white">@{profile.display_name}</p>
+        <p class="font-semibold text-white">{profile.displayName}</p>
+        <p class="text-sm text-white">@{profile.userName}</p>
       </div>
       <MoreHorizontal class="w-5 h-5 text-white" />
     </button>

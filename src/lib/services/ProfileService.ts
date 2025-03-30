@@ -23,7 +23,7 @@ interface ProfileCreateData {
   displayName?: string;
   description?: string;
   thumbnail?: string;
-  banner?: string;
+  coverImage?: string;
 }
 
 interface ProfileUpdateData extends ProfileCreateData {
@@ -31,7 +31,7 @@ interface ProfileUpdateData extends ProfileCreateData {
   displayName?: string;
   description?: string;
   thumbnail?: string;
-  banner?: string;
+  coverImage?: string;
 }
 
 
@@ -127,7 +127,7 @@ const service = (): ProfileService => {
           displayName: profileData.displayName || profileData.userName,
           description: profileData.description,
           thumbnail: profileData.thumbnail,
-          banner: profileData.banner,
+          coverImage: profileData.coverImage,
         },
         profileId
       );
@@ -168,7 +168,7 @@ async function evaluateProfile(profileData: ProfileCreateData, profileId: string
       displayName: profileData.displayName || profileData.userName,
       description: profileData.description,
       thumbnail: profileData.thumbnail,
-      banner: profileData.banner,
+      coverImage: profileData.coverImage,
     };
     const wallet = typeof window !== "undefined" ? window.arweaveWallet : "";
     const permaweb = Permaweb.init({

@@ -23,7 +23,7 @@
         display_name: z.string().min(1, "Display Name is required"),
         description: z.string().optional(),
         thumbnail: z.string().optional(),
-        banner: z.string().optional(),
+        coverImage: z.string().optional(),
         website: z.string().url().optional().or(z.literal("")),
     });
 
@@ -34,7 +34,7 @@
         display_name: "",
         description: "",
         thumbnail: "",
-        banner: "",
+        coverImage: "",
         website: "" 
     };
 
@@ -79,7 +79,7 @@
             // Upload banner if exists
             if (bannerFile) {
                 let _bannerFile = await upload(bannerFile);
-                profile.banner = _bannerFile.url;
+                profile.coverImage = _bannerFile.url;
             }
 
             const profileId = await profileService.create({
@@ -87,7 +87,7 @@
                 displayName: profile.display_name,
                 description: profile.description,
                 thumbnail: profile.thumbnail,
-                banner: profile.banner
+                coverImage: profile.coverImage
             });
 
             const newProfile = await profileService.getById(profileId);
@@ -135,9 +135,9 @@
             <!-- Banner Upload Section -->
             <div class="relative mb-16">
                 <div class="h-32 bg-gray-200 relative">
-                    {#if profile.banner}
+                    {#if profile.coverImage}
                         <img
-                            src={profile.banner}
+                            src={profile.coverImage}
                             alt="Banner"
                             class="w-full h-full object-cover"
                         />

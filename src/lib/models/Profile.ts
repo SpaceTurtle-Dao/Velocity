@@ -10,6 +10,7 @@ export type Profile = {
   displayName: string;
   about?: string;
   profileImage?: string;
+  coverImage?: string;
   userName: string;
   description?: string;
   address?: string;
