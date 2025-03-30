@@ -1,11 +1,13 @@
 // users-profile.store.ts
-import { fetchEvents } from "$lib/ao/relay";
+import { evalProcess, fetchEvents } from "$lib/ao/relay";
 import { get, writable, type Readable } from "svelte/store";
 import { PostType, type Post } from "$lib/models/Post";
 import { connect, createDataItemSigner, spawn } from "@permaweb/aoconnect";
 import Permaweb, { type ProcessCreateType } from "@permaweb/libs";
 import Arweave from "arweave";
 import { HUB_MESSAGE_ID } from "$lib/constants";
+import { luaModule } from "./hub_lua";
+import { createProcess } from "$lib/ao/process.svelte";
 export interface HubService extends Readable<Map<string, Post>> {
     fetchPost: (hub:string, since: Number, until: Number) => Promise<Post[]>;
     fetchPostWithAuthors: (hub:string, authors: string[]) => Promise<Post[]>;
@@ -263,15 +265,9 @@ const service = (): HubService => {
 
         },
         create: async (): Promise<string> => {
-            const permaweb = Permaweb.init({
-                ao: connect(),
-                arweave: Arweave.init({}),
-                signer: createDataItemSigner(window.arweaveWallet),
-            });
-            let args: ProcessCreateType = {
-                evalTxId: HUB_MESSAGE_ID()
-            };
-            return await permaweb.createProcess(args)
+            const processId = await createProcess();
+            evaluateHub(processId)
+            return processId
         },
     };
 };
@@ -326,5 +322,19 @@ async function getRepost(post: Post): Promise<Post> {
     }
     return _post
 }
+
+async function evaluateHub(processId:string) {
+    try{
+      await sleep(3000);
+      await evalProcess(luaModule, processId);
+    }catch(e){
+      await evaluateHub(processId);
+    }
+    
+  }
+
+  function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
 export const hubService = service();

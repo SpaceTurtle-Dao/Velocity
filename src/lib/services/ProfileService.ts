@@ -95,9 +95,9 @@ const service = (): ProfileService => {
     
 
     create: async (profileData: ProfileCreateData): Promise<string> => {
-      const profileId = await createProcess();
-      console.log("ProfileId", profileId);
-      await evaluateProfile(profileData, profileId);
+      const processId = await createProcess();
+      console.log("ProfileId", processId);
+      await evaluateProfile(profileData, processId);
       
   
       // const profileId = await permaweb.createProfile({
@@ -110,11 +110,11 @@ const service = (): ProfileService => {
       //   console.log("Value from Create Profile", value);
       // })
 
-      if (!profileId) {
+      if (!processId) {
         throw new Error("Profile creation failed - no ID returned");
       }
 
-      return profileId;
+      return processId;
     },
 
     update: async (
@@ -158,11 +158,11 @@ const service = (): ProfileService => {
   };
 };
 
-async function evaluateProfile(profileData: ProfileCreateData, profileId: string) {
+async function evaluateProfile(profileData: ProfileCreateData, processId: string) {
   try{
     await sleep(3000);
-    await evalProcess(luaModule, profileId);
-    console.log("*** PROFILE ID ****", profileId);
+    await evalProcess(luaModule, processId);
+    console.log("*** PROFILE ID ****", processId);
     const args = {
       userName: profileData.userName,
       displayName: profileData.displayName || profileData.userName,
@@ -176,11 +176,11 @@ async function evaluateProfile(profileData: ProfileCreateData, profileId: string
       arweave: Arweave.init({}),
       signer: createDataItemSigner(wallet),
     });
-    const result = await permaweb.updateProfile(args, profileId);
+    const result = await permaweb.updateProfile(args, processId);
 
     console.log("**REsults***", result);
   }catch(e){
-    await evaluateProfile(profileData, profileId);
+    await evaluateProfile(profileData, processId);
   }
   
 }
