@@ -16,10 +16,10 @@
   let lastLoadedTimestamp: number | null = null;
   let scrollContainer: HTMLElement | null = null;
 
-  // postService.subscribe(async (posts) => {
-  //   // feed = posts.values().toArray();
-  //   // console.log("feed",feed);
-  // });
+  postService.subscribe(async (posts) => {
+    feed = posts.values().toArray();
+    // console.log("feed",feed);
+  });
 
   async function fetchFeedEvents() {
     isLoadingFeed = true;

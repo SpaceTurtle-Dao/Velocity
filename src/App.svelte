@@ -19,6 +19,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import PublicProfile from "$lib/components/views/profile/PublicProfile.svelte";
   import Search from "$lib/components/Search/SearchPage.svelte";
+  import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
 
   let isLoading = false;
   //let isFollowListAlreadyFetched = false;
@@ -27,8 +28,9 @@
   const routes = {
     "/": Feed,
     "/feed": Feed,
-    "/search": Search,
+    "/search": CreateProfile,
     "/profile": Profile,
+    // "/createprofile": CreateProfile,
     "/messages": MessagesPage,
     "/profile/:address": Profile,
     "/public/profile/:address": PublicProfile,
