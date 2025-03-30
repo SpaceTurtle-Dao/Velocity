@@ -6,7 +6,7 @@
     import { fetchEvents, event } from "$lib/ao/relay";
     import { currentUser } from "$lib/stores/current-user.store";
     import type { Post } from "$lib/models/Post";
-    import { postService } from "$lib/services/PostService";
+    import { hubService } from "$lib/services/HubService";
     import { addressStore } from "$lib/stores/address.store";
 
     export let post: Post;
@@ -51,7 +51,7 @@
             liked = true;
         }
         await event(_tags);
-        postService.fetchLikes(post.id).then((_likes) => {
+        hubService.fetchLikes(post.id).then((_likes) => {
             likes = _likes;
             let temp = likes.filter((like) => {
                 return like.From == $addressStore.address;
@@ -61,7 +61,7 @@
     }
 
     onMount(async () => {
-        postService.fetchLikes(post.id).then((_likes) => {
+        hubService.fetchLikes(post.id).then((_likes) => {
             likes = _likes;
             let temp = likes.filter((like) => {
                 return like.From == $addressStore.address;

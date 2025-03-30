@@ -3,7 +3,7 @@
   import type { Post } from "$lib/models/Post";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { onMount, onDestroy } from "svelte";
-  import { postService } from "$lib/services/PostService";
+  import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
   import { timestampService } from "$lib/utils/date-time";
@@ -30,12 +30,12 @@
       const until = now.getTime();
       
       if (feed.length === 0) {
-        feed = await postService.fetchPost(since, until);
+        feed = await hubService.fetchPost(since, until);
         lastLoadedTimestamp = since;
       } else {
         setTimeout(async () => {
           const latestPostTimestamp = feed[0].timestamp;
-          const newPosts = await postService.fetchPost(since, latestPostTimestamp);
+          const newPosts = await hubService.fetchPost(since, latestPostTimestamp);
           // Filter out duplicates based on post ID
           const existingIds = new Set(feed.map(post => post.id));
           const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post.id));
@@ -56,7 +56,7 @@
     try {
       //console.log("will get feed");
       let profile = await profileService.get($addressStore.address);
-      following = await postService.fetchPostWithAuthors(profile.followList);
+      following = await hubService.fetchPostWithAuthors(profile.followList);
       //console.log(posts);
     } catch (error) {
       //console.error("Error fetching feed events:", error);
@@ -76,7 +76,7 @@
       const until = lastLoadedTimestamp;
       const since = timestampService.subtract(new Date(until), 10, "days").getTime();
       
-      const olderPosts = await postService.fetchPost(since, until);
+      const olderPosts = await hubService.fetchPost(since, until);
       if (olderPosts.length > 0) {
         // Filter out duplicates based on post ID
         const existingIds = new Set(feed.map(post => post.id));

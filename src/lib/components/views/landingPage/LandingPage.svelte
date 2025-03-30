@@ -6,7 +6,7 @@
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { Loader } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { postService } from "$lib/services/PostService";
+  import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import { push, replace } from "svelte-spa-router";
 
@@ -15,7 +15,7 @@
 
   /*onMount(async () => {
     try {
-      postService.fetchPost(0, 100);
+      hubService.fetchPost(0, 100);
       await addressStore.sync();
       if ($addressStore.address) {
         await profileService.get($addressStore.address);

@@ -5,7 +5,7 @@
   import { onMount } from "svelte";
   import { event } from "$lib/ao/relay";
   import type { Post } from "$lib/models/Post";
-  import { postService } from "$lib/services/PostService";
+  import { hubService } from "$lib/services/HubService";
   import { addressStore } from "$lib/stores/address.store";
 
   export let post: Post;
@@ -45,11 +45,11 @@
     reposted = true;
 
     // Refresh reposts to ensure consistency
-    reposts = await postService.fetchRepost(post.id);
+    reposts = await hubService.fetchRepost(post.id);
   }
 
   onMount(async () => {
-    reposts = await postService.fetchRepost(post.id);
+    reposts = await hubService.fetchRepost(post.id);
     if (!$addressStore.address) return;
     reposted =
       reposts.filter((value) => value.from == $addressStore.address).length > 0;

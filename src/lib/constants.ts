@@ -1,28 +1,28 @@
-export function HUB_ID(): string {
+export function HUB_MESSAGE_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "6FhxvMPEDArljbh1C2XlkY68-QgepPy7UTpM3czWrt0";
         }
         case "staging": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "6FhxvMPEDArljbh1C2XlkY68-QgepPy7UTpM3czWrt0";
         }
         case "production": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "6FhxvMPEDArljbh1C2XlkY68-QgepPy7UTpM3czWrt0";
         }
     }
     return "";
 }
 
-export function INDEXER_ID(): string {
+export function REGISTRY_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "dVL1cJFikqBQRbtHQiOxwto774TilKtrymfcaQO8HGQ";
         }
         case "staging": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "dVL1cJFikqBQRbtHQiOxwto774TilKtrymfcaQO8HGQ";
         }
         case "production": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "dVL1cJFikqBQRbtHQiOxwto774TilKtrymfcaQO8HGQ";
         }
     }
     return "";

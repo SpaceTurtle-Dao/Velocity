@@ -20,7 +20,7 @@
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
-  import { postService } from "$lib/services/PostService";
+  import { hubService } from "$lib/services/HubService";
   import type { Post } from "$lib/models/Post";
 
   export let params: { address?: string } = {};
@@ -51,7 +51,7 @@
   async function fetchPost() {
     posts = [];
     if (!params.address) return;
-    posts = await postService.fetchPostWithAuthors([params.address]);
+    posts = await hubService.fetchPostWithAuthors([params.address]);
     media = posts.filter((value) => {
       if (value.mimeType) {
         return mimeTypes.includes(value.mimeType);
