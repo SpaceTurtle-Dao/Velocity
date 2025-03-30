@@ -56,7 +56,7 @@
     try {
       //console.log("will get feed");
       let profile = await profileService.get($addressStore.address);
-      following = await postService.fetchPostWithAuthors(profile.followList);
+      // following = await postService.fetchPostWithAuthors(profile.followList);
       //console.log(posts);
     } catch (error) {
       //console.error("Error fetching feed events:", error);

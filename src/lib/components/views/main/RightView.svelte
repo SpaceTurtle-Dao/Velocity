@@ -64,8 +64,8 @@
           }
         }).filter(profile => {
           if (!profile) return false;
-          const nameMatch = profile.name?.toLowerCase().includes(searchQuery.toLowerCase());
-          const displayNameMatch = profile.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
+          const nameMatch = profile.userName?.toLowerCase().includes(searchQuery.toLowerCase());
+          const displayNameMatch = profile.displayName?.toLowerCase().includes(searchQuery.toLowerCase());
           return nameMatch || displayNameMatch;
         });
       }
@@ -151,38 +151,40 @@
             <!-- Changed from link to on:click handler -->
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div
+            <!-- <div
               on:click={(e) => navigateToProfile(profile.address, e)}
               on:mousedown={() => clickedProfile = true}
               class="block hover:bg-background-600 cursor-pointer transition-colors duration-200 rounded-lg overflow-hidden"
-            >
+            > -->
               <div class="flex items-center space-x-3 p-3 bg-background-700">
-                {#if profile.picture}
+                {#if profile.profileImage}
                   <img
-                    src={profile.picture}
-                    alt={profile.display_name || profile.name}
+                    src={profile.profileImage}
+                    alt={profile.displayName || profile.userName}
                     class="w-10 h-10 rounded-full object-cover"
                   />
                 {:else}
                   <div class="w-10 h-10 bg-background-600 flex items-center justify-center">
                     <span class="text-lg text-primary">
-                      {(profile.display_name || profile.name || profile.address).charAt(0).toUpperCase()}
+                      {(profile.displayName || profile.userName).charAt(0).toUpperCase()}
                     </span>
                   </div>
                 {/if}
                 
                 <div class="flex-1 min-w-0">
                   <h3 class="text-primary font-medium truncate">
-                    {profile.display_name || profile.name || profile.address.slice(0, 8) + '...'}
+                    {profile.displayName || profile.userName}
+                    <!-- Implement when address is there -->
+                    <!-- {profile.displayName || profile.userName || profile.address.slice(0, 8) + '...'} -->
                   </h3>
-                  {#if profile.about}
+                  {#if profile.description}
                     <p class="text-sm text-muted-foreground line-clamp-1">
-                      {profile.about}
+                      {profile.description}
                     </p>
                   {/if}
                 </div>
               </div>
-            </div>
+            <!-- </div> -->
           {/each}
         </div>
       </div>

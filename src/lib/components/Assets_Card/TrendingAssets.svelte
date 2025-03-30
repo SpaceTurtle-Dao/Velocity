@@ -3,6 +3,7 @@
   import { Coins } from "lucide-svelte";
   import { ucmService } from "$lib/services/UCMService";
   import { onMount } from "svelte";
+  //@ts-ignore
   import { type CollectionType } from '@permaweb/libs';
   import TrendingAssetHoverCard from "./TrendingAssetsHoverCard.svelte";
 
