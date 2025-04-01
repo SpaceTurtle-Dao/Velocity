@@ -92,12 +92,26 @@
 	};
 
 	//REGISTRY METHODS
+
+	export const Register = () => {
+		return [
+			{ name: "Action", value: "Register" }
+		];
+	};
+
 	export const GetZones = (filters: string, page: string, limit: string) => {
 		return [
 			{ name: "Action", value: "GetZones" },
 			{ name: "Filters", value: filters },
 			{ name: "Page", value: page },
 			{ name: "Limit", value: limit },
+		];
+	};
+
+	export const GetZoneById = (zoneId: string) => {
+		return [
+			{ name: "Action", value: "GetZoneById" },
+			{ name: "ZoneId", value: zoneId }
 		];
 	};
 
