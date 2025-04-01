@@ -15,7 +15,7 @@
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
-  import { postService } from "$lib/services/PostService";
+  import { hubService } from "$lib/services/HubService";
   import { PostType, type Post } from "$lib/models/Post";
   import { addressStore } from "$lib/stores/address.store";
 
@@ -24,6 +24,7 @@
   let profile: Profile;
   let replyingTo: Profile;
   let replyCount = 0;
+  let hub: string = "";
 
   let isLoading: boolean = false;
   let loadError: string | null = null;
@@ -47,9 +48,10 @@
 
   async function loadData(from: string, postId: string) {
     profile = await profileService.get(from);
-    replies = await postService.fetchReplies(postId);
+    hub = profile.hubId;
+    replies = await hubService.fetchReplies(hub, postId);
     replyCount = replies.length;
-    //postService.fetchRepost(postId);
+    hubService.fetchRepost(hub, postId);
   }
 
   onMount(async () => {
@@ -134,7 +136,7 @@
               <div class="flex items-center text-muted-foreground mb-2">
                 <CornerDownRight size={16} class="mr-2" />
                 {#await profileService.get(post.p) then _profile}
-                  <span class="text-sm">Replying to @{_profile.name}</span>
+                  <span class="text-sm">Replying to @{_profile.userName}</span>
                 {/await}
               </div>
             {/if}
@@ -145,7 +147,7 @@
                   {#if profile.address == $addressStore?.address}
                     You Reposted
                   {:else}
-                    Reposted by @{profile.name}
+                    Reposted by @{profile.userName}
                   {/if}
                 </span>
               </div>
@@ -184,11 +186,11 @@
                           <ProfileHoverCard profile={_profile}>
                             <div class="flex space-x-1">
                               <p class="font-medium text-primary">
-                                {_profile.name}
+                                {_profile.userName}
                               </p>
                               <span
                                 class="text-muted-foreground pl-0.5 text-ellipsis"
-                                >@{_profile.display_name}</span
+                                >@{_profile.displayName}</span
                               >
                             </div>
                           </ProfileHoverCard>
@@ -197,11 +199,11 @@
                         <ProfileHoverCard {profile}>
                           <div class="flex space-x-1">
                             <p class="font-medium text-primary">
-                              {profile.name}
+                              {profile.userName}
                             </p>
                             <span
                               class="text-muted-foreground pl-0.5 text-ellipsis"
-                              >@{profile.display_name}</span
+                              >@{profile.displayName}</span
                             >
                           </div>
                         </ProfileHoverCard>

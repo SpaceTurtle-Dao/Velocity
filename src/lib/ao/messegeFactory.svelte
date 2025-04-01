@@ -86,15 +86,19 @@
 
 	export const FetchEvents = (filters: string) => {
 		return [
-			{ name: "Action", value: "FetchEvents" },
+			{ name: "Action", value: "GetZones" },
 			{ name: "Filters", value: filters },
 		];
 	};
 
-	//INDEXER METHODS
-	export const Request = () => {
-		let _tags = [{ name: "Action", value: "Request" }];
-		return _tags;
+	//REGISTRY METHODS
+	export const GetZones = (filters: string, page: string, limit: string) => {
+		return [
+			{ name: "Action", value: "GetZones" },
+			{ name: "Filters", value: filters },
+			{ name: "Page", value: page },
+			{ name: "Limit", value: limit },
+		];
 	};
 
 	export const RelayMessage = (owner: string) => {

@@ -17,7 +17,7 @@
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import type { Profile } from "$lib/models/Profile";
   import { isMobile } from "$lib/stores/is-mobile.store";
-  import { postService } from "$lib/services/PostService";
+  import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
     import { addressStore } from "$lib/stores/address.store";
@@ -44,7 +44,7 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
-  postService.subscribe((posts) => {
+  hubService.subscribe((posts) => {
     /*if (!id) return;
     if (posts.has(id)) {
       post = posts.get(id)!;
@@ -60,9 +60,9 @@
   async function loadPost() {
     console.log(user);
     console.log(id);
-    post = await postService.get(id);
-    replies = await postService.fetchReplies(id);
-    //postService.fetchRepost(id);
+    post = await hubService.get(id);
+    replies = await hubService.fetchReplies(id);
+    //hubService.fetchRepost(id);
   }
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {

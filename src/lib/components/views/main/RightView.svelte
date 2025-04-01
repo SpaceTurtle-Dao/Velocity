@@ -14,6 +14,7 @@
   let debounceTimer: NodeJS.Timeout;
   let isSearchFocused = false;
   let clickedProfile = false;
+  let hub: string = "";
 
   function handleBlur() {
     if (!clickedProfile) {
@@ -44,7 +45,7 @@
         }
       ]);
 
-      const events = await fetchEvents(filter);
+      const events = await fetchEvents(hub, filter);
 
       if (isSearchFocused && searchQuery.trim()) {
         //@ts-ignore

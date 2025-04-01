@@ -70,13 +70,11 @@
             initialProfileSchema.parse(profile);
             errors = {};
 
-            // Upload picture if exists
             if (pictureFile) {
                 let _pictureFile = await upload(pictureFile);
                 profile.thumbnail = _pictureFile.url;
             }
 
-            // Upload banner if exists
             if (bannerFile) {
                 let _bannerFile = await upload(bannerFile);
                 profile.coverImage = _bannerFile.url;

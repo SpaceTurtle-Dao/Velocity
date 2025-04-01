@@ -20,6 +20,7 @@ export type Profile = {
   bot?: boolean;
   dateCreated: number;
   updated_at?: number;
+  hubId: string;
 };
 
 export const profileFromEvent = (event: any): Profile => {

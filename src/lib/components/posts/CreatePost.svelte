@@ -21,6 +21,7 @@
   let dialogOpen = false;
   let gifSearchOpen = false;
   let selectedGifUrl: string | null = null;
+  let hub : string = "Ug4PFlYzee9Tl6Xfjqekd3Wd-3FfVkj39KbO5Cp0WQ8";
 
   function clearFields() {
     content = "";
@@ -108,7 +109,7 @@
       value: _content,
     };
     _tags.push(contentTag);
-    await event(_tags);
+    await event(hub,_tags);
     isLoading = false;
     dialogOpen = false;
     clearFields();
@@ -142,8 +143,8 @@
         {#if $addressStore.address}
           {#await profileService.get($addressStore.address) then profile}
             <ProfilePicture
-              src={profile.picture}
-              name={profile.name}
+              src={profile.profileImage}
+              name={profile.userName}
               size="lg"
             />
           {/await}

@@ -3,10 +3,11 @@
   import type { Post } from "$lib/models/Post";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { onMount, onDestroy } from "svelte";
-  import { postService } from "$lib/services/PostService";
+  import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
   import { timestampService } from "$lib/utils/date-time";
+  import { currentHubId } from '$lib/stores/hubStore';
 
   let feed: Array<Post> = [];
   let following: Array<Post> = [];
@@ -16,12 +17,12 @@
   let lastLoadedTimestamp: number | null = null;
   let scrollContainer: HTMLElement | null = null;
 
-  postService.subscribe(async (posts) => {
-    feed = posts.values().toArray();
-    // console.log("feed",feed);
+  hubService.subscribe(async (posts) => {
+    // feed = posts.values().toArray();
   });
 
   async function fetchFeedEvents() {
+    if (!$currentHubId) return;
     isLoadingFeed = true;
 
     try {
@@ -30,13 +31,12 @@
       const until = now.getTime();
       
       if (feed.length === 0) {
-        feed = await postService.fetchPost(since, until);
+        feed = await hubService.fetchPost($currentHubId, since, until);
         lastLoadedTimestamp = since;
       } else {
         setTimeout(async () => {
           const latestPostTimestamp = feed[0].timestamp;
-          const newPosts = await postService.fetchPost(since, latestPostTimestamp);
-          // Filter out duplicates based on post ID
+          const newPosts = await hubService.fetchPost($currentHubId, since, latestPostTimestamp);
           const existingIds = new Set(feed.map(post => post.id));
           const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post.id));
           feed = [...uniqueNewPosts, ...feed];
@@ -50,24 +50,21 @@
   }
 
   async function fetchFollowingEvents() {
-    if (!$addressStore.address) return;
+    if (!$addressStore.address || !$currentHubId) return;
     isLoadingFollowing = true;
     
     try {
-      //console.log("will get feed");
       let profile = await profileService.get($addressStore.address);
-      // following = await postService.fetchPostWithAuthors(profile.followList);
-      //console.log(posts);
+      // following = await hubService.fetchPostWithAuthors($currentHubId, profile.followList);
     } catch (error) {
-      //console.error("Error fetching feed events:", error);
+      console.error("Error fetching following events:", error);
     } finally {
-      //isFetchingAlready = false;
       isLoadingFollowing = false;
     }
   }
 
   async function loadMorePosts() {
-    if (isLoadingMore || !lastLoadedTimestamp) return;
+    if (isLoadingMore || !lastLoadedTimestamp || !$currentHubId) return;
     
     isLoadingMore = true;
     console.log("Loading more posts...");
@@ -76,9 +73,8 @@
       const until = lastLoadedTimestamp;
       const since = timestampService.subtract(new Date(until), 10, "days").getTime();
       
-      const olderPosts = await postService.fetchPost(since, until);
+      const olderPosts = await hubService.fetchPost($currentHubId, since, until);
       if (olderPosts.length > 0) {
-        // Filter out duplicates based on post ID
         const existingIds = new Set(feed.map(post => post.id));
         const uniqueOlderPosts = olderPosts.filter(post => !existingIds.has(post.id));
         
@@ -100,12 +96,11 @@
   }
 
   function handleScroll() {
-    // Get the correct scrollable container
     if (!scrollContainer) return;
     
     const scrollPosition = scrollContainer.scrollTop + scrollContainer.clientHeight;
     const scrollHeight = scrollContainer.scrollHeight;
-    const threshold = 200; // Increased threshold for better detection
+    const threshold = 200;
     
     if (scrollHeight - scrollPosition < threshold && !isLoadingMore) {
       console.log("Scroll threshold reached!", scrollHeight - scrollPosition);
@@ -120,12 +115,17 @@
       console.log("Found scroll container, attaching event listener");
       scrollContainer.addEventListener('scroll', handleScroll);
       
-      // Initialize feed
-      fetchFeedEvents();
+      if ($currentHubId) {
+        fetchFeedEvents();
+      }
     } else {
       console.error("Could not find scrollable container with class .scrollbar-hidden");
     }
   });
+
+  $: if ($currentHubId) {
+    fetchFeedEvents();
+  }
 
   onDestroy(() => {
     if (scrollContainer) {
@@ -175,7 +175,6 @@
               {/if}
             </div>
             
-            <!-- Sentinel element for intersection observer alternative -->
             <div id="scroll-sentinel" class="h-4"></div>
           </div>
         {/if}

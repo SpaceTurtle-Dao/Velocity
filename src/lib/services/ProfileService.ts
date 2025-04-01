@@ -7,6 +7,8 @@ import { evalProcess } from "$lib/ao/relay";
 import { luaModule } from "./profile_lua";
 import { createProcess } from "$lib/ao/process.svelte";
 import { walletAddress, setWalletAddress } from "$lib/stores/walletStore";
+import { hubService } from './HubService';
+import { currentHubId } from '$lib/stores/hubStore';
 
 interface ProfileService extends Readable<Map<string, any>> {
   get: (address: string) => Promise<Profile>;
@@ -34,8 +36,6 @@ interface ProfileUpdateData extends ProfileCreateData {
   coverImage?: string;
 }
 
-
-
 const service = (): ProfileService => {
   const wallet =
     typeof window !== "undefined"
@@ -60,14 +60,23 @@ const service = (): ProfileService => {
       let profiles = get({ subscribe });
 
       if (profiles.has(address)) {
-        return profiles.get(address);
+        const profile = profiles.get(address);
+        if (profile.hubId) {
+          currentHubId.set(profile.hubId);
+          console.log("*** Current Hub ID ***", profile.hubId);
+        }
+        return profile;
       }
 
       try {
         const profile = await permaweb.getProfileByWalletAddress(address);
         console.log("*** Profile ***", profile);
-        console.log(profile);
+        if (profile.hubId) {
+          currentHubId.set(profile.hubId);
+          console.log("*** Current Hub ID ***", profile.hubId);
+        }
         profiles.set(address, profile);
+        console.log("*** Profiles ***", profiles);
         set(profiles);
         return profile;
       } catch (error) {
@@ -85,6 +94,7 @@ const service = (): ProfileService => {
           bot: undefined,
           dateCreated: Math.floor(Date.now() / 1000),
           updated_at: undefined,
+          hubId: ""
         };
 
         profiles.set(address, anonymousProfile);
@@ -95,26 +105,33 @@ const service = (): ProfileService => {
     
 
     create: async (profileData: ProfileCreateData): Promise<string> => {
-      const profileId = await createProcess();
-      console.log("ProfileId", profileId);
-      await evaluateProfile(profileData, profileId);
-      
-  
-      // const profileId = await permaweb.createProfile({
-      //   userName: profileData.userName,
-      //   displayName: profileData.displayName || profileData.userName,
-      //   description: profileData.description,
-      //   thumbnail: profileData.thumbnail,
-      //   banner: profileData.banner,
-      // }, (value) => {
-      //   console.log("Value from Create Profile", value);
-      // })
+      const processId = await createProcess();
+      console.log("ProfileId", processId);
 
-      if (!profileId) {
+      await evaluateProfile(profileData, processId);
+      
+      const hubId = await hubService.create();
+      console.log("Created hub with ID:", hubId);
+      
+      currentHubId.set(hubId);
+      console.log("*** Current Hub ID after setting", hubId);
+      if (!processId) {
         throw new Error("Profile creation failed - no ID returned");
       }
 
-      return profileId;
+      // Store the hubId in the profile data
+      const profiles = get({ subscribe });
+      const address = get(walletAddress);
+      if (address) {
+        const profile = profiles.get(address);
+        if (profile) {
+          profile.hubId = hubId;
+          profiles.set(address, profile);
+          set(profiles);
+        }
+      }
+
+      return processId;
     },
 
     update: async (
@@ -158,11 +175,11 @@ const service = (): ProfileService => {
   };
 };
 
-async function evaluateProfile(profileData: ProfileCreateData, profileId: string) {
+async function evaluateProfile(profileData: ProfileCreateData, processId: string) {
   try{
     await sleep(3000);
-    await evalProcess(luaModule, profileId);
-    console.log("*** PROFILE ID ****", profileId);
+    await evalProcess(luaModule, processId);
+    console.log("*** PROFILE ID ****", processId);
     const args = {
       userName: profileData.userName,
       displayName: profileData.displayName || profileData.userName,
@@ -176,11 +193,11 @@ async function evaluateProfile(profileData: ProfileCreateData, profileId: string
       arweave: Arweave.init({}),
       signer: createDataItemSigner(wallet),
     });
-    const result = await permaweb.updateProfile(args, profileId);
+    const result = await permaweb.updateProfile(args, processId);
 
     console.log("**REsults***", result);
   }catch(e){
-    await evaluateProfile(profileData, profileId);
+    await evaluateProfile(profileData, processId);
   }
   
 }
@@ -192,64 +209,3 @@ export const profileService = service();
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-// import { fetchEvents, fetchFollowList, fetchProfile } from "$lib/ao/relay";
-// import type { Profile } from "$lib/models/Profile";
-// import { get, writable, type Readable } from "svelte/store";
-// import Arweave from "arweave";
-// import { connect, createDataItemSigner } from "@permaweb/aoconnect";
-// import Permaweb from "@permaweb/libs";
-
-// interface ProfileService extends Readable<Map<string, any>> {
-//   get: (address: string) => Promise<Profile>;
-// }
-
-// const service = (): ProfileService => {
-//   const { subscribe, set } = writable<Map<string, any>>(
-//     new Map<string, any>()
-//   );
-//   return {
-//     subscribe,
-//     get: async (address: string) => {
-//       let profiles = get(profileService);
-//       if (profiles.has(address)) {
-//         fetchProfile(address).then((profile) => {
-//           fetchFollowList(address).then((followList) => {
-//             profile.followList = followList
-//             profiles.set(profile.address, profile)
-//             set(profiles)
-//           })
-//         })
-//         return profiles.get(address)
-//       } else {
-//         try {
-//           let profile = await fetchProfile(address)
-//           profile.followList = await fetchFollowList(address)
-//           profiles.set(profile.address, profile)
-//           set(profiles)
-//           return profile
-//         } catch (error) {
-//           console.log(error)
-//           let profile: Profile = {
-//             name: "Anonymous",
-//             about: undefined,
-//             picture: undefined,
-//             display_name: "Anonymous",
-//             address: address,
-//             followList: [],
-//             website: undefined,
-//             banner: undefined,
-//             bot: undefined,
-//             created_at: 1740359833,
-//             updated_at: undefined
-//           }
-//           profiles.set(profile.address, profile)
-//           set(profiles)
-//           return profile
-//           //throw (error)
-//         }
-//       }
-//     },
-//   };
-// };
-
-// export const profileService = service();
