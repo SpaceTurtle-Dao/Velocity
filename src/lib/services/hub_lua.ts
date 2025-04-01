@@ -277,7 +277,9 @@ Handlers.add('Event', Handlers.utils.hasMatchingTag('Action', 'Event'), function
 end)
 
 Handlers.add('DeleteEvents', Handlers.utils.hasMatchingTag('Action', 'DeleteEvents'), function(msg)
-    Events = {}
+    if msg.From == Owner then
+        Events = {}
+    end
 end)
 
 Handlers.add('Info', Handlers.utils.hasMatchingTag('Action', 'Info'), function(msg)
