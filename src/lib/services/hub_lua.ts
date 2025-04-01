@@ -291,10 +291,4 @@ Handlers.add('Info', Handlers.utils.hasMatchingTag('Action', 'Info'), function(m
         Data = json.encode(spec)
     })
 end)
-
-ao.send({
-    Target = RegistryProcess,
-    Action = "Register",
-    Data = json.encode(spec)
-})
 `
