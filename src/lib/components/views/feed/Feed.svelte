@@ -7,7 +7,6 @@
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
   import { timestampService } from "$lib/utils/date-time";
-  import { currentHubId } from '$lib/stores/hubStore';
 
   let feed: Array<Post> = [];
   let following: Array<Post> = [];
@@ -16,13 +15,13 @@
   let isLoadingMore = false;
   let lastLoadedTimestamp: number | null = null;
   let scrollContainer: HTMLElement | null = null;
+  let hubId: string = "";
 
   hubService.subscribe(async (posts) => {
     // feed = posts.values().toArray();
   });
 
   async function fetchFeedEvents() {
-    if (!$currentHubId) return;
     isLoadingFeed = true;
 
     try {
@@ -31,15 +30,19 @@
       const until = now.getTime();
       
       if (feed.length === 0) {
-        feed = await hubService.fetchPost($currentHubId, since, until);
+        feed = await hubService.fetchPost(hubId, since, until);
+        console.log('Initial feed posts loaded:', feed.length);
         lastLoadedTimestamp = since;
       } else {
         setTimeout(async () => {
           const latestPostTimestamp = feed[0].timestamp;
-          const newPosts = await hubService.fetchPost($currentHubId, since, latestPostTimestamp);
+          const newPosts = await hubService.fetchPost(hubId, since, latestPostTimestamp);
+          console.log('New posts fetched:', newPosts.length);
           const existingIds = new Set(feed.map(post => post.id));
           const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post.id));
+          console.log('Unique new posts:', uniqueNewPosts.length);
           feed = [...uniqueNewPosts, ...feed];
+          console.log('Total posts in feed after update:', feed.length);
         }, 5000);
       }
     } catch (error) {
@@ -50,7 +53,7 @@
   }
 
   async function fetchFollowingEvents() {
-    if (!$addressStore.address || !$currentHubId) return;
+    if (!$addressStore.address) return;
     isLoadingFollowing = true;
     
     try {
@@ -64,16 +67,18 @@
   }
 
   async function loadMorePosts() {
-    if (isLoadingMore || !lastLoadedTimestamp || !$currentHubId) return;
+    if (isLoadingMore || !lastLoadedTimestamp) return;
     
     isLoadingMore = true;
     console.log("Loading more posts...");
+    console.log('Current feed size:', feed.length);
     
     try {
       const until = lastLoadedTimestamp;
       const since = timestampService.subtract(new Date(until), 10, "days").getTime();
       
-      const olderPosts = await hubService.fetchPost($currentHubId, since, until);
+      const olderPosts = await hubService.fetchPost(hubId, since, until);
+      console.log('Older posts fetched:', olderPosts.length);
       if (olderPosts.length > 0) {
         const existingIds = new Set(feed.map(post => post.id));
         const uniqueOlderPosts = olderPosts.filter(post => !existingIds.has(post.id));
@@ -108,24 +113,23 @@
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     scrollContainer = document.querySelector('.scrollbar-hidden');
     
     if (scrollContainer) {
       console.log("Found scroll container, attaching event listener");
       scrollContainer.addEventListener('scroll', handleScroll);
       
-      if ($currentHubId) {
+      if ($addressStore.address) {
+        const profile = await profileService.get($addressStore.address);
+        hubId = profile.hubId;
+        console.log('Hub ID from feed:', hubId);
         fetchFeedEvents();
       }
     } else {
       console.error("Could not find scrollable container with class .scrollbar-hidden");
     }
   });
-
-  $: if ($currentHubId) {
-    fetchFeedEvents();
-  }
 
   onDestroy(() => {
     if (scrollContainer) {

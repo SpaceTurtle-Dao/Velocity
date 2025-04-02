@@ -7,8 +7,9 @@ import { evalProcess } from "$lib/ao/relay";
 import { luaModule } from "./profile_lua";
 import { createProcess } from "$lib/ao/process.svelte";
 import { walletAddress, setWalletAddress } from "$lib/stores/walletStore";
+import { registryService } from './RegistryService';
+import type { Spec } from "$lib/models/Spec";
 import { hubService } from './HubService';
-import { currentHubId } from '$lib/stores/hubStore';
 
 interface ProfileService extends Readable<Map<string, any>> {
   get: (address: string) => Promise<Profile>;
@@ -60,23 +61,21 @@ const service = (): ProfileService => {
       let profiles = get({ subscribe });
 
       if (profiles.has(address)) {
-        const profile = profiles.get(address);
-        if (profile.hubId) {
-          currentHubId.set(profile.hubId);
-          console.log("*** Current Hub ID ***", profile.hubId);
-        }
-        return profile;
+        return profiles.get(address);
       }
 
       try {
         const profile = await permaweb.getProfileByWalletAddress(address);
+        const zone = await registryService.getZoneById(address);
+        
+        // Set the hubId to the zone's processId
+        profile.hubId = zone.spec.processId;
+        console.log("*** Profile ***", profile.hubId);
+        console.log("*** Zone ***", zone);
         console.log("*** Profile ***", profile);
-        if (profile.hubId) {
-          currentHubId.set(profile.hubId);
-          console.log("*** Current Hub ID ***", profile.hubId);
-        }
+        console.log("*** Zone ***", zone);
+        
         profiles.set(address, profile);
-        console.log("*** Profiles ***", profiles);
         set(profiles);
         return profile;
       } catch (error) {
@@ -107,28 +106,26 @@ const service = (): ProfileService => {
     create: async (profileData: ProfileCreateData): Promise<string> => {
       const processId = await createProcess();
       console.log("ProfileId", processId);
-
       await evaluateProfile(profileData, processId);
-      
-      const hubId = await hubService.create();
-      console.log("Created hub with ID:", hubId);
-      
-      currentHubId.set(hubId);
-      console.log("*** Current Hub ID after setting", hubId);
-      if (!processId) {
-        throw new Error("Profile creation failed - no ID returned");
+
+      const hubSpec: Spec = {
+        type: "hub",
+        kinds: ["1", "7", "6", "3", "2"],
+        description: "Social message hub",
+        version: "1.0.0",
+        processId: processId
+      };
+
+      try {
+        await registryService.register(hubSpec);
+        const hubId = await hubService.create();
+        console.log("*** Hub ID ***", hubId);
+      } catch (error) {
+        console.error("Failed to register profile:", error);
       }
 
-      // Store the hubId in the profile data
-      const profiles = get({ subscribe });
-      const address = get(walletAddress);
-      if (address) {
-        const profile = profiles.get(address);
-        if (profile) {
-          profile.hubId = hubId;
-          profiles.set(address, profile);
-          set(profiles);
-        }
+      if (!processId) {
+        throw new Error("Profile creation failed - no ID returned");
       }
 
       return processId;

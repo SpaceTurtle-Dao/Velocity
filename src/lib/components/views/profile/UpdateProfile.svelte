@@ -38,12 +38,12 @@
   type ProfileSchemaType = z.infer<typeof profileSchema>;
 
   let profile: ProfileSchemaType = {
-    name: initialProfile.name || "",
-    display_name: initialProfile.display_name || "",
+    name: initialProfile.userName || "",
+    display_name: initialProfile.displayName || "",
     about: initialProfile.about || "",
-    picture: initialProfile.picture || "",
+    picture: initialProfile.thumbnail || "",
     website: initialProfile.website || "",
-    banner: initialProfile.banner || "",
+    coverImage: initialProfile.coverImage || "",
     bot: initialProfile.bot || false,
   };
 
@@ -94,11 +94,11 @@
         name: profile.name,
         display_name: profile.display_name,
         about: profile.about,
-        created_at: $currentUser.created_at,
+        dateCreated: $currentUser.dateCreated,
         updated_at,
-        picture: profile.picture,
+        thumbnail: profile.picture,
         website: profile.website,
-        banner: profile.banner,
+        coverImage: profile.banner,
         bot: profile.bot,
       });
 
@@ -108,20 +108,20 @@
       ];
 
       try {
-        const result = await event(tags);
+        const result = await event(hubId, tags);
         // let _currentUser = await fetchEvents(userInfo.Process);
         // currentUser.set(_currentUser);
         // user.set(_currentUser);
 
         currentUser.set({
           name: profile.name,
-          display_name: profile.display_name,
+          displayName: profile.displayName,
           about: profile.about,
-          created_at: $currentUser.created_at,
+          dateCreated: $currentUser.dateCreated,
           updated_at,
-          picture: profile.picture,
+          thumbnail: profile.thumbnail,
           website: profile.website,
-          banner: profile.banner,
+          coverImage: profile.coverImage,
           bot: profile.bot,
           address: $currentUser.address,
           followList: $currentUser.followList,

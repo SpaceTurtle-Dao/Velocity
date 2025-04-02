@@ -45,7 +45,7 @@ async function fetchPost() {
         tags: { From: [params.address] }
       }
     ]);
-    events = await fetchEvents(filter);
+    events = await fetchEvents(profile.hubId, filter);
     console.log("Events from Relay", events);
   }
 }
@@ -63,25 +63,25 @@ $: {
       <Card class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative">
         <div class="relative mb-10">
           <div class="bg-gray-200 relative">
-            {#if profile?.banner}
-              <img src={profile.banner} alt="Banner" class="w-full max-h-48 object-cover"/>
+            {#if profile?.thumbnail}
+              <img src={profile.thumbnail} alt="Banner" class="w-full max-h-48 object-cover"/>
             {:else}
               <div class="w-full h-32 object-cover bg-secondary" />
             {/if}
           </div>
           <div class="absolute -bottom-12 left-4">
             <Avatar class="w-24 h-24 border-4 border-white">
-              {#if profile?.picture}
-                <AvatarImage src={profile.picture} alt={profile.name} />
+              {#if profile?.thumbnail}
+                <AvatarImage src={profile.thumbnail} alt={profile.userName} />
               {/if}
-              <AvatarFallback>{profile.name ? profile.name[0].toUpperCase() : "U"}</AvatarFallback>
+              <AvatarFallback>{profile.userName ? profile.userName[0].toUpperCase() : "U"}</AvatarFallback>
             </Avatar>
           </div>
         </div>
 
         <CardContent>
-          <p class="font-bold text-2xl">{profile.name}</p>
-          <p class="text-muted-foreground">@{profile.display_name}</p>
+          <p class="font-bold text-2xl">{profile.userName}</p>
+          <p class="text-muted-foreground">@{profile.displayName}</p>
           {#if profile.about}
             <p class="pt-2.5">{profile.about}</p>
           {/if}
@@ -96,7 +96,7 @@ $: {
             {/if}
             <div class="flex flex-row space-x-1 items-center text-muted-foreground">
               <CalendarDays size={16} />
-              <p>Joined {formatJoinedTimestamp(profile.created_at)}</p>
+              <p>Joined {formatJoinedTimestamp(profile.dateCreated)}</p>
             </div>
           </div>
         </CardContent>

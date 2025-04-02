@@ -9,10 +9,24 @@ import { profileService } from "$lib/services/ProfileService";
 export interface CurrentUserStore extends Readable<Profile> {
   fetch: () => Promise<void>;
   set: (profile: Profile) => void;
+  follow: (address: string) => Promise<void>;
+  unfollow: (address: string) => Promise<void>;
 }
 
 const initCurrentUserStore = () => {
   const { subscribe, set, update } = writable<Profile>();
+  let hubId: string = "";
+
+  // Add function to get hubId
+  async function getHubId() {
+    const { address } = get(addressStore);
+    if (address) {
+      const profile = await profileService.get(address);
+      hubId = profile.hubId;
+      return hubId;
+    }
+    return "";
+  }
 
   return {
     subscribe,
@@ -22,7 +36,7 @@ const initCurrentUserStore = () => {
       console.log("got address");
       try {
         if (address) {
-          
+          await getHubId(); // Initialize hubId when fetching user data
         }
       } catch (error) {
         console.error(error);
@@ -38,16 +52,18 @@ const initCurrentUserStore = () => {
     },
     follow: async (address: string) => {
       try {
+        if (!hubId) {
+          await getHubId();
+        }
+
         const _currentUser = get(currentUser);
         _currentUser.followList.push(address);
 
         let kind: Tag = { name: "Kind", value: "3" };
-
         let pTag: Tag = { name: "p", value: JSON.stringify(_currentUser.followList) };
-
         let tags: Tag[] = [kind, pTag];
 
-        await event(tags);
+        await event(hubId, tags);
 
         set(_currentUser);
       } catch (error) {
@@ -57,24 +73,28 @@ const initCurrentUserStore = () => {
 
     unfollow: async (address: string) => {
       try {
+        if (!hubId) {
+          await getHubId();
+        }
+
         const _currentUser = get(currentUser);
         const followListSet = new Set(_currentUser.followList);
         followListSet.delete(address);
-        _currentUser.followList = followListSet.values().toArray()
+        _currentUser.followList = Array.from(followListSet);
 
         let kind: Tag = { name: "Kind", value: "3" };
-
         let pTag: Tag = { name: "p", value: JSON.stringify(_currentUser.followList) };
-
         let tags: Tag[] = [kind, pTag];
 
-        await event(tags);
+        await event(hubId, tags);
 
         set(_currentUser);
       } catch (error) {
         console.error(error);
       }
     },
+
+    set
   };
 };
 

@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { currentUser } from "$lib/stores/current-user.store";
   import { onMount } from "svelte";
@@ -7,7 +7,7 @@
 
   export let address: string;
 
-  // let isSubscribed: boolean = $followListStore.has(address);
+  let isSubscribed: boolean = $followListStore.has(address);
   let isSubscribed: boolean;
   let loader = false;
 
@@ -51,4 +51,4 @@
       >Subscribe
     </ButtonWithLoader>
   {/if}
-{/if}
+{/if} -->

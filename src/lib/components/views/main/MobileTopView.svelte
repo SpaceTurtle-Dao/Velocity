@@ -59,8 +59,8 @@
           {#await profileService.get($addressStore.address) then profile}
             <ProfilePicture
               size="sm"
-              src={profile.picture}
-              name={profile.name}
+              src={profile.thumbnail}
+              name={profile.userName}
             />
           {/await}
         {/if}

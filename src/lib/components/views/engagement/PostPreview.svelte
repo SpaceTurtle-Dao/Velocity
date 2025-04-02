@@ -41,7 +41,7 @@
       {#if profile.address == $addressStore.address}
         You
       {:else}
-        @{profile.display_name}
+        @{profile.displayName}
       {/if}
     </span>
   </div>
@@ -65,22 +65,22 @@
         <ProfileHoverCard profile={profile}>
           <div class="flex space-x-1">
             <div class="text-primary text-base font-medium mr-1 ml-2">
-              {profile.name}
+              {profile.userName}
             </div>
 
             <div class="text-muted-foreground text-base font-light truncate">
-              {"@" + profile.display_name}
+              {"@" + profile.displayName}
             </div>
           </div>
         </ProfileHoverCard>
         <ProfileHoverCard profile={profile}>
           <div class="flex space-x-1">
             <div class="text-primary text-base font-medium mr-1 ml-2">
-              {profile.name}
+              {profile.userName}
             </div>
 
             <div class="text-muted-foreground text-base font-light truncate">
-              {"@" + profile.display_name}
+              {"@" + profile.displayName}
             </div>
           </div>
         </ProfileHoverCard>
@@ -100,7 +100,7 @@
 
     <div class="text-start text-muted-foreground mt-5">
       {"Replying to "}
-      <span class="text-sky-500">{"@" + profile.display_name}</span>
+      <span class="text-sky-500">{"@" + profile.displayName}</span>
     </div>
   </div>
 </div>
