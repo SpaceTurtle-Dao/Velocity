@@ -11,12 +11,11 @@
   let userProfiles: Array<Profile> = [];
   let isLoading = false;
   let error: string | null = null;
-  let hubId: string = "";
+  let hubId: string;
 
   // Add function to initialize hubId
   async function initializeHubId() {
     if ($addressStore.address) {
-      const profile = await profileService.get($addressStore.address);
       hubId = (await registryService.getZoneById($addressStore.address)).spec.processId;
     }
   }

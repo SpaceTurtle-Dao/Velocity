@@ -16,14 +16,14 @@
   let isLoadingMore = false;
   let lastLoadedTimestamp: number | null = null;
   let scrollContainer: HTMLElement | null = null;
-  let hubId: string | undefined;
+  let hubId: string;
 
   //hubService.subscribe(async (posts) => {
     // feed = posts.values().toArray();
   //});
 
   async function fetchFeedEvents() {
-    if(hubId == undefined) return
+    if(hubId) return
     isLoadingFeed = true;
     try {
       const now = new Date();
@@ -31,22 +31,20 @@
       const until = now.getTime();
       if (feed.length === 0) {
         if($addressStore.address == undefined) return;
-        //const profile = await profileService.get($addressStore.address);
-        //console.log(profile)
         console.log('Hub id:', hubId)
-        //feed = await hubService.fetchPost(hubId, since, until);
+        feed = await hubService.fetchPost(hubId, since, until);
         console.log('Initial feed posts loaded:', feed.length);
         lastLoadedTimestamp = since;
       } else {
         setTimeout(async () => {
-          /*const latestPostTimestamp = feed[0].timestamp;
+          const latestPostTimestamp = feed[0].timestamp;
           const newPosts = await hubService.fetchPost(hubId, since, latestPostTimestamp);
           console.log('New posts fetched:', newPosts.length);
           const existingIds = new Set(feed.map(post => post.id));
           const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post.id));
           console.log('Unique new posts:', uniqueNewPosts.length);
           feed = [...uniqueNewPosts, ...feed];
-          console.log('Total posts in feed after update:', feed.length);*/
+          console.log('Total posts in feed after update:', feed.length);
         }, 5000);
       }
     } catch (error) {
@@ -114,7 +112,7 @@
     
     if (scrollHeight - scrollPosition < threshold && !isLoadingMore) {
       console.log("Scroll threshold reached!", scrollHeight - scrollPosition);
-      //loadMorePosts();
+      loadMorePosts();
     }
   }
 
@@ -126,10 +124,9 @@
       scrollContainer.addEventListener('scroll', handleScroll);
       
       if ($addressStore.address) {
-        //const profile = await profileService.get($addressStore.address);
-        /*const hub = await registryService.getZoneById($addressStore.address)
+        const hub = await registryService.getZoneById($addressStore.address)
         hubId = hub.spec.processId;
-        console.log('Hub ID from feed:', hubId);*/
+        console.log('Hub ID from feed:', hubId);
         fetchFeedEvents();
       }
     } else {

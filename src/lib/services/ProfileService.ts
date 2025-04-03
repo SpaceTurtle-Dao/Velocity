@@ -75,17 +75,13 @@ const service = (): ProfileService => {
 
       if (profiles.has(address)) {
         return profiles.get(address);
-      }else{
-        
       }
 
       try {
         const profile = await permaweb.getProfileByWalletAddress(address);
         const zone = await registryService.getZoneById(address);
         
-        // Set the hubId to the zone's processId
-        profile.hubId = zone.spec.processId;
-        console.log("*** Profile ***", profile.hubId);
+        console.log("*** Profile ***", zone.spec.processId);
         console.log("*** Zone ***", zone);
         console.log("*** Profile ***", profile);
         console.log("*** Zone ***", zone);
@@ -95,21 +91,6 @@ const service = (): ProfileService => {
         return profile;
       } catch (error) {
         console.log("Profile not found, creating anonymous profile", error);
-
-        const anonymousProfile: Profile = {
-          userName: "Anonymous",
-          about: undefined,
-          profileImage: undefined,
-          displayName: "Anonymous",
-          address: address,
-          followList: [],
-          website: undefined,
-          thumbnail: undefined,
-          bot: undefined,
-          dateCreated: Math.floor(Date.now() / 1000),
-          updated_at: undefined,
-        };
-
         //profiles.set(address, anonymousProfile);
         //set(profiles);
         return anonymousProfile;
