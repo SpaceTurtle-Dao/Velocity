@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
 	import { RELAY_MESSAGE_ID } from "$lib/constants";
 	// @ts-ignore
-	import { connect, createDataItemSigner, assign, } from "@permaweb/aoconnect";
+	import { connect, createDataItemSigner, assign } from "@permaweb/aoconnect";
 	//import { createToast } from '$lib/utils/toastHandler.svelte';
 
 	function sleep(ms: number) {
@@ -10,7 +10,11 @@
 
 	// @ts-ignore
 	const { result, results, message, spawn, monitor, unmonitor, dryrun } =
-		connect();
+		connect({
+			MU_URL: "https://mu.ao-testnet.xyz",
+			CU_URL: "https://cu.ao-testnet.xyz",
+			GATEWAY_URL: "https://arweave.net",
+		});
 
 	// @ts-ignore
 	export async function send(processId, tags, data: string | null) {
@@ -32,7 +36,7 @@
 			// Tags that the process will use as input.
 			tags: tags,
 			data: "",
-			scheduler: '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA',
+			scheduler: "_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA",
 			// A signer function used to build the message "signature"
 			// @ts-ignore
 			signer: createDataItemSigner(window.arweaveWallet),
@@ -71,8 +75,8 @@
 	export const createProcess = async () => {
 		const processId = await spawn({
 			// The Arweave TXID of the ao Module
-			module: 'Do_Uc2Sju_ffp6Ev0AnLVdPtot15rvMjP-a9VVaA5fM',
-			scheduler: '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA',
+			module: "Do_Uc2Sju_ffp6Ev0AnLVdPtot15rvMjP-a9VVaA5fM",
+			scheduler: "_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA",
 			// @ts-ignore
 			signer: createDataItemSigner(window.arweaveWallet),
 		});

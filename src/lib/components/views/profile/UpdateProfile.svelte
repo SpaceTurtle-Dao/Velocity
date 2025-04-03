@@ -21,8 +21,12 @@
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
+    import { registryService } from "$lib/services/RegistryService";
+    import { addressStore } from "$lib/stores/address.store";
+    import { profileService } from "$lib/services/ProfileService";
 
-  export let initialProfile: Profile;
+  let initialProfile: Profile | undefined;
+  let hubId:string;
 
   // Zod schema for profile validation
   const profileSchema = z.object({
@@ -38,13 +42,12 @@
   type ProfileSchemaType = z.infer<typeof profileSchema>;
 
   let profile: ProfileSchemaType = {
-    name: initialProfile.userName || "",
-    display_name: initialProfile.displayName || "",
-    about: initialProfile.about || "",
-    picture: initialProfile.thumbnail || "",
-    website: initialProfile.website || "",
-    coverImage: initialProfile.coverImage || "",
-    bot: initialProfile.bot || false,
+    name: initialProfile?.userName || "",
+    display_name: initialProfile?.displayName || "",
+    about: initialProfile?.about || "",
+    picture: initialProfile?.thumbnail || "",
+    website: initialProfile?.website || "",
+    bot: initialProfile?.bot || false,
   };
 
   let userInfo: UserInfo;
@@ -114,17 +117,17 @@
         // user.set(_currentUser);
 
         currentUser.set({
-          name: profile.name,
-          displayName: profile.displayName,
+          displayName: profile.display_name,
           about: profile.about,
           dateCreated: $currentUser.dateCreated,
           updated_at,
-          thumbnail: profile.thumbnail,
+          thumbnail: profile.picture,
           website: profile.website,
-          coverImage: profile.coverImage,
+          coverImage: profile.picture,
           bot: profile.bot,
           address: $currentUser.address,
           followList: $currentUser.followList,
+          userName: profile.name,
         });
 
         console.log("Profile updated successfully:", result);
@@ -145,108 +148,114 @@
     }
   }
 
-  onMount(() => {
+  onMount(async () => {
     // If you need to do any initialization with the initial profile data
+    if($addressStore.address){
+      hubId = ((await registryService.getZoneById($addressStore.address)).spec.processId)
+      initialProfile = await profileService.get($addressStore.address)
+    }
   });
 </script>
 
-<div class="mx-auto max-w-2xl p-4">
-  <Card class="w-full relative border border-border rounded-lg">
-    <CardHeader>
-      <CardTitle>Update Your Profile</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <form on:submit|preventDefault={() => {}} class="space-y-6">
-        <div class="relative mb-16">
-          <div class="h-32 bg-gray-200 relative">
-            {#if profile.banner}
-              <img
-                src={profile.banner}
-                alt="Banner"
-                class="w-full h-full object-cover"
-              />
-            {/if}
-            <label
-              for="banner"
-              class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer"
-            >
-              <Camera size={24} class="text-white" />
-            </label>
-            <Input
-              id="banner"
-              type="file"
-              accept="image/*"
-              class="hidden"
-              on:change={(e) => handleFileChange(e, "banner")}
-            />
-          </div>
-          <div class="absolute bottom-0 left-4 transform translate-y-1/3">
-            <div class="relative">
-              <Avatar class="w-24 h-24 border-4 border-white">
-                <AvatarImage src={profile.picture} alt={profile.name} />
-                <AvatarFallback
-                  >{profile.name
-                    ? profile.name[0].toUpperCase()
-                    : "U"}</AvatarFallback
-                >
-              </Avatar>
+{#if initialProfile}
+  <div class="mx-auto max-w-2xl p-4">
+    <Card class="w-full relative border border-border rounded-lg">
+      <CardHeader>
+        <CardTitle>Update Your Profile</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form on:submit|preventDefault={() => {}} class="space-y-6">
+          <div class="relative mb-16">
+            <div class="h-32 bg-gray-200 relative">
+              {#if profile.banner}
+                <img
+                  src={profile.banner}
+                  alt="Banner"
+                  class="w-full h-full object-cover"
+                />
+              {/if}
               <label
-                for="picture"
-                class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full cursor-pointer"
+                for="banner"
+                class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer"
               >
-                <Camera size={20} class="text-white" />
+                <Camera size={24} class="text-white" />
               </label>
               <Input
-                id="picture"
+                id="banner"
                 type="file"
                 accept="image/*"
                 class="hidden"
-                on:change={(e) => handleFileChange(e, "picture")}
+                on:change={(e) => handleFileChange(e, "banner")}
               />
             </div>
+            <div class="absolute bottom-0 left-4 transform translate-y-1/3">
+              <div class="relative">
+                <Avatar class="w-24 h-24 border-4 border-white">
+                  <AvatarImage src={profile.picture} alt={profile.name} />
+                  <AvatarFallback
+                    >{profile.name
+                      ? profile.name[0].toUpperCase()
+                      : "U"}</AvatarFallback
+                  >
+                </Avatar>
+                <label
+                  for="picture"
+                  class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full cursor-pointer"
+                >
+                  <Camera size={20} class="text-white" />
+                </label>
+                <Input
+                  id="picture"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  on:change={(e) => handleFileChange(e, "picture")}
+                />
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label for="name">Name *</Label>
+              <Input id="name" bind:value={profile.name} />
+              {#if errors.name}
+                <p class="text-red-500 text-sm">{errors.name}</p>
+              {/if}
+            </div>
+
+            <div class="space-y-2">
+              <Label for="display_name">Display Name *</Label>
+              <Input id="display_name" bind:value={profile.display_name} />
+              {#if errors.display_name}
+                <p class="text-red-500 text-sm">
+                  {errors.display_name}
+                </p>
+              {/if}
+            </div>
+          </div>
+
           <div class="space-y-2">
-            <Label for="name">Name *</Label>
-            <Input id="name" bind:value={profile.name} />
-            {#if errors.name}
-              <p class="text-red-500 text-sm">{errors.name}</p>
+            <Label for="about">About</Label>
+            <Textarea id="about" bind:value={profile.about} rows={3} />
+          </div>
+
+          <div class="space-y-2">
+            <Label for="website">Website</Label>
+            <Input id="website" type="url" bind:value={profile.website} />
+            {#if errors.website}
+              <p class="text-red-500 text-sm">{errors.website}</p>
             {/if}
           </div>
 
-          <div class="space-y-2">
-            <Label for="display_name">Display Name *</Label>
-            <Input id="display_name" bind:value={profile.display_name} />
-            {#if errors.display_name}
-              <p class="text-red-500 text-sm">
-                {errors.display_name}
-              </p>
-            {/if}
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <Label for="about">About</Label>
-          <Textarea id="about" bind:value={profile.about} rows={3} />
-        </div>
-
-        <div class="space-y-2">
-          <Label for="website">Website</Label>
-          <Input id="website" type="url" bind:value={profile.website} />
-          {#if errors.website}
-            <p class="text-red-500 text-sm">{errors.website}</p>
-          {/if}
-        </div>
-
-        <ButtonWithLoader
-          class="bg-primary text-primary-foreground px-8 w-full rounded-full font-semibold hover:bg-primary/80 text-md disabled:cursor-not-allowed disabled:opacity-100"
-          {loader}
-          disabled={loader}
-          on:click={updateProfile}>Update Profile</ButtonWithLoader
-        >
-      </form>
-    </CardContent>
-  </Card>
-</div>
+          <ButtonWithLoader
+            class="bg-primary text-primary-foreground px-8 w-full rounded-full font-semibold hover:bg-primary/80 text-md disabled:cursor-not-allowed disabled:opacity-100"
+            {loader}
+            disabled={loader}
+            on:click={updateProfile}>Update Profile</ButtonWithLoader
+          >
+        </form>
+      </CardContent>
+    </Card>
+  </div>
+{/if}

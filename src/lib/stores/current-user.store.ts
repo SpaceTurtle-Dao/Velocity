@@ -18,7 +18,7 @@ const initCurrentUserStore = () => {
   let hubId: string = "";
 
   // Add function to get hubId
-  async function getHubId() {
+  /*async function getHubId() {
     const { address } = get(addressStore);
     if (address) {
       const profile = await profileService.get(address);
@@ -26,7 +26,7 @@ const initCurrentUserStore = () => {
       return hubId;
     }
     return "";
-  }
+  }*/
 
   return {
     subscribe,
@@ -36,7 +36,7 @@ const initCurrentUserStore = () => {
       console.log("got address");
       try {
         if (address) {
-          await getHubId(); // Initialize hubId when fetching user data
+          //await getHubId(); // Initialize hubId when fetching user data
         }
       } catch (error) {
         console.error(error);
@@ -53,11 +53,11 @@ const initCurrentUserStore = () => {
     follow: async (address: string) => {
       try {
         if (!hubId) {
-          await getHubId();
+          //await getHubId();
         }
 
         const _currentUser = get(currentUser);
-        _currentUser.followList.push(address);
+        _currentUser.followList?.push(address);
 
         let kind: Tag = { name: "Kind", value: "3" };
         let pTag: Tag = { name: "p", value: JSON.stringify(_currentUser.followList) };
@@ -74,7 +74,7 @@ const initCurrentUserStore = () => {
     unfollow: async (address: string) => {
       try {
         if (!hubId) {
-          await getHubId();
+          //ßawait getHubId();
         }
 
         const _currentUser = get(currentUser);

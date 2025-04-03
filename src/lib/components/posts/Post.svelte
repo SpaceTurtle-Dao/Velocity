@@ -24,7 +24,6 @@
   let profile: Profile;
   let replyingTo: Profile;
   let replyCount = 0;
-  let hub: string = "";
 
   let isLoading: boolean = false;
   let loadError: string | null = null;
@@ -48,10 +47,10 @@
 
   async function loadData(from: string, postId: string) {
     profile = await profileService.get(from);
-    hub = profile.hubId;
-    replies = await hubService.fetchReplies(hub, postId);
-    replyCount = replies.length;
-    hubService.fetchRepost(hub, postId);
+    //hub = profile.hubId;
+    //replies = await hubService.fetchReplies(hub, postId);
+    //replyCount = replies.length;
+    //hubService.fetchRepost(hub, postId);
   }
 
   onMount(async () => {

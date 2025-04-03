@@ -13,6 +13,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
   import { onMount } from "svelte";
+    import { registryService } from "$lib/services/RegistryService";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -27,7 +28,8 @@
   async function initializeHubId() {
     if ($addressStore.address) {
       const profile = await profileService.get($addressStore.address);
-      hubId = profile.hubId;
+      const hub = await registryService.getZoneById($addressStore.address)
+      hubId = hub.spec.processId;
       console.log("*** Hub ID ***", hubId);
     }
   }

@@ -7,6 +7,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
   import { timestampService } from "$lib/utils/date-time";
+    import { registryService } from "$lib/services/RegistryService";
 
   let feed: Array<Post> = [];
   let following: Array<Post> = [];
@@ -15,34 +16,37 @@
   let isLoadingMore = false;
   let lastLoadedTimestamp: number | null = null;
   let scrollContainer: HTMLElement | null = null;
-  let hubId: string = "";
+  let hubId: string | undefined;
 
-  hubService.subscribe(async (posts) => {
+  //hubService.subscribe(async (posts) => {
     // feed = posts.values().toArray();
-  });
+  //});
 
   async function fetchFeedEvents() {
+    if(hubId == undefined) return
     isLoadingFeed = true;
-
     try {
       const now = new Date();
       const since = timestampService.subtract(new Date(), 10, "days").getTime();
       const until = now.getTime();
-      
       if (feed.length === 0) {
-        feed = await hubService.fetchPost(hubId, since, until);
+        if($addressStore.address == undefined) return;
+        //const profile = await profileService.get($addressStore.address);
+        //console.log(profile)
+        console.log('Hub id:', hubId)
+        //feed = await hubService.fetchPost(hubId, since, until);
         console.log('Initial feed posts loaded:', feed.length);
         lastLoadedTimestamp = since;
       } else {
         setTimeout(async () => {
-          const latestPostTimestamp = feed[0].timestamp;
+          /*const latestPostTimestamp = feed[0].timestamp;
           const newPosts = await hubService.fetchPost(hubId, since, latestPostTimestamp);
           console.log('New posts fetched:', newPosts.length);
           const existingIds = new Set(feed.map(post => post.id));
           const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post.id));
           console.log('Unique new posts:', uniqueNewPosts.length);
           feed = [...uniqueNewPosts, ...feed];
-          console.log('Total posts in feed after update:', feed.length);
+          console.log('Total posts in feed after update:', feed.length);*/
         }, 5000);
       }
     } catch (error) {
@@ -57,7 +61,7 @@
     isLoadingFollowing = true;
     
     try {
-      let profile = await profileService.get($addressStore.address);
+      //let profile = await profileService.get($addressStore.address);
       // following = await hubService.fetchPostWithAuthors($currentHubId, profile.followList);
     } catch (error) {
       console.error("Error fetching following events:", error);
@@ -67,6 +71,7 @@
   }
 
   async function loadMorePosts() {
+    if(hubId == undefined) return
     if (isLoadingMore || !lastLoadedTimestamp) return;
     
     isLoadingMore = true;
@@ -109,7 +114,7 @@
     
     if (scrollHeight - scrollPosition < threshold && !isLoadingMore) {
       console.log("Scroll threshold reached!", scrollHeight - scrollPosition);
-      loadMorePosts();
+      //loadMorePosts();
     }
   }
 
@@ -121,9 +126,10 @@
       scrollContainer.addEventListener('scroll', handleScroll);
       
       if ($addressStore.address) {
-        const profile = await profileService.get($addressStore.address);
-        hubId = profile.hubId;
-        console.log('Hub ID from feed:', hubId);
+        //const profile = await profileService.get($addressStore.address);
+        /*const hub = await registryService.getZoneById($addressStore.address)
+        hubId = hub.spec.processId;
+        console.log('Hub ID from feed:', hubId);*/
         fetchFeedEvents();
       }
     } else {

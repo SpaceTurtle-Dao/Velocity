@@ -2,10 +2,11 @@
   import { followers } from "$lib/stores/profile.store";
   import { profileFromEvent, type UserInfo, type Profile } from "$lib/models/Profile";
   import ProfileCard from "$lib/components/views/profile/ProfileCard.svelte";
-  import { fetchEvents, fetchProfiles } from "$lib/ao/relay";
+  import { fetchEvents} from "$lib/ao/relay";
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
   import { onMount } from "svelte";
+    import { registryService } from "$lib/services/RegistryService";
 
   let userProfiles: Array<Profile> = [];
   let isLoading = false;
@@ -16,7 +17,7 @@
   async function initializeHubId() {
     if ($addressStore.address) {
       const profile = await profileService.get($addressStore.address);
-      hubId = profile.hubId;
+      hubId = (await registryService.getZoneById($addressStore.address)).spec.processId;
     }
   }
 
@@ -111,7 +112,7 @@
     try {
       const profileEvents = await fetchProfileEvents(_followers);
       
-      const enrichedProfiles = await Promise.all(
+      /*const enrichedProfiles = await Promise.all(
         profileEvents.map(async (event) => {
           try {
             const profile = profileFromEvent(event);
@@ -137,9 +138,9 @@
             return null;
           }
         })
-      );
+      );*/
 
-      userProfiles = await fetchProfiles([]);
+      //userProfiles = await fetchProfiles([]);
       console.log('Processed profiles:', userProfiles);
       
     } catch (e) {
@@ -178,7 +179,9 @@
     <div class="text-red-500 text-center py-4">{error}</div>
   {:else}
     {#each userProfiles as userProfile}
-      <ProfileCard profile={userProfile} />
+      {#if userProfile?.address}
+        <ProfileCard address={userProfile.address} />
+      {/if}
     {/each}
   {/if}
 </div>

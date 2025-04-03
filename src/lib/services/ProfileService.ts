@@ -57,11 +57,26 @@ const service = (): ProfileService => {
     subscribe,
 
     get: async (address: string) => {
+      const anonymousProfile: Profile = {
+        userName: "Anonymous",
+        about: undefined,
+        profileImage: undefined,
+        displayName: "Anonymous",
+        address: address,
+        followList: [],
+        website: undefined,
+        thumbnail: undefined,
+        bot: undefined,
+        dateCreated: Math.floor(Date.now() / 1000),
+        updated_at: undefined
+      };
       setWalletAddress(address);
       let profiles = get({ subscribe });
 
       if (profiles.has(address)) {
         return profiles.get(address);
+      }else{
+        
       }
 
       try {
@@ -93,11 +108,10 @@ const service = (): ProfileService => {
           bot: undefined,
           dateCreated: Math.floor(Date.now() / 1000),
           updated_at: undefined,
-          hubId: ""
         };
 
-        profiles.set(address, anonymousProfile);
-        set(profiles);
+        //profiles.set(address, anonymousProfile);
+        //set(profiles);
         return anonymousProfile;
       }
     },
@@ -186,7 +200,11 @@ async function evaluateProfile(profileData: ProfileCreateData, processId: string
     };
     const wallet = typeof window !== "undefined" ? window.arweaveWallet : "";
     const permaweb = Permaweb.init({
-      ao: connect(),
+      ao: connect({
+        MU_URL: "https://mu.ao-testnet.xyz",
+        CU_URL: "https://cu.ao-testnet.xyz",
+        GATEWAY_URL: "https://arweave.net",
+      },),
       arweave: Arweave.init({}),
       signer: createDataItemSigner(wallet),
     });

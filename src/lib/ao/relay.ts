@@ -47,6 +47,7 @@ export const fetchEvents = async (hub: string, filters: string): Promise<any[]> 
     // @ts-ignore
     let message = FetchEvents(filters);
     let result = await read(hub, message);
+    console.log(result)
     if (result) {
       let json = JSON.parse(result.Data);
       events = json;

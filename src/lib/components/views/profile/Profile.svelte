@@ -22,6 +22,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { hubService } from "$lib/services/HubService";
   import type { Post } from "$lib/models/Post";
+    import { registryService } from "$lib/services/RegistryService";
 
   export let params: { address?: string } = {};
 
@@ -29,7 +30,7 @@
   let activeTab: string = "posts";
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
-  let hub: string = "";
+  let hubId: string = "";
 
   let mimeTypes: string[] = [
     "image/apng",
@@ -52,9 +53,9 @@
   async function fetchPost() {
     posts = [];
     if (!params.address) return;
-    if (profile?.hubId) {
-      hub = profile.hubId;
-      posts = await hubService.fetchPostWithAuthors(hub, [params.address]);
+    if (hubId) {
+      hubId = (await registryService.getZoneById(params.address)).spec.processId;
+      posts = await hubService.fetchPostWithAuthors(hubId, [params.address]);
       media = posts.filter((value) => {
         if (value.mimeType) {
           return mimeTypes.includes(value.mimeType);
@@ -257,17 +258,7 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile 
-        initialProfile={{
-          userName: profile.userName,
-          displayName: profile.displayName,
-          description: profile.description,
-          profileImage: profile.profileImage,
-          coverImage: profile.coverImage,
-          dateCreated: profile.dateCreated,
-          updated_at: profile.updated_at
-        }} 
-        on:profileUpdated={toggleModal} 
+      <UpdateProfile on:profileUpdated={toggleModal} 
       />
     </div>
   </div>
