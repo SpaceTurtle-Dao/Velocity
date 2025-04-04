@@ -13,7 +13,8 @@ export type Profile = {
   coverImage?: string;
   userName: string;
   description?: string;
-  address?: string;
+  id: string;
+  owner: string;
   followList?: string[];
   website?: string;
   thumbnail?: string;

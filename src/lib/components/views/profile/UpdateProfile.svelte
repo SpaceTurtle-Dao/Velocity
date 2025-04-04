@@ -20,12 +20,12 @@
   import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-    import { registryService } from "$lib/services/RegistryService";
-    import { addressStore } from "$lib/stores/address.store";
-    import { profileService } from "$lib/services/ProfileService";
+  import { registryService } from "$lib/services/RegistryService";
+  import { addressStore } from "$lib/stores/address.store";
+  import { profileService } from "$lib/services/ProfileService";
 
   let initialProfile: Profile | undefined;
-  let hubId:string;
+  let hubId: string;
 
   // Zod schema for profile validation
   const profileSchema = z.object({
@@ -76,6 +76,7 @@
   }
 
   async function updateProfile() {
+    if (!initialProfile) return;
     loader = true;
     try {
       profileSchema.parse(profile);
@@ -110,13 +111,26 @@
       ];
 
       try {
-        const result = await event(hubId, tags);
-        // let _currentUser = await fetchEvents(userInfo.Process);
-        // currentUser.set(_currentUser);
-        // user.set(_currentUser)
+        if ($addressStore.address) {
+          let data = {
+            userName: profile.name,
+            displayName: profile.display_name,
+            description: profile.about,
+            thumbnail: profile.picture,
+            coverImage: profile.banner,
+          };
+          const result = await profileService.update(
+            data,
+            initialProfile.id,
+          );
+          await profileService.get($addressStore.address)
+          // let _currentUser = await fetchEvents(userInfo.Process);
+          // currentUser.set(_currentUser);
+          // user.set(_currentUser)
 
-        console.log("Profile updated successfully:", result);
-        dispatch("profileUpdated");
+          console.log("Profile updated successfully:", result);
+          dispatch("profileUpdated");
+        }
       } catch (error) {
         console.error("Error updating profile:", error);
       }
@@ -135,9 +149,10 @@
 
   onMount(async () => {
     // If you need to do any initialization with the initial profile data
-    if($addressStore.address){
-      hubId = ((await registryService.getZoneById($addressStore.address)).spec.processId)
-      initialProfile = await profileService.get($addressStore.address)
+    if ($addressStore.address) {
+      hubId = (await registryService.getZoneById($addressStore.address)).spec
+        .processId;
+      initialProfile = await profileService.get($addressStore.address);
     }
   });
 </script>

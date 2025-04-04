@@ -22,7 +22,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { hubService } from "$lib/services/HubService";
   import type { Post } from "$lib/models/Post";
-    import { registryService } from "$lib/services/RegistryService";
+  import { registryService } from "$lib/services/RegistryService";
 
   export let params: { address?: string } = {};
 
@@ -30,7 +30,7 @@
   let activeTab: string = "posts";
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
-  let hubId: string = "";
+  let hubId: string;
 
   let mimeTypes: string[] = [
     "image/apng",
@@ -53,17 +53,15 @@
   async function fetchPost() {
     posts = [];
     if (!params.address) return;
-    if (hubId) {
-      hubId = (await registryService.getZoneById(params.address)).spec.processId;
-      posts = await hubService.fetchPostWithAuthors(hubId, [params.address]);
-      media = posts.filter((value) => {
-        if (value.mimeType) {
-          return mimeTypes.includes(value.mimeType);
-        } else {
-          return false;
-        }
-      });
-    }
+    hubId = (await registryService.getZoneById(params.address)).spec.processId;
+    posts = await hubService.fetchPostWithAuthors(hubId, [hubId]);
+    media = posts.filter((value) => {
+      if (value.mimeType) {
+        return mimeTypes.includes(value.mimeType);
+      } else {
+        return false;
+      }
+    });
   }
 
   // Placeholder functions - implement as needed
@@ -119,7 +117,7 @@
         <div class="bg-gray-200 relative">
           {#if profile?.coverImage}
             <img
-              src={profile?.coverImage}
+              src={`https://www.arweave.net/${profile.coverImage}`}
               alt="Banner"
               class="w-full max-h-48 object-cover"
             />
@@ -131,7 +129,10 @@
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
               {#if profile?.profileImage}
-                <AvatarImage src={profile?.profileImage} alt={profile.displayName} />
+                <AvatarImage
+                  src={`https://www.arweave.net/${profile.profileImage}`}
+                  alt={profile.displayName}
+                />
               {/if}
               <AvatarFallback
                 >{profile.displayName
@@ -147,16 +148,16 @@
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profile.displayName}</p>
           <!-- {#if profile.owner != $addressStore.address} -->
-            <!-- <Follow address={profile.owner} /> -->
+          <!-- <Follow address={profile.owner} /> -->
           <!-- {:else} -->
-            <Button
-              variant="outline"
-              size="sm"
-              class="text-primary rounded-full"
-              on:click={toggleModal}
-            >
-              Edit Profile
-            </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            class="text-primary rounded-full"
+            on:click={toggleModal}
+          >
+            Edit Profile
+          </Button>
           <!-- {/if} -->
         </div>
         <p class="text-muted-foreground">
@@ -258,8 +259,7 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile on:profileUpdated={toggleModal} 
-      />
+      <UpdateProfile on:profileUpdated={toggleModal} />
     </div>
   </div>
 {/if}

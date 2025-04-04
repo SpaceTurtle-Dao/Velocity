@@ -148,7 +148,7 @@
               <div class="flex items-center text-muted-foreground mb-2">
                 <Repeat2Icon size={16} class="mr-2" />
                 <span class="text-sm">
-                  {#if profile.address == $addressStore?.address}
+                  {#if profile.owner == $addressStore?.address}
                     You Reposted
                   {:else}
                     Reposted by @{profile.userName}
