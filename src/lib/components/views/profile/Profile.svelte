@@ -130,6 +130,7 @@
             <Avatar class="w-24 h-24 border-4 border-white">
               {#if profile?.profileImage}
                 <AvatarImage
+                  class="object-cover"
                   src={`https://www.arweave.net/${profile.profileImage}`}
                   alt={profile.displayName}
                 />

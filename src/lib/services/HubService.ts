@@ -24,8 +24,15 @@ const service = (): HubService => {
     );
     return {
         subscribe,
-        info: async (hub: string): Promise<Hub> => {
-            return await info(hub)
+        info: async (hubId: string): Promise<Hub> => {
+            let temp = await info(hubId)
+            let hub:Hub = {
+                User: temp.get("User")!,
+                Followers: JSON.parse(temp.get("Followers")!),
+                Following: JSON.parse(temp.get("Following")!),
+                spec: JSON.parse(temp.get("spec")!)
+            };
+            return hub
         },
         fetchPost: async (hubId: string, since: Number, until: Number): Promise<Post[]> => {
             // console.log("since",since);
