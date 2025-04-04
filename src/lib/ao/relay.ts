@@ -1,7 +1,7 @@
 //@ts-ignore
 import { send, read } from "$lib/ao/process.svelte";
 //@ts-ignore
-import { FetchEvents, GetZones, GetZoneById, Register } from "$lib/ao/messegeFactory.svelte";
+import { FetchEvents, GetZones, GetZoneById, Register, Info } from "$lib/ao/messegeFactory.svelte";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
 import { addressStore } from "$lib/stores/address.store";
@@ -9,6 +9,7 @@ import { REGISTRY_ID } from "$lib/constants";
 //@ts-ignore
 import { Eval } from "./messegeFactory.svelte";
 import type { Spec } from "$lib/models/Spec";
+import type { Hub } from "$lib/models/Hub";
 
 export const evalProcess = async (data: string, processId: string) => {
   await addressStore.connectWallet();
@@ -38,6 +39,25 @@ export const event = async (hub: string, tags: Array<Tag>) => {
     console.log(result);
   } catch (e) {
     console.log(e);
+  }
+};
+
+export const info = async (processId: string): Promise<Hub> => {
+  try {
+    // @ts-ignore
+    let message = Info();
+    let result = await read(processId, message);
+    console.log(result)
+    if (result) {
+      let json = JSON.parse(result.Data);
+      console.log(json)
+      return json;
+    }else{
+      throw("Not Found")
+    }
+  } catch (e) {
+    console.log(e);
+    throw e;
   }
 };
 
@@ -89,14 +109,13 @@ export const fetchProfile = async (hub: string, address: string): Promise<Profil
 };
 
 export const fetchFollowList = async (
-  hub: string, address: string
+  hub: string
 ): Promise<Array<string>> => {
   //console.log("Address", address);
   let followList: Array<string> = [];
   const filter = JSON.stringify([
     {
       kinds: ["3"],
-      authors: [address],
       //   limit: 1,
     },
   ]);

@@ -291,10 +291,12 @@ end)
 Handlers.add('Info', Handlers.utils.hasMatchingTag('Action', 'Info'), function(msg)
     ao.send({
         Target = msg.From,
-        User = Owner,
-        Followers = json.encode(Followers),
-        Following = json.encode(getFollowLists()),
-        Data = json.encode(spec)
+        Data = json.encode({
+            User = Owner,
+            spec = spec,
+            Followers = json.encode(Followers),
+            Following = json.encode(getFollowLists())
+        })
     })
 end)
 `

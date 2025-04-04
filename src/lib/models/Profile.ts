@@ -15,7 +15,6 @@ export type Profile = {
   description?: string;
   id: string;
   owner: string;
-  followList?: string[];
   website?: string;
   thumbnail?: string;
   bot?: boolean;

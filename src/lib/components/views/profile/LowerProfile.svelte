@@ -3,7 +3,6 @@
   import { MoreHorizontal } from "lucide-svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import DisconnectButton from "$lib/components/DisconnectWallet/DisconnectWallet.svelte";
-  import { currentUser } from "$lib/stores/current-user.store";
   import { addressStore } from "$lib/stores/address.store";
   import { writable } from "svelte/store";
   import { profileService } from "$lib/services/ProfileService";

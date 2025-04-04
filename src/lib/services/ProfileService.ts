@@ -64,7 +64,6 @@ const service = (): ProfileService => {
         displayName: "Anonymous",
         id: address,
         owner: address,
-        followList: [],
         website: undefined,
         thumbnail: undefined,
         bot: undefined,
