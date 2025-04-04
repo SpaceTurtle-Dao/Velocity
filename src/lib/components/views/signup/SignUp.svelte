@@ -23,7 +23,6 @@
   import type { Tag } from "$lib/models/Tag";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import * as Dialog from "$lib/components/ui/dialog";
-  import { currentUser } from "$lib/stores/current-user.store";
   import { addressStore } from "$lib/stores/address.store";
 
   // Zod schema for signup validation
@@ -56,10 +55,6 @@
   let _relay: string | undefined;
   let userInfo: Profile;
 
-  currentUser.subscribe((value) => {
-    userInfo = value;
-  });
-
   function handleFileChange(event: Event, type: "picture" | "banner") {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
@@ -82,106 +77,9 @@
   }
 
   async function handleSignup() {
-    isLoading = true;
-    try {
-      // Check if user already exists
-      // if (userInfo) {
-      //   handleExistingUser();
-      //   isLoading = false;
-      //   return;
-      // }
-
-      // Validate the profile data
-      signupSchema.parse(profile);
-      errors = {};
-
-      isUploading = true;
-      // Handle file uploads if they exist
-      if (pictureFile) {
-        let _pictureFile = await upload(pictureFile);
-        profile.picture = _pictureFile.url;
-      }
-      if (bannerFile) {
-        let _bannerFile = await upload(bannerFile);
-        profile.banner = _bannerFile.url;
-      }
-      isUploading = false;
-
-      const created_at = Date.now();
-      // Prepare the content for the event
-      const content = JSON.stringify({
-        name: profile.name,
-        display_name: profile.display_name,
-        about: profile.about,
-        created_at,
-        picture: profile.picture,
-        banner: profile.banner,
-        website: profile.website,
-      });
-
-      const tags: Array<Tag> = [
-        { name: "Kind", value: "0" },
-        { name: "Content", value: content },
-      ];
-
-      try {
-        // _relay = await spawnRelay();
-        // console.log("Got Relay " + _relay);
-        await event(tags);
-
-        const { address } = $addressStore;
-
-        if (address) {
-          currentUser.set({
-            name: profile.name,
-            about: profile.about,
-            created_at,
-            picture: profile.picture,
-            display_name: profile.display_name,
-            banner: profile.banner,
-            website: profile.website,
-            bot: false,
-            address: address,
-            followList: [],
-          });
-        }
-        // await setRelay(_relay!);
-
-        // Fetch updated user info
-        // const _currentUser = await info(_relay);
-        // currentUser.set(_currentUser);
-        // user.set(_currentUser);
-
-        isLoading = false;
-        push("/feed");
-      } catch (error) {
-        console.error("Error creating profile:", error);
-        isLoading = false;
-      }
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        console.log(err);
-        errors = err.flatten().fieldErrors as Partial<
-          Record<keyof SignupSchemaType, string>
-        >;
-      }
-      isLoading = false;
-    }
+   
   }
 
-  // async function checkExistingUser() {
-  //   try {
-  //     if (userInfo) {
-  //       replace("/feed");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error checking user:", error);
-  //   }
-  // }
-
-  // onMount(() => {
-  //   checkExistingUser();
-  // });
 </script>
 
 <div class="h-screen overflow-auto">

@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { addressStore } from "$lib/stores/address.store";
-  import { currentUser } from "$lib/stores/current-user.store";
+  import { addressStore } from "$lib/stores/address.store";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { House, MessagesSquare, User, UserRound } from "lucide-svelte";
   import { link, location } from "svelte-spa-router";

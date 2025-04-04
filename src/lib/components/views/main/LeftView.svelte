@@ -10,7 +10,6 @@
     Mail,
     Search,
   } from "lucide-svelte";
-  import { currentUser } from "$lib/stores/current-user.store";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { addressStore } from "$lib/stores/address.store";
   import { Loader } from "lucide-svelte";

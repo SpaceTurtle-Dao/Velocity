@@ -23,6 +23,7 @@
   import { registryService } from "$lib/services/RegistryService";
   import { addressStore } from "$lib/stores/address.store";
   import { profileService } from "$lib/services/ProfileService";
+    import type { Tag } from "$lib/models/Tag";
 
   let initialProfile: Profile | undefined;
   let hubId: string;
@@ -84,11 +85,11 @@
 
       if (pictureFile) {
         let _pictureFile = await upload(pictureFile);
-        profile.picture = _pictureFile.url;
+        profile.picture = _pictureFile.hash;
       }
       if (bannerFile) {
         let _bannerFile = await upload(bannerFile);
-        profile.banner = _bannerFile.url;
+        profile.banner = _bannerFile.hash;
       }
 
       const updated_at = Date.now();
@@ -104,29 +105,26 @@
         coverImage: profile.banner,
         bot: profile.bot,
       });
-
-      const tags = [
-        { name: "Kind", value: "0" },
-        { name: "Content", value: content },
-      ];
-
       try {
         if ($addressStore.address) {
+          const tags:Tag [] = [
+            { name: "UserName", value:  profile.name},
+            { name: "DisplayName", value: profile.display_name },
+            { name: "Description", value: profile.about || "" },
+            { name: "CoverImage", value: profile.banner || "" },
+            { name: "ProfileImage", value: profile.picture || "" }
+          ];
+
           let data = {
-            userName: profile.name,
-            displayName: profile.display_name,
+            UserName: profile.name,
+            DisplayName: profile.display_name,
             description: profile.about,
-            thumbnail: profile.picture,
-            coverImage: profile.banner,
+            ProfileImage: profile.picture,
+            CoverImage: profile.banner,
           };
-          const result = await profileService.update(
-            data,
-            initialProfile.id,
-          );
+          
+          const result = await profileService.update(initialProfile.id, JSON.stringify(data));
           await profileService.get($addressStore.address)
-          // let _currentUser = await fetchEvents(userInfo.Process);
-          // currentUser.set(_currentUser);
-          // user.set(_currentUser)
 
           console.log("Profile updated successfully:", result);
           dispatch("profileUpdated");

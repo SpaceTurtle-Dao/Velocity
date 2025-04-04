@@ -1,7 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { z } from "zod";
-    import { currentUser } from "$lib/stores/profile.store";
     import { Input } from "$lib/components/ui/input";
     import { Label } from "$lib/components/ui/label";
     import { Button } from "$lib/components/ui/button/index.js";
@@ -88,8 +87,7 @@
                 coverImage: profile.coverImage
             });
 
-            const newProfile = await profileService.getById(profileId);
-            currentUser.set(newProfile);
+            const newProfile = await profileService.get(profileId);
 
             // Navigate and close dialog
             isLoading = false;

@@ -3,20 +3,21 @@ import Arweave from "arweave";
 import Permaweb from "@permaweb/libs";
 import { get, writable, type Readable } from "svelte/store";
 import type { Profile } from "$lib/models/Profile";
-import { evalProcess } from "$lib/ao/relay";
+import { evalProcess, updateProfile } from "$lib/ao/relay";
 import { luaModule } from "./profile_lua";
 import { createProcess } from "$lib/ao/process.svelte";
 import { walletAddress, setWalletAddress } from "$lib/stores/walletStore";
 import { registryService } from './RegistryService';
 import type { Spec } from "$lib/models/Spec";
 import { hubService } from './HubService';
+import type { Tag } from "$lib/models/Tag";
+import { P } from "flowbite-svelte";
 
 interface ProfileService extends Readable<Map<string, any>> {
   get: (address: string) => Promise<Profile>;
   create: (profileData: ProfileCreateData) => Promise<string>;
   update: (
-    profileData: ProfileUpdateData,
-    profileId: string
+    processId: string,data:string
   ) => Promise<string>;
   getById: (profileId: string) => Promise<Profile>;
 }
@@ -114,25 +115,14 @@ const service = (): ProfileService => {
     },
 
     update: async (
-      profileData: ProfileUpdateData,
-      profileId: string
+      processId: string,data:string
     ): Promise<string> => {
-      const updatedProfileId = await permaweb.updateProfile(
-        {
-          userName: profileData.userName,
-          displayName: profileData.displayName || profileData.userName,
-          description: profileData.description,
-          thumbnail: profileData.thumbnail,
-          coverImage: profileData.coverImage,
-        },
-        profileId
-      );
-
-      if (!updatedProfileId) {
-        throw new Error("Profile update failed - no ID returned");
+      try{
+        await updateProfile(processId,data)
+      }catch(e){
+        console.log(e)
       }
-
-      return updatedProfileId;
+      return processId
     },
 
     getById: async (profileId: string) => {

@@ -4,7 +4,6 @@
        import { ARWEAVE_ADDRESS } from "$lib/constants";
        import { profileFromEvent, type Profile } from "$lib/models/Profile";
        import { addressStore } from "$lib/stores/address.store";
-       import { currentUser } from "$lib/stores/profile.store";
        import { onMount } from "svelte";
        import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
        import { profileService } from "$lib/services/ProfileService";
@@ -32,18 +31,18 @@
               <div class="p-4">
                      <div class="p-6">
                             <div class="flex items-center space-x-4">
-                                   {#if profile.picture}
+                                   {#if profile.profileImage}
                                           <Avatar
                                                  class="h-24 w-24 ring-4 ring-white"
                                           >
                                                  <AvatarImage
                                                         src={toUrl(
-                                                               profile.picture,
+                                                               profile.profileImage,
                                                         )}
-                                                        alt={profile.name}
+                                                        alt={profile.displayName}
                                                  />
                                                  <AvatarFallback
-                                                        >{profile.name}</AvatarFallback
+                                                        >{profile.displayName}</AvatarFallback
                                                  >
                                           </Avatar>
                                    {/if}
@@ -51,10 +50,10 @@
                                           <h1
                                                  class="text-3xl font-extrabold text-white"
                                           >
-                                                 {profile.name}
+                                                 {profile.userName}
                                           </h1>
                                           <p class="text-secondary-200">
-                                                 @{profile.name}
+                                                 @{profile.userName}
                                           </p>
                                           <p class="mt-2 text-white">
                                                  {"profile.bio"}

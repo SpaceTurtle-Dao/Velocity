@@ -91,6 +91,12 @@
 		];
 	};
 
+	export const UpdateProfile = () => {
+		return [
+			{ name: "Action", value: "Update-Profile" },
+		];
+	};
+
 	//REGISTRY METHODS
 
 	export const Register = () => {
