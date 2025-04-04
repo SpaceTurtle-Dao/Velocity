@@ -86,7 +86,7 @@
 
 	export const FetchEvents = (filters: string) => {
 		return [
-			{ name: "Action", value: "GetZones" },
+			{ name: "Action", value: "FetchEvents" },
 			{ name: "Filters", value: filters },
 		];
 	};

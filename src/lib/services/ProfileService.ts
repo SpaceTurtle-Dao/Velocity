@@ -42,7 +42,7 @@ const service = (): ProfileService => {
     typeof window !== "undefined"
       ? window.arweaveWallet
       : ""
-    
+
   const permaweb = Permaweb.init({
     ao: connect(),
     arweave: Arweave.init({}),
@@ -57,7 +57,7 @@ const service = (): ProfileService => {
     subscribe,
 
     get: async (address: string) => {
-      const anonymousProfile: Profile = {
+      let profile:Profile = {
         userName: "Anonymous",
         about: undefined,
         profileImage: undefined,
@@ -70,60 +70,46 @@ const service = (): ProfileService => {
         dateCreated: Math.floor(Date.now() / 1000),
         updated_at: undefined
       };
-      setWalletAddress(address);
-      let profiles = get({ subscribe });
+      /*let profiles = get(profileService);
 
       if (profiles.has(address)) {
-        return profiles.get(address);
-      }
-
+        profile = profiles.get(address);
+      } 
       try {
-        const profile = await permaweb.getProfileByWalletAddress(address);
-        const zone = await registryService.getZoneById(address);
-        
-        console.log("*** Profile ***", zone.spec.processId);
-        console.log("*** Zone ***", zone);
+        profile = await permaweb.getProfileByWalletAddress(address);
         console.log("*** Profile ***", profile);
-        console.log("*** Zone ***", zone);
-        
+
         profiles.set(address, profile);
         set(profiles);
-        return profile;
       } catch (error) {
         console.log("Profile not found, creating anonymous profile", error);
         //profiles.set(address, anonymousProfile);
         //set(profiles);
-        return anonymousProfile;
-      }
+      }*/
+      return profile;
     },
-    
+
 
     create: async (profileData: ProfileCreateData): Promise<string> => {
-      const processId = await createProcess();
-      console.log("ProfileId", processId);
-      await evaluateProfile(profileData, processId);
-
-      const hubSpec: Spec = {
-        type: "hub",
-        kinds: ["1", "7", "6", "3", "2"],
-        description: "Social message hub",
-        version: "1.0.0",
-        processId: processId
-      };
-
       try {
-        await registryService.register(hubSpec);
+        const processId = await createProcess();
+        console.log("ProfileId", processId);
+        await evaluateProfile(profileData, processId);
         const hubId = await hubService.create();
+        const hubSpec: Spec = {
+          type: "hub",
+          kinds: ["1", "7", "6", "3", "2"],
+          description: "Social message hub",
+          version: "1.0.0",
+          processId: hubId
+        };
+        await registryService.register(hubSpec);
         console.log("*** Hub ID ***", hubId);
+        return processId;
       } catch (error) {
-        console.error("Failed to register profile:", error);
+        console.log("Failed to register profile:", error);
+        throw (error)
       }
-
-      if (!processId) {
-        throw new Error("Profile creation failed - no ID returned");
-      }
-
-      return processId;
     },
 
     update: async (
@@ -168,7 +154,7 @@ const service = (): ProfileService => {
 };
 
 async function evaluateProfile(profileData: ProfileCreateData, processId: string) {
-  try{
+  try {
     await sleep(3000);
     await evalProcess(luaModule, processId);
     console.log("*** PROFILE ID ****", processId);
@@ -192,10 +178,10 @@ async function evaluateProfile(profileData: ProfileCreateData, processId: string
     const result = await permaweb.updateProfile(args, processId);
 
     console.log("**REsults***", result);
-  }catch(e){
+  } catch (e) {
     await evaluateProfile(profileData, processId);
   }
-  
+
 }
 
 

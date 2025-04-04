@@ -41,12 +41,12 @@ export const event = async (hub: string, tags: Array<Tag>) => {
   }
 };
 
-export const fetchEvents = async (hub: string, filters: string): Promise<any[]> => {
+export const fetchEvents = async (processId: string, filters: string): Promise<any[]> => {
   let events: any[] = [];
   try {
     // @ts-ignore
     let message = FetchEvents(filters);
-    let result = await read(hub, message);
+    let result = await read(processId, message);
     console.log(result)
     if (result) {
       let json = JSON.parse(result.Data);

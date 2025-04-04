@@ -19,11 +19,11 @@ const service = (): HubService => {
     );
     return {
         subscribe,
-        fetchPost: async (hub:string, since: Number, until: Number): Promise<Post[]> => {
+        fetchPost: async (hubId:string, since: Number, until: Number): Promise<Post[]> => {
             // console.log("since",since);
             // console.log("limit",until);
             let posts = get(hubService)
-            if (posts && posts.size > 0) {
+            if (posts.size > 0) {
                 try {
                     const filter = {
                         kinds: ["1", "6"],
@@ -34,8 +34,8 @@ const service = (): HubService => {
                         tags: { marker: ["root", "repost"] },
                     };
 
-                    const _filters = JSON.stringify([filter, filter2]);
-                    fetchEvents(hub, _filters).then((events) => {
+                    const _filters = JSON.stringify([filter,filter2]);
+                    fetchEvents(hubId, _filters).then((events) => {
                         for (var i = 0; i < events.length; i++) {
                             if (events[i].Content) {
                                 let post = postFactory(events[i]);
@@ -63,7 +63,7 @@ const service = (): HubService => {
                     // console.log("filter",filter);
 
                     const _filters = JSON.stringify([filter, filter2]);
-                    let events = await fetchEvents(hub, _filters);
+                    let events = await fetchEvents(hubId, _filters);
                     for (var i = 0; i < events.length; i++) {
                         if (events[i].Content) {
                             let post = postFactory(events[i]);

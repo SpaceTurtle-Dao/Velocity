@@ -45,8 +45,9 @@
     };
   }
 
-  async function loadData(from: string, postId: string) {
+  async function loadData(from: string) {
     profile = await profileService.get(from);
+    console.log(profile)
     //hub = profile.hubId;
     //replies = await hubService.fetchReplies(hub, postId);
     //replyCount = replies.length;
@@ -54,7 +55,8 @@
   }
 
   onMount(async () => {
-    loadData(post.from, post.id);
+    console.log(post)
+    await loadData(post.from);
   });
 
   const dispatch = createEventDispatcher();
@@ -80,7 +82,7 @@
   }
 </script>
 
-{#if post && profile}
+{#if profile}
   <div class="cursor-pointer border border-border">
     <Dialog.Root>
       <Dialog.Trigger asChild>
