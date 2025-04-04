@@ -23,6 +23,7 @@
   import { hubService } from "$lib/services/HubService";
   import type { Post } from "$lib/models/Post";
   import { registryService } from "$lib/services/RegistryService";
+  import type { Hub } from "$lib/models/Hub";
 
   export let params: { address?: string } = {};
 
@@ -30,7 +31,7 @@
   let activeTab: string = "posts";
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
-  let hubId: string;
+  let hub: Hub;
 
   let mimeTypes: string[] = [
     "image/apng",
@@ -52,9 +53,12 @@
 
   async function fetchPost() {
     posts = [];
-    if (!params.address) return;
-    hubId = (await registryService.getZoneById(params.address)).spec.processId;
-    posts = await hubService.fetchPostWithAuthors(hubId, [hubId]);
+    if (!hub) return;
+    try {
+      posts = await hubService.fetchPostWithAuthors(hub.spec.processId, [hub.spec.processId]);
+    } catch (e) {
+      console.log(e);
+    }
     media = posts.filter((value) => {
       if (value.mimeType) {
         return mimeTypes.includes(value.mimeType);
@@ -99,6 +103,9 @@
     if (!params.address) return;
     try {
       profile = await profileService.get(params.address);
+      let hubId = (await registryService.getZoneById(params.address)).spec
+        .processId;
+      hub = await hubService.info(hubId);
       if (profile) {
         await fetchPost();
       }
@@ -108,7 +115,7 @@
   }
 </script>
 
-{#if profile}
+{#if hub}
   <div class="md:mt-10 max-w-prose">
     <Card
       class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"
@@ -192,14 +199,22 @@
         </div>
         <div class="flex space-x-5 pt-2.5">
           <div class="flex space-x-1 items-center">
-            {#if followListLoading}
+            {#if !hub}
               <Skeleton class="h-5 w-[102px] rounded-full" />
             {:else}
-              <div>
-                <span class="font-bold mr-1">0</span>
-                <span class="font-normal text-muted-foreground"
-                  >Subscribing</span
-                >
+              <div class="flex flex-row gap-4">
+                <div>
+                  <span class="font-bold mr-1">{hub.Followers.length}</span>
+                  <span class="font-normal text-muted-foreground"
+                    >Following</span
+                  >
+                </div>
+                <div>
+                  <span class="font-bold mr-1">{hub.Followers.length}</span>
+                  <span class="font-normal text-muted-foreground"
+                    >Followers</span
+                  >
+                </div>
               </div>
             {/if}
           </div>

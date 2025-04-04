@@ -26,11 +26,12 @@ const service = (): HubService => {
         subscribe,
         info: async (hubId: string): Promise<Hub> => {
             let temp = await info(hubId)
+            console.log(temp)
             let hub:Hub = {
-                User: temp.get("User")!,
-                Followers: JSON.parse(temp.get("Followers")!),
-                Following: JSON.parse(temp.get("Following")!),
-                spec: JSON.parse(temp.get("spec")!)
+                User: temp.User,
+                Followers: JSON.parse(temp.Followers),
+                Following: JSON.parse(temp.Following),
+                spec: temp.spec
             };
             return hub
         },

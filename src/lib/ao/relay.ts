@@ -56,7 +56,7 @@ export const updateProfile = async (processId: string, data: string) => {
   }
 };
 
-export const info = async (processId: string): Promise<Map<string,string>> => {
+export const info = async (processId: string): Promise<any> => {
   try {
     // @ts-ignore
     let message = Info();
