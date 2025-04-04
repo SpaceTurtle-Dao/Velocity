@@ -2,7 +2,6 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { z } from "zod";
   import type { Profile, UserInfo } from "$lib/models/Profile";
-  import { currentUser } from "$lib/stores/current-user.store";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import { Textarea } from "$lib/components/ui/textarea";
@@ -97,7 +96,7 @@
         name: profile.name,
         display_name: profile.display_name,
         about: profile.about,
-        dateCreated: $currentUser.dateCreated,
+        dateCreated: initialProfile?.dateCreated,
         updated_at,
         thumbnail: profile.picture,
         website: profile.website,
@@ -114,21 +113,7 @@
         const result = await event(hubId, tags);
         // let _currentUser = await fetchEvents(userInfo.Process);
         // currentUser.set(_currentUser);
-        // user.set(_currentUser);
-
-        currentUser.set({
-          displayName: profile.display_name,
-          about: profile.about,
-          dateCreated: $currentUser.dateCreated,
-          updated_at,
-          thumbnail: profile.picture,
-          website: profile.website,
-          coverImage: profile.picture,
-          bot: profile.bot,
-          address: $currentUser.address,
-          followList: $currentUser.followList,
-          userName: profile.name,
-        });
+        // user.set(_currentUser)
 
         console.log("Profile updated successfully:", result);
         dispatch("profileUpdated");

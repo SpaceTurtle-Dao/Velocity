@@ -29,6 +29,10 @@
   let loadError: string | null = null;
   let dialogOpen = false;
 
+  profileService.subscribe((profiles) =>{
+    if(profiles.has(post.from)) profile = profiles.get(post.owner), console.log(profile);
+  })
+
   function transformEventToPost(
     event: any,
     isRepost = false,
@@ -46,8 +50,7 @@
   }
 
   async function loadData(from: string) {
-    profile = await profileService.get(from);
-    console.log(profile)
+    await profileService.get(from);
     //hub = profile.hubId;
     //replies = await hubService.fetchReplies(hub, postId);
     //replyCount = replies.length;

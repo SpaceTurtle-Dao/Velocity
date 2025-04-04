@@ -57,7 +57,7 @@ const service = (): ProfileService => {
     subscribe,
 
     get: async (address: string) => {
-      let profile:Profile = {
+      let profile: Profile = {
         userName: "Anonymous",
         about: undefined,
         profileImage: undefined,
@@ -70,22 +70,23 @@ const service = (): ProfileService => {
         dateCreated: Math.floor(Date.now() / 1000),
         updated_at: undefined
       };
-      /*let profiles = get(profileService);
+      let profiles = get(profileService);
 
       if (profiles.has(address)) {
         profile = profiles.get(address);
-      } 
+      }
       try {
-        profile = await permaweb.getProfileByWalletAddress(address);
-        console.log("*** Profile ***", profile);
-
-        profiles.set(address, profile);
-        set(profiles);
+        permaweb.getProfileByWalletAddress(address).then((_profile) => {
+          if (_profile) {
+            profile = _profile;
+          }
+          console.log("*** Profile ***", profile);
+          profiles.set(address, profile);
+          set(profiles);
+        });
       } catch (error) {
         console.log("Profile not found, creating anonymous profile", error);
-        //profiles.set(address, anonymousProfile);
-        //set(profiles);
-      }*/
+      }
       return profile;
     },
 

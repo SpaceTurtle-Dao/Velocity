@@ -1,6 +1,7 @@
 export interface Post {
   id: string;
   from: string;
+  owner: string;
   timestamp: number;
   content: string;
   mimeType:string | undefined;

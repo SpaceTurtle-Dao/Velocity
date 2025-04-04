@@ -295,6 +295,7 @@ function postFactory(event: any): Post {
     let _post: Post = {
         id: event.Id,
         from: event.From,
+        owner: event.Owner,
         timestamp: event.Timestamp,
         content: event.Content,
         type: postType,
