@@ -280,7 +280,7 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile on:profileUpdated={toggleModal} />
+      <UpdateProfile initialProfile={profile} {hubId} on:profileUpdated={toggleModal} />
     </div>
   </div>
 {/if}
