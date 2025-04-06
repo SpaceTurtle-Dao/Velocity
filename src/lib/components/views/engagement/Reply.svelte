@@ -110,7 +110,7 @@
       clearFields();
       dialogOpen = false;
     } catch (error) {
-      console.error("Error creating reply:", error);
+      console.log("Error creating reply:", error);
     } finally {
       isLoading = false;
     }

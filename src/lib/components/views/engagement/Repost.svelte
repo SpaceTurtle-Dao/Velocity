@@ -14,7 +14,6 @@
   let reposted = false;
   let reposts: Post[] = [];
   let _tags: Array<Tag> = [];
-  let hub: string = "";
 
   async function repost() {
     if (!$addressStore.address && !post) return;
@@ -41,20 +40,19 @@
       },
     ];
 
-    await event(hub,_tags);
+    await event(post.from,_tags);
 
     // Immediately update local state
     reposted = true;
 
     // Refresh reposts to ensure consistency
-    reposts = await hubService.fetchRepost(hub, post.id);
+    await hubService.fetchRepost(post.from, post.id);
   }
 
   onMount(async () => {
     if (post.from) {
       const profile = await profileService.get(post.from);
-      hub = profile.hubId;
-      reposts = await hubService.fetchRepost(hub, post.id);
+      await hubService.fetchRepost(post.from, post.id);
       if (!$addressStore.address) return;
       reposted = reposts.filter((value) => value.from == $addressStore.address).length > 0;
     }

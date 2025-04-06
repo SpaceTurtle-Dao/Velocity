@@ -19,15 +19,17 @@
   import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
-    import { addressStore } from "$lib/stores/address.store";
+  import { addressStore } from "$lib/stores/address.store";
 
-  // Reactive declaration for URL parsing
+  export let params: { hubId?: string, id?: string } = {};
+
+  const onAddressParamChange = async () => {
+    await loadPost();
+  };
+
   $: {
-    const urlParts = $location.split("/");
-    id = urlParts[urlParts.length - 1] || "/";
-    user = urlParts[urlParts.length - 2] || "/";
-    if (id !== "/" && user !== "/") {
-      loadPost();
+    if (params.hubId && params.id) {
+      onAddressParamChange();
     }
   }
 
@@ -36,7 +38,7 @@
   let replyCount = 0;
   let id: string;
   let user: string;
-  let hubId: string = "";
+  let hubId: string;
   let replyContent = "";
   let isSubmitting = false;
   let fileInput: HTMLInputElement;
@@ -44,24 +46,23 @@
   let mediaPreviewUrl: string | null = null;
 
   hubService.subscribe((posts) => {
-    /*if (!id) return;
-    if (posts.has(id)) {
-      post = posts.get(id)!;
-    }
+    if (!params.hubId || !params.id) return;
     replies = posts
       .values()
-      .filter((value) => value.e == id)
+      .filter((value) => value.e == params.id)
       .toArray();
     replyCount = replies.length;
-    console.log(`got ${replyCount} Replies`);*/
+    console.log(`got ${replyCount} Replies`);
   });
 
   async function loadPost() {
-    console.log(user);
-    console.log(id);
-    post = await hubService.get(hubId,id);
-    replies = await hubService.fetchReplies(hubId,id);
-    hubService.fetchRepost(hubId,id);
+    if (!params.hubId || !params.id) return;
+    console.log(params.hubId);
+    console.log(params.id);
+    post = await hubService.get(params.hubId, params.id);
+    console.log(post)
+    //await hubService.fetchReplies(hubId, id);
+    //await hubService.fetchRepost(hubId, id);
   }
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
@@ -84,9 +85,7 @@
     }, 100);
   }
   onMount(async () => {
-    /*if (id !== "/" && user !== "/") {
       await loadPost();
-    }*/
   });
 
   function handleMediaSelect() {
@@ -108,6 +107,7 @@
   }
 
   async function handleReply() {
+    if (!params.hubId || !params.id) return;
     if (!replyContent.trim() && !selectedMedia) return;
 
     isSubmitting = true;
@@ -134,12 +134,12 @@
       tags.push({ name: "Content", value: _content });
       tags.push({ name: "action", value: "reply" });
 
-      await aoEvent(hubId,tags);
+      await aoEvent(params.hubId, tags);
 
       clearFields();
       await refreshPage();
     } catch (error) {
-      console.error("Error creating reply:", error);
+      console.log("Error creating reply:", error);
     } finally {
       isSubmitting = false;
     }
@@ -152,27 +152,27 @@
 </script>
 
 <div class="max-w-prose mx-auto mb-10 {$isMobile ? 'mt-0' : 'mt-10'}">
-  {#if post}
+  {#if params.hubId && params.id && post}
     <div class="border border-border hover:bg-gray-900/5">
-      <PostComponent {post} />
+      <PostComponent {post} hubId={params.hubId}/>
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
           {#if $addressStore.address}
-          {#await profileService.get($addressStore.address) then profile}
-            <Avatar class="h-12 w-12 text-primary">
-              {#if profile.thumbnail}
-                <AvatarImage
-                  src={profile.thumbnail}
-                  alt={profile.displayName || "Current User"}
-                />
-              {:else}
-                <AvatarFallback>
-                  {profile.userName?.[0] || "U"}
-                </AvatarFallback>
-              {/if}
-            </Avatar>
-          {/await}
+            {#await profileService.get($addressStore.address) then profile}
+              <Avatar class="h-12 w-12 text-primary">
+                {#if profile.thumbnail}
+                  <AvatarImage
+                    src={profile.thumbnail}
+                    alt={profile.displayName || "Current User"}
+                  />
+                {:else}
+                  <AvatarFallback>
+                    {profile.userName?.[0] || "U"}
+                  </AvatarFallback>
+                {/if}
+              </Avatar>
+            {/await}
           {/if}
           <div class="flex-1">
             <Textarea
@@ -253,7 +253,7 @@
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
-        <PostComponent post={reply} />
+        <PostComponent post={reply} hubId={params.hubId}/>
       </div>
     {/each}
   {:else}

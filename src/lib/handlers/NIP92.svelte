@@ -50,7 +50,7 @@
       const asset = await ucmService.getAtomicAsset(id);
       assetDetails = asset;
     } catch (err) {
-      console.error("Failed to fetch asset details:", err);
+      console.log("Failed to fetch asset details:", err);
       error = "Failed to load asset details";
     } finally {
       loading = false;
@@ -66,7 +66,7 @@
       // console.log("Collection data:", collection);
       assetDetails = collection;
     } catch (err) {
-      console.error("Failed to fetch collection details:", err);
+      console.log("Failed to fetch collection details:", err);
       error = "Failed to load collection details";
     } finally {
       loading = false;

@@ -24,15 +24,15 @@
   }
 
   let menuItems = [
-    { icon: HomeIcon, label: "Home", href: "/feed" },
+    { icon: HomeIcon, label: "Home", href: "/" },
     { icon: Search, label: "Search", href: "/search" },
-    { icon: User, label: "Profile", href: "/feed" },
+    { icon: User, label: "Profile", href: "/profile/:address" },
     { icon: Mail, label: "Messages", href: "/messages" },
   ];
 
   function menuItems2() {
     return [
-      { icon: HomeIcon, label: "Home", href: "/feed" },
+      { icon: HomeIcon, label: "Home", href: "/" },
       { icon: Search, label: "Search", href: "/search" },
       {
         icon: User,

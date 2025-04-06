@@ -51,17 +51,8 @@
 
   let showModal = false;
   let followListLoading = false;
-
-  async function fetchPost() {
-    posts = [];
-    if (!hubId) return;
-    try {
-      posts = await hubService.fetchPostWithAuthors(hubId, [
-        hubId,
-      ]);
-    } catch (e) {
-      console.log(e);
-    }
+  hubService.subscribe((value) => {
+    posts = value.values().toArray();
     media = posts.filter((value) => {
       if (value.mimeType) {
         return mimeTypes.includes(value.mimeType);
@@ -69,6 +60,15 @@
         return false;
       }
     });
+  });
+
+  async function fetchPost() {
+    if (!hubId) return;
+    try {
+      await hubService.fetchPostWithAuthors(hubId, [hubId]);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   // Placeholder functions - implement as needed
@@ -113,9 +113,9 @@
         await fetchPost();
       }
     } catch (error) {
-      console.log(params.address)
+      console.log(params.address);
       console.log("Error setting up profile:", error);
-      setup()
+      setup();
     }
   }
 </script>
@@ -239,14 +239,14 @@
       <Tabs.Content value="post">
         {#each posts as post}
           <div class="border border-border">
-            <PostComponent {post} />
+            <PostComponent {post} {hubId}/>
           </div>
         {/each}
       </Tabs.Content>
       <Tabs.Content value="media">
         {#each media as post}
           <div class="border border-border max-w-prose">
-            <PostComponent {post} />
+            <PostComponent {post} {hubId}/>
           </div>
         {/each}
       </Tabs.Content>
