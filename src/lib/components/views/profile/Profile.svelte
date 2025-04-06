@@ -31,6 +31,7 @@
   let activeTab: string = "posts";
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
+  let hubId: string;
   let hub: Hub;
 
   let mimeTypes: string[] = [
@@ -53,9 +54,11 @@
 
   async function fetchPost() {
     posts = [];
-    if (!hub) return;
+    if (!hubId) return;
     try {
-      posts = await hubService.fetchPostWithAuthors(hub.spec.processId, [hub.spec.processId]);
+      posts = await hubService.fetchPostWithAuthors(hubId, [
+        hubId,
+      ]);
     } catch (e) {
       console.log(e);
     }
@@ -103,19 +106,21 @@
     if (!params.address) return;
     try {
       profile = await profileService.get(params.address);
-      let hubId = (await registryService.getZoneById(params.address)).spec
+      hubId = (await registryService.getZoneById(params.address)).spec
         .processId;
       hub = await hubService.info(hubId);
       if (profile) {
         await fetchPost();
       }
     } catch (error) {
-      console.error("Error setting up profile:", error);
+      console.log(params.address)
+      console.log("Error setting up profile:", error);
+      setup()
     }
   }
 </script>
 
-{#if hub}
+{#if hubId && hub && profile}
   <div class="md:mt-10 max-w-prose">
     <Card
       class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"
