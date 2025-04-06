@@ -259,6 +259,7 @@
       </div>
       <UpdateProfile 
         initialProfile={{
+          hubId: profile.hubId,
           userName: profile.userName,
           displayName: profile.displayName,
           description: profile.description,

@@ -20,7 +20,8 @@
   import PublicProfile from "$lib/components/views/profile/PublicProfile.svelte";
   import Search from "$lib/components/Search/SearchPage.svelte";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
-
+  import CollectionsPage from "$lib/components/Assets_Card/CollectionPage.svelte";
+  
   let isLoading = false;
   //let isFollowListAlreadyFetched = false;
   //let initialRoute = window.location.hash.slice(1) || "/";
@@ -37,6 +38,7 @@
     "/post/:id/:user": IndividualPost,
     "/signup": SignUp,
     "/test": MobileTopView,
+    "/collections": CollectionsPage,
   };
 
   onMount(async () => {
