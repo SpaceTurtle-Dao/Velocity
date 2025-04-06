@@ -2,38 +2,56 @@
   import { followers } from "$lib/stores/profile.store";
   import { profileFromEvent, type UserInfo, type Profile } from "$lib/models/Profile";
   import ProfileCard from "$lib/components/views/profile/ProfileCard.svelte";
-  import { fetchEvents, fetchProfiles } from "$lib/ao/relay";
+  import { fetchEvents} from "$lib/ao/relay";
+  import { profileService } from "$lib/services/ProfileService";
+  import { addressStore } from "$lib/stores/address.store";
+  import { onMount } from "svelte";
+    import { registryService } from "$lib/services/RegistryService";
 
   let userProfiles: Array<Profile> = [];
   let isLoading = false;
   let error: string | null = null;
+  let hubId: string;
+
+  // Add function to initialize hubId
+  async function initializeHubId() {
+    if ($addressStore.address) {
+      hubId = (await registryService.getZoneById($addressStore.address)).spec.processId;
+    }
+  }
 
   // Function to fetch kind 0 events (user metadata)
   async function fetchProfileEvents(addresses: string[]): Promise<any[]> {
+    if (!hubId) {
+      await initializeHubId();
+    }
+    
     const filter = {
-      kinds: ["0"],  // kind 0 for metadata
+      kinds: ["0"],
       authors: addresses,
       limit: 100,
       since: 0,
       until: Date.now()
     };
     
-    return await fetchEvents(JSON.stringify([filter]));
+    return await fetchEvents(hubId, JSON.stringify([filter]));
   }
 
-  // Function to fetch user subscriptions (kind 3 events)
+  // Update other fetch functions to ensure hubId is available
   async function fetchUserSubscriptions(address: string): Promise<number> {
+    if (!hubId) {
+      await initializeHubId();
+    }
+
     try {
       const filter = {
         kinds: ["3"],
         authors: [address],
-        // limit: 1
       };
       
-      const events = await fetchEvents(JSON.stringify([filter]));
+      const events = await fetchEvents(hubId, JSON.stringify([filter]));
       if (!events || !events.length) return 0;
       
-      // Count p tags in the latest kind 3 event
       return events[0].Tags.filter((tag: string[]) => tag[0] === 'p').length;
     } catch (e) {
       console.error('Error fetching subscriptions:', e);
@@ -41,16 +59,19 @@
     }
   }
 
-  // Function to fetch user events count
   async function fetchUserEvents(address: string): Promise<number> {
+    if (!hubId) {
+      await initializeHubId();
+    }
+
     try {
       const filter = {
         authors: [address],
         limit: 1,
-        kinds: ["1", "6"]  // Regular posts and reposts
+        kinds: ["1", "6"]
       };
       
-      const events = await fetchEvents(JSON.stringify([filter]));
+      const events = await fetchEvents(hubId, JSON.stringify([filter]));
       return events?.length || 0;
     } catch (e) {
       console.error('Error fetching event count:', e);
@@ -58,8 +79,11 @@
     }
   }
 
-  // Function to fetch user subscribers count
   async function fetchUserSubs(address: string): Promise<number> {
+    if (!hubId) {
+      await initializeHubId();
+    }
+
     try {
       const filter = {
         kinds: ["3"],
@@ -67,7 +91,7 @@
         limit: 100
       };
       
-      const events = await fetchEvents(JSON.stringify([filter]));
+      const events = await fetchEvents(hubId, JSON.stringify([filter]));
       return events?.length || 0;
     } catch (e) {
       console.error('Error fetching subs:', e);
@@ -75,23 +99,24 @@
     }
   }
 
-  // Main function to process followers and build UserInfo objects
+  // Main function to process followers
   async function processFollowers(_followers: string[]) {
+    if (!hubId) {
+      await initializeHubId();
+    }
+
     isLoading = true;
     error = null;
     
     try {
-      // Fetch profile events for all followers
       const profileEvents = await fetchProfileEvents(_followers);
       
-      // Process each profile event and gather additional data
-      const enrichedProfiles = await Promise.all(
+      /*const enrichedProfiles = await Promise.all(
         profileEvents.map(async (event) => {
           try {
             const profile = profileFromEvent(event);
             const address = event.PubKey;
             
-            // Fetch additional user data in parallel
             const [events, subs, subscriptions] = await Promise.all([
               fetchUserEvents(address),
               fetchUserSubs(address),
@@ -112,9 +137,9 @@
             return null;
           }
         })
-      );
+      );*/
 
-      userProfiles = await fetchProfiles([])
+      //userProfiles = await fetchProfiles([]);
       console.log('Processed profiles:', userProfiles);
       
     } catch (e) {
@@ -130,6 +155,11 @@
     if (_followers && _followers.length > 0) {
       processFollowers(_followers);
     }
+  });
+
+  // Initialize hubId when component mounts
+  onMount(async () => {
+    await initializeHubId();
   });
 
   function formatDate(dateString: string): string {
@@ -148,7 +178,9 @@
     <div class="text-red-500 text-center py-4">{error}</div>
   {:else}
     {#each userProfiles as userProfile}
-      <ProfileCard profile={userProfile} />
+      {#if userProfile?.address}
+        <ProfileCard address={userProfile.address} />
+      {/if}
     {/each}
   {/if}
 </div>

@@ -12,8 +12,7 @@
     Plus,
   } from "lucide-svelte";
   import UserProfile from "../views/profile/UserProfile.svelte";
-  import Feed from "$lib/Feed.svelte";
-  import { currentUser } from "$lib/stores/profile.store";
+  import Feed from "$lib/components/views/feed/Feed.svelte";
   import { profileFromEvent, type Profile } from "$lib/models/Profile";
   import {
     Avatar,
@@ -22,6 +21,8 @@
   } from "$lib/components/ui/avatar";
   import { ARWEAVE_ADDRESS } from "$lib/constants";
   import UserMenu from "./UserMenu.svelte";
+    import { profileService } from "$lib/services/ProfileService";
+    import { addressStore } from "$lib/stores/address.store";
 
   export let url = "";
 
@@ -38,8 +39,10 @@
     return ARWEAVE_ADDRESS + tx;
   }
 
-  currentUser.subscribe((value) => {
-    profile = profileFromEvent(value.Profile);
+  profileService.subscribe(async (profiles) => {
+    if($addressStore.address && profiles.has($addressStore.address)){
+      profile = await profileService.get($addressStore.address)
+    }
   });
 </script>
 

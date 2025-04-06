@@ -1,10 +1,6 @@
-// users-profile.store.ts
 import { fetchEvents, getZone, getZones, register } from "$lib/ao/relay";
 import { get, writable, type Readable } from "svelte/store";
 import { PostType, type Post } from "$lib/models/Post";
-import { connect, createDataItemSigner, spawn } from "@permaweb/aoconnect";
-import Permaweb, { type ProcessCreateType } from "@permaweb/libs";
-import Arweave from "arweave";
 import { HUB_MESSAGE_ID } from "$lib/constants";
 import type { Zone } from "$lib/models/Zone";
 import type { Spec } from "$lib/models/Spec";
@@ -28,10 +24,13 @@ const service = (): RegistryService => {
             if (zones.length > 0) {
                 getZones(filters, page, limit).then((_zones) => {
                     zones = [
-                        ...zones,
-                        ..._zones.filter(zone =>
-                            !zones.some(existing => existing.id === zone.id)
-                        )
+                      ...zones,
+                      ..._zones.filter(
+                        (zone) =>
+                          !zones.some(
+                            (existing) => existing.owner === zone.owner
+                          )
+                      ),
                     ];
                     set(zones)
                 })
@@ -42,31 +41,46 @@ const service = (): RegistryService => {
                 return zones
             }
         },
+
         getZoneById: async (owner: string): Promise<Zone> => {
             let zones = get(registryService)
-            let _zones = zones.filter(zone => zone.id == owner)
+            let _zones = zones.filter(zone => zone.owner == owner)
+            console.log(_zones)
             if (_zones.length > 0) {
-                getZone(owner).then((_zones) => {
-                    zones = [
-                        ...zones,
-                        ..._zones.filter(zone =>
-                            !zones.some(existing => existing.id === zone.id)
-                        )
-                    ];
-                    set(zones)
+                getZone(owner).then((zone) => {
+                    if (zone) {
+                        zones = [
+                          ...zones,
+                          ...(Array.isArray(zone) ? zone : [zone]).filter(
+                            (zone) =>
+                              !zones.some(
+                                (existing) => existing.owner === zone.owner
+                              )
+                          ),
+                        ];
+                        set(zones)
+                    }
                 })
+                console.log(zones)
                 return _zones[0]
             } else {
-                zones = await getZone(owner)
-                zones = [
-                    ...zones,
-                    ..._zones.filter(zone =>
-                        !zones.some(existing => existing.id === zone.id)
-                    )
-                ];
-                set(zones)
-                let temp = zones.filter(zone => zone.id == owner)
-                return temp[0]
+                const zone = await getZone(owner)
+                if (zone) {
+                    const newZone = Array.isArray(zone) ? zone[0] : zone;
+                    zones = [
+                      ...zones,
+                      ...(newZone ? [newZone] : []).filter(
+                        (zone) =>
+                          !zones.some(
+                            (existing) => existing.owner === zone.owner
+                          )
+                      ),
+                    ];
+                    set(zones)
+                    console.log(zones)
+                    return newZone;
+                }
+                throw new Error("Zone not found");
             }
         },
     };

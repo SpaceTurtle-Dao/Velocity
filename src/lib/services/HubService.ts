@@ -1,20 +1,20 @@
-// users-profile.store.ts
-import { evalProcess, fetchEvents } from "$lib/ao/relay";
+import { evalProcess, fetchEvents, info, event } from "$lib/ao/relay";
 import { get, writable, type Readable } from "svelte/store";
 import { PostType, type Post } from "$lib/models/Post";
-import { connect, createDataItemSigner, spawn } from "@permaweb/aoconnect";
-import Permaweb, { type ProcessCreateType } from "@permaweb/libs";
-import Arweave from "arweave";
-import { HUB_MESSAGE_ID } from "$lib/constants";
 import { luaModule } from "./hub_lua";
 import { createProcess } from "$lib/ao/process.svelte";
+import type { Hub } from "$lib/models/Hub";
+import type { promises } from "dns";
+import type { Tag } from "$lib/models/Tag";
 export interface HubService extends Readable<Map<string, Post>> {
-    fetchPost: (hub:string, since: Number, until: Number) => Promise<Post[]>;
-    fetchPostWithAuthors: (hub:string, authors: string[]) => Promise<Post[]>;
-    fetchReplies: (hub:string, id: string) => Promise<Post[]>;
-    fetchRepost: (hub:string, id: string) => Promise<Post[]>;
-    fetchLikes: (hub:string, id: string) => Promise<any[]>;
-    get: (hub:string, id: string) => Promise<Post>;
+    info: (hub: string) => Promise<Hub>
+    fetchPost: (hub: string, since: Number, until: Number) => Promise<Post[]>;
+    fetchPostWithAuthors: (hub: string, authors: string[]) => Promise<Post[]>;
+    fetchReplies: (hub: string, id: string) => Promise<Post[]>;
+    fetchRepost: (hub: string, id: string) => Promise<Post[]>;
+    fetchLikes: (hub: string, id: string) => Promise<any[]>;
+    get: (hub: string, id: string) => Promise<Post>;
+    updateFollowList: (hubId: string, followList: string[]) => Promise<void>;
     create: () => Promise<string>;
 }
 
@@ -24,11 +24,22 @@ const service = (): HubService => {
     );
     return {
         subscribe,
-        fetchPost: async (hub:string, since: Number, until: Number): Promise<Post[]> => {
+        info: async (hubId: string): Promise<Hub> => {
+            let temp = await info(hubId)
+            console.log(temp)
+            let hub:Hub = {
+                User: temp.User,
+                Followers: JSON.parse(temp.Followers),
+                Following: JSON.parse(temp.Following),
+                spec: temp.spec
+            };
+            return hub
+        },
+        fetchPost: async (hubId: string, since: Number, until: Number): Promise<Post[]> => {
             // console.log("since",since);
             // console.log("limit",until);
             let posts = get(hubService)
-            if (posts && posts.size > 0) {
+            if (posts.size > 0) {
                 try {
                     const filter = {
                         kinds: ["1", "6"],
@@ -40,7 +51,7 @@ const service = (): HubService => {
                     };
 
                     const _filters = JSON.stringify([filter, filter2]);
-                    fetchEvents(hub, _filters).then((events) => {
+                    fetchEvents(hubId, _filters).then((events) => {
                         for (var i = 0; i < events.length; i++) {
                             if (events[i].Content) {
                                 let post = postFactory(events[i]);
@@ -68,7 +79,7 @@ const service = (): HubService => {
                     // console.log("filter",filter);
 
                     const _filters = JSON.stringify([filter, filter2]);
-                    let events = await fetchEvents(hub, _filters);
+                    let events = await fetchEvents(hubId, _filters);
                     for (var i = 0; i < events.length; i++) {
                         if (events[i].Content) {
                             let post = postFactory(events[i]);
@@ -84,7 +95,7 @@ const service = (): HubService => {
                 }
             }
         },
-        fetchPostWithAuthors: async (hub:string, authors: string[] = []): Promise<Post[]> => {
+        fetchPostWithAuthors: async (hub: string, authors: string[] = []): Promise<Post[]> => {
             let posts = get(hubService)
             let _posts = posts.values().toArray().filter((post) => {
                 return authors.includes(post.from)
@@ -142,7 +153,7 @@ const service = (): HubService => {
                 }
             }
         },
-        fetchReplies: async (hub:string, id: string): Promise<Post[]> => {
+        fetchReplies: async (hub: string, id: string): Promise<Post[]> => {
             //console.log("getting Replies")
             let posts = get(hubService);
             let replies: Post[] = []
@@ -171,7 +182,7 @@ const service = (): HubService => {
             }
             return replies
         },
-        fetchRepost: async (hub:string, id: string): Promise<Post[]> => {
+        fetchRepost: async (hub: string, id: string): Promise<Post[]> => {
             let posts = get(hubService);
             let rePosts: Post[] = []
             try {
@@ -199,7 +210,7 @@ const service = (): HubService => {
             }
             return rePosts
         },
-        fetchLikes: async (hub:string, id: string): Promise<any[]> => {
+        fetchLikes: async (hub: string, id: string): Promise<any[]> => {
             let likes: any[] = []
             try {
                 const filter = {
@@ -216,7 +227,7 @@ const service = (): HubService => {
             }
             return likes
         },
-        get: async (hub:string, id: string): Promise<Post> => {
+        get: async (hub: string, id: string): Promise<Post> => {
             let posts = get(hubService)
             if (posts.has(id)) {
                 try {
@@ -264,6 +275,18 @@ const service = (): HubService => {
             }
 
         },
+        updateFollowList: async (hubId: string, followList: string[]) => {
+            try {
+
+                let kind: Tag = { name: "Kind", value: "3" };
+                let pTag: Tag = { name: "p", value: JSON.stringify(followList) };
+                let tags: Tag[] = [kind, pTag];
+
+                await event(hubId, tags);
+            } catch (error) {
+                console.error(error);
+            }
+        },
         create: async (): Promise<string> => {
             const processId = await createProcess();
             evaluateHub(processId)
@@ -300,6 +323,7 @@ function postFactory(event: any): Post {
     let _post: Post = {
         id: event.Id,
         from: event.From,
+        owner: event.Owner,
         timestamp: event.Timestamp,
         content: event.Content,
         type: postType,
@@ -323,18 +347,18 @@ async function getRepost(post: Post): Promise<Post> {
     return _post
 }
 
-async function evaluateHub(processId:string) {
-    try{
-      await sleep(3000);
-      await evalProcess(luaModule, processId);
-    }catch(e){
-      await evaluateHub(processId);
+async function evaluateHub(processId: string) {
+    try {
+        await sleep(3000);
+        await evalProcess(luaModule, processId);
+    } catch (e) {
+        await evaluateHub(processId);
     }
-    
-  }
 
-  function sleep(ms: number) {
+}
+
+function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+}
 
 export const hubService = service();

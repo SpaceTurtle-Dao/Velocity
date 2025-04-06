@@ -1,7 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { z } from "zod";
-    import { currentUser } from "$lib/stores/profile.store";
     import { Input } from "$lib/components/ui/input";
     import { Label } from "$lib/components/ui/label";
     import { Button } from "$lib/components/ui/button/index.js";
@@ -23,7 +22,7 @@
         display_name: z.string().min(1, "Display Name is required"),
         description: z.string().optional(),
         thumbnail: z.string().optional(),
-        banner: z.string().optional(),
+        coverImage: z.string().optional(),
         website: z.string().url().optional().or(z.literal("")),
     });
 
@@ -34,7 +33,7 @@
         display_name: "",
         description: "",
         thumbnail: "",
-        banner: "",
+        coverImage: "",
         website: "" 
     };
 
@@ -70,16 +69,14 @@
             initialProfileSchema.parse(profile);
             errors = {};
 
-            // Upload picture if exists
             if (pictureFile) {
                 let _pictureFile = await upload(pictureFile);
                 profile.thumbnail = _pictureFile.url;
             }
 
-            // Upload banner if exists
             if (bannerFile) {
                 let _bannerFile = await upload(bannerFile);
-                profile.banner = _bannerFile.url;
+                profile.coverImage = _bannerFile.url;
             }
 
             const profileId = await profileService.create({
@@ -87,11 +84,10 @@
                 displayName: profile.display_name,
                 description: profile.description,
                 thumbnail: profile.thumbnail,
-                banner: profile.banner
+                coverImage: profile.coverImage
             });
 
-            const newProfile = await profileService.getById(profileId);
-            currentUser.set(newProfile);
+            const newProfile = await profileService.get(profileId);
 
             // Navigate and close dialog
             isLoading = false;
@@ -135,9 +131,9 @@
             <!-- Banner Upload Section -->
             <div class="relative mb-16">
                 <div class="h-32 bg-gray-200 relative">
-                    {#if profile.banner}
+                    {#if profile.coverImage}
                         <img
-                            src={profile.banner}
+                            src={profile.coverImage}
                             alt="Banner"
                             class="w-full h-full object-cover"
                         />

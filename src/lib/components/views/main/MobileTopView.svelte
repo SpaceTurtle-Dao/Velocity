@@ -1,7 +1,6 @@
 <script lang="ts">
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
-  import { currentUser } from "$lib/stores/current-user.store";
   import Logo from "../../../../assets/Logo2.png";
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import { writable } from "svelte/store";
@@ -59,8 +58,8 @@
           {#await profileService.get($addressStore.address) then profile}
             <ProfilePicture
               size="sm"
-              src={profile.picture}
-              name={profile.name}
+              src={profile.thumbnail}
+              name={profile.userName}
             />
           {/await}
         {/if}

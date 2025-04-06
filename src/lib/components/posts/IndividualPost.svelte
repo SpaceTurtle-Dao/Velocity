@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { fetchEvents, event as aoEvent } from "$lib/ao/relay";
-  import { currentUser } from "$lib/stores/current-user.store";
   import {
     Avatar,
     AvatarImage,
@@ -37,7 +36,7 @@
   let replyCount = 0;
   let id: string;
   let user: string;
-
+  let hubId: string = "";
   let replyContent = "";
   let isSubmitting = false;
   let fileInput: HTMLInputElement;
@@ -60,9 +59,9 @@
   async function loadPost() {
     console.log(user);
     console.log(id);
-    post = await hubService.get(id);
-    replies = await hubService.fetchReplies(id);
-    //hubService.fetchRepost(id);
+    post = await hubService.get(hubId,id);
+    replies = await hubService.fetchReplies(hubId,id);
+    hubService.fetchRepost(hubId,id);
   }
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
@@ -135,7 +134,7 @@
       tags.push({ name: "Content", value: _content });
       tags.push({ name: "action", value: "reply" });
 
-      await aoEvent(tags);
+      await aoEvent(hubId,tags);
 
       clearFields();
       await refreshPage();
@@ -162,14 +161,14 @@
           {#if $addressStore.address}
           {#await profileService.get($addressStore.address) then profile}
             <Avatar class="h-12 w-12 text-primary">
-              {#if profile.picture}
+              {#if profile.thumbnail}
                 <AvatarImage
-                  src={profile.picture}
-                  alt={profile.name || "Current User"}
+                  src={profile.thumbnail}
+                  alt={profile.displayName || "Current User"}
                 />
               {:else}
                 <AvatarFallback>
-                  {profile.name?.[0] || "U"}
+                  {profile.userName?.[0] || "U"}
                 </AvatarFallback>
               {/if}
             </Avatar>

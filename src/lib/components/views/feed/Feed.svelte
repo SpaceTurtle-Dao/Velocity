@@ -7,6 +7,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
   import { timestampService } from "$lib/utils/date-time";
+  import { registryService } from "$lib/services/RegistryService";
 
   let feed: Array<Post> = [];
   let following: Array<Post> = [];
@@ -15,73 +16,85 @@
   let isLoadingMore = false;
   let lastLoadedTimestamp: number | null = null;
   let scrollContainer: HTMLElement | null = null;
+  let hubId: string;
 
-  postService.subscribe(async (posts) => {
+  hubService.subscribe(async (posts) => {
+    console.log(posts)
     feed = posts.values().toArray();
-    // console.log("feed",feed);
   });
 
   async function fetchFeedEvents() {
-    isLoadingFeed = true;
-
-    try {
-      const now = new Date();
-      const since = timestampService.subtract(new Date(), 10, "days").getTime();
-      const until = now.getTime();
-      
-      if (feed.length === 0) {
-        feed = await hubService.fetchPost(since, until);
+    if ($addressStore.address) {
+      const hub = await registryService.getZoneById($addressStore.address);
+      hubId = hub.spec.processId;
+      console.log("Hub ID for feed:", hubId);
+      isLoadingFeed = true;
+      try {
+        const now = new Date();
+        const since = timestampService
+          .subtract(new Date(), 10, "days")
+          .getTime();
+        const until = now.getTime();
+        console.log("Hub id:", hubId);
+        await hubService.fetchPost(hubId, since, until);
+        console.log("Initial feed posts loaded:", feed.length);
         lastLoadedTimestamp = since;
-      } else {
-        setTimeout(async () => {
-          const latestPostTimestamp = feed[0].timestamp;
-          const newPosts = await hubService.fetchPost(since, latestPostTimestamp);
-          // Filter out duplicates based on post ID
-          const existingIds = new Set(feed.map(post => post.id));
-          const uniqueNewPosts = newPosts.filter(post => !existingIds.has(post.id));
-          feed = [...uniqueNewPosts, ...feed];
-        }, 5000);
+        if (feed.length === 0) {
+        } else {
+          /*setTimeout(async () => {
+            const latestPostTimestamp = feed[0].timestamp;
+            feed = await hubService.fetchPost(
+              hubId,
+              since,
+              latestPostTimestamp,
+            );
+            console.log(feed)
+          }, 5000);*/
+        }
+      } catch (error) {
+        console.log("Error fetching feed events:", error);
+      } finally {
+        isLoadingFeed = false;
       }
-    } catch (error) {
-      console.error("Error fetching feed events:", error);
-    } finally {
-      isLoadingFeed = false;
     }
   }
 
   async function fetchFollowingEvents() {
     if (!$addressStore.address) return;
     isLoadingFollowing = true;
-    
+
     try {
-      //console.log("will get feed");
-      let profile = await profileService.get($addressStore.address);
-      following = await hubService.fetchPostWithAuthors(profile.followList);
-      //console.log(posts);
+      //let profile = await profileService.get($addressStore.address);
+      // following = await hubService.fetchPostWithAuthors($currentHubId, profile.followList);
     } catch (error) {
-      //console.error("Error fetching feed events:", error);
+      console.error("Error fetching following events:", error);
     } finally {
-      //isFetchingAlready = false;
       isLoadingFollowing = false;
     }
   }
 
   async function loadMorePosts() {
+    if (hubId == undefined) return;
     if (isLoadingMore || !lastLoadedTimestamp) return;
-    
+
     isLoadingMore = true;
     console.log("Loading more posts...");
-    
+    console.log("Current feed size:", feed.length);
+
     try {
       const until = lastLoadedTimestamp;
-      const since = timestampService.subtract(new Date(until), 10, "days").getTime();
-      
-      const olderPosts = await hubService.fetchPost(since, until);
+      const since = timestampService
+        .subtract(new Date(until), 10, "days")
+        .getTime();
+
+      const olderPosts = await hubService.fetchPost(hubId, since, until);
+      console.log("Older posts fetched:", olderPosts.length);
       if (olderPosts.length > 0) {
-        // Filter out duplicates based on post ID
-        const existingIds = new Set(feed.map(post => post.id));
-        const uniqueOlderPosts = olderPosts.filter(post => !existingIds.has(post.id));
-        
+        const existingIds = new Set(feed.map((post) => post.id));
+        const uniqueOlderPosts = olderPosts.filter(
+          (post) => !existingIds.has(post.id),
+        );
+
         if (uniqueOlderPosts.length > 0) {
           feed = [...feed, ...uniqueOlderPosts];
           console.log("Added more posts", uniqueOlderPosts.length);
@@ -100,37 +113,38 @@
   }
 
   function handleScroll() {
-    // Get the correct scrollable container
     if (!scrollContainer) return;
-    
-    const scrollPosition = scrollContainer.scrollTop + scrollContainer.clientHeight;
+
+    const scrollPosition =
+      scrollContainer.scrollTop + scrollContainer.clientHeight;
     const scrollHeight = scrollContainer.scrollHeight;
-    const threshold = 200; // Increased threshold for better detection
-    
+    const threshold = 200;
+
     if (scrollHeight - scrollPosition < threshold && !isLoadingMore) {
       console.log("Scroll threshold reached!", scrollHeight - scrollPosition);
       loadMorePosts();
     }
   }
 
-  onMount(() => {
-    scrollContainer = document.querySelector('.scrollbar-hidden');
-    
+  onMount(async () => {
+    await fetchFeedEvents();
+    /*scrollContainer = document.querySelector(".scrollbar-hidden");
+
     if (scrollContainer) {
       console.log("Found scroll container, attaching event listener");
-      scrollContainer.addEventListener('scroll', handleScroll);
-      
-      // Initialize feed
+      scrollContainer.addEventListener("scroll", handleScroll);
       fetchFeedEvents();
     } else {
-      console.error("Could not find scrollable container with class .scrollbar-hidden");
-    }
+      console.error(
+        "Could not find scrollable container with class .scrollbar-hidden",
+      );
+    }*/
   });
 
   onDestroy(() => {
-    if (scrollContainer) {
-      scrollContainer.removeEventListener('scroll', handleScroll);
-    }
+    /*if (scrollContainer) {
+      scrollContainer.removeEventListener("scroll", handleScroll);
+    }*/
   });
 </script>
 
@@ -151,7 +165,10 @@
       <Tabs.Content value="for you">
         {#if isLoadingFeed && feed.length === 0}
           <div class="flex justify-center items-center py-16">
-            <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" role="status">
+            <div
+              class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"
+              role="status"
+            >
               <span class="sr-only">Loading...</span>
             </div>
             <span class="ml-3 text-muted-foreground">Loading posts...</span>
@@ -163,19 +180,23 @@
                 <PostComponent {post} />
               </div>
             {/each}
-            
+
             <div class="sticky bottom-0 bg-background/80 backdrop-blur-sm">
               {#if isLoadingMore}
                 <div class="flex justify-center items-center py-4">
-                  <div class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" role="status">
+                  <div
+                    class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"
+                    role="status"
+                  >
                     <span class="sr-only">Loading more...</span>
                   </div>
-                  <span class="ml-3 text-muted-foreground">Loading more posts...</span>
+                  <span class="ml-3 text-muted-foreground"
+                    >Loading more posts...</span
+                  >
                 </div>
               {/if}
             </div>
-            
-            <!-- Sentinel element for intersection observer alternative -->
+
             <div id="scroll-sentinel" class="h-4"></div>
           </div>
         {/if}
@@ -184,7 +205,10 @@
       <Tabs.Content value="following">
         {#if isLoadingFollowing}
           <div class="flex justify-center items-center py-16">
-            <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" role="status">
+            <div
+              class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"
+              role="status"
+            >
               <span class="sr-only">Loading...</span>
             </div>
             <span class="ml-3 text-muted-foreground">Loading following...</span>

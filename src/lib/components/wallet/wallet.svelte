@@ -6,10 +6,7 @@
   } from "../../stores/walletStore";
   import SmallSpinner from "$lib/components/spinners/smallSpinner.svelte";
   import {
-    currentUser,
     isConnected,
-    user,
-    userRelay,
   } from "$lib/stores/profile.store";
   import { Button } from "$lib/components/ui/button";
   import { createEventDispatcher } from "svelte";
@@ -31,15 +28,6 @@
       try {
         const address = await window.arweaveWallet.getActiveAddress();
         isConnected.set(true);
-        // let _relay = await relay(address);
-        // if (_relay) {
-        //     userRelay.set(_relay);
-        //     let _currentUser = await fetc(_relay)
-        //     console.log("///////CURRENT USER/////////")
-        //     console.log(_currentUser)
-        //     currentUser.set(_currentUser)
-        //     user.set(_currentUser)
-        // }
         setWalletAddress(address);
         title = "Disconnect";
         dispatch("connectionSuccess");

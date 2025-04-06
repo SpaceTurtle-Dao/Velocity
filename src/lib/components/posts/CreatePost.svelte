@@ -12,6 +12,8 @@
   import GifSearchDialog from "$lib/components/GifDailog/gifDailog.svelte";
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
+  import { onMount } from "svelte";
+  import { registryService } from "$lib/services/RegistryService";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -21,6 +23,18 @@
   let dialogOpen = false;
   let gifSearchOpen = false;
   let selectedGifUrl: string | null = null;
+  let hubId: string;
+
+  async function initializeHubId() {
+    if ($addressStore.address) {
+      const hub = await registryService.getZoneById($addressStore.address);
+      console.log(hub)
+      if (hub) {
+        hubId = hub.spec.processId;
+        console.log("*** Hub ID ***", hubId);
+      }
+    }
+  }
 
   function clearFields() {
     content = "";
@@ -57,7 +71,7 @@
 
   function handleGifSelect(url: string) {
     selectedGifUrl = url;
-    selectedMedia = null; // Clear media if GIF is selected
+    selectedMedia = null;
     mediaPreviewUrl = null;
     if (fileInput) {
       fileInput.value = "";
@@ -65,6 +79,10 @@
   }
 
   async function handleSubmit() {
+    if (!hubId) {
+      await initializeHubId(); // Ensure we have the hubId
+    }
+
     isLoading = true;
     let kind: Tag = {
       name: "Kind",
@@ -77,42 +95,52 @@
     let _tags: Array<Tag> = [kind, markerTag];
     let _content = content;
 
-    if (selectedGifUrl) {
-      let urlTag: Tag = {
-        name: "url",
-        value: selectedGifUrl,
+    try {
+      if (selectedGifUrl) {
+        let urlTag: Tag = {
+          name: "url",
+          value: selectedGifUrl,
+        };
+        let mTag: Tag = {
+          name: "mimeType",
+          value: "image/gif",
+        };
+        _content = _content + " " + selectedGifUrl;
+        _tags.push(urlTag);
+        _tags.push(mTag);
+      } else if (selectedMedia) {
+        let media = await upload(selectedMedia);
+        let urlTag: Tag = {
+          name: "url",
+          value: media.url,
+        };
+        let mTag: Tag = {
+          name: "mimeType",
+          value: media.mimeType || "",
+        };
+        _content = _content + " " + media.url;
+        _tags.push(urlTag);
+        _tags.push(mTag);
+      }
+      let contentTag: Tag = {
+        name: "Content",
+        value: _content,
       };
-      let mTag: Tag = {
-        name: "mimeType",
-        value: "image/gif",
-      };
-      _content = _content + " " + selectedGifUrl;
-      _tags.push(urlTag);
-      _tags.push(mTag);
-    } else if (selectedMedia) {
-      let media = await upload(selectedMedia);
-      let urlTag: Tag = {
-        name: "url",
-        value: media.url,
-      };
-      let mTag: Tag = {
-        name: "mimeType",
-        value: media.mimeType || "",
-      };
-      _content = _content + " " + media.url;
-      _tags.push(urlTag);
-      _tags.push(mTag);
+      _tags.push(contentTag);
+
+      await event(hubId, _tags);
+      dialogOpen = false;
+      clearFields();
+    } catch (error) {
+      console.error("Error creating post:", error);
+    } finally {
+      isLoading = false;
     }
-    let contentTag: Tag = {
-      name: "Content",
-      value: _content,
-    };
-    _tags.push(contentTag);
-    await event(_tags);
-    isLoading = false;
-    dialogOpen = false;
-    clearFields();
   }
+
+  onMount(async () => {
+    await initializeHubId();
+  });
 
   $: if (dialogOpen === false) {
     clearFields();
@@ -142,8 +170,8 @@
         {#if $addressStore.address}
           {#await profileService.get($addressStore.address) then profile}
             <ProfilePicture
-              src={profile.picture}
-              name={profile.name}
+              src={profile.profileImage}
+              name={profile.userName}
               size="lg"
             />
           {/await}

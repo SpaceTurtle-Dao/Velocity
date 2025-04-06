@@ -22,6 +22,8 @@
   import { profileService } from "$lib/services/ProfileService";
   import { hubService } from "$lib/services/HubService";
   import type { Post } from "$lib/models/Post";
+  import { registryService } from "$lib/services/RegistryService";
+  import type { Hub } from "$lib/models/Hub";
 
   export let params: { address?: string } = {};
 
@@ -29,6 +31,8 @@
   let activeTab: string = "posts";
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
+  let hubId: string;
+  let hub: Hub;
 
   let mimeTypes: string[] = [
     "image/apng",
@@ -50,8 +54,14 @@
 
   async function fetchPost() {
     posts = [];
-    if (!params.address) return;
-    posts = await hubService.fetchPostWithAuthors([params.address]);
+    if (!hubId) return;
+    try {
+      posts = await hubService.fetchPostWithAuthors(hubId, [
+        hubId,
+      ]);
+    } catch (e) {
+      console.log(e);
+    }
     media = posts.filter((value) => {
       if (value.mimeType) {
         return mimeTypes.includes(value.mimeType);
@@ -96,25 +106,30 @@
     if (!params.address) return;
     try {
       profile = await profileService.get(params.address);
+      hubId = (await registryService.getZoneById(params.address)).spec
+        .processId;
+      hub = await hubService.info(hubId);
       if (profile) {
         await fetchPost();
       }
     } catch (error) {
-      console.error("Error setting up profile:", error);
+      console.log(params.address)
+      console.log("Error setting up profile:", error);
+      setup()
     }
   }
 </script>
 
-{#if profile}
+{#if hubId && hub && profile}
   <div class="md:mt-10 max-w-prose">
     <Card
       class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"
     >
       <div class="relative mb-10">
         <div class="bg-gray-200 relative">
-          {#if profile?.thumbnail}
+          {#if profile?.coverImage}
             <img
-              src={profile?.thumbnail}
+              src={`https://www.arweave.net/${profile.coverImage}`}
               alt="Banner"
               class="w-full max-h-48 object-cover"
             />
@@ -126,7 +141,11 @@
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
               {#if profile?.profileImage}
-                <AvatarImage src={profile?.profileImage} alt={profile.displayName} />
+                <AvatarImage
+                  class="object-cover"
+                  src={`https://www.arweave.net/${profile.profileImage}`}
+                  alt={profile.displayName}
+                />
               {/if}
               <AvatarFallback
                 >{profile.displayName
@@ -142,16 +161,16 @@
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profile.displayName}</p>
           <!-- {#if profile.owner != $addressStore.address} -->
-            <!-- <Follow address={profile.owner} /> -->
+          <!-- <Follow address={profile.owner} /> -->
           <!-- {:else} -->
-            <Button
-              variant="outline"
-              size="sm"
-              class="text-primary rounded-full"
-              on:click={toggleModal}
-            >
-              Edit Profile
-            </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            class="text-primary rounded-full"
+            on:click={toggleModal}
+          >
+            Edit Profile
+          </Button>
           <!-- {/if} -->
         </div>
         <p class="text-muted-foreground">
@@ -185,14 +204,22 @@
         </div>
         <div class="flex space-x-5 pt-2.5">
           <div class="flex space-x-1 items-center">
-            {#if followListLoading}
+            {#if !hub}
               <Skeleton class="h-5 w-[102px] rounded-full" />
             {:else}
-              <div>
-                <span class="font-bold mr-1">0</span>
-                <span class="font-normal text-muted-foreground"
-                  >Subscribing</span
-                >
+              <div class="flex flex-row gap-4">
+                <div>
+                  <span class="font-bold mr-1">{hub.Followers.length}</span>
+                  <span class="font-normal text-muted-foreground"
+                    >Following</span
+                  >
+                </div>
+                <div>
+                  <span class="font-bold mr-1">{hub.Followers.length}</span>
+                  <span class="font-normal text-muted-foreground"
+                    >Followers</span
+                  >
+                </div>
               </div>
             {/if}
           </div>
@@ -253,17 +280,7 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile 
-        initialProfile={{
-          userName: profile.userName,
-          displayName: profile.displayName,
-          description: profile.description,
-          profileImage: profile.profileImage,
-          thumbnail: profile.thumbnail,
-          updated_at: profile.updated_at
-        }} 
-        on:profileUpdated={toggleModal} 
-      />
+      <UpdateProfile on:profileUpdated={toggleModal} />
     </div>
   </div>
 {/if}

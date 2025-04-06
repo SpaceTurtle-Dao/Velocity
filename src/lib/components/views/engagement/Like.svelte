@@ -3,16 +3,17 @@
     import type { Tag } from "$lib/models/Tag";
     import { Heart } from "lucide-svelte";
     import { onMount } from "svelte";
-    import { fetchEvents, event } from "$lib/ao/relay";
-    import { currentUser } from "$lib/stores/current-user.store";
+    import { event } from "$lib/ao/relay";
     import type { Post } from "$lib/models/Post";
     import { hubService } from "$lib/services/HubService";
     import { addressStore } from "$lib/stores/address.store";
+    import { profileService } from "$lib/services/ProfileService";
 
     export let post: Post;
 
     let liked = false;
     let likes: Array<any> = [];
+    let hub: string = "";
 
     let kind: Tag = {
         name: "Kind",
@@ -50,8 +51,8 @@
             likes = temp;
             liked = true;
         }
-        await event(_tags);
-        hubService.fetchLikes(post.id).then((_likes) => {
+        await event(hub, _tags);
+        hubService.fetchLikes(hub, post.id).then((_likes) => {
             likes = _likes;
             let temp = likes.filter((like) => {
                 return like.From == $addressStore.address;
@@ -61,13 +62,17 @@
     }
 
     onMount(async () => {
-        hubService.fetchLikes(post.id).then((_likes) => {
-            likes = _likes;
-            let temp = likes.filter((like) => {
-                return like.From == $addressStore.address;
+        if (post.from) {
+            const profile = await profileService.get(post.from);
+            hub = profile.hubId;
+            hubService.fetchLikes(hub, post.id).then((_likes) => {
+                likes = _likes;
+                let temp = likes.filter((like) => {
+                    return like.From == $addressStore.address;
+                });
+                liked = temp.length > 0;
             });
-            liked = temp.length > 0;
-        });
+        }
     });
 </script>
 

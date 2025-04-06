@@ -29,6 +29,10 @@
   let loadError: string | null = null;
   let dialogOpen = false;
 
+  profileService.subscribe((profiles) =>{
+    if(profiles.has(post.from)) profile = profiles.get(post.owner), console.log(profile);
+  })
+
   function transformEventToPost(
     event: any,
     isRepost = false,
@@ -45,15 +49,17 @@
     };
   }
 
-  async function loadData(from: string, postId: string) {
-    profile = await profileService.get(from);
-    replies = await hubService.fetchReplies(postId);
-    replyCount = replies.length;
-    //hubService.fetchRepost(postId);
+  async function loadData(from: string) {
+    await profileService.get(from);
+    //hub = profile.hubId;
+    //replies = await hubService.fetchReplies(hub, postId);
+    //replyCount = replies.length;
+    //hubService.fetchRepost(hub, postId);
   }
 
   onMount(async () => {
-    loadData(post.from, post.id);
+    console.log(post)
+    await loadData(post.from);
   });
 
   const dispatch = createEventDispatcher();
@@ -79,7 +85,7 @@
   }
 </script>
 
-{#if post && profile}
+{#if profile}
   <div class="cursor-pointer border border-border">
     <Dialog.Root>
       <Dialog.Trigger asChild>
@@ -134,7 +140,7 @@
               <div class="flex items-center text-muted-foreground mb-2">
                 <CornerDownRight size={16} class="mr-2" />
                 {#await profileService.get(post.p) then _profile}
-                  <span class="text-sm">Replying to @{_profile.name}</span>
+                  <span class="text-sm">Replying to @{_profile.userName}</span>
                 {/await}
               </div>
             {/if}
@@ -142,10 +148,10 @@
               <div class="flex items-center text-muted-foreground mb-2">
                 <Repeat2Icon size={16} class="mr-2" />
                 <span class="text-sm">
-                  {#if profile.address == $addressStore?.address}
+                  {#if profile.owner == $addressStore?.address}
                     You Reposted
                   {:else}
-                    Reposted by @{profile.name}
+                    Reposted by @{profile.userName}
                   {/if}
                 </span>
               </div>
@@ -184,11 +190,11 @@
                           <ProfileHoverCard profile={_profile}>
                             <div class="flex space-x-1">
                               <p class="font-medium text-primary">
-                                {_profile.name}
+                                {_profile.userName}
                               </p>
                               <span
                                 class="text-muted-foreground pl-0.5 text-ellipsis"
-                                >@{_profile.display_name}</span
+                                >@{_profile.displayName}</span
                               >
                             </div>
                           </ProfileHoverCard>
@@ -197,11 +203,11 @@
                         <ProfileHoverCard {profile}>
                           <div class="flex space-x-1">
                             <p class="font-medium text-primary">
-                              {profile.name}
+                              {profile.userName}
                             </p>
                             <span
                               class="text-muted-foreground pl-0.5 text-ellipsis"
-                              >@{profile.display_name}</span
+                              >@{profile.displayName}</span
                             >
                           </div>
                         </ProfileHoverCard>

@@ -25,6 +25,7 @@
   let mediaPreviewUrl: string | null = null;
   let isLoading = false;
   let dialogOpen = false;
+  let hubId: string = "";
 
   const dispatch = createEventDispatcher();
 
@@ -56,8 +57,18 @@
     }
   }
 
+  async function initializeHubId() {
+    if (post.from) {
+      const profile = await profileService.get(post.from);
+      hubId = profile.hubId;
+    }
+  }
+
   async function handleSubmit() {
     if (!content.trim() && !selectedMedia) return;
+    if (!hubId) {
+      await initializeHubId();
+    }
 
     isLoading = true;
     try {
@@ -84,7 +95,7 @@
 
       tags.push({ name: "Content", value: _content });
 
-      newReply = await aoEvent(tags);
+      newReply = await aoEvent(hubId, tags);
 
       const replyTags = tags.reduce((acc: any, tag) => {
         acc[tag.name.toLowerCase()] = tag.value;
@@ -117,7 +128,9 @@
     clearFields();
   }
 
-  onMount(async () => {});
+  onMount(async () => {
+    await initializeHubId();
+  });
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
@@ -153,8 +166,8 @@
         {#await profileService.get($addressStore.address) then profile}
           <ProfilePicture
             size="lg"
-            src={profile.picture}
-            name={profile.name}
+            src={profile.thumbnail}
+            name={profile.displayName}
           />
         {/await}
         {/if}

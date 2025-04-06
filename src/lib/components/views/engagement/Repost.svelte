@@ -7,12 +7,14 @@
   import type { Post } from "$lib/models/Post";
   import { hubService } from "$lib/services/HubService";
   import { addressStore } from "$lib/stores/address.store";
+  import { profileService } from "$lib/services/ProfileService";
 
   export let post: Post;
 
   let reposted = false;
   let reposts: Post[] = [];
   let _tags: Array<Tag> = [];
+  let hub: string = "";
 
   async function repost() {
     if (!$addressStore.address && !post) return;
@@ -39,20 +41,23 @@
       },
     ];
 
-    await event(_tags);
+    await event(hub,_tags);
 
     // Immediately update local state
     reposted = true;
 
     // Refresh reposts to ensure consistency
-    reposts = await hubService.fetchRepost(post.id);
+    reposts = await hubService.fetchRepost(hub, post.id);
   }
 
   onMount(async () => {
-    reposts = await hubService.fetchRepost(post.id);
-    if (!$addressStore.address) return;
-    reposted =
-      reposts.filter((value) => value.from == $addressStore.address).length > 0;
+    if (post.from) {
+      const profile = await profileService.get(post.from);
+      hub = profile.hubId;
+      reposts = await hubService.fetchRepost(hub, post.id);
+      if (!$addressStore.address) return;
+      reposted = reposts.filter((value) => value.from == $addressStore.address).length > 0;
+    }
   });
 </script>
 
