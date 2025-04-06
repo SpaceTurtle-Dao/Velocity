@@ -17,9 +17,9 @@ interface ProfileService extends Readable<Map<string, any>> {
   get: (address: string) => Promise<Profile>;
   create: (profileData: ProfileCreateData) => Promise<string>;
   update: (
-    processId: string,data:string
+    processId: string, data: string
   ) => Promise<string>;
-  getById: (profileId: string) => Promise<Profile>;
+
 }
 
 interface ProfileCreateData {
@@ -115,32 +115,17 @@ const service = (): ProfileService => {
     },
 
     update: async (
-      processId: string,data:string
+      processId: string, data: string
     ): Promise<string> => {
-      try{
-        await updateProfile(processId,data)
-      }catch(e){
+      try {
+        await updateProfile(processId, data)
+      } catch (e) {
         console.log(e)
       }
       return processId
     },
 
-    getById: async (profileId: string) => {
-      const profile = await permaweb.getProfileById(profileId);
 
-      if (!profile) {
-        throw new Error("Profile not found");
-      }
-
-      let profiles = get({ subscribe });
-      profiles.set(profileId, profile);
-      if (profile.address) {
-        profiles.set(profile.address, profile);
-      }
-      set(profiles);
-
-      return profile;
-    },
   };
 };
 

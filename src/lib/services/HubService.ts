@@ -8,10 +8,10 @@ import type { promises } from "dns";
 import type { Tag } from "$lib/models/Tag";
 export interface HubService extends Readable<Map<string, Post>> {
     info: (hub: string) => Promise<Hub>
-    fetchPost: (hub: string, since: Number, until: Number) => Promise<Post[]>;
-    fetchPostWithAuthors: (hub: string, authors: string[]) => Promise<Post[]>;
-    fetchReplies: (hub: string, id: string) => Promise<Post[]>;
-    fetchRepost: (hub: string, id: string) => Promise<Post[]>;
+    fetchPost: (hub: string, since: Number, until: Number) => Promise<void>;
+    fetchPostWithAuthors: (hub: string, authors: string[]) => Promise<void>;
+    fetchReplies: (hub: string, id: string) => Promise<void>;
+    fetchRepost: (hub: string, id: string) => Promise<void>;
     fetchLikes: (hub: string, id: string) => Promise<any[]>;
     get: (hub: string, id: string) => Promise<Post>;
     updateFollowList: (hubId: string, followList: string[]) => Promise<void>;
@@ -35,7 +35,7 @@ const service = (): HubService => {
             };
             return hub
         },
-        fetchPost: async (hubId: string, since: Number, until: Number): Promise<Post[]> => {
+        fetchPost: async (hubId: string, since: Number, until: Number): Promise<void> => {
             // console.log("since",since);
             // console.log("limit",until);
             let posts = get(hubService)
@@ -62,7 +62,6 @@ const service = (): HubService => {
                         // console.log("posts 2",posts.size)
                         set(posts)
                     });
-                    return posts.values().toArray()
                 } catch (error) {
                     throw (error)
                 }
@@ -89,13 +88,12 @@ const service = (): HubService => {
                     }
                     // console.log("posts 1", posts.size);
                     set(posts)
-                    return posts.values().toArray()
                 } catch (error) {
                     throw (error)
                 }
             }
         },
-        fetchPostWithAuthors: async (hub: string, authors: string[] = []): Promise<Post[]> => {
+        fetchPostWithAuthors: async (hub: string, authors: string[] = []): Promise<void> => {
             let posts = get(hubService)
             let _posts = posts.values().toArray().filter((post) => {
                 return authors.includes(post.from)
@@ -120,7 +118,6 @@ const service = (): HubService => {
                         }
                         set(posts)
                     });
-                    return _posts
                 } catch (error) {
                     throw (error)
                 }
@@ -144,19 +141,14 @@ const service = (): HubService => {
                         }
                     }
                     set(posts)
-                    let _posts = posts.values().toArray().filter((post) => {
-                        return authors.includes(post.from)
-                    })
-                    return _posts
                 } catch (error) {
                     throw (error)
                 }
             }
         },
-        fetchReplies: async (hub: string, id: string): Promise<Post[]> => {
+        fetchReplies: async (hub: string, id: string): Promise<void> => {
             //console.log("getting Replies")
             let posts = get(hubService);
-            let replies: Post[] = []
             try {
                 const filter = {
                     kinds: ["1"],
@@ -173,18 +165,15 @@ const service = (): HubService => {
                     if (events[i].Content) {
                         let post = postFactory(events[i]);
                         posts.set(post.from, post)
-                        replies.push(post)
                     }
                 }
                 set(posts)
             } catch (error) {
                 throw (error)
             }
-            return replies
         },
-        fetchRepost: async (hub: string, id: string): Promise<Post[]> => {
+        fetchRepost: async (hub: string, id: string): Promise<void> => {
             let posts = get(hubService);
-            let rePosts: Post[] = []
             try {
                 const filter = {
                     kinds: ["6"],
@@ -201,14 +190,12 @@ const service = (): HubService => {
                     if (events[i].Content) {
                         let post = postFactory(events[i]);
                         posts.set(post.from, post)
-                        rePosts.push(post)
                     }
                 }
                 set(posts)
             } catch (error) {
                 throw (error)
             }
-            return rePosts
         },
         fetchLikes: async (hub: string, id: string): Promise<any[]> => {
             let likes: any[] = []
@@ -222,10 +209,10 @@ const service = (): HubService => {
 
                 const _filters = JSON.stringify([filter, filter2]);
                 likes = await fetchEvents(hub, _filters)
+                return likes
             } catch (error) {
                 throw (error)
             }
-            return likes
         },
         get: async (hub: string, id: string): Promise<Post> => {
             let posts = get(hubService)
@@ -284,7 +271,7 @@ const service = (): HubService => {
 
                 await event(hubId, tags);
             } catch (error) {
-                console.error(error);
+                console.log(error);
             }
         },
         create: async (): Promise<string> => {

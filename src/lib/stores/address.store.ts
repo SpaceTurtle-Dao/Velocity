@@ -11,7 +11,7 @@ export interface AddressStoreData {
 }
 
 export interface AddressStore extends Readable<AddressStoreData> {
-  sync: () => Promise<void>;
+  sync: () => Promise<string|undefined>;
   isConnected: () => Promise<boolean>;
   connectWallet: () => Promise<void>;
 
@@ -23,11 +23,12 @@ const initAddressStore = (): AddressStore => {
 
   return {
     subscribe,
-    sync: async () => {
+    sync: async (): Promise<string|undefined> => {
       try {
         const address = await window.arweaveWallet.getActiveAddress();
 
         set({ address });
+        return address
       } catch (error: unknown) {
         console.error(error);
 

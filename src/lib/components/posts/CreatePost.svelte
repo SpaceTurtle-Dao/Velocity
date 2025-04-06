@@ -14,6 +14,8 @@
   import { addressStore } from "$lib/stores/address.store";
   import { onMount } from "svelte";
   import { registryService } from "$lib/services/RegistryService";
+  import { hubService } from "$lib/services/HubService";
+  import { timestampService } from "$lib/utils/date-time";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -28,7 +30,7 @@
   async function initializeHubId() {
     if ($addressStore.address) {
       const hub = await registryService.getZoneById($addressStore.address);
-      console.log(hub)
+      console.log(hub);
       if (hub) {
         hubId = hub.spec.processId;
         console.log("*** Hub ID ***", hubId);
@@ -131,6 +133,10 @@
       await event(hubId, _tags);
       dialogOpen = false;
       clearFields();
+      const now = new Date();
+      const since = timestampService.subtract(new Date(), 10, "days").getTime();
+      const until = now.getTime();
+      await hubService.fetchPost(hubId, since, until);
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {

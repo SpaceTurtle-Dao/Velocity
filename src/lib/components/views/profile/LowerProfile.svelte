@@ -36,7 +36,7 @@
 
       window.location.href = "/";
     } catch (error) {
-      console.error("Error disconnecting wallet:", error);
+      console.log("Error disconnecting wallet:", error);
     }
   }
 
