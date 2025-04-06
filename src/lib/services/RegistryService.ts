@@ -17,7 +17,6 @@ const service = (): RegistryService => {
         register: async (spec:Spec): Promise<void> => {
             register(spec)
         },
-
         getZones: async (filters: string, page: Number, limit: Number): Promise<Zone[]> => {
             // console.log("since",since);
             // console.log("limit",until);
