@@ -37,7 +37,7 @@
   const profileSchema = z.object({
     name: z.string().min(1, "Name is required"),
     display_name: z.string().min(1, "Display Name is required"),
-    about: z.string().optional(),
+    description: z.string().optional(),
     profileImage: z.string().optional(),
     coverImage: z.string().optional(),
     website: z.string().url().optional().or(z.literal("")),
@@ -49,7 +49,7 @@
   let _profile: ProfileSchemaType = {
     name: initialProfile?.userName || "",
     display_name: initialProfile?.displayName || "",
-    about: initialProfile?.about || "",
+    description: initialProfile?.description || "",
     profileImage: initialProfile?.profileImage || "",
     coverImage: initialProfile?.coverImage || "",
     website: initialProfile?.website || "",
@@ -89,19 +89,20 @@
     try {
       profileSchema.parse(profile);
       errors = {};
-
+      let _profile = profile;
       if (pictureFile) {
         let _pictureFile = await upload(pictureFile);
-        profile.profileImage = _pictureFile.hash;
+        _profile.profileImage = _pictureFile.hash;
       }
       if (coverImageFile) {
         let _coverImageFile = await upload(coverImageFile);
-        profile.coverImage = _coverImageFile.hash;
+        _profile.coverImage = _coverImageFile.hash;
       }
+      profile = _profile;
 
-      const updated_at = Date.now();
+      //const updated_at = Date.now();
 
-      const content = JSON.stringify({
+      /*const content = JSON.stringify({
         name: profile.name,
         display_name: profile.display_name,
         about: profile.about,
@@ -111,21 +112,21 @@
         website: profile.website,
         coverImage: profile.coverImage,
         bot: profile.bot,
-      });
+      });*/
       try {
         if ($addressStore.address) {
-          const tags: Tag[] = [
+          /*const tags: Tag[] = [
             { name: "UserName", value: profile.name },
             { name: "DisplayName", value: profile.display_name },
             { name: "Description", value: profile.about || "" },
             { name: "CoverImage", value: profile.coverImage || "" },
             { name: "ProfileImage", value: profile.profileImage || "" },
-          ];
+          ];*/
 
           let data = {
             UserName: profile.name,
             DisplayName: profile.display_name,
-            description: profile.about,
+            description: profile.description,
             ProfileImage: profile.profileImage,
             CoverImage: profile.coverImage,
           };
@@ -170,7 +171,13 @@
         <form on:submit|preventDefault={() => {}} class="space-y-6">
           <div class="relative mb-16">
             <div class="h-32 bg-gray-200 relative">
-              {#if profile.coverImage}
+              {#if coverImageFile}
+                <img
+                  src={URL.createObjectURL(coverImageFile)}
+                  alt="coverImage"
+                  class="w-full h-full object-cover"
+                />
+              {:else if profile.coverImage}
                 <img
                   src={toUrl(profile.coverImage)}
                   alt="coverImage"
@@ -194,9 +201,15 @@
             <div class="absolute bottom-0 left-4 transform translate-y-1/3">
               <div class="relative">
                 <Avatar class="w-24 h-24 border-4 border-white">
-                  {#if profile.profileImage}
+                  {#if pictureFile}
                     <AvatarImage
-                    class="object-cover"
+                      class="object-cover"
+                      src={URL.createObjectURL(pictureFile)}
+                      alt={profile.name}
+                    />
+                  {:else if profile.profileImage}
+                    <AvatarImage
+                      class="object-cover"
                       src={toUrl(profile.profileImage)}
                       alt={profile.name}
                     />
@@ -246,8 +259,8 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="about">About</Label>
-            <Textarea id="about" bind:value={profile.about} rows={3} />
+            <Label for="description">About</Label>
+            <Textarea id="description" bind:value={profile.description} rows={3} />
           </div>
 
           <div class="space-y-2">

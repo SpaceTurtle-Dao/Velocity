@@ -51,6 +51,11 @@
 
   let showModal = false;
   let followListLoading = false;
+
+  profileService.subscribe((profiles) => {
+    if(params.address && profiles.has(params.address)) profile = profiles.get(params.address);
+  })
+
   hubService.subscribe((value) => {
     posts = value.values().toArray();
     media = posts.filter((value) => {
