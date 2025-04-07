@@ -28,7 +28,6 @@
   export let params: { address?: string } = {};
 
   let profile: Profile;
-  let activeTab: string = "posts";
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
   let hubId: string;
@@ -50,14 +49,23 @@
   ];
 
   let showModal = false;
-  let followListLoading = false;
 
   profileService.subscribe((profiles) => {
     if(params.address && profiles.has(params.address)) profile = profiles.get(params.address);
   })
 
   hubService.subscribe((value) => {
-    posts = value.values().toArray();
+    let _posts: Array<Post> = [];
+    let temp = value.values().toArray()
+    for(var i = 0; i < temp.length; i++){
+      if(temp[i].from == hubId){
+        _posts.push(temp[i])
+      }
+    }
+    posts = _posts
+    /*posts = _posts.filter((post) => {
+      true
+    })*/
     media = posts.filter((value) => {
       if (value.mimeType) {
         return mimeTypes.includes(value.mimeType);
@@ -235,11 +243,11 @@
     <Tabs.Root bind:value class="max-w-prose ">
       <Tabs.List class="grid grid-cols-4">
         <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchPost} value="media">Media</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchPost} value="media">Assets</Tabs.Trigger>
         <Tabs.Trigger on:click={fetchSubscriptions} value="subscribed"
-          >Subscribed</Tabs.Trigger
+          >Following</Tabs.Trigger
         >
-        <Tabs.Trigger on:click={fetchSubs} value="assets">Assets</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchSubs} value="assets">Followers</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="post">
         {#each posts as post}
