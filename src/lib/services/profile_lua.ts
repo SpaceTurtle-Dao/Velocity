@@ -163,7 +163,6 @@ Handlers.add('Update-Profile', Handlers.utils.hasMatchingTag('Action', 'Update-P
             Profile.Description = msg.Tags.Description or data.Description or Profile.Description or ''
             Profile.CoverImage = msg.Tags.CoverImage or data.CoverImage or Profile.CoverImage or ''
             Profile.ProfileImage = msg.Tags.ProfileImage or data.ProfileImage or Profile.ProfileImage or ''
-            Profile.DateCreated = Profile.DateCreated or msg.Timestamp
             Profile.DateUpdated = msg.Timestamp
 
             -- if FirstRunCompleted then

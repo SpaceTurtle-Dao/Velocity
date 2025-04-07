@@ -1,7 +1,6 @@
 <script lang="ts">
   import ProfileCard from "$lib/components/views/profile/ProfileCard.svelte";
   import * as Card from "$lib/components/ui/card/index.js";
-  import { currentUser } from "$lib/stores/current-user.store";
   import type { Profile } from "$lib/models/Profile";
   import { onMount } from "svelte";
   import { profileService } from "$lib/services/ProfileService";

@@ -27,7 +27,11 @@ const service = (): UCMService => {
             // Browser Usage
             const wallet = window.arweaveWallet;
             const permaweb = Permaweb.init({
-                ao: connect(),
+                ao: connect({
+                    MU_URL: "https://mu.ao-testnet.xyz",
+                    CU_URL: "https://cu.ao-testnet.xyz",
+                    GATEWAY_URL: "https://arweave.net",
+                  },),
                 arweave: Arweave.init({
                     host: "arweave.net",
                     port: 443,

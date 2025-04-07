@@ -9,6 +9,6 @@
 
 {#if profile}
   <ProfileHoverCard {profile}>
-    <ProfilePicture name={profile.name} src={profile.picture} {size} />
+    <ProfilePicture name={profile.displayName} src={`https://www.arweave.net/${profile.profileImage}`} {size} />
   </ProfileHoverCard>
 {/if}

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { fetchEvents, event as aoEvent } from "$lib/ao/relay";
-  import { currentUser } from "$lib/stores/current-user.store";
   import {
     Avatar,
     AvatarImage,

@@ -3,7 +3,6 @@
   import { MoreHorizontal } from "lucide-svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import DisconnectButton from "$lib/components/DisconnectWallet/DisconnectWallet.svelte";
-  import { currentUser } from "$lib/stores/current-user.store";
   import { addressStore } from "$lib/stores/address.store";
   import { writable } from "svelte/store";
   import { profileService } from "$lib/services/ProfileService";
@@ -23,7 +22,7 @@
   // Function to format Arweave transaction URLs
   function toUrl(tx: string) {
     return (
-      "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
+      "https://arweave.net/" +
       tx
     );
   }
@@ -66,7 +65,11 @@
       on:click={toggleMenu}
       class="flex items-center space-x-4 focus:outline-none"
     >
-      <ProfilePicture src={profile.profileImage} name={profile.userName} />
+      {#if profile.profileImage}
+      <ProfilePicture src={toUrl(profile.profileImage)} name={profile.userName} />
+      {:else}
+      <ProfilePicture name={profile.userName} />
+      {/if}
       <div class="flex-grow text-left">
         <p class="font-semibold text-white">{profile.displayName}</p>
         <p class="text-sm text-white">@{profile.userName}</p>

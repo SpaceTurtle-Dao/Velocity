@@ -3,12 +3,21 @@
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
   import Logo from "../../../../assets/Logo2.png";
-  import { Home as HomeIcon, User, MoreHorizontal, Mail, Search, TestTube } from "lucide-svelte";
+  import {
+    Home as HomeIcon,
+    User,
+    MoreHorizontal,
+    Mail,
+    Search,
+    TestTube,
+  } from "lucide-svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { addressStore } from "$lib/stores/address.store";
   import { Loader } from "lucide-svelte";
-  import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import SearchBar from "$lib/components/Search/SearchPage.svelte";
+  import Connect from "$lib/components/wallet/connect.svelte";
+  import { registryService } from "$lib/services/RegistryService";
+  import CreateProfile from "../profile/CreateProfile.svelte";
 
   let loader = false;
 
@@ -17,7 +26,7 @@
 
   let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/feed" },
-    { icon: Search, label: "Search", href: "/search"},
+    { icon: Search, label: "Search", href: "/search" },
     { icon: User, label: "Profile", href: "/feed" },
     { icon: Mail, label: "Messages", href: "/messages" },
     { icon: TestTube, label: "Collections", href: "/collections" },
@@ -95,27 +104,24 @@
           </li>
         </ul>
       </nav>
-
       {#if $addressStore.address}
-        <CreatePostModal />
+        {#await registryService.getZoneById($addressStore.address)}
+          <!-- promise is pending -->
+          <!--<p>waiting for the promise to resolve...</p>-->
+        {:then zone}
+          <CreatePostModal />
+        {:catch error}
+          <CreateProfile />
+        {/await}
       {:else}
         <div class="mt-8 flex flex-col items-center justify-center">
           {#if loader}
             <Loader class="animate-spin w-12 h-12" />
           {:else}
-            <ButtonWithLoader
-              {loader}
-              class="w-full"
-              on:click={async () => {
-                loader = true;
-                await addressStore.connectWallet();
-                loader = false;
-              }}>Connect Wallet</ButtonWithLoader
-            >
+            <Connect {loader} />
           {/if}
         </div>
       {/if}
-
       <div class="p-4">
         <LowerProfile />
       </div>

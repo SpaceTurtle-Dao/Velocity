@@ -6,103 +6,96 @@
   import { onMount } from "svelte";
   import type { Profile } from "$lib/models/Profile";
   import Follow from "../Follow/Follow.svelte";
-  import { fetchFollowList } from "$lib/ao/relay";
   import { Skeleton } from "$lib/components/ui/skeleton";
-    import { addressStore } from "$lib/stores/address.store";
+  import { addressStore } from "$lib/stores/address.store";
+  import { hubService } from "$lib/services/HubService";
+  import { registryService } from "$lib/services/RegistryService";
+  import type { Hub } from "$lib/models/Hub";
 
   export let profile: Profile;
+  let hub: Hub;
+  let isCurrentUser = $addressStore.address === profile.owner;
 
-  let numberOfFollowing = 0;
-
-  let isCurrentUser = $addressStore.address === profile.address;
-
-  let followListLoading = false;
-
-  onMount(() => {
-    if (isCurrentUser) {
-      numberOfFollowing = profile.followList.length;
-    } else {
-      followListLoading = true;
-      fetchFollowList(profile.address)
-        .then((followList) => {
-          numberOfFollowing = followList.length;
-          followListLoading = false;
-        })
-        .catch((e) => {
-          console.error(e);
-        });
+  onMount(async () => {
+    try {
+      let zone = await registryService.getZoneById(profile.owner);
+      console.log(zone);
+      hub = await hubService.info(zone.spec.processId);
+      console.log(hub);
+    } catch (e) {
+      console.log(e);
     }
   });
 </script>
 
-{#if profile}
-  <HoverCard.Root>
-    <HoverCard.Trigger>
-      <a href="/profile/{profile.address}" use:link>
-        <slot />
-      </a>
-    </HoverCard.Trigger>
-    <HoverCard.Content align="start">
-      <div class="flex justify-between">
-        {#if profile.picture}
-        <a href="/profile/{profile.address}" use:link>
-          <ProfilePicture name={profile.name} src={profile.picture} size="xl" />
+<HoverCard.Root>
+  <HoverCard.Trigger>
+    <a href="/profile/{profile.owner}" use:link>
+      <slot />
+    </a>
+  </HoverCard.Trigger>
+  <HoverCard.Content align="start">
+    <div class="flex justify-between">
+      {#if profile.profileImage}
+        <a href="/profile/{profile.owner}" use:link>
+          <ProfilePicture
+            name={profile.displayName}
+            src={`https://www.arweave.net/${profile.profileImage}`}
+            size="xl"
+          />
         </a>
-        {/if}
+      {/if}
 
-        {#if !isCurrentUser}
-          <Follow address={profile.address} />
-        {/if}
+      {#if !isCurrentUser}
+        <Follow address={profile.owner} />
+      {/if}
+    </div>
+
+    <div class="text-primary text-lg font-bold">
+      <a href="/profile/{profile.owner}" use:link>{profile.userName}</a>
+    </div>
+
+    <div class="text-muted-foreground text-base font-normal">
+      <a href="/profile/{profile.owner}" use:link>@{profile.displayName}</a>
+    </div>
+
+    {#if profile.about}
+      <div class="text-primary text-base font-normal mt-4">
+        {profile.about}
       </div>
+    {/if}
 
-      <div class="text-primary text-lg font-bold">
-        <a href="/profile/{profile.address}" use:link>{profile.name}</a>
-      </div>
-
-      <div class="text-muted-foreground text-base font-normal">
-        <a href="/profile/{profile.address}" use:link>@{profile.display_name}</a
+    {#if profile.website}
+      <div class="mt-4">
+        <a
+          class="text-blue-500 hover:underline"
+          href={profile.website}
+          target="_blank"
+          rel="noopener noreferrer"
         >
+          {getDisplayUrl(profile.website)}
+        </a>
       </div>
+    {/if}
 
-      {#if profile.about}
-        <div class="text-primary text-base font-normal mt-4">
-          {profile.about}
-        </div>
-      {/if}
-
-      {#if profile.website}
-        <div class="mt-4">
-          <a
-            class="text-blue-500 hover:underline"
-            href={profile.website}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {getDisplayUrl(profile.website)}
-          </a>
-        </div>
-      {/if}
-
-      <div class="flex justify-between mt-4 items-center">
-        {#if followListLoading}
-          <Skeleton class="h-4 w-[92px] rounded-full" />
-        {:else}
-          <div>
-            <span class="text-sm font-bold">{numberOfFollowing}</span>
-
-            <span class="text-sm font-normal text-muted-foreground"
-              >Subscribing</span
-            >
-          </div>
-        {/if}
-
+    <div class="flex justify-between mt-4 items-center">
+      {#if !hub}
+        <Skeleton class="h-4 w-[92px] rounded-full" />
+      {:else}
         <div>
-          <!-- <span class="text-sm font-bold">{userInfo.Subs}</span> -->
-          <!--<span class="text-sm font-normal text-muted-foreground"
-          >Subscribers</span
-        >-->
+          <span class="text-sm font-bold">{hub.Following.length}</span>
+
+          <span class="text-sm font-normal text-muted-foreground"
+            >Subscribing</span
+          >
         </div>
-      </div>
-    </HoverCard.Content>
-  </HoverCard.Root>
-{/if}
+        <div>
+          <span class="text-sm font-bold">{hub.Followers.length}</span>
+          <span class="text-sm font-normal text-muted-foreground"
+            >Subscribers</span
+          >
+        </div>
+      {/if}
+    </div>
+  </HoverCard.Content>
+</HoverCard.Root>

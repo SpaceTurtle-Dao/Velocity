@@ -35,7 +35,7 @@
           @{profile.displayName}
         </p>
         {#if profile.about}
-          <p class="line-clamp-2" id={profile.address}>
+          <p class="line-clamp-2" id={profile.owner}>
             {profile.about}
           </p>
         {/if}

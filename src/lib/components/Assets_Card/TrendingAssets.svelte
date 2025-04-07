@@ -4,9 +4,9 @@
   import { ucmService } from "$lib/services/UCMService";
   import { onMount } from "svelte";
   //@ts-ignore
-  import { type CollectionType } from '@permaweb/libs';
-  import { isMobile } from "$lib/stores/is-mobile.store";
+  import { type CollectionType } from "@permaweb/libs";
   import TrendingAssetHoverCard from "./TrendingAssetsHoverCard.svelte";
+  import { isMobile } from "$lib/stores/is-mobile.store";
   
   let collections: CollectionType[] = [];
   let isLoading = true;
@@ -26,19 +26,27 @@
   
   function handleBuy(collectionId: string) {
     const url = `https://bazar.arweave.net/#/collection/${collectionId}/assets/`;
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   }
   
   function truncateAddress(address: string): string {
     if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-6)}`;
   }
-  
+
   function truncateTitle(title: string): string {
     if (title && title.length > 20) {
       return title.slice(0, 20) + "...";
     }
-    return title || "Untitled";
+    return title;
+  }
+  function isValidUrl(url:string) {
+    try {
+      new URL(url);
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 </script>
 
@@ -97,35 +105,44 @@
   <div class="bg-background-800 rounded-lg p-4 shadow-lg border border-border">
     <h2 class="text-lg font-medium text-primary mb-3">Trending Collections</h2>
 
-    {#if isLoading}
-      <div class="flex justify-center items-center py-8">
-        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    {:else}
-      <div class="space-y-2 max-h-96 overflow-y-auto scrollbar-hidden">
-        {#each collections as collection (collection.id)}
-          <TrendingAssetHoverCard {collection}>
-            <div class="flex items-center justify-between bg-background-700 rounded-lg p-2 w-full border border-border">
-              <div class="flex items-center gap-2">
-                {#if collection.thumbnail}
-                  <img
-                    src={`https://arweave.net/${collection.thumbnail}`}
-                    alt={collection.title}
-                    class="w-8 h-8 rounded-full object-cover"
-                  />
-                {:else}
-                  <div class="w-8 h-8 bg-background-600 rounded-full flex items-center justify-center">
-                    <Coins class="w-4 h-4 text-primary opacity-70" />
-                  </div>
-                {/if}
-
-                <div class="flex flex-col">
-                  <span class="text-sm text-primary font-medium">{truncateTitle(collection.title)}</span>
-                  <span class="text-xs text-muted-foreground">
-                    Creator: {truncateAddress(collection.creator)}
-                  </span>
-                </div>
+  <div class="space-y-2 max-h-96 overflow-y-auto scrollbar-hidden">
+    {#each collections as collection (collection.id)}
+      <TrendingAssetHoverCard {collection}>
+        <div
+          class="flex items-center justify-between bg-background-700 rounded-lg p-2 w-full border border-border"
+        >
+          <div class="flex items-center gap-2">
+            {#if collection.thumbnail}
+            {#if isValidUrl(collection.thumbnail)}
+            <img
+                src={collection.thumbnail}
+                alt={collection.title}
+                class="w-8 h-8 rounded-full object-cover"
+              />
+            {:else}
+            <img
+                src={`https://arweave.net/${collection.thumbnail}`}
+                alt={collection.title}
+                class="w-8 h-8 rounded-full object-cover"
+              />
+            {/if}
+            {:else}
+              <div
+                class="w-8 h-8 bg-background-600 rounded-full flex items-center justify-center"
+              >
+                <Coins class="w-4 h-4 text-primary opacity-70" />
               </div>
+            {/if}
+
+            <div class="flex flex-col">
+              <span class="text-sm text-primary font-medium"
+                >{truncateTitle(collection.title)}</span
+              >
+              <span class="text-xs text-muted-foreground">
+                Creator: {truncateAddress(collection.creator)}
+              </span>
+            </div>
+          </div>
 
               <Button
                 variant="default"
@@ -139,7 +156,6 @@
           </TrendingAssetHoverCard>
         {/each}
       </div>
-    {/if}
   </div>
 {/if}
 

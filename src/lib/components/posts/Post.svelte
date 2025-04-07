@@ -24,11 +24,14 @@
   let profile: Profile;
   let replyingTo: Profile;
   let replyCount = 0;
-  let hub: string = "";
 
   let isLoading: boolean = false;
   let loadError: string | null = null;
   let dialogOpen = false;
+
+  profileService.subscribe((profiles) =>{
+    if(profiles.has(post.from)) profile = profiles.get(post.owner), console.log(profile);
+  })
 
   function transformEventToPost(
     event: any,
@@ -46,16 +49,17 @@
     };
   }
 
-  async function loadData(from: string, postId: string) {
-    profile = await profileService.get(from);
-    hub = profile.hubId;
-    replies = await hubService.fetchReplies(hub, postId);
-    replyCount = replies.length;
-    hubService.fetchRepost(hub, postId);
+  async function loadData(from: string) {
+    await profileService.get(from);
+    //hub = profile.hubId;
+    //replies = await hubService.fetchReplies(hub, postId);
+    //replyCount = replies.length;
+    //hubService.fetchRepost(hub, postId);
   }
 
   onMount(async () => {
-    loadData(post.from, post.id);
+    console.log(post)
+    await loadData(post.from);
   });
 
   const dispatch = createEventDispatcher();
@@ -81,7 +85,7 @@
   }
 </script>
 
-{#if post && profile}
+{#if profile}
   <div class="cursor-pointer border border-border">
     <Dialog.Root>
       <Dialog.Trigger asChild>
@@ -144,7 +148,7 @@
               <div class="flex items-center text-muted-foreground mb-2">
                 <Repeat2Icon size={16} class="mr-2" />
                 <span class="text-sm">
-                  {#if profile.address == $addressStore?.address}
+                  {#if profile.owner == $addressStore?.address}
                     You Reposted
                   {:else}
                     Reposted by @{profile.userName}

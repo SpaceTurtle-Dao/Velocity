@@ -1,35 +1,43 @@
-<!-- <script lang="ts">
+<script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
-  import { currentUser } from "$lib/stores/current-user.store";
   import { onMount } from "svelte";
-  import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
+  import { hubService } from "$lib/services/HubService";
+  import { registryService } from "$lib/services/RegistryService";
+  import type { Hub } from "$lib/models/Hub";
 
   export let address: string;
-
-  let isSubscribed: boolean = $followListStore.has(address);
+  let hub: Hub;
   let isSubscribed: boolean;
   let loader = false;
 
   async function unsubscribe() {
     loader = true;
-    await currentUser.unfollow(address);
+    let temp = hub;
+    temp.Following = temp.Following.filter((value) => value != address)
+    hub = temp;
+    await hubService.updateFollowList(hub.spec.processId,hub.Following)
     loader = false;
   }
 
   async function subscribe() {
+    if (hub.Following.includes(address)) return;
     loader = true;
-    await currentUser.follow(address);
+    let temp = hub;
+    temp.Following.push(address);
+    hub = temp;
+    await hubService.updateFollowList(hub.spec.processId,hub.Following)
     loader = false;
   }
   onMount(async () => {
     if (!$addressStore.address) return;
-    let profile = await profileService.get($addressStore.address);
-    isSubscribed = profile.followList.includes(address);
+    let zone = await registryService.getZoneById($addressStore.address);
+    hub = await hubService.info(zone.spec.processId);
+    isSubscribed = hub.Following.includes(address)!;
   });
 </script>
 
-{#if $addressStore.address}
+{#if hub}
   {#if isSubscribed}
     <ButtonWithLoader
       {loader}
@@ -51,4 +59,4 @@
       >Subscribe
     </ButtonWithLoader>
   {/if}
-{/if} -->
+{/if}

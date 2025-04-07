@@ -13,6 +13,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
   import { onMount } from "svelte";
+  import { registryService } from "$lib/services/RegistryService";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -22,13 +23,16 @@
   let dialogOpen = false;
   let gifSearchOpen = false;
   let selectedGifUrl: string | null = null;
-  let hubId: string = "";
+  let hubId: string;
 
   async function initializeHubId() {
     if ($addressStore.address) {
-      const profile = await profileService.get($addressStore.address);
-      hubId = profile.hubId;
-      console.log("*** Hub ID ***", hubId);
+      const hub = await registryService.getZoneById($addressStore.address);
+      console.log(hub)
+      if (hub) {
+        hubId = hub.spec.processId;
+        console.log("*** Hub ID ***", hubId);
+      }
     }
   }
 
@@ -67,7 +71,7 @@
 
   function handleGifSelect(url: string) {
     selectedGifUrl = url;
-    selectedMedia = null; 
+    selectedMedia = null;
     mediaPreviewUrl = null;
     if (fileInput) {
       fileInput.value = "";
@@ -123,7 +127,7 @@
         value: _content,
       };
       _tags.push(contentTag);
-      
+
       await event(hubId, _tags);
       dialogOpen = false;
       clearFields();

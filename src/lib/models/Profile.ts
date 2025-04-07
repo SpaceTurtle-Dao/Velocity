@@ -13,14 +13,13 @@ export type Profile = {
   coverImage?: string;
   userName: string;
   description?: string;
-  address?: string;
-  followList?: string[];
+  id: string;
+  owner: string;
   website?: string;
   thumbnail?: string;
   bot?: boolean;
   dateCreated: number;
   updated_at?: number;
-  hubId: string;
 };
 
 export const profileFromEvent = (event: any): Profile => {

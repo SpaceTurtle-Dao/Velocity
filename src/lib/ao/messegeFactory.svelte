@@ -86,8 +86,14 @@
 
 	export const FetchEvents = (filters: string) => {
 		return [
-			{ name: "Action", value: "GetZones" },
+			{ name: "Action", value: "FetchEvents" },
 			{ name: "Filters", value: filters },
+		];
+	};
+
+	export const UpdateProfile = () => {
+		return [
+			{ name: "Action", value: "Update-Profile" },
 		];
 	};
 

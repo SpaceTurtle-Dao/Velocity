@@ -17,7 +17,6 @@ const service = (): RegistryService => {
         register: async (spec:Spec): Promise<void> => {
             register(spec)
         },
-
         getZones: async (filters: string, page: Number, limit: Number): Promise<Zone[]> => {
             // console.log("since",since);
             // console.log("limit",until);
@@ -46,6 +45,7 @@ const service = (): RegistryService => {
         getZoneById: async (owner: string): Promise<Zone> => {
             let zones = get(registryService)
             let _zones = zones.filter(zone => zone.owner == owner)
+            console.log(_zones)
             if (_zones.length > 0) {
                 getZone(owner).then((zone) => {
                     if (zone) {
@@ -61,6 +61,7 @@ const service = (): RegistryService => {
                         set(zones)
                     }
                 })
+                console.log(zones)
                 return _zones[0]
             } else {
                 const zone = await getZone(owner)
@@ -76,6 +77,7 @@ const service = (): RegistryService => {
                       ),
                     ];
                     set(zones)
+                    console.log(zones)
                     return newZone;
                 }
                 throw new Error("Zone not found");
