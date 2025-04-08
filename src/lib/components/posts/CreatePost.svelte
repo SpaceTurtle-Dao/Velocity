@@ -175,11 +175,20 @@
       <div class="flex">
         {#if $addressStore.address}
           {#await profileService.get($addressStore.address) then profile}
-            <ProfilePicture
+          {#if profile.profileImage}
+          <ProfilePicture
               src={profile.profileImage}
               name={profile.userName}
               size="lg"
             />
+          {:else}
+          <ProfilePicture
+              src=""
+              name={profile.userName}
+              size="lg"
+            />
+          {/if}
+            
           {/await}
         {/if}
 

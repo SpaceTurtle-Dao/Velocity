@@ -18,11 +18,10 @@
   import { hubService } from "$lib/services/HubService";
   import { PostType, type Post } from "$lib/models/Post";
   import { addressStore } from "$lib/stores/address.store";
-    import type { Zone } from "$lib/models/Zone";
-    import type { Hub } from "$lib/models/Hub";
+  import type { Hub } from "$lib/models/Hub";
 
   export let post: Post;
-  let hub:Hub;
+  let hub: Hub;
   let replies: Post[] = [];
   let profile: Profile;
   let replyingTo: Profile;
@@ -32,12 +31,12 @@
   let loadError: string | null = null;
   let dialogOpen = false;
 
-  profileService.subscribe((profiles) =>{
-    if(!hub) return;
-    if(profiles.has(hub.User)) profile = profiles.get(hub.User);
-    console.log(hub.User)
-    console.log(profile)
-  })
+  profileService.subscribe((profiles) => {
+    if (!hub) return;
+    if (profiles.has(hub.User)) profile = profiles.get(hub.User);
+    console.log(hub.User);
+    console.log(profile);
+  });
 
   function transformEventToPost(
     event: any,
@@ -56,8 +55,8 @@
   }
 
   async function loadData() {
-    hub = await hubService.info(post.from)
-    console.log(hub)
+    hub = await hubService.info(post.from);
+    console.log(hub);
     profile = await profileService.get(hub.User);
     //hub = profile.hubId;
     //replies = await hubService.fetchReplies(hub, postId);
@@ -66,7 +65,7 @@
   }
 
   onMount(async () => {
-    console.log("loading data")
+    console.log("loading data");
     await loadData();
   });
 
