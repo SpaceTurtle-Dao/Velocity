@@ -11,7 +11,6 @@
     import { registryService } from "$lib/services/RegistryService";
 
     export let post: Post;
-    export let hubId: string;
 
     let liked = false;
     let likes: Array<any> = [];
@@ -52,8 +51,8 @@
             likes = temp;
             liked = true;
         }
-        await event(hubId, _tags);
-        hubService.fetchLikes(hubId, post.id).then((_likes) => {
+        await event(post.from, _tags);
+        hubService.fetchLikes(post.from, post.id).then((_likes) => {
             likes = _likes;
             let temp = likes.filter((like) => {
                 return like.From == $addressStore.address;
@@ -64,7 +63,7 @@
 
     onMount(async () => {
         if (post.from) {
-            hubService.fetchLikes(hubId, post.id).then((_likes) => {
+            hubService.fetchLikes(post.from, post.id).then((_likes) => {
                 likes = _likes;
                 let temp = likes.filter((like) => {
                     return like.From == $addressStore.address;

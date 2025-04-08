@@ -20,8 +20,8 @@
   let address: string;
 
   hubService.subscribe(async (posts) => {
-    console.log(posts);
     feed = posts.values().toArray();
+    console.log(feed);
   });
 
   addressStore.subscribe(async (value) => {
@@ -179,7 +179,7 @@
             <div>
               {#each feed as post}
                 <div class="max-w-prose">
-                  <PostComponent {post} {hubId}/>
+                  <PostComponent {post}/>
                 </div>
               {/each}
 
@@ -221,7 +221,7 @@
             <div>
               {#each following as post}
                 <div class="max-w-prose">
-                  <PostComponent {post} {hubId}/>
+                  <PostComponent {post}/>
                 </div>
               {/each}
             </div>

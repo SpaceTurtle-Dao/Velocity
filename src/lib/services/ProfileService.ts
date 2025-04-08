@@ -60,7 +60,7 @@ const service = (): ProfileService => {
     get: async (address: string) => {
       let profile: Profile = {
         userName: "Anonymous",
-        about: undefined,
+        description: undefined,
         profileImage: undefined,
         displayName: "Anonymous",
         id: address,
@@ -81,7 +81,6 @@ const service = (): ProfileService => {
           if (_profile) {
             profile = _profile;
           }
-          console.log("*** Profile ***", profile);
           profiles.set(address, profile);
           set(profiles);
         });

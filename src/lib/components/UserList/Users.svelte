@@ -5,6 +5,7 @@
   import { onMount } from "svelte";
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
+  import { hubService } from "$lib/services/HubService";
 
   export let addresss: string[] = [];
   const ITEMS_PER_PAGE = 100;
@@ -12,10 +13,6 @@
   let containerRef: HTMLDivElement;
   let loading = false;
   let hasMore = true;
-
-  onMount(() => {
-    loadInitialProfiles();
-  });
 
   /*profileService.subscribe(value => {
     profiles = value.values().toArray()
@@ -59,37 +56,33 @@
   }
 </script>
 
-{#if addresss.length > 0}
-  <div class="w-full h-full">
-    <Card.Root
-      data-x-chunk-name="UserList"
-      data-x-chunk-description="A card showing a list of users."
-      class="border-border rounded p-0 min-w-[280px]"
-    >
-      <Card.Content class="w-full pt-5">
-        <div
-          bind:this={containerRef}
-          on:scroll={handleScroll}
-          class="grid gap-4 lg:gap-6 max-h-[60vh] lg:max-h-[80vh] overflow-y-auto scrollable-element pr-2 lg:pr-3"
-        >
-          {#each addresss as address}
-            {#if address !== $addressStore.address}
-              <ProfileCard {address} />
-            {/if}
-          {/each}
+<div class="w-full h-full">
+  <Card.Root
+    data-x-chunk-name="UserList"
+    data-x-chunk-description="A card showing a list of users."
+    class="border-border rounded p-0 min-w-[280px]"
+  >
+    <Card.Content class="w-full pt-5">
+      <div
+        bind:this={containerRef}
+        on:scroll={handleScroll}
+        class="grid gap-4 lg:gap-6 max-h-[60vh] lg:max-h-[80vh] overflow-y-auto scrollable-element pr-2 lg:pr-3"
+      >
+        {#each addresss as hubId}
+          <ProfileCard {hubId} />
+        {/each}
 
-          {#if loading}
-            <div class="flex justify-center p-4">
-              <div
-                class="animate-spin h-6 w-6 border-2 border-primary rounded-full border-t-transparent"
-              ></div>
-            </div>
-          {/if}
-        </div>
-      </Card.Content>
-    </Card.Root>
-  </div>
-{/if}
+        {#if loading}
+          <div class="flex justify-center p-4">
+            <div
+              class="animate-spin h-6 w-6 border-2 border-primary rounded-full border-t-transparent"
+            ></div>
+          </div>
+        {/if}
+      </div>
+    </Card.Content>
+  </Card.Root>
+</div>
 
 <style>
   .scrollable-element {

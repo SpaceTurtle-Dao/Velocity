@@ -19,9 +19,7 @@
   onMount(async () => {
     try {
       let zone = await registryService.getZoneById(profile.owner);
-      console.log(zone);
       hub = await hubService.info(zone.spec.processId);
-      console.log(hub);
     } catch (e) {
       console.log(e);
     }
@@ -44,10 +42,18 @@
             size="xl"
           />
         </a>
+        {:else}
+        <a href="/profile/{profile.owner}" use:link>
+          <ProfilePicture
+            name={profile.displayName}
+            src=""
+            size="xl"
+          />
+        </a>
       {/if}
 
       {#if !isCurrentUser}
-        <Follow address={profile.owner} />
+        <Follow hubId={profile.owner} />
       {/if}
     </div>
 
@@ -59,9 +65,9 @@
       <a href="/profile/{profile.owner}" use:link>@{profile.displayName}</a>
     </div>
 
-    {#if profile.about}
+    {#if profile.description}
       <div class="text-primary text-base font-normal mt-4">
-        {profile.about}
+        {profile.description}
       </div>
     {/if}
 

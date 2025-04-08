@@ -6,16 +6,26 @@
   import { getDisplayUrl } from "$lib/utils/url.utils";
   import { profileService } from "$lib/services/ProfileService";
   import { onMount } from "svelte";
+    import { hubService } from "$lib/services/HubService";
+    import ProfilePictureHoverCard from "$lib/components/UserProfile/ProfilePictureHoverCard.svelte";
 
-  export let address: string;
+  export let hubId: string;
   let profile: Profile;
+  let address:string;
 
   profileService.subscribe((profiles) => {
     if (!profiles.has(address)) return;
     profile = profiles.get(address);
+    console.log(profile)
   });
 
+  function toUrl(tx: string) {
+    return `https://arweave.net/${tx}`;
+  }
+
   onMount(async () => {
+    let hub = await hubService.info(hubId)
+    address = hub.User;
     profileService.get(address);
   });
 </script>
@@ -24,7 +34,10 @@
   <div class="flex items-center justify-between min-w-0">
     <div class="flex gap-2">
       <div class="hidden sm:flex justify-center pt-1.5">
-        <ProfilePicture src={profile.thumbnail} name={profile.userName} />
+        <ProfilePictureHoverCard
+            {profile}
+            size="lg"
+          />
       </div>
       <div class="grid overflow-hidden">
         <ProfileHoverCard {profile}>
@@ -34,9 +47,9 @@
         <p class="text-muted-foreground text-sm truncate">
           @{profile.displayName}
         </p>
-        {#if profile.about}
+        {#if profile.description}
           <p class="line-clamp-2" id={profile.owner}>
-            {profile.about}
+            {profile.description}
           </p>
         {/if}
         {#if profile.website}

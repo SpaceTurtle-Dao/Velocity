@@ -17,7 +17,6 @@
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
   // import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
-  import PublicProfile from "$lib/components/views/profile/PublicProfile.svelte";
   import Search from "$lib/components/Search/SearchPage.svelte";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
   import CollectionsPage from "$lib/components/Assets_Card/CollectionPage.svelte";
@@ -36,7 +35,6 @@
     // "/createprofile": CreateProfile,
     "/messages": MessagesPage,
     "/profile/:address": Profile,
-    "/public/profile/:address": PublicProfile,
     "/post/:hubId/:id": IndividualPost,
     "/signup": SignUp,
     "/test": MobileTopView,
