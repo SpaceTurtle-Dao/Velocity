@@ -21,7 +21,6 @@
   import Search from "$lib/components/Search/SearchPage.svelte";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
   import CollectionsPage from "$lib/components/Assets_Card/CollectionPage.svelte";
-
   let address:string;
 
   addressStore.subscribe((value) => {
