@@ -18,9 +18,11 @@
   import { hubService } from "$lib/services/HubService";
   import { PostType, type Post } from "$lib/models/Post";
   import { addressStore } from "$lib/stores/address.store";
+    import type { Zone } from "$lib/models/Zone";
+    import type { Hub } from "$lib/models/Hub";
 
   export let post: Post;
-  export let hubId: string;
+  let hub:Hub;
   let replies: Post[] = [];
   let profile: Profile;
   let replyingTo: Profile;
@@ -31,7 +33,10 @@
   let dialogOpen = false;
 
   profileService.subscribe((profiles) =>{
-    if(profiles.has(post.from)) profile = profiles.get(post.owner), console.log(profile);
+    if(!hub) return;
+    if(profiles.has(hub.User)) profile = profiles.get(hub.User);
+    console.log(hub.User)
+    console.log(profile)
   })
 
   function transformEventToPost(
@@ -50,8 +55,10 @@
     };
   }
 
-  async function loadData(from: string) {
-    await profileService.get(from);
+  async function loadData() {
+    hub = await hubService.info(post.from)
+    console.log(hub)
+    profile = await profileService.get(hub.User);
     //hub = profile.hubId;
     //replies = await hubService.fetchReplies(hub, postId);
     //replyCount = replies.length;
@@ -59,8 +66,8 @@
   }
 
   onMount(async () => {
-    console.log(post)
-    await loadData(post.from);
+    console.log("loading data")
+    await loadData();
   });
 
   const dispatch = createEventDispatcher();
@@ -243,7 +250,7 @@
                   </span>
                 </div>
                 <Repost post={post.rePost} />
-                <Like post={post.rePost} {hubId} />
+                <Like post={post.rePost} />
                 <Buy />
               {:else}
                 <div class="flex items-center">
@@ -253,7 +260,7 @@
                   </span>
                 </div>
                 <Repost {post} />
-                <Like {post} {hubId} />
+                <Like {post} />
                 <Buy />
               {/if}
               <Share />

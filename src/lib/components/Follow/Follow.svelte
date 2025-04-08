@@ -4,36 +4,38 @@
   import { addressStore } from "$lib/stores/address.store";
   import { hubService } from "$lib/services/HubService";
   import { registryService } from "$lib/services/RegistryService";
+  import type { Zone } from "$lib/models/Zone";
   import type { Hub } from "$lib/models/Hub";
 
-  export let address: string;
+  export let hubId: string;
   let hub: Hub;
+  let zone: Zone;
   let isSubscribed: boolean;
   let loader = false;
 
   async function unsubscribe() {
     loader = true;
     let temp = hub;
-    temp.Following = temp.Following.filter((value) => value != address)
+    temp.Following = temp.Following.filter((value) => value != hubId);
     hub = temp;
-    await hubService.updateFollowList(hub.spec.processId,hub.Following)
+    await hubService.updateFollowList(zone.spec.processId, hub.Following);
     loader = false;
   }
 
   async function subscribe() {
-    if (hub.Following.includes(address)) return;
+    if (hub.Following.includes(hubId)) return;
     loader = true;
     let temp = hub;
-    temp.Following.push(address);
+    temp.Following.push(hubId);
     hub = temp;
-    await hubService.updateFollowList(hub.spec.processId,hub.Following)
+    await hubService.updateFollowList(zone.spec.processId, hub.Following);
     loader = false;
   }
   onMount(async () => {
     if (!$addressStore.address) return;
-    let zone = await registryService.getZoneById($addressStore.address);
+    zone = await registryService.getZoneById($addressStore.address);
     hub = await hubService.info(zone.spec.processId);
-    isSubscribed = hub.Following.includes(address)!;
+    isSubscribed = hub.Following.includes(hubId)!;
   });
 </script>
 
@@ -46,8 +48,8 @@
       on:click={unsubscribe}
       disabled={loader}
     >
-      <span class="group-hover:hidden">Subscribed</span>
-      <span class="hidden group-hover:block text-red-500">Unsubscribe </span>
+      <span class="group-hover:hidden">Following</span>
+      <span class="hidden group-hover:block text-red-500">Unfollow </span>
     </ButtonWithLoader>
   {:else}
     <ButtonWithLoader
@@ -56,7 +58,7 @@
       loaderClass="size-5"
       on:click={subscribe}
       disabled={loader}
-      >Subscribe
+      >Follow
     </ButtonWithLoader>
   {/if}
 {/if}

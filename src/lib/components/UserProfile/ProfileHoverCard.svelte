@@ -19,9 +19,7 @@
   onMount(async () => {
     try {
       let zone = await registryService.getZoneById(profile.owner);
-      console.log(zone);
       hub = await hubService.info(zone.spec.processId);
-      console.log(hub);
     } catch (e) {
       console.log(e);
     }
@@ -47,7 +45,7 @@
       {/if}
 
       {#if !isCurrentUser}
-        <Follow address={profile.owner} />
+        <Follow hubId={profile.owner} />
       {/if}
     </div>
 

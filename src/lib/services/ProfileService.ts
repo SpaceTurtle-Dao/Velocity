@@ -81,7 +81,6 @@ const service = (): ProfileService => {
           if (_profile) {
             profile = _profile;
           }
-          console.log("*** Profile ***", profile);
           profiles.set(address, profile);
           set(profiles);
         });

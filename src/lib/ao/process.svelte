@@ -55,8 +55,8 @@
 		// The only 2 mandatory parameters here are process and signer
 		// connect to the extension
 		// @ts-ignore
-		console.log(processId)
-		console.log(tags)
+		//console.log(processId)
+		//console.log(tags)
 		let result = await dryrun({
 			/*
 		The arweave TXID of the process, this will become the "target".
@@ -67,7 +67,7 @@
 			// Tags that the process will use as input.
 			tags: tags,
 		});
-		console.log(result)
+		//console.log(result)
 		if (result.Messages) {
 			let message = result.Messages.pop();
 			return message;

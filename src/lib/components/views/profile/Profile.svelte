@@ -51,18 +51,19 @@
   let showModal = false;
 
   profileService.subscribe((profiles) => {
-    if(params.address && profiles.has(params.address)) profile = profiles.get(params.address);
-  })
+    if (params.address && profiles.has(params.address))
+      profile = profiles.get(params.address);
+  });
 
   hubService.subscribe((value) => {
     let _posts: Array<Post> = [];
-    let temp = value.values().toArray()
-    for(var i = 0; i < temp.length; i++){
-      if(temp[i].from == hubId){
-        _posts.push(temp[i])
+    let temp = value.values().toArray();
+    for (var i = 0; i < temp.length; i++) {
+      if (temp[i].from == hubId) {
+        _posts.push(temp[i]);
       }
     }
-    posts = _posts
+    posts = _posts;
     /*posts = _posts.filter((post) => {
       true
     })*/
@@ -122,6 +123,7 @@
       hubId = (await registryService.getZoneById(params.address)).spec
         .processId;
       hub = await hubService.info(hubId);
+      console.log(hub)
       if (profile) {
         await fetchPost();
       }
@@ -173,18 +175,18 @@
       <CardContent>
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profile.displayName}</p>
-          <!-- {#if profile.owner != $addressStore.address} -->
-          <!-- <Follow address={profile.owner} /> -->
-          <!-- {:else} -->
-          <Button
-            variant="outline"
-            size="sm"
-            class="text-primary rounded-full"
-            on:click={toggleModal}
-          >
-            Edit Profile
-          </Button>
-          <!-- {/if} -->
+          {#if params.address != $addressStore.address}
+            <Follow {hubId} />
+          {:else}
+            <Button
+              variant="outline"
+              size="sm"
+              class="text-primary rounded-full"
+              on:click={toggleModal}
+            >
+              Edit Profile
+            </Button>
+          {/if}
         </div>
         <p class="text-muted-foreground">
           @{profile.userName}
@@ -222,7 +224,7 @@
             {:else}
               <div class="flex flex-row gap-4">
                 <div>
-                  <span class="font-bold mr-1">{hub.Followers.length}</span>
+                  <span class="font-bold mr-1">{hub.Following.length}</span>
                   <span class="font-normal text-muted-foreground"
                     >Following</span
                   >
@@ -247,19 +249,21 @@
         <Tabs.Trigger on:click={fetchSubscriptions} value="subscribed"
           >Following</Tabs.Trigger
         >
-        <Tabs.Trigger on:click={fetchSubs} value="assets">Followers</Tabs.Trigger>
+        <Tabs.Trigger on:click={fetchSubs} value="assets"
+          >Followers</Tabs.Trigger
+        >
       </Tabs.List>
       <Tabs.Content value="post">
         {#each posts as post}
           <div class="border border-border">
-            <PostComponent {post} {hubId}/>
+            <PostComponent {post}/>
           </div>
         {/each}
       </Tabs.Content>
       <Tabs.Content value="media">
         {#each media as post}
           <div class="border border-border max-w-prose">
-            <PostComponent {post} {hubId}/>
+            <PostComponent {post}/>
           </div>
         {/each}
       </Tabs.Content>
@@ -293,7 +297,11 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile initialProfile={profile} {hubId} on:profileUpdated={toggleModal} />
+      <UpdateProfile
+        initialProfile={profile}
+        {hubId}
+        on:profileUpdated={toggleModal}
+      />
     </div>
   </div>
 {/if}
