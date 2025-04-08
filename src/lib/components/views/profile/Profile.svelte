@@ -91,11 +91,6 @@
     // Implement subscription fetching logic
   }
 
-  async function fetchSubs() {
-    console.log("Fetching subs");
-    // Implement subs fetching logic
-  }
-
   function toggleModal() {
     showModal = !showModal;
   }
@@ -246,10 +241,10 @@
       <Tabs.List class="grid grid-cols-4">
         <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
         <Tabs.Trigger on:click={fetchPost} value="media">Assets</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchSubscriptions} value="subscribed"
+        <Tabs.Trigger on:click={fetchSubscriptions} value="following"
           >Following</Tabs.Trigger
         >
-        <Tabs.Trigger on:click={fetchSubs} value="assets"
+        <Tabs.Trigger value="followers"
           >Followers</Tabs.Trigger
         >
       </Tabs.List>
@@ -267,13 +262,12 @@
           </div>
         {/each}
       </Tabs.Content>
-      <Tabs.Content value="subscribed">
+      <Tabs.Content value="following">
         <!-- Placeholder for subscribed users list -->
-        <Users addresss={[]} />
+        <Users addresss={hub.Following} />
       </Tabs.Content>
-      <Tabs.Content value="assets">
-        <!-- Placeholder for assets -->
-        <p>No assets available</p>
+      <Tabs.Content value="followers">
+        <Users addresss={hub.Followers} />
       </Tabs.Content>
     </Tabs.Root>
   </div>

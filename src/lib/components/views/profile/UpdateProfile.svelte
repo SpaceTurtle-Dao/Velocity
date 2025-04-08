@@ -157,11 +157,11 @@
   }
 
   onMount(async () => {
-    profile = _profile;
+    
   });
 </script>
 
-{#if profile}
+{#if _profile}
   <div class="mx-auto max-w-2xl p-4">
     <Card class="w-full relative border border-border rounded-lg">
       <CardHeader>
@@ -177,9 +177,9 @@
                   alt="coverImage"
                   class="w-full h-full object-cover"
                 />
-              {:else if profile.coverImage}
+              {:else if _profile.coverImage}
                 <img
-                  src={toUrl(profile.coverImage)}
+                  src={toUrl(_profile.coverImage)}
                   alt="coverImage"
                   class="w-full h-full object-cover"
                 />
@@ -205,18 +205,18 @@
                     <AvatarImage
                       class="object-cover"
                       src={URL.createObjectURL(pictureFile)}
-                      alt={profile.name}
+                      alt={_profile.name}
                     />
-                  {:else if profile.profileImage}
+                  {:else if _profile.profileImage}
                     <AvatarImage
                       class="object-cover"
-                      src={toUrl(profile.profileImage)}
-                      alt={profile.name}
+                      src={toUrl(_profile.profileImage)}
+                      alt={_profile.name}
                     />
                   {:else}
                     <AvatarFallback
-                      >{profile.name
-                        ? profile.name[0].toUpperCase()
+                      >{_profile.name
+                        ? _profile.name[0].toUpperCase()
                         : "U"}</AvatarFallback
                     >
                   {/if}
@@ -241,7 +241,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="name">Name *</Label>
-              <Input id="name" bind:value={profile.name} />
+              <Input id="name" bind:value={_profile.name} />
               {#if errors.name}
                 <p class="text-red-500 text-sm">{errors.name}</p>
               {/if}
@@ -249,7 +249,7 @@
 
             <div class="space-y-2">
               <Label for="display_name">Display Name *</Label>
-              <Input id="display_name" bind:value={profile.display_name} />
+              <Input id="display_name" bind:value={_profile.display_name} />
               {#if errors.display_name}
                 <p class="text-red-500 text-sm">
                   {errors.display_name}
@@ -260,12 +260,12 @@
 
           <div class="space-y-2">
             <Label for="description">About</Label>
-            <Textarea id="description" bind:value={profile.description} rows={3} />
+            <Textarea id="description" bind:value={_profile.description} rows={3} />
           </div>
 
           <div class="space-y-2">
             <Label for="website">Website</Label>
-            <Input id="website" type="url" bind:value={profile.website} />
+            <Input id="website" type="url" bind:value={_profile.website} />
             {#if errors.website}
               <p class="text-red-500 text-sm">{errors.website}</p>
             {/if}

@@ -42,6 +42,14 @@
             size="xl"
           />
         </a>
+        {:else}
+        <a href="/profile/{profile.owner}" use:link>
+          <ProfilePicture
+            name={profile.displayName}
+            src=""
+            size="xl"
+          />
+        </a>
       {/if}
 
       {#if !isCurrentUser}
@@ -57,9 +65,9 @@
       <a href="/profile/{profile.owner}" use:link>@{profile.displayName}</a>
     </div>
 
-    {#if profile.about}
+    {#if profile.description}
       <div class="text-primary text-base font-normal mt-4">
-        {profile.about}
+        {profile.description}
       </div>
     {/if}
 
