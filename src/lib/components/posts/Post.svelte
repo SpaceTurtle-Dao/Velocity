@@ -20,6 +20,7 @@
   import { addressStore } from "$lib/stores/address.store";
 
   export let post: Post;
+  export let hubId: string;
   let replies: Post[] = [];
   let profile: Profile;
   let replyingTo: Profile;
@@ -242,7 +243,7 @@
                   </span>
                 </div>
                 <Repost post={post.rePost} />
-                <Like post={post.rePost} />
+                <Like post={post.rePost} {hubId} />
                 <Buy />
               {:else}
                 <div class="flex items-center">
@@ -252,7 +253,7 @@
                   </span>
                 </div>
                 <Repost {post} />
-                <Like {post} />
+                <Like {post} {hubId} />
                 <Buy />
               {/if}
               <Share />

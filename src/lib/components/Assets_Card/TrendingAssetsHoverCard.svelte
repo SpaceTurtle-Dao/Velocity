@@ -17,7 +17,7 @@
         formattedDate = formatDistanceToNow(date, { addSuffix: true });
       }
     } catch (error) {
-      console.error("Error formatting date:", error);
+      console.log("Error formatting date:", error);
       formattedDate = 'Unknown date';
     }
   });

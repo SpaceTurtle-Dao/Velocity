@@ -21,21 +21,24 @@
   import Search from "$lib/components/Search/SearchPage.svelte";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
   import CollectionsPage from "$lib/components/Assets_Card/CollectionPage.svelte";
-  
-  let isLoading = false;
+
+  let address:string;
+
+  addressStore.subscribe((value) => {
+    if(value.address) address = value.address;
+  })
+
   //let isFollowListAlreadyFetched = false;
   //let initialRoute = window.location.hash.slice(1) || "/";
 
   const routes = {
     "/": Feed,
-    "/feed": Feed,
     "/search": CreateProfile,
-    "/profile": Profile,
     // "/createprofile": CreateProfile,
     "/messages": MessagesPage,
     "/profile/:address": Profile,
     "/public/profile/:address": PublicProfile,
-    "/post/:id/:user": IndividualPost,
+    "/post/:hubId/:id": IndividualPost,
     "/signup": SignUp,
     "/test": MobileTopView,
     "/collections": CollectionsPage,
@@ -46,11 +49,15 @@
     let isConnected = await addressStore.isConnected()
     console.log("got status")
     if (isConnected && $addressStore.address){
+      await addressStore.sync()
       profileService.get($addressStore.address)
+    }else{
+      await addressStore.connectWallet()
     }
   });
 </script>
 
+{#if address}
 <div class="bg-background">
   <MobileTopView />
   <div class="flex w-full bg-background justify-center">
@@ -62,3 +69,4 @@
   </div>
   <MobileBottomNavBar />
 </div>
+{/if}

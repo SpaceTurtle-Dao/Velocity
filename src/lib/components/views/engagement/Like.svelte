@@ -8,12 +8,13 @@
     import { hubService } from "$lib/services/HubService";
     import { addressStore } from "$lib/stores/address.store";
     import { profileService } from "$lib/services/ProfileService";
+    import { registryService } from "$lib/services/RegistryService";
 
     export let post: Post;
+    export let hubId: string;
 
     let liked = false;
     let likes: Array<any> = [];
-    let hub: string = "";
 
     let kind: Tag = {
         name: "Kind",
@@ -51,8 +52,8 @@
             likes = temp;
             liked = true;
         }
-        await event(hub, _tags);
-        hubService.fetchLikes(hub, post.id).then((_likes) => {
+        await event(hubId, _tags);
+        hubService.fetchLikes(hubId, post.id).then((_likes) => {
             likes = _likes;
             let temp = likes.filter((like) => {
                 return like.From == $addressStore.address;
@@ -63,9 +64,7 @@
 
     onMount(async () => {
         if (post.from) {
-            const profile = await profileService.get(post.from);
-            hub = profile.hubId;
-            hubService.fetchLikes(hub, post.id).then((_likes) => {
+            hubService.fetchLikes(hubId, post.id).then((_likes) => {
                 likes = _likes;
                 let temp = likes.filter((like) => {
                     return like.From == $addressStore.address;

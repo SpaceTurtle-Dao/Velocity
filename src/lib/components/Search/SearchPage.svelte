@@ -40,7 +40,7 @@
             followList: []
           };
         } catch (e) {
-          console.error("Error parsing profile:", e);
+          console.log("Error parsing profile:", e);
           return null;
         }
       }).filter(profile => {
@@ -51,7 +51,7 @@
       });
       
     } catch (error) {
-      console.error("Search error:", error);
+      console.log("Search error:", error);
       searchResults = [];
     } finally {
       isLoading = false;

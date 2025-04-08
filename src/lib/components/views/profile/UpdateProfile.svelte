@@ -23,50 +23,57 @@
   import { registryService } from "$lib/services/RegistryService";
   import { addressStore } from "$lib/stores/address.store";
   import { profileService } from "$lib/services/ProfileService";
-    import type { Tag } from "$lib/models/Tag";
+  import type { Tag } from "$lib/models/Tag";
 
-  let initialProfile: Profile | undefined;
-  let hubId: string;
+  export let initialProfile: Profile;
+  export let hubId: string;
+
+  // Function to format Arweave transaction URLs
+  function toUrl(tx: string) {
+    return "https://arweave.net/" + tx;
+  }
 
   // Zod schema for profile validation
   const profileSchema = z.object({
     name: z.string().min(1, "Name is required"),
     display_name: z.string().min(1, "Display Name is required"),
-    about: z.string().optional(),
-    picture: z.string().optional(),
+    description: z.string().optional(),
+    profileImage: z.string().optional(),
+    coverImage: z.string().optional(),
     website: z.string().url().optional().or(z.literal("")),
-    banner: z.string().optional(),
     bot: z.boolean().optional(),
   });
 
   type ProfileSchemaType = z.infer<typeof profileSchema>;
 
-  let profile: ProfileSchemaType = {
+  let _profile: ProfileSchemaType = {
     name: initialProfile?.userName || "",
     display_name: initialProfile?.displayName || "",
-    about: initialProfile?.about || "",
-    picture: initialProfile?.thumbnail || "",
+    description: initialProfile?.description || "",
+    profileImage: initialProfile?.profileImage || "",
+    coverImage: initialProfile?.coverImage || "",
     website: initialProfile?.website || "",
     bot: initialProfile?.bot || false,
   };
 
-  let userInfo: UserInfo;
+  let profile: ProfileSchemaType;
+
   let errors: Partial<Record<keyof ProfileSchemaType, string>> = {};
 
   let pictureFile: File | null = null;
-  let bannerFile: File | null = null;
+  let coverImageFile: File | null = null;
   let loader = false;
 
   const dispatch = createEventDispatcher();
 
-  function handleFileChange(event: Event, type: "picture" | "banner") {
+  function handleFileChange(event: Event, type: "profileImage" | "coverImage") {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
     if (file) {
-      if (type === "picture") {
+      if (type === "profileImage") {
         pictureFile = file;
       } else {
-        bannerFile = file;
+        coverImageFile = file;
       }
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -82,49 +89,53 @@
     try {
       profileSchema.parse(profile);
       errors = {};
-
+      let _profile = profile;
       if (pictureFile) {
         let _pictureFile = await upload(pictureFile);
-        profile.picture = _pictureFile.hash;
+        _profile.profileImage = _pictureFile.hash;
       }
-      if (bannerFile) {
-        let _bannerFile = await upload(bannerFile);
-        profile.banner = _bannerFile.hash;
+      if (coverImageFile) {
+        let _coverImageFile = await upload(coverImageFile);
+        _profile.coverImage = _coverImageFile.hash;
       }
+      profile = _profile;
 
-      const updated_at = Date.now();
+      //const updated_at = Date.now();
 
-      const content = JSON.stringify({
+      /*const content = JSON.stringify({
         name: profile.name,
         display_name: profile.display_name,
         about: profile.about,
         dateCreated: initialProfile?.dateCreated,
         updated_at,
-        thumbnail: profile.picture,
+        thumbnail: profile.profileImage,
         website: profile.website,
-        coverImage: profile.banner,
+        coverImage: profile.coverImage,
         bot: profile.bot,
-      });
+      });*/
       try {
         if ($addressStore.address) {
-          const tags:Tag [] = [
-            { name: "UserName", value:  profile.name},
+          /*const tags: Tag[] = [
+            { name: "UserName", value: profile.name },
             { name: "DisplayName", value: profile.display_name },
             { name: "Description", value: profile.about || "" },
-            { name: "CoverImage", value: profile.banner || "" },
-            { name: "ProfileImage", value: profile.picture || "" }
-          ];
+            { name: "CoverImage", value: profile.coverImage || "" },
+            { name: "ProfileImage", value: profile.profileImage || "" },
+          ];*/
 
           let data = {
             UserName: profile.name,
             DisplayName: profile.display_name,
-            description: profile.about,
-            ProfileImage: profile.picture,
-            CoverImage: profile.banner,
+            description: profile.description,
+            ProfileImage: profile.profileImage,
+            CoverImage: profile.coverImage,
           };
-          
-          const result = await profileService.update(initialProfile.id, JSON.stringify(data));
-          await profileService.get($addressStore.address)
+
+          const result = await profileService.update(
+            initialProfile.id,
+            JSON.stringify(data),
+          );
+          await profileService.get($addressStore.address);
 
           console.log("Profile updated successfully:", result);
           dispatch("profileUpdated");
@@ -146,16 +157,11 @@
   }
 
   onMount(async () => {
-    // If you need to do any initialization with the initial profile data
-    if ($addressStore.address) {
-      hubId = (await registryService.getZoneById($addressStore.address)).spec
-        .processId;
-      initialProfile = await profileService.get($addressStore.address);
-    }
+    profile = _profile;
   });
 </script>
 
-{#if initialProfile}
+{#if profile}
   <div class="mx-auto max-w-2xl p-4">
     <Card class="w-full relative border border-border rounded-lg">
       <CardHeader>
@@ -165,36 +171,55 @@
         <form on:submit|preventDefault={() => {}} class="space-y-6">
           <div class="relative mb-16">
             <div class="h-32 bg-gray-200 relative">
-              {#if profile.banner}
+              {#if coverImageFile}
                 <img
-                  src={profile.banner}
-                  alt="Banner"
+                  src={URL.createObjectURL(coverImageFile)}
+                  alt="coverImage"
+                  class="w-full h-full object-cover"
+                />
+              {:else if profile.coverImage}
+                <img
+                  src={toUrl(profile.coverImage)}
+                  alt="coverImage"
                   class="w-full h-full object-cover"
                 />
               {/if}
               <label
-                for="banner"
+                for="coverImage"
                 class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer"
               >
                 <Camera size={24} class="text-white" />
               </label>
               <Input
-                id="banner"
+                id="coverImage"
                 type="file"
                 accept="image/*"
                 class="hidden"
-                on:change={(e) => handleFileChange(e, "banner")}
+                on:change={(e) => handleFileChange(e, "coverImage")}
               />
             </div>
             <div class="absolute bottom-0 left-4 transform translate-y-1/3">
               <div class="relative">
                 <Avatar class="w-24 h-24 border-4 border-white">
-                  <AvatarImage src={profile.picture} alt={profile.name} />
-                  <AvatarFallback
-                    >{profile.name
-                      ? profile.name[0].toUpperCase()
-                      : "U"}</AvatarFallback
-                  >
+                  {#if pictureFile}
+                    <AvatarImage
+                      class="object-cover"
+                      src={URL.createObjectURL(pictureFile)}
+                      alt={profile.name}
+                    />
+                  {:else if profile.profileImage}
+                    <AvatarImage
+                      class="object-cover"
+                      src={toUrl(profile.profileImage)}
+                      alt={profile.name}
+                    />
+                  {:else}
+                    <AvatarFallback
+                      >{profile.name
+                        ? profile.name[0].toUpperCase()
+                        : "U"}</AvatarFallback
+                    >
+                  {/if}
                 </Avatar>
                 <label
                   for="picture"
@@ -207,7 +232,7 @@
                   type="file"
                   accept="image/*"
                   class="hidden"
-                  on:change={(e) => handleFileChange(e, "picture")}
+                  on:change={(e) => handleFileChange(e, "profileImage")}
                 />
               </div>
             </div>
@@ -234,8 +259,8 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="about">About</Label>
-            <Textarea id="about" bind:value={profile.about} rows={3} />
+            <Label for="description">About</Label>
+            <Textarea id="description" bind:value={profile.description} rows={3} />
           </div>
 
           <div class="space-y-2">
