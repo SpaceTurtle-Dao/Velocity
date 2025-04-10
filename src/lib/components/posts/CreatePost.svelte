@@ -16,6 +16,7 @@
   import { registryService } from "$lib/services/RegistryService";
   import { hubService } from "$lib/services/HubService";
   import { timestampService } from "$lib/utils/date-time";
+    import { HUB_REGISTRY_ID } from "$lib/constants";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -29,7 +30,7 @@
 
   async function initializeHubId() {
     if ($addressStore.address) {
-      const hub = await registryService.getZoneById($addressStore.address);
+      const hub = await registryService.getZoneById(HUB_REGISTRY_ID(), $addressStore.address);
       console.log(hub);
       if (hub) {
         hubId = hub.spec.processId;

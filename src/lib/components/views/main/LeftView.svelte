@@ -19,6 +19,7 @@
   import CreateProfile from "../profile/CreateProfile.svelte";
   import type { Zone } from "$lib/models/Zone";
   import { onMount } from "svelte";
+    import { HUB_REGISTRY_ID } from "$lib/constants";
 
   let loader = false;
   let zone: Zone | undefined;
@@ -113,7 +114,7 @@
         </ul>
       </nav>
       {#if $addressStore.address}
-        {#await registryService.getZoneById($addressStore.address)}
+        {#await registryService.getZoneById(HUB_REGISTRY_ID(), $addressStore.address)}
           {#if zone}
             <CreatePostModal />
           {:else}

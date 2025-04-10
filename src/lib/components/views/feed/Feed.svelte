@@ -8,6 +8,7 @@
   import { addressStore } from "$lib/stores/address.store";
   import { timestampService } from "$lib/utils/date-time";
   import { registryService } from "$lib/services/RegistryService";
+  import { HUB_REGISTRY_ID } from "$lib/constants";
 
   let feed: Array<Post> = [];
   let following: Array<Post> = [];
@@ -27,14 +28,13 @@
   addressStore.subscribe(async (value) => {
     if (value.address) {
       address = value.address;
-      const hub = await registryService.getZoneById(address);
+      const hub = await registryService.getZoneById(HUB_REGISTRY_ID(), address);
       if (hub) {
         hubId = hub.spec.processId;
         console.log("Hub", hub);
         console.log("Hub id:", hubId);
         fetchFeedEvents();
-      }else{
-
+      } else {
       }
     }
   });
@@ -179,7 +179,7 @@
             <div>
               {#each feed as post}
                 <div class="max-w-prose">
-                  <PostComponent {post}/>
+                  <PostComponent {post} />
                 </div>
               {/each}
 
@@ -221,7 +221,7 @@
             <div>
               {#each following as post}
                 <div class="max-w-prose">
-                  <PostComponent {post}/>
+                  <PostComponent {post} />
                 </div>
               {/each}
             </div>

@@ -6,6 +6,7 @@
   import { registryService } from "$lib/services/RegistryService";
   import type { Zone } from "$lib/models/Zone";
   import type { Hub } from "$lib/models/Hub";
+    import { HUB_REGISTRY_ID } from "$lib/constants";
 
   export let hubId: string;
   let hub: Hub;
@@ -33,7 +34,7 @@
   }
   onMount(async () => {
     if (!$addressStore.address) return;
-    zone = await registryService.getZoneById($addressStore.address);
+    zone = await registryService.getZoneById(HUB_REGISTRY_ID(),$addressStore.address);
     hub = await hubService.info(zone.spec.processId);
     isSubscribed = hub.Following.includes(hubId)!;
   });

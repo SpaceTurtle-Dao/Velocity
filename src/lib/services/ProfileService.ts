@@ -12,6 +12,7 @@ import type { Spec } from "$lib/models/Spec";
 import { hubService } from './HubService';
 import type { Tag } from "$lib/models/Tag";
 import { P } from "flowbite-svelte";
+import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
 
 interface ProfileService extends Readable<Map<string, any>> {
   get: (address: string) => Promise<Profile>;
@@ -97,14 +98,23 @@ const service = (): ProfileService => {
         console.log("ProfileId", processId);
         await evaluateProfile(profileData, processId);
         const hubId = await hubService.create();
-        const hubSpec: Spec = {
+        const hubSpec = {
           type: "hub",
           kinds: ["1", "7", "6", "3", "2"],
           description: "Social message hub",
           version: "1.0.0",
           processId: hubId
         };
-        await registryService.register(hubSpec);
+        const profileSpec = {
+          userName: profileData.userName,
+          displayName: profileData.displayName || "",
+          description: profileData.description || "",
+          thumbnail: profileData.thumbnail || "",
+          coverImage: profileData.coverImage || "",
+          processId: processId
+        };
+        await registryService.register(HUB_REGISTRY_ID(), hubSpec);
+        await registryService.register(PROFILE_REGISTRY_ID(), profileSpec);
         console.log("*** Hub ID ***", hubId);
         return processId;
       } catch (error) {

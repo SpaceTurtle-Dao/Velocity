@@ -150,23 +150,23 @@ export const fetchFollowList = async (
   return followList;
 };
 
-export const register = async (spec: Spec): Promise<void> => {
+export const register = async (processId:string, spec: any): Promise<void> => {
   try {
     // @ts-ignore
     let message = Register();
-    let result = await send(HUB_REGISTRY_ID(), message, JSON.stringify(spec));
+    let result = await send(processId, message, JSON.stringify(spec));
     console.log(result)
   } catch (e) {
     console.log(e);
   }
 };
 
-export const getZones = async (filters: string, page: Number, limit: Number): Promise<any[]> => {
+export const getZones = async (processId:string, filters: string, page: Number, limit: Number): Promise<any[]> => {
   let events: any[] = [];
   try {
     // @ts-ignore
     let message = GetZones(filters, page, limit);
-    let result = await read(HUB_REGISTRY_ID(), message);
+    let result = await read(processId, message);
     if (result) {
       let json = JSON.parse(result.Data);
       events = json;
@@ -178,12 +178,12 @@ export const getZones = async (filters: string, page: Number, limit: Number): Pr
   return events;
 };
 
-export const getZone = async (zoneId: string): Promise<any[]> => {
+export const getZone = async (processId:string, zoneId: string): Promise<any[]> => {
   let events: any[] = [];
   try {
     // @ts-ignore
     let message = GetZoneById(zoneId);
-    let result = await read(HUB_REGISTRY_ID(), message);
+    let result = await read(processId, message);
     if (result) {
       let json = JSON.parse(result.Data);
       events = json;

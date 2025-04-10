@@ -11,6 +11,7 @@
   import { hubService } from "$lib/services/HubService";
   import { registryService } from "$lib/services/RegistryService";
   import type { Hub } from "$lib/models/Hub";
+    import { HUB_REGISTRY_ID } from "$lib/constants";
 
   export let profile: Profile;
   let hub: Hub;
@@ -18,7 +19,7 @@
 
   onMount(async () => {
     try {
-      let zone = await registryService.getZoneById(profile.owner);
+      let zone = await registryService.getZoneById(HUB_REGISTRY_ID(),profile.owner);
       hub = await hubService.info(zone.spec.processId);
     } catch (e) {
       console.log(e);

@@ -24,6 +24,7 @@
   import type { Post } from "$lib/models/Post";
   import { registryService } from "$lib/services/RegistryService";
   import type { Hub } from "$lib/models/Hub";
+    import { HUB_REGISTRY_ID } from "$lib/constants";
 
   export let params: { address?: string } = {};
 
@@ -115,7 +116,7 @@
     if (!params.address) return;
     try {
       profile = await profileService.get(params.address);
-      hubId = (await registryService.getZoneById(params.address)).spec
+      hubId = (await registryService.getZoneById(HUB_REGISTRY_ID(), params.address)).spec
         .processId;
       hub = await hubService.info(hubId);
       console.log(hub)
