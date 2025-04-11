@@ -9,21 +9,25 @@
   import { Skeleton } from "$lib/components/ui/skeleton";
   import { addressStore } from "$lib/stores/address.store";
   import { hubService } from "$lib/services/HubService";
-  import { registryService } from "$lib/services/RegistryService";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Hub } from "$lib/models/Hub";
-    import { HUB_REGISTRY_ID } from "$lib/constants";
+  import { HUB_REGISTRY_ID } from "$lib/constants";
+  import type { Zone } from "$lib/models/Zone";
 
   export let profile: Profile;
   let hub: Hub;
+  let zone: Zone;
   let isCurrentUser = $addressStore.address === profile.owner;
 
-  onMount(async () => {
-    try {
-      let zone = await registryService.getZoneById(HUB_REGISTRY_ID(),profile.owner);
+  hubRegistryService.subscribe(async (zones) => {
+    if (zones.has(profile.owner)) {
+      zone = zones.get(profile.owner)!;
       hub = await hubService.info(zone.spec.processId);
-    } catch (e) {
-      console.log(e);
     }
+  });
+
+  onMount(async () => {
+    hubRegistryService.getZoneById(HUB_REGISTRY_ID(), profile.owner);
   });
 </script>
 
@@ -43,13 +47,9 @@
             size="xl"
           />
         </a>
-        {:else}
+      {:else}
         <a href="/profile/{profile.owner}" use:link>
-          <ProfilePicture
-            name={profile.displayName}
-            src=""
-            size="xl"
-          />
+          <ProfilePicture name={profile.displayName} src="" size="xl" />
         </a>
       {/if}
 

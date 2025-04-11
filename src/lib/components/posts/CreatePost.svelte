@@ -13,10 +13,11 @@
   import { profileService } from "$lib/services/ProfileService";
   import { addressStore } from "$lib/stores/address.store";
   import { onMount } from "svelte";
-  import { registryService } from "$lib/services/RegistryService";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { hubService } from "$lib/services/HubService";
   import { timestampService } from "$lib/utils/date-time";
-    import { HUB_REGISTRY_ID } from "$lib/constants";
+  import { HUB_REGISTRY_ID } from "$lib/constants";
+    import type { Zone } from "$lib/models/Zone";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -27,15 +28,22 @@
   let gifSearchOpen = false;
   let selectedGifUrl: string | null = null;
   let hubId: string;
+  let zone:Zone;
+
+  hubRegistryService.subscribe((zones) => {
+    if($addressStore.address && zones.has($addressStore.address)){
+      zone = zones.get($addressStore.address)!
+      hubId = zone.spec.processId;
+      console.log("*** Hub ID ***", hubId);
+    }
+  })
 
   async function initializeHubId() {
     if ($addressStore.address) {
-      const hub = await registryService.getZoneById(HUB_REGISTRY_ID(), $addressStore.address);
-      console.log(hub);
-      if (hub) {
-        hubId = hub.spec.processId;
-        console.log("*** Hub ID ***", hubId);
-      }
+      hubRegistryService.getZoneById(
+        HUB_REGISTRY_ID(),
+        $addressStore.address,
+      );
     }
   }
 
@@ -176,20 +184,15 @@
       <div class="flex">
         {#if $addressStore.address}
           {#await profileService.get($addressStore.address) then profile}
-          {#if profile.profileImage}
-          <ProfilePicture
-              src={profile.profileImage}
-              name={profile.userName}
-              size="lg"
-            />
-          {:else}
-          <ProfilePicture
-              src=""
-              name={profile.userName}
-              size="lg"
-            />
-          {/if}
-            
+            {#if profile.profileImage}
+              <ProfilePicture
+                src={profile.profileImage}
+                name={profile.userName}
+                size="lg"
+              />
+            {:else}
+              <ProfilePicture src="" name={profile.userName} size="lg" />
+            {/if}
           {/await}
         {/if}
 

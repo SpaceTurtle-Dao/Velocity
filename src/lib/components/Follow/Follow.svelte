@@ -3,16 +3,24 @@
   import { onMount } from "svelte";
   import { addressStore } from "$lib/stores/address.store";
   import { hubService } from "$lib/services/HubService";
-  import { registryService } from "$lib/services/RegistryService";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Zone } from "$lib/models/Zone";
   import type { Hub } from "$lib/models/Hub";
-    import { HUB_REGISTRY_ID } from "$lib/constants";
+  import { HUB_REGISTRY_ID } from "$lib/constants";
 
   export let hubId: string;
   let hub: Hub;
   let zone: Zone;
   let isSubscribed: boolean;
   let loader = false;
+
+  hubRegistryService.subscribe(async (zones) => {
+    if ($addressStore.address && zones.has($addressStore.address)) {
+      zone = zones.get($addressStore.address)!;
+      hub = await hubService.info(zone?.spec.processId);
+      isSubscribed = hub.Following.includes(hubId)!;
+    }
+  });
 
   async function unsubscribe() {
     loader = true;
@@ -34,9 +42,7 @@
   }
   onMount(async () => {
     if (!$addressStore.address) return;
-    zone = await registryService.getZoneById(HUB_REGISTRY_ID(),$addressStore.address);
-    hub = await hubService.info(zone.spec.processId);
-    isSubscribed = hub.Following.includes(hubId)!;
+    await hubRegistryService.getZoneById(HUB_REGISTRY_ID(),$addressStore.address,);
   });
 </script>
 

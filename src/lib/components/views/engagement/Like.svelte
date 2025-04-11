@@ -8,7 +8,7 @@
     import { hubService } from "$lib/services/HubService";
     import { addressStore } from "$lib/stores/address.store";
     import { profileService } from "$lib/services/ProfileService";
-    import { registryService } from "$lib/services/RegistryService";
+    import { hubRegistryService } from "$lib/services/HubRegistryService";
 
     export let post: Post;
 

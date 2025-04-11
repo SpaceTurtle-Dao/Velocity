@@ -17,7 +17,6 @@
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
   // import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
-  import Search from "$lib/components/Search/SearchPage.svelte";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
 
   let address:string;

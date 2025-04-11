@@ -165,7 +165,7 @@ export const getZones = async (processId:string, filters: string, page: Number, 
   let events: any[] = [];
   try {
     // @ts-ignore
-    let message = GetZones(filters, page, limit);
+    let message = GetZones(filters, page.toString(), limit.toString());
     let result = await read(processId, message);
     if (result) {
       let json = JSON.parse(result.Data);

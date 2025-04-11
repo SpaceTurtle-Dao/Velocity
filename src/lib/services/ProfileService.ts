@@ -7,7 +7,8 @@ import { evalProcess, updateProfile } from "$lib/ao/relay";
 import { luaModule } from "./profile_lua";
 import { createProcess } from "$lib/ao/process.svelte";
 import { walletAddress, setWalletAddress } from "$lib/stores/walletStore";
-import { registryService } from './RegistryService';
+import { profileRegistryService } from './ProfileRegistryService';
+import { hubRegistryService } from './HubRegistryService';
 import type { Spec } from "$lib/models/Spec";
 import { hubService } from './HubService';
 import type { Tag } from "$lib/models/Tag";
@@ -106,6 +107,7 @@ const service = (): ProfileService => {
           processId: hubId
         };
         const profileSpec = {
+          type: "profile",
           userName: profileData.userName,
           displayName: profileData.displayName || "",
           description: profileData.description || "",
@@ -113,9 +115,10 @@ const service = (): ProfileService => {
           coverImage: profileData.coverImage || "",
           processId: processId
         };
-        await registryService.register(HUB_REGISTRY_ID(), hubSpec);
-        await registryService.register(PROFILE_REGISTRY_ID(), profileSpec);
+        await hubRegistryService.register(HUB_REGISTRY_ID(), hubSpec);
+        await profileRegistryService.register(PROFILE_REGISTRY_ID(), profileSpec);
         console.log("*** Hub ID ***", hubId);
+        console.log("*** Profile ID ***", processId);
         return processId;
       } catch (error) {
         console.log("Failed to register profile:", error);

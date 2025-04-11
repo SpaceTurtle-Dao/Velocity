@@ -17,16 +17,12 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Camera } from "lucide-svelte";
-  import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-  import { registryService } from "$lib/services/RegistryService";
   import { addressStore } from "$lib/stores/address.store";
   import { profileService } from "$lib/services/ProfileService";
-  import type { Tag } from "$lib/models/Tag";
 
   export let initialProfile: Profile;
-  export let hubId: string;
 
   // Function to format Arweave transaction URLs
   function toUrl(tx: string) {

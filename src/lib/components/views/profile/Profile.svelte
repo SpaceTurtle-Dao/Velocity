@@ -22,9 +22,10 @@
   import { profileService } from "$lib/services/ProfileService";
   import { hubService } from "$lib/services/HubService";
   import type { Post } from "$lib/models/Post";
-  import { registryService } from "$lib/services/RegistryService";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Hub } from "$lib/models/Hub";
-    import { HUB_REGISTRY_ID } from "$lib/constants";
+  import { HUB_REGISTRY_ID } from "$lib/constants";
+  import type { Zone } from "$lib/models/Zone";
 
   export let params: { address?: string } = {};
 
@@ -33,6 +34,7 @@
   let media: Array<Post> = [];
   let hubId: string;
   let hub: Hub;
+  let zone: Zone;
 
   let mimeTypes: string[] = [
     "image/apng",
@@ -52,8 +54,24 @@
   let showModal = false;
 
   profileService.subscribe((profiles) => {
+    console.log(profiles);
     if (params.address && profiles.has(params.address))
       profile = profiles.get(params.address);
+    if (profile) {
+      fetchPost();
+    }
+  });
+
+  hubRegistryService.subscribe((zones) => {
+    console.log(zones);
+    /*if (params.address && zones.has(params.address)) {
+      zone = zones.get(params.address)!;
+      hubId = zone?.spec.processId;
+      console.log(zones);
+      console.log(hubId);
+      //hub = await hubService.info(hubId);
+      //console.log(hub);
+    }*/
   });
 
   hubService.subscribe((value) => {
@@ -114,15 +132,10 @@
 
   async function setup() {
     if (!params.address) return;
+    console.log(params.address);
     try {
-      profile = await profileService.get(params.address);
-      hubId = (await registryService.getZoneById(HUB_REGISTRY_ID(), params.address)).spec
-        .processId;
-      hub = await hubService.info(hubId);
-      console.log(hub)
-      if (profile) {
-        await fetchPost();
-      }
+      profileService.get(params.address);
+      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address);
     } catch (error) {
       console.log(params.address);
       console.log("Error setting up profile:", error);
@@ -131,7 +144,7 @@
   }
 </script>
 
-{#if hubId && hub && profile}
+{#if profile}
   <div class="md:mt-10 max-w-prose">
     <Card
       class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"
@@ -172,7 +185,9 @@
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profile.displayName}</p>
           {#if params.address != $addressStore.address}
-            <Follow {hubId} />
+            {#if hubId}
+              <Follow {hubId} />
+            {/if}
           {:else}
             <Button
               variant="outline"
@@ -245,30 +260,28 @@
         <Tabs.Trigger on:click={fetchSubscriptions} value="following"
           >Following</Tabs.Trigger
         >
-        <Tabs.Trigger value="followers"
-          >Followers</Tabs.Trigger
-        >
+        <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="post">
         {#each posts as post}
           <div class="border border-border">
-            <PostComponent {post}/>
+            <PostComponent {post} />
           </div>
         {/each}
       </Tabs.Content>
       <Tabs.Content value="media">
         {#each media as post}
           <div class="border border-border max-w-prose">
-            <PostComponent {post}/>
+            <PostComponent {post} />
           </div>
         {/each}
       </Tabs.Content>
       <Tabs.Content value="following">
         <!-- Placeholder for subscribed users list -->
-        <Users addresss={hub.Following} />
+        <Users addresss={hub?.Following || []} />
       </Tabs.Content>
       <Tabs.Content value="followers">
-        <Users addresss={hub.Followers} />
+        <Users addresss={hub?.Followers || []} />
       </Tabs.Content>
     </Tabs.Root>
   </div>
@@ -292,11 +305,7 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile
-        initialProfile={profile}
-        {hubId}
-        on:profileUpdated={toggleModal}
-      />
+      <UpdateProfile initialProfile={profile} on:profileUpdated={toggleModal} />
     </div>
   </div>
 {/if}
