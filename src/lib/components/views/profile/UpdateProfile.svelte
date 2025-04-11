@@ -21,6 +21,8 @@
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import { addressStore } from "$lib/stores/address.store";
   import { profileService } from "$lib/services/ProfileService";
+  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { PROFILE_REGISTRY_ID } from "$lib/constants";
 
   export let initialProfile: Profile;
 
@@ -115,6 +117,16 @@
             { name: "ProfileImage", value: profile.profileImage || "" },
           ];*/
 
+          const profileSpec = {
+            type: "profile",
+            userName: _profile.name,
+            displayName: _profile.display_name,
+            description: _profile.description || "",
+            thumbnail: _profile.profileImage || "",
+            coverImage: _profile.coverImage || "",
+            processId: initialProfile.id,
+          };
+
           let data = {
             UserName: _profile.name,
             DisplayName: _profile.display_name,
@@ -126,6 +138,10 @@
           const result = await profileService.update(
             initialProfile.id,
             JSON.stringify(data),
+          );
+          await profileRegistryService.register(
+            PROFILE_REGISTRY_ID(),
+            profileSpec,
           );
           await profileService.get($addressStore.address);
 
