@@ -154,7 +154,7 @@
 <div class="max-w-prose mx-auto mb-10 {$isMobile ? 'mt-0' : 'mt-10'}">
   {#if params.hubId && params.id && post}
     <div class="border border-border hover:bg-gray-900/5">
-      <PostComponent {post} hubId={params.hubId}/>
+      <PostComponent {post} />
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
@@ -253,7 +253,7 @@
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
-        <PostComponent post={reply} hubId={params.hubId}/>
+        <PostComponent post={reply}/>
       </div>
     {/each}
   {:else}

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { link } from "svelte-spa-router";
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
@@ -18,11 +18,19 @@
   import Connect from "$lib/components/wallet/connect.svelte";
   import { registryService } from "$lib/services/RegistryService";
   import CreateProfile from "../profile/CreateProfile.svelte";
+  import type { Zone } from "$lib/models/Zone";
+  import { onMount } from "svelte";
 
   let loader = false;
+  let zone: Zone | undefined;
 
-  if ($addressStore.address) {
-  }
+  registryService.subscribe((zones) => {
+    if ($addressStore.address) {
+      zone = zones.find((value) => {
+        value.owner == $addressStore.address;
+      });
+    }
+  });
 
   let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/" },
@@ -45,6 +53,8 @@
       { icon: TestTube, label: "Collections", href: "/collections" },
     ];
   }
+
+  onMount(() => {});
 
 </script>
 
@@ -106,10 +116,11 @@
       </nav>
       {#if $addressStore.address}
         {#await registryService.getZoneById($addressStore.address)}
-          <!-- promise is pending -->
-          <!--<p>waiting for the promise to resolve...</p>-->
-        {:then zone}
-          <CreatePostModal />
+          {#if zone}
+            <CreatePostModal />
+          {:else}
+            <CreateProfile />
+          {/if}
         {:catch error}
           <CreateProfile />
         {/await}

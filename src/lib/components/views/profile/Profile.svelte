@@ -12,6 +12,7 @@
   import { Link, CalendarDays } from "lucide-svelte";
   import { onMount } from "svelte";
   import UpdateProfile from "./UpdateProfile.svelte";
+  import Follow from "../../Follow/Follow.svelte";
   import Users from "$lib/components/UserList/Users.svelte";
   import { X } from "lucide-svelte";
   import { getDisplayUrl } from "$lib/utils/url.utils";

@@ -13,12 +13,12 @@
   }
 </script>
 
-<div class="flex flex-col h-full mt-5 mb-5">
+<div class="flex flex-col h-full mt-5">
   <!-- Chat Header -->
   <div class="p-4 border-b border-border bg-background-700/50 shadow-md">
     <div class="flex items-center space-x-4">
       <button 
-        class="p-2 hover:bg-background-600 rounded-full transition-all duration-200 hover:scale-105"
+        class="p-2 hover:bg-background-600 rounded-full transition-all duration-200 hover:scale-105 bg-white"
         on:click={onBack}
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
