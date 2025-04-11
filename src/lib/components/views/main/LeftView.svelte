@@ -13,21 +13,19 @@
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { addressStore } from "$lib/stores/address.store";
   import { Loader } from "lucide-svelte";
-  import SearchBar from "$lib/components/Search/SearchPage.svelte";
   import Connect from "$lib/components/wallet/connect.svelte";
-  import { registryService } from "$lib/services/RegistryService";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
   import CreateProfile from "../profile/CreateProfile.svelte";
   import type { Zone } from "$lib/models/Zone";
   import { onMount } from "svelte";
+  import { HUB_REGISTRY_ID } from "$lib/constants";
 
   let loader = false;
-  let zone: Zone | undefined;
+  let zone: Zone;
 
-  registryService.subscribe((zones) => {
-    if ($addressStore.address) {
-      zone = zones.find((value) => {
-        value.owner == $addressStore.address;
-      });
+  hubRegistryService.subscribe((zones) => {
+    if ($addressStore.address && zones.has($addressStore.address)) {
+      zone = zones.get($addressStore.address)!;
     }
   });
 
@@ -51,7 +49,11 @@
     ];
   }
 
-  onMount(() => {});
+  onMount(() => {
+    if ($addressStore.address) {
+      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $addressStore.address);
+    }
+  });
 
   // width 259 plus widthpadding 8
 </script>
@@ -113,15 +115,11 @@
         </ul>
       </nav>
       {#if $addressStore.address}
-        {#await registryService.getZoneById($addressStore.address)}
-          {#if zone}
-            <CreatePostModal />
-          {:else}
-            <CreateProfile />
-          {/if}
-        {:catch error}
+        {#if zone}
+          <CreatePostModal />
+        {:else}
           <CreateProfile />
-        {/await}
+        {/if}
       {:else}
         <div class="mt-8 flex flex-col items-center justify-center">
           {#if loader}

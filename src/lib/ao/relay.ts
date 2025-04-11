@@ -5,7 +5,7 @@ import { FetchEvents, GetZones, GetZoneById, Register, Info, UpdateProfile } fro
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
 import { addressStore } from "$lib/stores/address.store";
-import { REGISTRY_ID } from "$lib/constants";
+import { HUB_REGISTRY_ID } from "$lib/constants";
 //@ts-ignore
 import { Eval } from "./messegeFactory.svelte";
 import type { Spec } from "$lib/models/Spec";
@@ -150,23 +150,24 @@ export const fetchFollowList = async (
   return followList;
 };
 
-export const register = async (spec: Spec): Promise<void> => {
+export const register = async (processId:string, spec: any): Promise<void> => {
   try {
     // @ts-ignore
     let message = Register();
-    let result = await send(REGISTRY_ID(), message, JSON.stringify(spec));
+    let result = await send(processId, message, JSON.stringify(spec));
     console.log(result)
   } catch (e) {
     console.log(e);
   }
 };
 
-export const getZones = async (filters: string, page: Number, limit: Number): Promise<any[]> => {
+export const getZones = async (processId:string, filters: string, page: Number, limit: Number): Promise<any[]> => {
   let events: any[] = [];
   try {
     // @ts-ignore
-    let message = GetZones(filters, page, limit);
-    let result = await read(REGISTRY_ID(), message);
+    let message = GetZones(filters, page.toString(), limit.toString());
+    let result = await read(processId, message);
+    console.log(message)
     if (result) {
       let json = JSON.parse(result.Data);
       events = json;
@@ -178,12 +179,12 @@ export const getZones = async (filters: string, page: Number, limit: Number): Pr
   return events;
 };
 
-export const getZone = async (zoneId: string): Promise<any[]> => {
+export const getZone = async (processId:string, zoneId: string): Promise<any> => {
   let events: any[] = [];
   try {
     // @ts-ignore
     let message = GetZoneById(zoneId);
-    let result = await read(REGISTRY_ID(), message);
+    let result = await read(processId, message);
     if (result) {
       let json = JSON.parse(result.Data);
       events = json;

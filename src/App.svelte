@@ -17,8 +17,9 @@
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
   // import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
-  import Search from "$lib/components/Search/SearchPage.svelte";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
+    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+    import { PROFILE_REGISTRY_ID } from "$lib/constants";
 
   let address:string;
 
@@ -46,7 +47,7 @@
     console.log("got status")
     if (isConnected && $addressStore.address){
       await addressStore.sync()
-      profileService.get($addressStore.address)
+      profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(),$addressStore.address)
     }else{
       await addressStore.connectWallet()
     }

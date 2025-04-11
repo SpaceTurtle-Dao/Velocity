@@ -17,16 +17,15 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Camera } from "lucide-svelte";
-  import { event, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-  import { registryService } from "$lib/services/RegistryService";
   import { addressStore } from "$lib/stores/address.store";
   import { profileService } from "$lib/services/ProfileService";
-  import type { Tag } from "$lib/models/Tag";
+  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { PROFILE_REGISTRY_ID } from "$lib/constants";
+  import type { Zone } from "$lib/models/Zone";
 
-  export let initialProfile: Profile;
-  export let hubId: string;
+  export let initialProfile: Zone;
 
   // Function to format Arweave transaction URLs
   function toUrl(tx: string) {
@@ -47,16 +46,14 @@
   type ProfileSchemaType = z.infer<typeof profileSchema>;
 
   let _profile: ProfileSchemaType = {
-    name: initialProfile?.userName || "",
-    display_name: initialProfile?.displayName || "",
-    description: initialProfile?.description || "",
-    profileImage: initialProfile?.profileImage || "",
-    coverImage: initialProfile?.coverImage || "",
-    website: initialProfile?.website || "",
-    bot: initialProfile?.bot || false,
+    name: initialProfile.spec.userName || "",
+    display_name: initialProfile.spec.displayName || "",
+    description: initialProfile.spec.description || "",
+    profileImage: initialProfile.spec.thumbnail || "",
+    coverImage: initialProfile.spec.coverImage || "",
+    website: initialProfile.spec.website || "",
+    bot: initialProfile.spec.bot || false,
   };
-
-  let profile: ProfileSchemaType;
 
   let errors: Partial<Record<keyof ProfileSchemaType, string>> = {};
 
@@ -77,7 +74,7 @@
       }
       const reader = new FileReader();
       reader.onload = (e) => {
-        profile[type] = e.target?.result as string;
+        _profile[type] = e.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -87,9 +84,8 @@
     if (!initialProfile) return;
     loader = true;
     try {
-      profileSchema.parse(profile);
+      profileSchema.parse(_profile);
       errors = {};
-      let _profile = profile;
       if (pictureFile) {
         let _pictureFile = await upload(pictureFile);
         _profile.profileImage = _pictureFile.hash;
@@ -98,7 +94,6 @@
         let _coverImageFile = await upload(coverImageFile);
         _profile.coverImage = _coverImageFile.hash;
       }
-      profile = _profile;
 
       //const updated_at = Date.now();
 
@@ -123,20 +118,33 @@
             { name: "ProfileImage", value: profile.profileImage || "" },
           ];*/
 
+          const profileSpec = {
+            type: "profile",
+            userName: _profile.name,
+            displayName: _profile.display_name,
+            description: _profile.description || "",
+            thumbnail: _profile.profileImage || "",
+            coverImage: _profile.coverImage || "",
+            processId: initialProfile.spec.processId,
+          };
+
           let data = {
-            UserName: profile.name,
-            DisplayName: profile.display_name,
-            description: profile.description,
-            ProfileImage: profile.profileImage,
-            CoverImage: profile.coverImage,
+            UserName: _profile.name,
+            DisplayName: _profile.display_name,
+            description: _profile.description,
+            ProfileImage: _profile.profileImage,
+            CoverImage: _profile.coverImage,
           };
 
           const result = await profileService.update(
-            initialProfile.id,
+            initialProfile.spec.processId,
             JSON.stringify(data),
           );
-          await profileService.get($addressStore.address);
-
+          await profileRegistryService.register(
+            PROFILE_REGISTRY_ID(),
+            profileSpec,
+          );
+          await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(),$addressStore.address)
           console.log("Profile updated successfully:", result);
           dispatch("profileUpdated");
         }
@@ -156,9 +164,7 @@
     }
   }
 
-  onMount(async () => {
-    
-  });
+  onMount(async () => {});
 </script>
 
 {#if _profile}
@@ -260,7 +266,11 @@
 
           <div class="space-y-2">
             <Label for="description">About</Label>
-            <Textarea id="description" bind:value={_profile.description} rows={3} />
+            <Textarea
+              id="description"
+              bind:value={_profile.description}
+              rows={3}
+            />
           </div>
 
           <div class="space-y-2">
