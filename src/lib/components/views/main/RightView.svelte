@@ -10,6 +10,7 @@
   import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
+    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
 
   let searchQuery = "";
   let searchResults: Zone[] = [];
@@ -44,14 +45,15 @@
     }
 
     isLoading = true;
+    console.log(searchQuery.toLowerCase())
     try {
-      const filters = JSON.stringify([
+      const filters = JSON.stringify(
         {
           search: searchQuery.toLowerCase(),
         },
-      ]);
+      );
 
-      searchResults = await hubRegistryService.fetchZones(
+      searchResults = await profileRegistryService.fetchZones(
         PROFILE_REGISTRY_ID(),
         filters,
         0,

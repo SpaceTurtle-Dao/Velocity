@@ -21,11 +21,11 @@
   import { HUB_REGISTRY_ID } from "$lib/constants";
 
   let loader = false;
-  let zone: Zone | undefined;
+  let zone: Zone;
 
   hubRegistryService.subscribe((zones) => {
     if ($addressStore.address && zones.has($addressStore.address)) {
-      zone = zones.get($addressStore.address)
+      zone = zones.get($addressStore.address)!;
     }
   });
 
@@ -49,7 +49,11 @@
     ];
   }
 
-  onMount(() => {});
+  onMount(() => {
+    if ($addressStore.address) {
+      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $addressStore.address);
+    }
+  });
 
   // width 259 plus widthpadding 8
 </script>
@@ -111,15 +115,11 @@
         </ul>
       </nav>
       {#if $addressStore.address}
-        {#await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $addressStore.address)}
-          {#if zone}
-            <CreatePostModal />
-          {:else}
-            <CreateProfile />
-          {/if}
-        {:catch error}
+        {#if zone}
+          <CreatePostModal />
+        {:else}
           <CreateProfile />
-        {/await}
+        {/if}
       {:else}
         <div class="mt-8 flex flex-col items-center justify-center">
           {#if loader}

@@ -167,6 +167,7 @@ export const getZones = async (processId:string, filters: string, page: Number, 
     // @ts-ignore
     let message = GetZones(filters, page.toString(), limit.toString());
     let result = await read(processId, message);
+    console.log(message)
     if (result) {
       let json = JSON.parse(result.Data);
       events = json;
@@ -178,7 +179,7 @@ export const getZones = async (processId:string, filters: string, page: Number, 
   return events;
 };
 
-export const getZone = async (processId:string, zoneId: string): Promise<any[]> => {
+export const getZone = async (processId:string, zoneId: string): Promise<any> => {
   let events: any[] = [];
   try {
     // @ts-ignore

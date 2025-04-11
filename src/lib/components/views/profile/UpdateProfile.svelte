@@ -52,8 +52,6 @@
     bot: initialProfile?.bot || false,
   };
 
-  let profile: ProfileSchemaType;
-
   let errors: Partial<Record<keyof ProfileSchemaType, string>> = {};
 
   let pictureFile: File | null = null;
@@ -73,7 +71,7 @@
       }
       const reader = new FileReader();
       reader.onload = (e) => {
-        profile[type] = e.target?.result as string;
+        _profile[type] = e.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -83,9 +81,8 @@
     if (!initialProfile) return;
     loader = true;
     try {
-      profileSchema.parse(profile);
+      profileSchema.parse(_profile);
       errors = {};
-      let _profile = profile;
       if (pictureFile) {
         let _pictureFile = await upload(pictureFile);
         _profile.profileImage = _pictureFile.hash;
@@ -94,7 +91,6 @@
         let _coverImageFile = await upload(coverImageFile);
         _profile.coverImage = _coverImageFile.hash;
       }
-      profile = _profile;
 
       //const updated_at = Date.now();
 
@@ -120,11 +116,11 @@
           ];*/
 
           let data = {
-            UserName: profile.name,
-            DisplayName: profile.display_name,
-            description: profile.description,
-            ProfileImage: profile.profileImage,
-            CoverImage: profile.coverImage,
+            UserName: _profile.name,
+            DisplayName: _profile.display_name,
+            description: _profile.description,
+            ProfileImage: _profile.profileImage,
+            CoverImage: _profile.coverImage,
           };
 
           const result = await profileService.update(
@@ -152,9 +148,7 @@
     }
   }
 
-  onMount(async () => {
-    
-  });
+  onMount(async () => {});
 </script>
 
 {#if _profile}
@@ -256,7 +250,11 @@
 
           <div class="space-y-2">
             <Label for="description">About</Label>
-            <Textarea id="description" bind:value={_profile.description} rows={3} />
+            <Textarea
+              id="description"
+              bind:value={_profile.description}
+              rows={3}
+            />
           </div>
 
           <div class="space-y-2">

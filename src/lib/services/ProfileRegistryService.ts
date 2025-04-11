@@ -36,16 +36,18 @@ const service = (): ProfileRegistryService => {
     getZoneById: async (processId: string, owner: string): Promise<void> => {
       let zones = get(profileRegistryService)
       if (zones.has(owner)) {
-        getZone(processId, owner).then((_zones) => {
-          zones = new Map([...zones, ..._zones])
-          console.log(zones)
+        getZone(processId, owner).then((_zone) => {
+          console.log(_zone)
+          zones.set(_zone.owner, _zone)
           set(zones)
+          console.log(zones)
         })
         console.log(zones)
       } else {
-        const temp = await getZone(processId, owner)
-        let _zones = new Map(temp.map((zone) => [zone.owner, zone.value]));
-        zones = new Map([...zones, ..._zones])
+        console.log("doesn't have zone")
+        let _zones = await getZone(processId, owner)
+        console.log(_zones)
+        zones.set(_zones.owner, _zones)
         set(zones)
         console.log(zones)
       }

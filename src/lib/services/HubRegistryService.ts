@@ -37,20 +37,18 @@ const service = (): HubRegistryService => {
     getZoneById: async (processId: string, owner: string): Promise<void> => {
       let zones = get(hubRegistryService)
       if (zones.has(owner)) {
-        getZone(processId, owner).then((_zones) => {
-          for(var i = 0; i < _zones.length; i++){
-            zones.set(_zones[i].owner,_zones[i])
-          }
+        getZone(processId, owner).then((_zone) => {
+          console.log(_zone)
+          zones.set(_zone.owner, _zone)
           set(zones)
+          console.log(zones)
         })
         console.log(zones)
       } else {
         console.log("doesn't have zone")
         let _zones = await getZone(processId, owner)
         console.log(_zones)
-        for(var i = 0; i < _zones.length; i++){
-          zones.set(_zones[i].owner,_zones[i])
-        }
+        zones.set(_zones.owner,_zones)
         set(zones)
         console.log(zones)
       }

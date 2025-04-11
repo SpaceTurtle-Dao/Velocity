@@ -62,16 +62,16 @@
     }
   });
 
-  hubRegistryService.subscribe((zones) => {
+  hubRegistryService.subscribe(async (zones) => {
     console.log(zones);
-    /*if (params.address && zones.has(params.address)) {
+    if (params.address && zones.has(params.address)) {
       zone = zones.get(params.address)!;
       hubId = zone?.spec.processId;
       console.log(zones);
       console.log(hubId);
-      //hub = await hubService.info(hubId);
-      //console.log(hub);
-    }*/
+      hub = await hubService.info(hubId);
+      console.log(hub);
+    }
   });
 
   hubService.subscribe((value) => {
@@ -134,8 +134,8 @@
     if (!params.address) return;
     console.log(params.address);
     try {
-      profileService.get(params.address);
-      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address);
+      await profileService.get(params.address);
+      await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address);
     } catch (error) {
       console.log(params.address);
       console.log("Error setting up profile:", error);
