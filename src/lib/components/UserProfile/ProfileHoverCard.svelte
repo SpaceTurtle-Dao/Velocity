@@ -14,12 +14,13 @@
   import { HUB_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
 
-  export let profile: Profile;
+  export let profile: Zone | undefined;
   let hub: Hub;
   let zone: Zone;
-  let isCurrentUser = $addressStore.address === profile.owner;
+  let isCurrentUser = $addressStore.address === profile?.owner;
 
   hubRegistryService.subscribe(async (zones) => {
+    if (!profile) return;
     if (zones.has(profile.owner)) {
       zone = zones.get(profile.owner)!;
       hub = await hubService.info(zone.spec.processId);
@@ -27,82 +28,87 @@
   });
 
   onMount(async () => {
+    if (!profile) return;
     hubRegistryService.getZoneById(HUB_REGISTRY_ID(), profile.owner);
   });
 </script>
 
-<HoverCard.Root>
-  <HoverCard.Trigger>
-    <a href="/profile/{profile.owner}" use:link>
-      <slot />
-    </a>
-  </HoverCard.Trigger>
-  <HoverCard.Content align="start">
-    <div class="flex justify-between">
-      {#if profile.profileImage}
-        <a href="/profile/{profile.owner}" use:link>
-          <ProfilePicture
-            name={profile.displayName}
-            src={`https://www.arweave.net/${profile.profileImage}`}
-            size="xl"
-          />
-        </a>
-      {:else}
-        <a href="/profile/{profile.owner}" use:link>
-          <ProfilePicture name={profile.displayName} src="" size="xl" />
-        </a>
-      {/if}
+{#if profile}
+  <HoverCard.Root>
+    <HoverCard.Trigger>
+      <a href="/profile/{profile.owner}" use:link>
+        <slot />
+      </a>
+    </HoverCard.Trigger>
+    <HoverCard.Content align="start">
+      <div class="flex justify-between">
+        {#if profile.spec.thumbnail}
+          <a href="/profile/{profile.owner}" use:link>
+            <ProfilePicture
+              name={profile.spec.displayName}
+              src={`https://www.arweave.net/${profile.spec.thumbnail}`}
+              size="xl"
+            />
+          </a>
+        {:else}
+          <a href="/profile/{profile.owner}" use:link>
+            <ProfilePicture name={profile.spec.displayName} src="" size="xl" />
+          </a>
+        {/if}
 
-      {#if !isCurrentUser}
-        <Follow hubId={profile.owner} />
-      {/if}
-    </div>
-
-    <div class="text-primary text-lg font-bold">
-      <a href="/profile/{profile.owner}" use:link>{profile.userName}</a>
-    </div>
-
-    <div class="text-muted-foreground text-base font-normal">
-      <a href="/profile/{profile.owner}" use:link>@{profile.displayName}</a>
-    </div>
-
-    {#if profile.description}
-      <div class="text-primary text-base font-normal mt-4">
-        {profile.description}
+        {#if !isCurrentUser}
+          <Follow hubId={profile.owner} />
+        {/if}
       </div>
-    {/if}
 
-    {#if profile.website}
-      <div class="mt-4">
-        <a
-          class="text-blue-500 hover:underline"
-          href={profile.website}
-          target="_blank"
-          rel="noopener noreferrer"
+      <div class="text-primary text-lg font-bold">
+        <a href="/profile/{profile.owner}" use:link>{profile.spec.userName}</a>
+      </div>
+
+      <div class="text-muted-foreground text-base font-normal">
+        <a href="/profile/{profile.owner}" use:link
+          >@{profile.spec.displayName}</a
         >
-          {getDisplayUrl(profile.website)}
-        </a>
       </div>
-    {/if}
 
-    <div class="flex justify-between mt-4 items-center">
-      {#if !hub}
-        <Skeleton class="h-4 w-[92px] rounded-full" />
-      {:else}
-        <div>
-          <span class="text-sm font-bold">{hub.Following.length}</span>
-
-          <span class="text-sm font-normal text-muted-foreground"
-            >Subscribing</span
-          >
-        </div>
-        <div>
-          <span class="text-sm font-bold">{hub.Followers.length}</span>
-          <span class="text-sm font-normal text-muted-foreground"
-            >Subscribers</span
-          >
+      {#if profile.spec.description}
+        <div class="text-primary text-base font-normal mt-4">
+          {profile.spec.description}
         </div>
       {/if}
-    </div>
-  </HoverCard.Content>
-</HoverCard.Root>
+
+      {#if profile.spec.website}
+        <div class="mt-4">
+          <a
+            class="text-blue-500 hover:underline"
+            href={profile.spec.website}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {getDisplayUrl(profile.spec.website)}
+          </a>
+        </div>
+      {/if}
+
+      <div class="flex justify-between mt-4 items-center">
+        {#if !hub}
+          <Skeleton class="h-4 w-[92px] rounded-full" />
+        {:else}
+          <div>
+            <span class="text-sm font-bold">{hub.Following.length}</span>
+
+            <span class="text-sm font-normal text-muted-foreground"
+              >Subscribing</span
+            >
+          </div>
+          <div>
+            <span class="text-sm font-bold">{hub.Followers.length}</span>
+            <span class="text-sm font-normal text-muted-foreground"
+              >Subscribers</span
+            >
+          </div>
+        {/if}
+      </div>
+    </HoverCard.Content>
+  </HoverCard.Root>
+{/if}

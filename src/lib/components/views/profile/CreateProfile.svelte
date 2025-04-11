@@ -16,7 +16,9 @@
         AvatarFallback,
         AvatarImage,
     } from "$lib/components/ui/avatar";
-    import { ARWEAVE_ADDRESS } from "$lib/constants";
+    import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
+    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+    import { addressStore } from "$lib/stores/address.store";
 
     const initialProfileSchema = z.object({
         name: z.string().min(1, "Name is required"),
@@ -92,8 +94,12 @@
                 coverImage: profile.coverImage,
             });
 
-            const newProfile = await profileService.get(profileId);
-
+            if ($addressStore.address) {
+                profileRegistryService.getZoneById(
+                    PROFILE_REGISTRY_ID(),
+                    $addressStore.address!,
+                );
+            }
             // Navigate and close dialog
             isLoading = false;
             navigate("/profile", { replace: true });

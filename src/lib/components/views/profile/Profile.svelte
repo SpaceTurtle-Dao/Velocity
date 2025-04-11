@@ -18,23 +18,23 @@
   import { getDisplayUrl } from "$lib/utils/url.utils";
   import { formatJoinedTimestamp } from "$lib/utils/timestamp.utils";
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
-  import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
   import { hubService } from "$lib/services/HubService";
   import type { Post } from "$lib/models/Post";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Hub } from "$lib/models/Hub";
-  import { HUB_REGISTRY_ID } from "$lib/constants";
+  import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
+  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
 
   export let params: { address?: string } = {};
 
-  let profile: Profile;
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
   let hubId: string;
   let hub: Hub;
-  let zone: Zone;
+  let hubZone: Zone;
+  let profileZone: Zone;
 
   let mimeTypes: string[] = [
     "image/apng",
@@ -53,20 +53,28 @@
 
   let showModal = false;
 
-  profileService.subscribe((profiles) => {
+  profileRegistryService.subscribe((zones) => {
+    if(params.address && zones.has(params.address)){
+      profileZone = zones.get(params.address)!
+      console.log(profileZone)
+      fetchPost();
+    }
+  })
+
+  /*profileService.subscribe((profiles) => {
     console.log(profiles);
     if (params.address && profiles.has(params.address))
       profile = profiles.get(params.address);
     if (profile) {
       fetchPost();
     }
-  });
+  });*/
 
   hubRegistryService.subscribe(async (zones) => {
     console.log(zones);
     if (params.address && zones.has(params.address)) {
-      zone = zones.get(params.address)!;
-      hubId = zone?.spec.processId;
+      hubZone = zones.get(params.address)!;
+      hubId = hubZone?.spec.processId;
       console.log(zones);
       console.log(hubId);
       hub = await hubService.info(hubId);
@@ -134,7 +142,10 @@
     if (!params.address) return;
     console.log(params.address);
     try {
-      await profileService.get(params.address);
+      await profileRegistryService.getZoneById(
+        PROFILE_REGISTRY_ID(),
+        params.address,
+      );
       await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address);
     } catch (error) {
       console.log(params.address);
@@ -144,16 +155,16 @@
   }
 </script>
 
-{#if profile}
+{#if profileZone}
   <div class="md:mt-10 max-w-prose">
     <Card
       class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"
     >
       <div class="relative mb-10">
         <div class="bg-gray-200 relative">
-          {#if profile?.coverImage}
+          {#if profileZone.spec.coverImage}
             <img
-              src={`https://www.arweave.net/${profile.coverImage}`}
+              src={`https://www.arweave.net/${profileZone.spec.coverImage}`}
               alt="Banner"
               class="w-full max-h-48 object-cover"
             />
@@ -164,16 +175,16 @@
         <div class="absolute bottom-0 left-4 transform translate-y-1/3">
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
-              {#if profile?.profileImage}
+              {#if profileZone.spec.thumbnail}
                 <AvatarImage
                   class="object-cover"
-                  src={`https://www.arweave.net/${profile.profileImage}`}
-                  alt={profile.displayName}
+                  src={`https://www.arweave.net/${profileZone.spec.thumbnail}`}
+                  alt={profileZone.spec.displayName}
                 />
               {/if}
               <AvatarFallback
-                >{profile.displayName
-                  ? profile.displayName[0].toUpperCase()
+                >{profileZone.spec.displayName
+                  ? profileZone.spec.displayName[0].toUpperCase()
                   : "U"}</AvatarFallback
               >
             </Avatar>
@@ -183,7 +194,7 @@
 
       <CardContent>
         <div class="flex justify-between space-x-2">
-          <p class="font-bold text-2xl">{profile.displayName}</p>
+          <p class="font-bold text-2xl">{profileZone.spec.displayName}</p>
           {#if params.address != $addressStore.address}
             {#if hubId}
               <Follow {hubId} />
@@ -200,22 +211,22 @@
           {/if}
         </div>
         <p class="text-muted-foreground">
-          @{profile.userName}
+          @{profileZone.spec.userName}
         </p>
-        {#if profile.description}
+        {#if profileZone.spec.description}
           <p class="pt-2.5">
-            {profile.description}
+            {profileZone.spec.description}
           </p>
         {/if}
         <div class="flex flex-row space-x-5 pt-2.5">
-          {#if profile.website}
+          {#if profileZone.spec.website}
             <div class="flex flex-row space-x-1 justify-end items-center">
               <Link size={16} />
               <a
                 class="text-blue-400"
-                href={profile.website}
+                href={profileZone.spec.website}
                 target="_blank"
-                rel="noopener noreferrer">{getDisplayUrl(profile.website)}</a
+                rel="noopener noreferrer">{getDisplayUrl(profileZone.spec.website)}</a
               >
             </div>
           {/if}
@@ -224,7 +235,7 @@
           >
             <CalendarDays size={16} />
             <p>
-              Joined {formatJoinedTimestamp(profile.dateCreated)}
+              Joined {formatJoinedTimestamp(Number(profileZone.registeredAt))}
             </p>
           </div>
         </div>
@@ -288,7 +299,7 @@
 {/if}
 
 <!-- Modal for UpdateProfile -->
-{#if showModal && profile}
+{#if showModal && profileZone}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
@@ -305,7 +316,7 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile initialProfile={profile} on:profileUpdated={toggleModal} />
+      <UpdateProfile initialProfile={profileZone} on:profileUpdated={toggleModal} />
     </div>
   </div>
 {/if}

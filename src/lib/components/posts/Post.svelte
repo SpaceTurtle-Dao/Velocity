@@ -19,11 +19,14 @@
   import { PostType, type Post } from "$lib/models/Post";
   import { addressStore } from "$lib/stores/address.store";
   import type { Hub } from "$lib/models/Hub";
+  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { PROFILE_REGISTRY_ID } from "$lib/constants";
+  import type { Zone } from "$lib/models/Zone";
 
   export let post: Post;
   let hub: Hub;
   let replies: Post[] = [];
-  let profile: Profile;
+  let profile: Zone;
   let replyingTo: Profile;
   let replyCount = 0;
 
@@ -31,11 +34,13 @@
   let loadError: string | null = null;
   let dialogOpen = false;
 
-  profileService.subscribe((profiles) => {
+  profileRegistryService.subscribe((zones) => {
     if (!hub) return;
-    if (profiles.has(hub.User)) profile = profiles.get(hub.User);
-    console.log(hub.User);
-    console.log(profile);
+    if (zones.has(hub.User)) {
+      profile = zones.get(hub.User)!;
+      console.log(hub.User);
+      console.log(profile);
+    }
   });
 
   function transformEventToPost(
@@ -57,7 +62,7 @@
   async function loadData() {
     hub = await hubService.info(post.from);
     console.log(hub);
-    profile = await profileService.get(hub.User);
+    profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), hub.User);
     //hub = profile.hubId;
     //replies = await hubService.fetchReplies(hub, postId);
     //replyCount = replies.length;
@@ -146,8 +151,13 @@
             {#if post.type == PostType.Reply && post.p}
               <div class="flex items-center text-muted-foreground mb-2">
                 <CornerDownRight size={16} class="mr-2" />
-                {#await profileService.get(post.p) then _profile}
-                  <span class="text-sm">Replying to @{_profile.userName}</span>
+                {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.p) then _profile}
+                  {#if $profileRegistryService.has(post.p)}
+                    <span class="text-sm"
+                      >Replying to @{$profileRegistryService.get(post.p)?.spec
+                        .userName}</span
+                    >
+                  {/if}
                 {/await}
               </div>
             {/if}
@@ -158,7 +168,7 @@
                   {#if profile.owner == $addressStore?.address}
                     You Reposted
                   {:else}
-                    Reposted by @{profile.userName}
+                    Reposted by @{profile.spec.userName}
                   {/if}
                 </span>
               </div>
@@ -168,13 +178,19 @@
               <div>
                 <div class="flex justify-start space-x-3">
                   {#if post.rePost && profile}
-                    {#await profileService.get(post.rePost.from)}
+                    {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.rePost.from)}
                       <div
                         class="hidden sm:block h-9 w-9 rounded-full bg-gray-200 animate-pulse"
                       ></div>
                     {:then _profile}
                       <div>
-                        <ProfilePictureHoverCard profile={_profile} />
+                        {#if $profileRegistryService.has(post.rePost.from)}
+                          <ProfilePictureHoverCard
+                            profile={$profileRegistryService.get(
+                              post.rePost.from,
+                            )}
+                          />
+                        {/if}
                       </div>
                     {/await}
                   {:else if profile}
@@ -189,32 +205,41 @@
                   <div class="flex-1">
                     <div class="flex space-x-1 mb-1">
                       {#if post.rePost}
-                        {#await profileService.get(post.rePost.from)}
+                        {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.rePost.from)}
                           <div
                             class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
                           ></div>
                         {:then _profile}
-                          <ProfileHoverCard profile={_profile}>
-                            <div class="flex space-x-1">
-                              <p class="font-medium text-primary">
-                                {_profile.userName}
-                              </p>
-                              <span
-                                class="text-muted-foreground pl-0.5 text-ellipsis"
-                                >@{_profile.displayName}</span
-                              >
-                            </div>
-                          </ProfileHoverCard>
+                          {#if $profileRegistryService.has(post.rePost.from)}
+                            <ProfileHoverCard
+                              profile={$profileRegistryService.get(
+                                post.rePost.from,
+                              )}
+                            >
+                              <div class="flex space-x-1">
+                                <p class="font-medium text-primary">
+                                  {$profileRegistryService.get(post.rePost.from)
+                                    ?.spec.userName}
+                                </p>
+                                <span
+                                  class="text-muted-foreground pl-0.5 text-ellipsis"
+                                  >@{$profileRegistryService.get(
+                                    post.rePost.from,
+                                  )?.spec.displayName}</span
+                                >
+                              </div>
+                            </ProfileHoverCard>
+                          {/if}
                         {/await}
                       {:else if profile}
                         <ProfileHoverCard {profile}>
                           <div class="flex space-x-1">
                             <p class="font-medium text-primary">
-                              {profile.userName}
+                              {profile.spec.userName}
                             </p>
                             <span
                               class="text-muted-foreground pl-0.5 text-ellipsis"
-                              >@{profile.displayName}</span
+                              >@{profile.spec.displayName}</span
                             >
                           </div>
                         </ProfileHoverCard>

@@ -16,7 +16,6 @@ import { P } from "flowbite-svelte";
 import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
 
 interface ProfileService extends Readable<Map<string, any>> {
-  get: (address: string) => Promise<Profile>;
   create: (profileData: ProfileCreateData) => Promise<string>;
   update: (
     processId: string, data: string
@@ -59,7 +58,7 @@ const service = (): ProfileService => {
   return {
     subscribe,
 
-    get: async (address: string) => {
+    /*get: async (address: string) => {
       let profile: Profile = {
         userName: "Anonymous",
         description: undefined,
@@ -79,18 +78,12 @@ const service = (): ProfileService => {
         profile = profiles.get(address);
       }
       try {
-        permaweb.getProfileByWalletAddress(address).then((_profile) => {
-          if (_profile) {
-            profile = _profile;
-          }
-          profiles.set(address, profile);
-          set(profiles);
-        });
+        profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address)
       } catch (error) {
         console.log("Profile not found, creating anonymous profile", error);
       }
       return profile;
-    },
+    },*/
 
 
     create: async (profileData: ProfileCreateData): Promise<string> => {
