@@ -25,15 +25,18 @@ const service = (): HubService => {
     return {
         subscribe,
         info: async (hubId: string): Promise<Hub> => {
+
             let temp = await info(hubId)
             console.log(temp)
-            let hub:Hub = {
+            let hub: Hub = {
                 User: temp.User,
                 Followers: JSON.parse(temp.Followers),
                 Following: JSON.parse(temp.Following),
                 spec: temp.spec
             };
             return hub
+
+
         },
         fetchPost: async (hubId: string, since: Number, until: Number): Promise<void> => {
             // console.log("since",since);

@@ -11,11 +11,14 @@
     import { profileService } from "$lib/services/ProfileService";
     import { upload } from "$lib/ao/uploader";
     import { Camera } from "lucide-svelte";
-    import { 
-        Avatar, 
-        AvatarFallback, 
-        AvatarImage 
+    import {
+        Avatar,
+        AvatarFallback,
+        AvatarImage,
     } from "$lib/components/ui/avatar";
+    import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
+    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+    import { addressStore } from "$lib/stores/address.store";
 
     const initialProfileSchema = z.object({
         name: z.string().min(1, "Name is required"),
@@ -34,7 +37,7 @@
         description: "",
         thumbnail: "",
         coverImage: "",
-        website: "" 
+        website: "",
     };
 
     let isOpen = false;
@@ -43,7 +46,11 @@
 
     // New variables for file handling
     let pictureFile: File | null = null;
-    let bannerFile: File | null = null;
+    let coverImageFile: File | null = null;
+
+    function toUrl(tx: string) {
+        return ARWEAVE_ADDRESS + tx;
+    }
 
     function handleFileChange(event: Event, type: "picture" | "banner") {
         const target = event.target as HTMLInputElement;
@@ -52,7 +59,7 @@
             if (type === "picture") {
                 pictureFile = file;
             } else {
-                bannerFile = file;
+                coverImageFile = file;
             }
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -71,12 +78,12 @@
 
             if (pictureFile) {
                 let _pictureFile = await upload(pictureFile);
-                profile.thumbnail = _pictureFile.url;
+                profile.thumbnail = _pictureFile.hash;
             }
 
-            if (bannerFile) {
-                let _bannerFile = await upload(bannerFile);
-                profile.coverImage = _bannerFile.url;
+            if (coverImageFile) {
+                let _bannerFile = await upload(coverImageFile);
+                profile.coverImage = _bannerFile.hash;
             }
 
             const profileId = await profileService.create({
@@ -84,11 +91,15 @@
                 displayName: profile.display_name,
                 description: profile.description,
                 thumbnail: profile.thumbnail,
-                coverImage: profile.coverImage
+                coverImage: profile.coverImage,
             });
 
-            const newProfile = await profileService.get(profileId);
-
+            if ($addressStore.address) {
+                profileRegistryService.getZoneById(
+                    PROFILE_REGISTRY_ID(),
+                    $addressStore.address!,
+                );
+            }
             // Navigate and close dialog
             isLoading = false;
             navigate("/profile", { replace: true });
@@ -125,16 +136,23 @@
     </Dialog.Trigger>
     <Dialog.Content class="sm:max-w-[425px]">
         <Dialog.Header>
-            <Dialog.Title class="text-primary">Create Your Profile</Dialog.Title>
+            <Dialog.Title class="text-primary">Create Your Profile</Dialog.Title
+            >
         </Dialog.Header>
         <form on:submit|preventDefault={() => {}} class="space-y-6">
             <!-- Banner Upload Section -->
             <div class="relative mb-16">
                 <div class="h-32 bg-gray-200 relative">
-                    {#if profile.coverImage}
+                    {#if coverImageFile}
+                        <img
+                            src={URL.createObjectURL(coverImageFile)}
+                            alt={profile.name}
+                            class="w-full h-full object-cover"
+                        />
+                    {:else if profile.coverImage}
                         <img
                             src={profile.coverImage}
-                            alt="Banner"
+                            alt={profile.name}
                             class="w-full h-full object-cover"
                         />
                     {/if}
@@ -155,12 +173,33 @@
                 <div class="absolute bottom-0 left-4 transform translate-y-1/3">
                     <div class="relative">
                         <Avatar class="w-24 h-24 border-4 border-white">
-                            <AvatarImage src={profile.thumbnail} alt={profile.name} />
-                            <AvatarFallback>
-                                {profile.name 
-                                    ? profile.name[0].toUpperCase() 
-                                    : "A"}
-                            </AvatarFallback>
+                            {#if pictureFile}
+                                <AvatarImage
+                                    class="object-cover"
+                                    src={URL.createObjectURL(pictureFile)}
+                                    alt={profile.name
+                                        ? profile.name[0].toUpperCase()
+                                        : "A"}
+                                />
+                                <AvatarFallback>
+                                    {profile.name
+                                        ? profile.name[0].toUpperCase()
+                                        : "A"}
+                                </AvatarFallback>
+                            {:else if profile.thumbnail}
+                                <AvatarImage
+                                    class="object-cover"
+                                    src={toUrl(profile.thumbnail)}
+                                    alt={profile.name
+                                        ? profile.name[0].toUpperCase()
+                                        : "A"}
+                                />
+                                <AvatarFallback>
+                                    {profile.name
+                                        ? profile.name[0].toUpperCase()
+                                        : "A"}
+                                </AvatarFallback>
+                            {/if}
                         </Avatar>
                         <label
                             for="picture"
@@ -180,7 +219,9 @@
             </div>
 
             <div class="space-y-2">
-                <Label for="name" class="text-lg font-medium text-primary">Name</Label>
+                <Label for="name" class="text-lg font-medium text-primary"
+                    >Name</Label
+                >
                 <Input
                     id="name"
                     bind:value={profile.name}
@@ -211,7 +252,8 @@
             <div class="space-y-2">
                 <Label
                     for="description"
-                    class="text-lg font-medium text-primary">Description (Optional)</Label
+                    class="text-lg font-medium text-primary"
+                    >Description (Optional)</Label
                 >
                 <Input
                     id="description"

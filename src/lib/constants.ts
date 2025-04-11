@@ -13,7 +13,7 @@ export function HUB_MESSAGE_ID(): string {
     return "";
 }
 
-export function REGISTRY_ID(): string {
+export function HUB_REGISTRY_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
             return "dVL1cJFikqBQRbtHQiOxwto774TilKtrymfcaQO8HGQ";
@@ -23,6 +23,21 @@ export function REGISTRY_ID(): string {
         }
         case "production": {
             return "dVL1cJFikqBQRbtHQiOxwto774TilKtrymfcaQO8HGQ";
+        }
+    }
+    return "";
+}
+
+export function PROFILE_REGISTRY_ID(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "77AN6Z-v5vzKA5I_b-kjmDplckQ3-JZzmwRjC83gFag";
+        }
+        case "staging": {
+            return "77AN6Z-v5vzKA5I_b-kjmDplckQ3-JZzmwRjC83gFag";
+        }
+        case "production": {
+            return "77AN6Z-v5vzKA5I_b-kjmDplckQ3-JZzmwRjC83gFag";
         }
     }
     return "";

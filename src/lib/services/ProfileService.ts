@@ -7,14 +7,15 @@ import { evalProcess, updateProfile } from "$lib/ao/relay";
 import { luaModule } from "./profile_lua";
 import { createProcess } from "$lib/ao/process.svelte";
 import { walletAddress, setWalletAddress } from "$lib/stores/walletStore";
-import { registryService } from './RegistryService';
+import { profileRegistryService } from './ProfileRegistryService';
+import { hubRegistryService } from './HubRegistryService';
 import type { Spec } from "$lib/models/Spec";
 import { hubService } from './HubService';
 import type { Tag } from "$lib/models/Tag";
 import { P } from "flowbite-svelte";
+import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
 
 interface ProfileService extends Readable<Map<string, any>> {
-  get: (address: string) => Promise<Profile>;
   create: (profileData: ProfileCreateData) => Promise<string>;
   update: (
     processId: string, data: string
@@ -57,7 +58,7 @@ const service = (): ProfileService => {
   return {
     subscribe,
 
-    get: async (address: string) => {
+    /*get: async (address: string) => {
       let profile: Profile = {
         userName: "Anonymous",
         description: undefined,
@@ -77,18 +78,12 @@ const service = (): ProfileService => {
         profile = profiles.get(address);
       }
       try {
-        permaweb.getProfileByWalletAddress(address).then((_profile) => {
-          if (_profile) {
-            profile = _profile;
-          }
-          profiles.set(address, profile);
-          set(profiles);
-        });
+        profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address)
       } catch (error) {
         console.log("Profile not found, creating anonymous profile", error);
       }
       return profile;
-    },
+    },*/
 
 
     create: async (profileData: ProfileCreateData): Promise<string> => {
@@ -97,15 +92,26 @@ const service = (): ProfileService => {
         console.log("ProfileId", processId);
         await evaluateProfile(profileData, processId);
         const hubId = await hubService.create();
-        const hubSpec: Spec = {
+        const hubSpec = {
           type: "hub",
           kinds: ["1", "7", "6", "3", "2"],
           description: "Social message hub",
           version: "1.0.0",
           processId: hubId
         };
-        await registryService.register(hubSpec);
+        const profileSpec = {
+          type: "profile",
+          userName: profileData.userName,
+          displayName: profileData.displayName || "",
+          description: profileData.description || "",
+          thumbnail: profileData.thumbnail || "",
+          coverImage: profileData.coverImage || "",
+          processId: processId
+        };
+        await hubRegistryService.register(HUB_REGISTRY_ID(), hubSpec);
+        await profileRegistryService.register(PROFILE_REGISTRY_ID(), profileSpec);
         console.log("*** Hub ID ***", hubId);
+        console.log("*** Profile ID ***", processId);
         return processId;
       } catch (error) {
         console.log("Failed to register profile:", error);
