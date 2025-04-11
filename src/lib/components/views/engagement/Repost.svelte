@@ -51,7 +51,6 @@
 
   onMount(async () => {
     if (post.from) {
-      const profile = await profileService.get(post.from);
       await hubService.fetchRepost(post.from, post.id);
       if (!$addressStore.address) return;
       reposted = reposts.filter((value) => value.from == $addressStore.address).length > 0;

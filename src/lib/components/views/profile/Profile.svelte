@@ -77,7 +77,11 @@
       hubId = hubZone?.spec.processId;
       console.log(zones);
       console.log(hubId);
-      hub = await hubService.info(hubId);
+      try{
+        hub = await hubService.info(hubId);
+      }catch(e){
+        hub = await hubService.info(hubId);
+      }
       console.log(hub);
     }
   });

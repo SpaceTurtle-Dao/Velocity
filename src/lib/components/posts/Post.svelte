@@ -268,7 +268,7 @@
             <div class="flex justify-between mt-3 engagement-buttons">
               {#if post.rePost}
                 <div class="flex items-center">
-                  <Reply post={post.rePost} on:newReply={handleNewReply} />
+                  <Reply hubId={post.rePost.from} post={post.rePost} on:newReply={handleNewReply} />
                   <span class="ml-1 text-sm text-muted-foreground">
                     {replyCount}
                   </span>
@@ -278,7 +278,7 @@
                 <Buy />
               {:else}
                 <div class="flex items-center">
-                  <Reply {post} on:newReply={handleNewReply} />
+                  <Reply hubId={post.from} {post} on:newReply={handleNewReply} />
                   <span class="ml-1 text-sm text-muted-foreground">
                     {replyCount}
                   </span>

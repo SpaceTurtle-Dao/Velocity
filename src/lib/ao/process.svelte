@@ -50,7 +50,7 @@
 
 	// @ts-ignore
 	export const read = async (processId, tags) => {
-		await sleep(500)
+		await sleep(300)
 		//console.log("reading data")
 		// The only 2 mandatory parameters here are process and signer
 		// connect to the extension

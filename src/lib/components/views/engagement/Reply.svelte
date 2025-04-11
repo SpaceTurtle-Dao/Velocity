@@ -14,9 +14,11 @@
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
   import { addressStore } from "$lib/stores/address.store";
+    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+    import { PROFILE_REGISTRY_ID } from "$lib/constants";
 
   export let post: Post;
-
+  export let hubId: string;
   let newReply: any;
 
   let content = "";
@@ -25,7 +27,6 @@
   let mediaPreviewUrl: string | null = null;
   let isLoading = false;
   let dialogOpen = false;
-  let hubId: string = "";
 
   const dispatch = createEventDispatcher();
 
@@ -58,10 +59,7 @@
   }
 
   async function initializeHubId() {
-    if (post.from) {
-      const profile = await profileService.get(post.from);
-      hubId = profile.hubId;
-    }
+   
   }
 
   async function handleSubmit() {
@@ -163,12 +161,14 @@
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
         {#if $addressStore.address}
-        {#await profileService.get($addressStore.address) then profile}
+        {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(),$addressStore.address) then profile}
+          {#if $profileRegistryService.has($addressStore.address)}
           <ProfilePicture
             size="lg"
-            src={profile.thumbnail}
-            name={profile.displayName}
+            src={$profileRegistryService.get($addressStore.address)?.spec.thumbnail}
+            name={$profileRegistryService.get($addressStore.address)?.spec.displayName}
           />
+          {/if}
         {/await}
         {/if}
         <div class="w-full ml-3">

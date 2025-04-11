@@ -23,7 +23,12 @@
     if (!profile) return;
     if (zones.has(profile.owner)) {
       zone = zones.get(profile.owner)!;
-      hub = await hubService.info(zone.spec.processId);
+      try{
+        hub = await hubService.info(zone.spec.processId);
+      }catch(e){
+        hub = await hubService.info(zone.spec.processId);
+      }
+      
     }
   });
 
