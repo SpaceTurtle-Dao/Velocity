@@ -20,6 +20,7 @@
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
     import { profileRegistryService } from "$lib/services/ProfileRegistryService";
     import { PROFILE_REGISTRY_ID } from "$lib/constants";
+    import CollectionsPage from "$lib/components/Assets_Card/CollectionPage.svelte";
 
   let address:string;
 

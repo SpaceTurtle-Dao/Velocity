@@ -19,7 +19,6 @@
     }
   });
 
-  // Function to format Arweave transaction URLs
   function toUrl(tx: string) {
     return (
       "https://arweave.net/" +
@@ -40,7 +39,6 @@
     }
   }
 
-  // Close menu when clicking outside
   function handleClickOutside(event: MouseEvent) {
     if (menuRef && !menuRef.contains(event.target as Node)) {
       isMenuOpen = false;
@@ -68,7 +66,7 @@
       {#if profile.profileImage}
       <ProfilePicture src={toUrl(profile.profileImage)} name={profile.userName} />
       {:else}
-      <ProfilePicture name={profile.userName} />
+      <ProfilePicture src={toUrl(profile.thumbnail || '')} name={profile.userName} />
       {/if}
       <div class="flex-grow text-left">
         <p class="font-semibold text-white">{profile.displayName}</p>

@@ -112,7 +112,6 @@
               <MoreHorizontal class="w-6 h-6 mr-4 text-primary" />
               <span class="text-lg font-medium text-primary">More</span>
             </div>
-            <!-- </button> -->
           </li>
         </ul>
       </nav>
