@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Avatar from "$lib/components/ui/avatar";
 
-  export let src:string;
+  export let src: string;
   export let name: string;
 
   function getInitials(name: string): string {
@@ -23,9 +23,11 @@
   {#if name}
     {#if src != ""}
       <Avatar.Image class="object-cover" {src} alt={name} />
-      <Avatar.Fallback class="text-primary">{getInitials(name)}</Avatar.Fallback>
+      <Avatar.Fallback class="text-primary">{getInitials(name)}</Avatar.Fallback
+      >
     {:else}
-    <Avatar.Fallback class="text-primary">{getInitials(name)}</Avatar.Fallback>
+      <Avatar.Fallback class="text-primary">{getInitials(name)}</Avatar.Fallback
+      >
     {/if}
   {/if}
 </Avatar.Root>

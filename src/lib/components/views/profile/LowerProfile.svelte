@@ -7,24 +7,23 @@
   import { writable } from "svelte/store";
   import { profileService } from "$lib/services/ProfileService";
   import type { Profile } from "$lib/models/Profile";
+    import type { Zone } from "$lib/models/Zone";
+    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
 
   let isMenuOpen = false;
   let menuRef: HTMLDivElement;
 
-  let profile: Profile;
+  let profile: Zone;
 
-  profileService.subscribe((profiles) => {
-    if ($addressStore.address && profiles.has($addressStore.address)) {
-      profile = profiles.get($addressStore.address);
+  profileRegistryService.subscribe((zones) => {
+    if ($addressStore.address && zones.has($addressStore.address)) {
+      profile = zones.get($addressStore.address)!;
     }
   });
 
   // Function to format Arweave transaction URLs
   function toUrl(tx: string) {
-    return (
-      "https://arweave.net/" +
-      tx
-    );
+    return "https://arweave.net/" + tx;
   }
 
   async function handleDisconnect() {
@@ -65,14 +64,17 @@
       on:click={toggleMenu}
       class="flex items-center space-x-4 focus:outline-none"
     >
-      {#if profile.profileImage}
-      <ProfilePicture src={toUrl(profile.profileImage)} name={profile.userName} />
+      {#if profile.spec.thumbnail}
+        <ProfilePicture
+          src={toUrl(profile.spec.thumbnail)}
+          name={profile.spec.userName}
+        />
       {:else}
-      <ProfilePicture name={profile.userName} />
+        <ProfilePicture src="" name={profile.spec.userName} />
       {/if}
       <div class="flex-grow text-left">
-        <p class="font-semibold text-white">{profile.displayName}</p>
-        <p class="text-sm text-white">@{profile.userName}</p>
+        <p class="font-semibold text-white">{profile.spec.displayName}</p>
+        <p class="text-sm text-white">@{profile.spec.userName}</p>
       </div>
       <MoreHorizontal class="w-5 h-5 text-white" />
     </button>
