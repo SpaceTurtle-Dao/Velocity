@@ -14,14 +14,16 @@
   import { upload } from "$lib/ao/uploader";
   import { link, push, location } from "svelte-spa-router";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
-  import type { Profile } from "$lib/models/Profile";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
   import { addressStore } from "$lib/stores/address.store";
+  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { PROFILE_REGISTRY_ID } from "$lib/constants";
+  import type { Zone } from "$lib/models/Zone";
 
-  export let params: { hubId?: string, id?: string } = {};
+  export let params: { hubId?: string; id?: string } = {};
 
   const onAddressParamChange = async () => {
     await loadPost();
@@ -34,6 +36,7 @@
   }
 
   let post: Post;
+  let profileZone: Zone;
   let replies: Post[] = [];
   let replyCount = 0;
   let id: string;
@@ -55,12 +58,19 @@
     console.log(`got ${replyCount} Replies`);
   });
 
+  profileRegistryService.subscribe((zones) => {
+    if (post && post.owner && zones.has(post.owner)) {
+      profileZone = zones.get(post.owner)!;
+    }
+  });
+
   async function loadPost() {
     if (!params.hubId || !params.id) return;
     console.log(params.hubId);
     console.log(params.id);
     post = await hubService.get(params.hubId, params.id);
-    console.log(post)
+    profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.owner);
+    console.log(post);
     //await hubService.fetchReplies(hubId, id);
     //await hubService.fetchRepost(hubId, id);
   }
@@ -85,7 +95,7 @@
     }, 100);
   }
   onMount(async () => {
-      await loadPost();
+    await loadPost();
   });
 
   function handleMediaSelect() {
@@ -158,21 +168,19 @@
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
-          {#if $addressStore.address}
-            {#await profileService.get($addressStore.address) then profile}
-              <Avatar class="h-12 w-12 text-primary">
-                {#if profile.thumbnail}
-                  <AvatarImage
-                    src={profile.thumbnail}
-                    alt={profile.displayName || "Current User"}
-                  />
-                {:else}
-                  <AvatarFallback>
-                    {profile.userName?.[0] || "U"}
-                  </AvatarFallback>
-                {/if}
-              </Avatar>
-            {/await}
+          {#if profileZone}
+            <Avatar class="h-12 w-12 text-primary">
+              {#if profileZone.spec.thumbnail}
+                <AvatarImage
+                  src={`https://www.arweave.net/${profileZone.spec.thumbnail}`}
+                  alt={profileZone.spec.displayName || "Current User"}
+                />
+              {:else}
+                <AvatarFallback>
+                  {profileZone.spec.userName?.[0] || "U"}
+                </AvatarFallback>
+              {/if}
+            </Avatar>
           {/if}
           <div class="flex-1">
             <Textarea
@@ -253,7 +261,7 @@
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
-        <PostComponent post={reply}/>
+        <PostComponent post={reply} />
       </div>
     {/each}
   {:else}
