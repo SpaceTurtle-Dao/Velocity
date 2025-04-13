@@ -16,8 +16,9 @@
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { hubService } from "$lib/services/HubService";
   import { timestampService } from "$lib/utils/date-time";
-  import { HUB_REGISTRY_ID } from "$lib/constants";
-    import type { Zone } from "$lib/models/Zone";
+  import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
+  import type { Zone } from "$lib/models/Zone";
+  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -28,20 +29,30 @@
   let gifSearchOpen = false;
   let selectedGifUrl: string | null = null;
   let hubId: string;
-  let zone:Zone;
+  let hubZone: Zone;
+  let profileZone: Zone;
 
   hubRegistryService.subscribe((zones) => {
-    if($addressStore.address && zones.has($addressStore.address)){
-      zone = zones.get($addressStore.address)!
-      hubId = zone.spec.processId;
+    if ($addressStore.address && zones.has($addressStore.address)) {
+      hubZone = zones.get($addressStore.address)!;
+      hubId = hubZone.spec.processId;
       console.log("*** Hub ID ***", hubId);
     }
-  })
+  });
+
+  profileRegistryService.subscribe((zones) => {
+    if ($addressStore.address && zones.has($addressStore.address)) {
+      profileZone = zones.get($addressStore.address)!;
+      hubId = profileZone.spec.processId;
+      console.log("*** Hub ID ***", hubId);
+    }
+  });
 
   async function initializeHubId() {
     if ($addressStore.address) {
-      hubRegistryService.getZoneById(
-        HUB_REGISTRY_ID(),
+      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $addressStore.address);
+      profileRegistryService.getZoneById(
+        PROFILE_REGISTRY_ID(),
         $addressStore.address,
       );
     }
@@ -182,18 +193,16 @@
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        {#if $addressStore.address}
-          {#await profileService.get($addressStore.address) then profile}
-            {#if profile.profileImage}
-              <ProfilePicture
-                src={profile.profileImage}
-                name={profile.userName}
-                size="lg"
-              />
-            {:else}
-              <ProfilePicture src="" name={profile.userName} size="lg" />
-            {/if}
-          {/await}
+        {#if profileZone}
+          {#if profileZone.spec.thumbnail}
+            <ProfilePicture
+              src={`https://www.arweave.net/${profileZone.spec.thumbnail}`}
+              name={profileZone.spec.userName}
+              size="lg"
+            />
+          {:else}
+            <ProfilePicture src="" name={profileZone.spec.userName} size="lg" />
+          {/if}
         {/if}
 
         <div class="w-full">
