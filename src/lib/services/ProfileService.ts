@@ -13,7 +13,7 @@ import type { Spec } from "$lib/models/Spec";
 import { hubService } from './HubService';
 import type { Tag } from "$lib/models/Tag";
 import { P } from "flowbite-svelte";
-import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
+import { CU_URL, GATEWAY_URL, HUB_REGISTRY_ID, MU_URL, PROFILE_REGISTRY_ID } from "$lib/constants";
 
 interface ProfileService extends Readable<Map<string, any>> {
   create: (profileData: ProfileCreateData) => Promise<string>;
@@ -149,9 +149,9 @@ async function evaluateProfile(profileData: ProfileCreateData, processId: string
     const wallet = typeof window !== "undefined" ? window.arweaveWallet : "";
     const permaweb = Permaweb.init({
       ao: connect({
-        MU_URL: "https://mu.ao-testnet.xyz",
-        CU_URL: "https://cu.ao-testnet.xyz",
-        GATEWAY_URL: "https://arweave.net",
+        MU_URL: MU_URL(),
+        CU_URL: CU_URL(),
+        GATEWAY_URL: GATEWAY_URL(),
       },),
       arweave: Arweave.init({}),
       signer: createDataItemSigner(wallet),

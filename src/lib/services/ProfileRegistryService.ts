@@ -34,6 +34,8 @@ const service = (): ProfileRegistryService => {
       return await getZones(processId, filters, page, limit)
     },
     getZoneById: async (processId: string, owner: string): Promise<void> => {
+      console.log("Profile Registry")
+      console.log(processId)
       let zones = get(profileRegistryService)
       if (zones.has(owner)) {
         getZone(processId, owner).then((_zone) => {
