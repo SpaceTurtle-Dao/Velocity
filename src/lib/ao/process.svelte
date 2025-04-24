@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-	import { RELAY_MESSAGE_ID } from "$lib/constants";
+	import { AOS_MODULE, CU_URL, GATEWAY_URL, MU_URL, RELAY_MESSAGE_ID, SCHEDULER } from "$lib/constants";
 	// @ts-ignore
 	import { connect, createDataItemSigner, assign } from "@permaweb/aoconnect";
 	//import { createToast } from '$lib/utils/toastHandler.svelte';
@@ -11,9 +11,9 @@
 	// @ts-ignore
 	const { result, results, message, spawn, monitor, unmonitor, dryrun } =
 		connect({
-			MU_URL: "https://mu.ao-testnet.xyz",
-			CU_URL: "https://cu.ao-testnet.xyz",
-			GATEWAY_URL: "https://arweave.net",
+			MU_URL: MU_URL(),
+			CU_URL: CU_URL(),
+			GATEWAY_URL: GATEWAY_URL(),
 		});
 
 	// @ts-ignore
@@ -36,7 +36,7 @@
 			// Tags that the process will use as input.
 			tags: tags,
 			data: "",
-			scheduler: "_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA",
+			scheduler: SCHEDULER(),
 			// A signer function used to build the message "signature"
 			// @ts-ignore
 			signer: createDataItemSigner(window.arweaveWallet),
@@ -50,7 +50,7 @@
 
 	// @ts-ignore
 	export const read = async (processId, tags) => {
-		await sleep(300)
+		//await sleep(300)
 		//console.log("reading data")
 		// The only 2 mandatory parameters here are process and signer
 		// connect to the extension
@@ -66,6 +66,10 @@
 
 			// Tags that the process will use as input.
 			tags: tags,
+			scheduler: SCHEDULER(),
+			MU_URL: MU_URL(),
+			CU_URL: CU_URL(),
+			GATEWAY_URL: GATEWAY_URL(),
 		});
 		//console.log(result)
 		if (result.Messages) {
@@ -78,8 +82,8 @@
 	export const createProcess = async () => {
 		const processId = await spawn({
 			// The Arweave TXID of the ao Module
-			module: "Do_Uc2Sju_ffp6Ev0AnLVdPtot15rvMjP-a9VVaA5fM",
-			scheduler: "_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA",
+			module: AOS_MODULE(),
+			scheduler: SCHEDULER(),
 			// @ts-ignore
 			signer: createDataItemSigner(window.arweaveWallet),
 		});

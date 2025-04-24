@@ -55,13 +55,13 @@
     <div class="profile-menu relative">
       <button on:click={toggleDisconnect} class="focus:outline-none">
         {#if $addressStore.address}
-          {#await profileService.get($addressStore.address) then profile}
+          <!--{#await profileService.get($addressStore.address) then profile}
             <ProfilePicture
               size="sm"
               src={profile.thumbnail}
               name={profile.userName}
             />
-          {/await}
+          {/await}-->
         {/if}
       </button>
 
