@@ -1,3 +1,78 @@
+export function MU_URL(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "https://mu.velocity.ao-cloudnet.michaelbuhler.com";
+        }
+        case "staging": {
+            return "https://mu.velocity.ao-cloudnet.michaelbuhler.com";
+        }
+        case "production": {
+            return "https://mu.velocity.ao-cloudnet.michaelbuhler.com";
+        }
+    }
+    return "https://mu.velocity.ao-cloudnet.michaelbuhler.com";
+}
+
+export function CU_URL(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "https://cu.velocity.ao-cloudnet.michaelbuhler.com";
+        }
+        case "staging": {
+            return "https://cu.velocity.ao-cloudnet.michaelbuhler.com";
+        }
+        case "production": {
+            return "https://cu.velocity.ao-cloudnet.michaelbuhler.com";
+        }
+    }
+    return "https://cu.velocity.ao-cloudnet.michaelbuhler.com";
+}
+
+export function GATEWAY_URL(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "https://gateway.velocity.ao-cloudnet.michaelbuhler.com";
+        }
+        case "staging": {
+            return "https://gateway.velocity.ao-cloudnet.michaelbuhler.com";
+        }
+        case "production": {
+            return "https://gateway.velocity.ao-cloudnet.michaelbuhler.com";
+        }
+    }
+    return "https://gateway.velocity.ao-cloudnet.michaelbuhler.com";
+}
+
+export function SCHEDULER(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "Tm7v2ddwSr_5UxjmuCmhkMSZpzhtKJkkpLMZK_p6mQU";
+        }
+        case "staging": {
+            return "Tm7v2ddwSr_5UxjmuCmhkMSZpzhtKJkkpLMZK_p6mQU";
+        }
+        case "production": {
+            return "Tm7v2ddwSr_5UxjmuCmhkMSZpzhtKJkkpLMZK_p6mQU";
+        }
+    }
+    return "Tm7v2ddwSr_5UxjmuCmhkMSZpzhtKJkkpLMZK_p6mQU";
+}
+
+export function AOS_MODULE(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "28gHGe_ARwPfCL7zYD2HB5oGvvP74mbfbHLESNFo55o";
+        }
+        case "staging": {
+            return "28gHGe_ARwPfCL7zYD2HB5oGvvP74mbfbHLESNFo55o";
+        }
+        case "production": {
+            return "28gHGe_ARwPfCL7zYD2HB5oGvvP74mbfbHLESNFo55o";
+        }
+    }
+    return "";
+}
+
 export function HUB_MESSAGE_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
@@ -16,31 +91,31 @@ export function HUB_MESSAGE_ID(): string {
 export function HUB_REGISTRY_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "dVL1cJFikqBQRbtHQiOxwto774TilKtrymfcaQO8HGQ";
+            return "g_eSbkmD4LzfZtXaCLmeMcLIBQrqxnY-oFQJJNMIn4w";
         }
         case "staging": {
-            return "dVL1cJFikqBQRbtHQiOxwto774TilKtrymfcaQO8HGQ";
+            return "g_eSbkmD4LzfZtXaCLmeMcLIBQrqxnY-oFQJJNMIn4w";
         }
         case "production": {
-            return "dVL1cJFikqBQRbtHQiOxwto774TilKtrymfcaQO8HGQ";
+            return "g_eSbkmD4LzfZtXaCLmeMcLIBQrqxnY-oFQJJNMIn4w";
         }
     }
-    return "";
+    return "g_eSbkmD4LzfZtXaCLmeMcLIBQrqxnY-oFQJJNMIn4w";
 }
 
 export function PROFILE_REGISTRY_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "77AN6Z-v5vzKA5I_b-kjmDplckQ3-JZzmwRjC83gFag";
+            return "9ahkAJRhJO46sALHkqb1_0Ck-hSpqBCLJwdxvtMzoqI";
         }
         case "staging": {
-            return "77AN6Z-v5vzKA5I_b-kjmDplckQ3-JZzmwRjC83gFag";
+            return "9ahkAJRhJO46sALHkqb1_0Ck-hSpqBCLJwdxvtMzoqI";
         }
         case "production": {
-            return "77AN6Z-v5vzKA5I_b-kjmDplckQ3-JZzmwRjC83gFag";
+            return "9ahkAJRhJO46sALHkqb1_0Ck-hSpqBCLJwdxvtMzoqI";
         }
     }
-    return "";
+    return "9ahkAJRhJO46sALHkqb1_0Ck-hSpqBCLJwdxvtMzoqI";
 }
 
 export function RELAY_MESSAGE_ID(): string {
