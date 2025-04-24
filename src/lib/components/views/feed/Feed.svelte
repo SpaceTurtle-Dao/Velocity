@@ -47,8 +47,11 @@
   async function fetchFeedEvents() {
     console.log(address);
     const now = new Date();
-    const since = timestampService.subtract(new Date(), 10, "days").getTime();
-    const until = now.getTime();
+    let since = timestampService.subtract(new Date(), 10, "days").getTime();
+    let until = now.getTime();
+    if(lastLoadedTimestamp){
+      since = lastLoadedTimestamp
+    }
     try {
       console.log("getting Post");
       console.log(hubId);
@@ -56,7 +59,7 @@
       console.log(until);
       await hubService.fetchPost(hubId, since, until);
       console.log("Initial feed posts loaded:", feed.length);
-      lastLoadedTimestamp = since;
+      lastLoadedTimestamp = until;
     } catch (error) {
       console.log("Error fetching feed events:", error);
     } finally {
