@@ -11,6 +11,7 @@
     import { hubRegistryService } from "$lib/services/HubRegistryService";
 
     export let post: Post;
+    export let hubId: string;
 
     let liked = false;
     let likes: Array<any> = [];
@@ -40,8 +41,12 @@
         _tags.push(eventTag);
         _tags.push(pubkeyTag);
         if (liked) {
+            console.log("**Likes**");
             let temp = likes.filter((like) => {
-                return like.From != $addressStore.address;
+                console.log(like.From);
+                console.log(hubId);
+                console.log(like);
+                return like.From != hubId;
             });
             likes = temp;
             liked = false;
@@ -54,8 +59,12 @@
         await event(post.from, _tags);
         hubService.fetchLikes(post.from, post.id).then((_likes) => {
             likes = _likes;
+            console.log("**Likes**");
             let temp = likes.filter((like) => {
-                return like.From == $addressStore.address;
+                console.log(like.From);
+                console.log(hubId);
+                console.log(like);
+                return like.From == hubId;
             });
             liked = temp.length > 0;
         });
@@ -65,8 +74,12 @@
         if (post.from) {
             hubService.fetchLikes(post.from, post.id).then((_likes) => {
                 likes = _likes;
+                console.log("**Likes**");
                 let temp = likes.filter((like) => {
-                    return like.From == $addressStore.address;
+                    console.log(like.From);
+                    console.log(hubId);
+                    console.log(like);
+                    return like.From == hubId;
                 });
                 liked = temp.length > 0;
             });
