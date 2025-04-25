@@ -22,6 +22,7 @@
   import { profileRegistryService } from "$lib/services/ProfileRegistryService";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
 
   export let post: Post;
   let hub: Hub;
@@ -29,10 +30,18 @@
   let profile: Zone;
   let replyingTo: Profile;
   let replyCount = 0;
-
+  let hubZone: Zone;
   let isLoading: boolean = false;
   let loadError: string | null = null;
   let dialogOpen = false;
+
+  hubRegistryService.subscribe((hubs) => {
+    if (!$addressStore.address) return;
+    if (hubs.has($addressStore.address)) {
+      let _hubZone = hubs.get($addressStore.address);
+      if (_hubZone) hubZone = _hubZone;
+    }
+  });
 
   profileRegistryService.subscribe((zones) => {
     if (!hub) return;
@@ -97,7 +106,7 @@
   }
 </script>
 
-{#if profile}
+{#if profile && hub}
   <div class="cursor-pointer border border-border">
     <Dialog.Root>
       <Dialog.Trigger asChild>
@@ -268,23 +277,31 @@
             <div class="flex justify-between mt-3 engagement-buttons">
               {#if post.rePost}
                 <div class="flex items-center">
-                  <Reply hubId={post.rePost.from} post={post.rePost} on:newReply={handleNewReply} />
+                  <Reply
+                    hubId={post.rePost.from}
+                    post={post.rePost}
+                    on:newReply={handleNewReply}
+                  />
                   <span class="ml-1 text-sm text-muted-foreground">
                     {replyCount}
                   </span>
                 </div>
-                <Repost post={post.rePost} />
-                <Like post={post.rePost} />
+                <Repost post={post.rePost} hubId={hub.spec.processId} />
+                <Like post={post.rePost} hubId={hub.spec.processId} />
                 <Buy />
               {:else}
                 <div class="flex items-center">
-                  <Reply hubId={post.from} {post} on:newReply={handleNewReply} />
+                  <Reply
+                    hubId={post.from}
+                    {post}
+                    on:newReply={handleNewReply}
+                  />
                   <span class="ml-1 text-sm text-muted-foreground">
                     {replyCount}
                   </span>
                 </div>
-                <Repost {post} />
-                <Like {post} />
+                <Repost {post} hubId={hub.spec.processId}/>
+                <Like {post} hubId={hubZone.spec.processId} />
                 <Buy />
               {/if}
               <Share />
