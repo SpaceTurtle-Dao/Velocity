@@ -10,6 +10,7 @@
   import { profileService } from "$lib/services/ProfileService";
 
   export let post: Post;
+  export let hubId: string;
 
   let reposted = false;
   let reposts: Post[] = [];
@@ -40,7 +41,7 @@
       },
     ];
 
-    await event(post.from,_tags);
+    await event(post.from, _tags);
 
     // Immediately update local state
     reposted = true;
@@ -52,8 +53,7 @@
   onMount(async () => {
     if (post.from) {
       await hubService.fetchRepost(post.from, post.id);
-      if (!$addressStore.address) return;
-      reposted = reposts.filter((value) => value.from == $addressStore.address).length > 0;
+      reposted = reposts.filter((value) => value.from == hubId).length > 0;
     }
   });
 </script>

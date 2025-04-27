@@ -14,8 +14,8 @@
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
   import { addressStore } from "$lib/stores/address.store";
-    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
-    import { PROFILE_REGISTRY_ID } from "$lib/constants";
+  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { PROFILE_REGISTRY_ID } from "$lib/constants";
 
   export let post: Post;
   export let hubId: string;
@@ -58,9 +58,7 @@
     }
   }
 
-  async function initializeHubId() {
-   
-  }
+  async function initializeHubId() {}
 
   async function handleSubmit() {
     if (!content.trim() && !selectedMedia) return;
@@ -161,15 +159,17 @@
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
         {#if $addressStore.address}
-        {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(),$addressStore.address) then profile}
-          {#if $profileRegistryService.has($addressStore.address)}
-          <ProfilePicture
-            size="lg"
-            src={$profileRegistryService.get($addressStore.address)?.spec.thumbnail}
-            name={$profileRegistryService.get($addressStore.address)?.spec.displayName}
-          />
-          {/if}
-        {/await}
+          {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), $addressStore.address) then profile}
+            {#if $profileRegistryService.has($addressStore.address)}
+              <ProfilePicture
+                size="lg"
+                src={$profileRegistryService.get($addressStore.address)?.spec
+                  .thumbnail}
+                name={$profileRegistryService.get($addressStore.address)?.spec
+                  .displayName}
+              />
+            {/if}
+          {/await}
         {/if}
         <div class="w-full ml-3">
           <Textarea
