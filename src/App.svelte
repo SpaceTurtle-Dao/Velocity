@@ -18,14 +18,14 @@
   // import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
-    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
-    import { PROFILE_REGISTRY_ID } from "$lib/constants";
+  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { PROFILE_REGISTRY_ID } from "$lib/constants";
 
-  let address:string;
+  let address: string;
 
   addressStore.subscribe((value) => {
-    if(value.address) address = value.address;
-  })
+    if (value.address) address = value.address;
+  });
 
   //let isFollowListAlreadyFetched = false;
   //let initialRoute = window.location.hash.slice(1) || "/";
@@ -42,28 +42,30 @@
   };
 
   onMount(async () => {
-    console.log("getting connected status")
-    let isConnected = await addressStore.isConnected()
-    console.log("got status")
-    if (isConnected && $addressStore.address){
-      await addressStore.sync()
-      profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(),$addressStore.address)
-    }else{
-      await addressStore.connectWallet()
+    console.log("getting connected status");
+    let isConnected = await addressStore.isConnected();
+    console.log("got status");
+    if (isConnected) {
+      let address = await addressStore.sync();
+      if (address) {
+        profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address);
+      }
+    } else {
+      await addressStore.connectWallet();
     }
   });
 </script>
 
 {#if address}
-<div class="bg-background">
-  <MobileTopView />
-  <div class="flex w-full bg-background justify-center">
-    <Left />
-    <Middle>
-      <Router {routes} />
-    </Middle>
-    <Right />
+  <div class="bg-background">
+    <MobileTopView />
+    <div class="flex w-full bg-background justify-center">
+      <Left />
+      <Middle>
+        <Router {routes} />
+      </Middle>
+      <Right />
+    </div>
+    <MobileBottomNavBar />
   </div>
-  <MobileBottomNavBar />
-</div>
 {/if}
