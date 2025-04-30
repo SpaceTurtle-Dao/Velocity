@@ -53,7 +53,7 @@
       <div class="flex justify-between items-center mb-4">
         <h1 class="text-xl font-bold text-primary">Collections</h1>
         <Button variant="outline" size="sm" class="px-3">
-          <Filter class="w-4 h-4 mr-2" />
+          <Filter class="w-4 h-4 mr-2 bg-background-700" />
           Filter
         </Button>
       </div>
