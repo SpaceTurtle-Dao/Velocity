@@ -15,6 +15,7 @@
   import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
   import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
+  import CollectionsPage from "$lib/components/Assets_Card/CollectionPage.svelte";
   // import { postService } from "$lib/services/PostService";
   import { profileService } from "$lib/services/ProfileService";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
@@ -39,6 +40,7 @@
     "/post/:hubId/:id": IndividualPost,
     "/signup": SignUp,
     "/test": MobileTopView,
+    "/collections": CollectionsPage,
   };
 
   onMount(async () => {

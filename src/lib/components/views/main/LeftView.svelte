@@ -9,6 +9,7 @@
     MoreHorizontal,
     Mail,
     Search,
+    TestTube,
   } from "lucide-svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { addressStore } from "$lib/stores/address.store";
@@ -34,6 +35,7 @@
     { icon: Search, label: "Search", href: "/search" },
     { icon: User, label: "Profile", href: "/profile/:address" },
     { icon: Mail, label: "Messages", href: "/messages" },
+    { icon: TestTube, label: "Collections", href: "/collections" },
   ];
 
   function menuItems2() {
@@ -46,6 +48,7 @@
         href: `/profile/${$addressStore.address}`,
       },
       { icon: Mail, label: "Messages", href: "/messages" },
+      { icon: TestTube, label: "Collections", href: "/collections" },
     ];
   }
 
@@ -55,7 +58,6 @@
     }
   });
 
-  // width 259 plus widthpadding 8
 </script>
 
 {#if !$isMobile}
@@ -110,7 +112,6 @@
               <MoreHorizontal class="w-6 h-6 mr-4 text-primary" />
               <span class="text-lg font-medium text-primary">More</span>
             </div>
-            <!-- </button> -->
           </li>
         </ul>
       </nav>

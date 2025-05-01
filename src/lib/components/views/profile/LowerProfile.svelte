@@ -21,7 +21,6 @@
     }
   });
 
-  // Function to format Arweave transaction URLs
   function toUrl(tx: string) {
     return "https://arweave.net/" + tx;
   }
@@ -39,7 +38,6 @@
     }
   }
 
-  // Close menu when clicking outside
   function handleClickOutside(event: MouseEvent) {
     if (menuRef && !menuRef.contains(event.target as Node)) {
       isMenuOpen = false;
