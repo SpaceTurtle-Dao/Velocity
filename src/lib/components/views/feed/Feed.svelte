@@ -22,28 +22,27 @@
 
   hubService.subscribe(async (posts) => {
     feed = posts.values().toArray();
-    console.log(feed);
   });
 
-  hubRegistryService.subscribe(async (hubs) => {
+  /*hubRegistryService.subscribe(async (hubs) => {
     if (address && hubs.has(address)) {
       hub = hubs.get(address)!;
       hubId = hub.spec.processId;
-      console.log("Hub", hub);
-      console.log("Hub id:", hubId);
       fetchFeedEvents();
     }
-  });
+  });*/
 
   addressStore.subscribe(async (value) => {
-    if (value.address) {
+    if (value.address && value.hub) {
       address = value.address;
-      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address);
+      hub = value.hub;
+      hubId = hub.spec.processId;
+      fetchFeedEvents();
+      //hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address);
     }
   });
 
   async function fetchFeedEvents() {
-    console.log(address);
     const now = new Date();
     let since = timestampService.subtract(new Date(), 10, "days").getTime();
     let until = now.getTime();
@@ -51,15 +50,10 @@
       since = lastLoadedTimestamp
     }
     try {
-      console.log("getting Post");
-      console.log(hubId);
-      console.log(since);
-      console.log(until);
-      await hubService.fetchPost(hubId, since, until);
-      console.log("Initial feed posts loaded:", feed.length);
+      hubService.fetchPost(hubId, since, until);
+      
       lastLoadedTimestamp = until;
     } catch (error) {
-      console.log("Error fetching feed events:", error);
     } finally {
       isLoadingFeed = false;
     }
@@ -74,7 +68,6 @@
     const threshold = 200;
 
     if (scrollHeight - scrollPosition < threshold && !isLoadingMore) {
-      console.log("Scroll threshold reached!", scrollHeight - scrollPosition);
       fetchFeedEvents();
     }
   }
@@ -86,7 +79,6 @@
     }
     scrollContainer = document.querySelector(".scrollbar-hidden");
     if (scrollContainer) {
-      console.log("Found scroll container, attaching event listener");
       scrollContainer.addEventListener("scroll", handleScroll);
     } else {
       console.error(

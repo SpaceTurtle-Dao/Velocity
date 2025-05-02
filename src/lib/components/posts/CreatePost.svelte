@@ -36,7 +36,6 @@
     if ($addressStore.address && zones.has($addressStore.address)) {
       hubZone = zones.get($addressStore.address)!;
       hubId = hubZone.spec.processId;
-      console.log("*** Hub ID ***", hubId);
     }
   });
 
@@ -44,7 +43,6 @@
     if ($addressStore.address && zones.has($addressStore.address)) {
       profileZone = zones.get($addressStore.address)!;
       hubId = profileZone.spec.processId;
-      console.log("*** Hub ID ***", hubId);
     }
   });
 
@@ -165,7 +163,7 @@
   }
 
   onMount(async () => {
-    await initializeHubId();
+    initializeHubId();
   });
 
   $: if (dialogOpen === false) {

@@ -10,7 +10,6 @@
   import { profileService } from "$lib/services/ProfileService";
 
   export let post: Post;
-  export let hubId: string;
 
   let reposted = false;
   let reposts: Post[] = [];
@@ -53,7 +52,9 @@
   onMount(async () => {
     if (post.from) {
       await hubService.fetchRepost(post.from, post.id);
-      reposted = reposts.filter((value) => value.from == hubId).length > 0;
+      if($addressStore.hub?.spec.processId){
+        reposted = reposts.filter((value) => value.from == $addressStore.hub?.spec.processId).length > 0;
+      }
     }
   });
 </script>

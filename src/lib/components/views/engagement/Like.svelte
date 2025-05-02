@@ -11,7 +11,6 @@
     import { hubRegistryService } from "$lib/services/HubRegistryService";
 
     export let post: Post;
-    export let hubId: string;
 
     let liked = false;
     let likes: Array<any> = [];
@@ -22,6 +21,7 @@
     };
 
     async function like() {
+        if(!$addressStore.hub?.spec.processId) return
         let _tags: Array<Tag> = [];
 
         let contentTag: Tag = {
@@ -44,9 +44,9 @@
             console.log("**Likes**");
             let temp = likes.filter((like) => {
                 console.log(like.From);
-                console.log(hubId);
+                console.log($addressStore.hub?.spec.processId);
                 console.log(like);
-                return like.From != hubId;
+                return like.From != $addressStore.hub?.spec.processId;
             });
             likes = temp;
             liked = false;
@@ -62,9 +62,9 @@
             console.log("**Likes**");
             let temp = likes.filter((like) => {
                 console.log(like.From);
-                console.log(hubId);
+                console.log($addressStore.hub?.spec.processId);
                 console.log(like);
-                return like.From == hubId;
+                return like.From == $addressStore.hub?.spec.processId;
             });
             liked = temp.length > 0;
         });
@@ -77,9 +77,9 @@
                 console.log("**Likes**");
                 let temp = likes.filter((like) => {
                     console.log(like.From);
-                    console.log(hubId);
+                    console.log($addressStore.hub?.spec.processId);
                     console.log(like);
-                    return like.From == hubId;
+                    return like.From == $addressStore.hub?.spec.processId;
                 });
                 liked = temp.length > 0;
             });

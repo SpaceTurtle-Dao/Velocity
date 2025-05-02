@@ -27,7 +27,7 @@ const service = (): HubService => {
         info: async (hubId: string): Promise<Hub> => {
 
             let temp = await info(hubId)
-            console.log(temp)
+            //console.log(temp)
             let hub: Hub = {
                 User: temp.User,
                 Followers: JSON.parse(temp.Followers),
@@ -42,6 +42,8 @@ const service = (): HubService => {
             // console.log("since",since);
             // console.log("limit",until);
             let posts = get(hubService)
+            console.log("**POST SIZE**")
+            console.log(posts.size)
             if (posts.size > 0) {
                 try {
                     const filter = {
