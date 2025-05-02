@@ -25,7 +25,7 @@
   import { hubRegistryService } from "$lib/services/HubRegistryService";
 
   export let post: Post;
-  let hub: Hub;
+  //let hub: Hub;
   let replies: Post[] = [];
   let profile: Zone;
   let replyingTo: Profile;
@@ -44,10 +44,9 @@
   });*/
 
   profileRegistryService.subscribe((zones) => {
-    if (!hub) return;
-    if (zones.has(hub.User)) {
-      profile = zones.get(hub.User)!;
-      console.log(hub.User);
+    if (zones.has(post.owner)) {
+      profile = zones.get(post.owner)!;
+      console.log(post.owner);
       console.log(profile);
       console.log("got data");
     }
@@ -70,11 +69,7 @@
   }
 
   async function loadData() {
-    hubService.info(post.from).then((_hub) => {
-      hub = _hub;
-      console.log(hub);
-      profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.owner);
-    });
+    profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.owner);
     //hub = profile.hubId;
     //replies = await hubService.fetchReplies(hub, postId);
     //replyCount = replies.length;
