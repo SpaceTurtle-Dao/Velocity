@@ -6,11 +6,12 @@
   import { onMount } from "svelte";
   //@ts-ignore
   import { type CollectionType } from '@permaweb/libs';
-  import { Coins, Filter } from "lucide-svelte";
+  import { Coins, Search, Filter } from "lucide-svelte";
   
   let collections: CollectionType[] = [];
   let isLoading = true;
   let searchTerm = "";
+  let isSearchFocused = false;
   const MAX_COLLECTIONS = 200;
   
   onMount(async () => {
@@ -41,30 +42,50 @@
     return title || "Untitled";
   }
   
+  function handleBlur() {
+    setTimeout(() => {
+      isSearchFocused = false;
+    }, 200);
+  }
+  
   $: filteredCollections = collections.filter(collection => 
     collection.title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 </script>
 
-<div class="w-full">
+<div class="w-full mt-4">
   {#if $isMobile}
     <!-- Mobile View -->
     <div class="p-3">
       <div class="flex justify-between items-center mb-4">
         <h1 class="text-xl font-bold text-primary">Collections</h1>
+        <!-- Commented out Filter button
         <Button variant="outline" size="sm" class="px-3">
           <Filter class="w-4 h-4 mr-2 bg-background-700" />
           Filter
         </Button>
+        -->
       </div>
       
-      <div class="mb-4">
-        <input
-          type="text"
-          placeholder="Search collections..."
-          bind:value={searchTerm}
-          class="w-full p-2 rounded-lg bg-background-700 border border-border text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-        />
+      <div class="mb-4 relative">
+        <div
+          class="flex items-center space-x-2 bg-background-700 rounded-full p-2 border border-opacity-30 transition-all duration-200"
+          class:border-primary={isSearchFocused}
+          class:border-border={!isSearchFocused}
+          class:ring-2={isSearchFocused}
+          class:ring-primary-400={isSearchFocused}
+          class:ring-opacity-50={isSearchFocused}
+        >
+          <Search class="w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            bind:value={searchTerm}
+            placeholder="Search collections..."
+            class="bg-transparent focus:outline-none text-primary w-full"
+            on:focus={() => isSearchFocused = true}
+            on:blur={handleBlur}
+          />
+        </div>
       </div>
       
       {#if isLoading}
@@ -120,17 +141,32 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-primary">Collections</h1>
-        <div class="flex gap-3">
-          <input
-            type="text"
-            placeholder="Search collections..."
-            bind:value={searchTerm}
-            class="p-2 rounded-lg bg-background-700 border border-border text-primary focus:outline-none focus:ring-2 focus:ring-primary w-64"
-          />
-          <Button variant="outline">
+        <div class="relative">
+          <div
+            class="flex items-center space-x-2 bg-background-700 rounded-full p-2 border border-opacity-30 transition-all duration-200 w-64"
+            class:border-primary={isSearchFocused}
+            class:border-border={!isSearchFocused}
+            class:ring-2={isSearchFocused}
+            class:ring-primary-400={isSearchFocused}
+            class:ring-opacity-50={isSearchFocused}
+          >
+            <Search class="w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              bind:value={searchTerm}
+              placeholder="Search collections..."
+              class="bg-transparent focus:outline-none text-primary w-full"
+              on:focus={() => isSearchFocused = true}
+              on:blur={handleBlur}
+            />
+          </div>
+          
+          <!-- Commented out Filter button
+          <Button variant="outline" class="ml-2">
             <Filter class="w-4 h-4 mr-2" />
             Filter
           </Button>
+          -->
         </div>
       </div>
       
@@ -139,7 +175,7 @@
           <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       {:else}
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {#each filteredCollections as collection}
             <div 
               class="bg-background-800 rounded-lg p-4 border border-border hover:border-primary transition-colors duration-200 cursor-pointer"
@@ -161,7 +197,7 @@
                   </div>
                 {/if}
               </div>
-              <h3 class="text-primary font-medium">{collection.title}</h3>
+              <h3 class="text-primary font-medium">{collection.title || "Untitled"}</h3>
               <p class="text-muted-foreground text-sm">
                 Creator: {truncateAddress(collection.creator)}
               </p>

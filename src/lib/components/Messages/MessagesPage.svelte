@@ -1,4 +1,17 @@
 <script lang="ts">
+  import { MessagesSquare } from "lucide-svelte";
+</script>
+
+<div class="flex w-full justify-center mt-[320px] items-center">
+  <MessagesSquare class="text-muted-foreground size-16" />
+  <p class="text-muted-foreground text-center ml-3 text-lg">
+    Messaging feature coming soon...
+  </p>
+</div>
+
+
+
+<!-- <script lang="ts">
   import { isMobile } from "$lib/stores/is-mobile.store";
   import ChatView from "./ChatView.svelte";
 
@@ -43,7 +56,6 @@
         unread: true
       }
     },
-    // Add more mock conversations as needed
   ];
 
   // Mock chat messages
@@ -83,10 +95,9 @@
     showChat = false;
     selectedConversation = null;
   }
-</script>
+</script> -->
 
-{#if !showChat}
-  <!-- Inbox Panel -->
+<!-- {#if !showChat}
   <div class="w-full bg-background-800 shadow-lg">
     <div class="p-6 border-b border-border bg-background-700/50">
       <div class="flex items-center justify-between">
@@ -146,4 +157,4 @@
       onBack={handleBack}
     />
   </div>
-{/if}
+{/if} -->
