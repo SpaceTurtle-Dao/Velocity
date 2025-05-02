@@ -35,13 +35,13 @@
   let loadError: string | null = null;
   let dialogOpen = false;
 
-  hubRegistryService.subscribe((hubs) => {
+  /*hubRegistryService.subscribe((hubs) => {
     if (!$addressStore.address) return;
     if (hubs.has($addressStore.address)) {
       let _hubZone = hubs.get($addressStore.address);
       if (_hubZone) hubZone = _hubZone;
     }
-  });
+  });*/
 
   profileRegistryService.subscribe((zones) => {
     if (!hub) return;
@@ -49,6 +49,7 @@
       profile = zones.get(hub.User)!;
       console.log(hub.User);
       console.log(profile);
+      console.log("got data");
     }
   });
 
@@ -69,9 +70,11 @@
   }
 
   async function loadData() {
-    hub = await hubService.info(post.from);
-    console.log(hub);
-    profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), hub.User);
+    hubService.info(post.from).then((_hub) => {
+      hub = _hub;
+      console.log(hub);
+      profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.owner);
+    });
     //hub = profile.hubId;
     //replies = await hubService.fetchReplies(hub, postId);
     //replyCount = replies.length;
@@ -80,7 +83,7 @@
 
   onMount(async () => {
     console.log("loading data");
-    await loadData();
+    loadData();
   });
 
   const dispatch = createEventDispatcher();
@@ -106,209 +109,200 @@
   }
 </script>
 
-{#if profile && hub}
-  <div class="cursor-pointer border border-border">
-    <Dialog.Root>
-      <Dialog.Trigger asChild>
-        {#if isLoading}
-          <div class="p-4">
+<div class="cursor-pointer border border-border">
+  <Dialog.Root>
+    <Dialog.Trigger asChild>
+      {#if isLoading}
+        <div class="p-4">
+          <div>
+            <div class="flex items-center text-gray-500 mb-2">
+              <div class="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
             <div>
-              <div class="flex items-center text-gray-500 mb-2">
-                <div class="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-              </div>
+              <div class="flex justify-start space-x-2">
+                <div
+                  class="hidden sm:block h-9 w-9 rounded-full bg-gray-200 animate-pulse"
+                ></div>
 
-              <div>
-                <div class="flex justify-start space-x-2">
+                <div class="flex-1">
                   <div
-                    class="hidden sm:block h-9 w-9 rounded-full bg-gray-200 animate-pulse"
+                    class="h-5 w-24 bg-gray-200 rounded animate-pulse mb-2"
                   ></div>
-
-                  <div class="flex-1">
+                  <div class="space-y-2">
                     <div
-                      class="h-5 w-24 bg-gray-200 rounded animate-pulse mb-2"
+                      class="h-4 w-full bg-gray-200 rounded animate-pulse"
                     ></div>
-                    <div class="space-y-2">
-                      <div
-                        class="h-4 w-full bg-gray-200 rounded animate-pulse"
-                      ></div>
-                      <div
-                        class="h-4 w-3/4 bg-gray-200 rounded animate-pulse"
-                      ></div>
-                      <div
-                        class="h-4 w-1/2 bg-gray-200 rounded animate-pulse"
-                      ></div>
-                    </div>
+                    <div
+                      class="h-4 w-3/4 bg-gray-200 rounded animate-pulse"
+                    ></div>
+                    <div
+                      class="h-4 w-1/2 bg-gray-200 rounded animate-pulse"
+                    ></div>
                   </div>
                 </div>
+              </div>
 
-                <div class="flex justify-between py-4">
-                  {#each Array(5) as _}
-                    <div
-                      class="h-6 w-6 bg-gray-200 rounded animate-pulse"
-                    ></div>
-                  {/each}
-                </div>
+              <div class="flex justify-between py-4">
+                {#each Array(5) as _}
+                  <div class="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+                {/each}
               </div>
             </div>
           </div>
-        {:else if loadError}
-          <div class="p-4 text-red-500">
-            {loadError}
-          </div>
-        {:else}
-          <div class="p-4">
-            {#if post.type == PostType.Reply && post.p}
-              <div class="flex items-center text-muted-foreground mb-2">
-                <CornerDownRight size={16} class="mr-2" />
-                {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.p) then _profile}
-                  {#if $profileRegistryService.has(post.p)}
-                    <span class="text-sm"
-                      >Replying to @{$profileRegistryService.get(post.p)?.spec
-                        .userName}</span
-                    >
-                  {/if}
-                {/await}
-              </div>
-            {/if}
-            {#if post.rePost && profile}
-              <div class="flex items-center text-muted-foreground mb-2">
-                <Repeat2Icon size={16} class="mr-2" />
-                <span class="text-sm">
-                  {#if profile.owner == $addressStore?.address}
-                    You Reposted
-                  {:else}
-                    Reposted by @{profile.spec.userName}
-                  {/if}
-                </span>
-              </div>
-            {/if}
+        </div>
+      {:else if loadError}
+        <div class="p-4 text-red-500">
+          {loadError}
+        </div>
+      {:else}
+        <div class="p-4">
+          {#if post.type == PostType.Reply && post.p}
+            <div class="flex items-center text-muted-foreground mb-2">
+              <CornerDownRight size={16} class="mr-2" />
+              {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.p) then _profile}
+                {#if $profileRegistryService.has(post.p)}
+                  <span class="text-sm"
+                    >Replying to @{$profileRegistryService.get(post.p)?.spec
+                      .userName}</span
+                  >
+                {/if}
+              {/await}
+            </div>
+          {/if}
+          {#if post.rePost && profile}
+            <div class="flex items-center text-muted-foreground mb-2">
+              <Repeat2Icon size={16} class="mr-2" />
+              <span class="text-sm">
+                {#if profile.owner == $addressStore?.address}
+                  You Reposted
+                {:else}
+                  Reposted by @{profile.spec.userName}
+                {/if}
+              </span>
+            </div>
+          {/if}
 
-            <a use:link href={`/post/${post.from}/${post.id}`}>
-              <div>
-                <div class="flex justify-start space-x-3">
-                  {#if post.rePost && profile}
-                    {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.rePost.from)}
-                      <div
-                        class="hidden sm:block h-9 w-9 rounded-full bg-gray-200 animate-pulse"
-                      ></div>
-                    {:then _profile}
-                      <div>
-                        {#if $profileRegistryService.has(post.rePost.from)}
-                          <ProfilePictureHoverCard
-                            profile={$profileRegistryService.get(
-                              post.rePost.from,
-                            )}
-                          />
-                        {/if}
-                      </div>
-                    {/await}
-                  {:else if profile}
-                    <div>
-                      <ProfilePictureHoverCard {profile} />
-                    </div>
-                  {:else}
+          <a use:link href={`/post/${post.from}/${post.id}`}>
+            <div>
+              <div class="flex justify-start space-x-3">
+                {#if post.rePost && profile}
+                  {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.rePost.from)}
                     <div
                       class="hidden sm:block h-9 w-9 rounded-full bg-gray-200 animate-pulse"
                     ></div>
-                  {/if}
-                  <div class="flex-1">
-                    <div class="flex space-x-1 mb-1">
-                      {#if post.rePost}
-                        {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.rePost.from)}
-                          <div
-                            class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
-                          ></div>
-                        {:then _profile}
-                          {#if $profileRegistryService.has(post.rePost.from)}
-                            <ProfileHoverCard
-                              profile={$profileRegistryService.get(
-                                post.rePost.from,
-                              )}
-                            >
-                              <div class="flex space-x-1">
-                                <p class="font-medium text-primary">
-                                  {$profileRegistryService.get(post.rePost.from)
-                                    ?.spec.userName}
-                                </p>
-                                <span
-                                  class="text-muted-foreground pl-0.5 text-ellipsis"
-                                  >@{$profileRegistryService.get(
-                                    post.rePost.from,
-                                  )?.spec.displayName}</span
-                                >
-                              </div>
-                            </ProfileHoverCard>
-                          {/if}
-                        {/await}
-                      {:else if profile}
-                        <ProfileHoverCard {profile}>
-                          <div class="flex space-x-1">
-                            <p class="font-medium text-primary">
-                              {profile.spec.userName}
-                            </p>
-                            <span
-                              class="text-muted-foreground pl-0.5 text-ellipsis"
-                              >@{profile.spec.displayName}</span
-                            >
-                          </div>
-                        </ProfileHoverCard>
-                      {:else}
+                  {:then _profile}
+                    <div>
+                      {#if $profileRegistryService.has(post.rePost.from)}
+                        <ProfilePictureHoverCard
+                          profile={$profileRegistryService.get(
+                            post.rePost.from,
+                          )}
+                        />
+                      {/if}
+                    </div>
+                  {/await}
+                {:else if profile}
+                  <div>
+                    <ProfilePictureHoverCard {profile} />
+                  </div>
+                {:else}
+                  <div
+                    class="hidden sm:block h-9 w-9 rounded-full bg-gray-200 animate-pulse"
+                  ></div>
+                {/if}
+                <div class="flex-1">
+                  <div class="flex space-x-1 mb-1">
+                    {#if post.rePost}
+                      {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.rePost.from)}
                         <div
                           class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
                         ></div>
-                      {/if}
-                      <span class="text-muted-foreground"
-                        >· {formatTimestamp(post.timestamp)}</span
-                      >
-                    </div>
+                      {:then _profile}
+                        {#if $profileRegistryService.has(post.rePost.from)}
+                          <ProfileHoverCard
+                            profile={$profileRegistryService.get(
+                              post.rePost.from,
+                            )}
+                          >
+                            <div class="flex space-x-1">
+                              <p class="font-medium text-primary">
+                                {$profileRegistryService.get(post.rePost.from)
+                                  ?.spec.userName}
+                              </p>
+                              <span
+                                class="text-muted-foreground pl-0.5 text-ellipsis"
+                                >@{$profileRegistryService.get(post.rePost.from)
+                                  ?.spec.displayName}</span
+                              >
+                            </div>
+                          </ProfileHoverCard>
+                        {/if}
+                      {/await}
+                    {:else if profile}
+                      <ProfileHoverCard {profile}>
+                        <div class="flex space-x-1">
+                          <p class="font-medium text-primary">
+                            {profile.spec.userName}
+                          </p>
+                          <span
+                            class="text-muted-foreground pl-0.5 text-ellipsis"
+                            >@{profile.spec.displayName}</span
+                          >
+                        </div>
+                      </ProfileHoverCard>
+                    {:else}
+                      <div
+                        class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
+                      ></div>
+                    {/if}
+                    <span class="text-muted-foreground"
+                      >· {formatTimestamp(post.timestamp)}</span
+                    >
+                  </div>
 
-                    <div class="text-gray-200">
-                      {#if post.rePost}
-                        <Nip92 post={post.rePost} />
-                      {:else}
-                        <Nip92 {post} />
-                      {/if}
-                    </div>
+                  <div class="text-gray-200">
+                    {#if post.rePost}
+                      <Nip92 post={post.rePost} />
+                    {:else}
+                      <Nip92 {post} />
+                    {/if}
                   </div>
                 </div>
               </div>
-            </a>
-
-            <div class="flex justify-between mt-3 engagement-buttons">
-              {#if post.rePost}
-                <div class="flex items-center">
-                  <Reply
-                    hubId={post.rePost.from}
-                    post={post.rePost}
-                    on:newReply={handleNewReply}
-                  />
-                  <span class="ml-1 text-sm text-muted-foreground">
-                    {replyCount}
-                  </span>
-                </div>
-                <Repost post={post.rePost} hubId={hub.spec.processId} />
-                <Like post={post.rePost} hubId={hub.spec.processId} />
-                <Buy />
-              {:else}
-                <div class="flex items-center">
-                  <Reply
-                    hubId={post.from}
-                    {post}
-                    on:newReply={handleNewReply}
-                  />
-                  <span class="ml-1 text-sm text-muted-foreground">
-                    {replyCount}
-                  </span>
-                </div>
-                <Repost {post} hubId={hub.spec.processId}/>
-                <Like {post} hubId={hubZone.spec.processId} />
-                <Buy />
-              {/if}
-              <Share />
             </div>
+          </a>
+
+          <div class="flex justify-between mt-3 engagement-buttons">
+            {#if post.rePost}
+              <div class="flex items-center">
+                <Reply
+                  hubId={post.rePost.from}
+                  post={post.rePost}
+                  on:newReply={handleNewReply}
+                />
+                <span class="ml-1 text-sm text-muted-foreground">
+                  {replyCount}
+                </span>
+              </div>
+              <Repost post={post.rePost} />
+              <Like post={post.rePost} />
+              <Buy />
+            {:else}
+              <div class="flex items-center">
+                <Reply hubId={post.from} {post} on:newReply={handleNewReply} />
+                <span class="ml-1 text-sm text-muted-foreground">
+                  {replyCount}
+                </span>
+              </div>
+              <Repost {post} />
+              <Like {post} />
+              <Buy />
+            {/if}
+            <Share />
           </div>
-        {/if}
-      </Dialog.Trigger>
-    </Dialog.Root>
-  </div>
-{/if}
+        </div>
+      {/if}
+    </Dialog.Trigger>
+  </Dialog.Root>
+</div>

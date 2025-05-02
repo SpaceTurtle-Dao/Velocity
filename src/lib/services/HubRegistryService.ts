@@ -3,7 +3,7 @@ import { get, writable, type Readable } from "svelte/store";
 import type { Zone } from "$lib/models/Zone";
 export interface HubRegistryService extends Readable<Map<string, Zone>> {
   getZones: (processId: string, filters: string, page: Number, limit: Number) => Promise<void>;
-  getZoneById: (processId: string, owner: string) => Promise<void>;
+  getZoneById: (processId: string, owner: string) => Promise<Zone>;
   fetchZones: (processId: string, filters: string, page: Number, limit: Number) => Promise<Zone[]>;
   register: (processId: string, spec: any) => Promise<void>;
 }
@@ -20,13 +20,13 @@ const service = (): HubRegistryService => {
       if (zones.size > 0) {
         getZones(processId, filters, page, limit).then((_zones) => {
           zones = new Map([...zones, ..._zones])
-          console.log(zones)
+
           set(zones)
         })
       } else {
         let _zones = await getZones(processId, filters, page, limit)
-        for(var i = 0; i < _zones.length; i++){
-          zones.set(_zones[i].owner,_zones[i])
+        for (var i = 0; i < _zones.length; i++) {
+          zones.set(_zones[i].owner, _zones[i])
         }
         set(zones)
       }
@@ -34,23 +34,20 @@ const service = (): HubRegistryService => {
     fetchZones: async (processId: string, filters: string, page: Number, limit: Number): Promise<Zone[]> => {
       return await getZones(processId, filters, page, limit)
     },
-    getZoneById: async (processId: string, owner: string): Promise<void> => {
+    getZoneById: async (processId: string, owner: string): Promise<Zone> => {
       let zones = get(hubRegistryService)
       if (zones.has(owner)) {
-        getZone(processId, owner).then((_zone) => {
-          console.log(_zone)
-          zones.set(_zone.owner, _zone)
-          set(zones)
-          console.log(zones)
-        })
-        console.log(zones)
+        let zone = await getZone(processId, owner)
+        zones.set(zone.owner, zone)
+        set(zones)
+        return zone
       } else {
         console.log("doesn't have zone")
-        let _zones = await getZone(processId, owner)
-        console.log(_zones)
-        zones.set(_zones.owner,_zones)
+        let zone = await getZone(processId, owner)
+
+        zones.set(zone.owner, zone)
         set(zones)
-        console.log(zones)
+        return zone
       }
     },
   };

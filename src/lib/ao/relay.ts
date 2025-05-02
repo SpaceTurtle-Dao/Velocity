@@ -18,7 +18,7 @@ export const evalProcess = async (data: string, processId: string) => {
     const tags = Eval();
     // @ts-ignore
     let result = await send(processId, tags, data,);
-    console.log(result);
+    ;
   } catch (e) {
     console.log(e);
   }
@@ -36,7 +36,7 @@ export const event = async (hub: string, tags: Array<Tag>) => {
     console.log(tags);
     // @ts-ignore
     let result = await send(hub, tags, null);
-    console.log(result);
+    ;
   } catch (e) {
     console.log(e);
   }
@@ -50,7 +50,7 @@ export const updateProfile = async (processId: string, data: string) => {
     console.log(tags);
     // @ts-ignore
     let result = await send(processId, tags, data);
-    console.log(result);
+    ;
   } catch (e) {
     console.log(e);
   }
@@ -61,10 +61,10 @@ export const info = async (processId: string): Promise<any> => {
     // @ts-ignore
     let message = Info();
     let result = await read(processId, message);
-    console.log(result)
+    //
     if (result) {
       let json = JSON.parse(result.Data);
-      console.log(json)
+      //
       return json;
     }else{
       throw("Not Found")
@@ -81,10 +81,10 @@ export const fetchEvents = async (processId: string, filters: string): Promise<a
     // @ts-ignore
     let message = FetchEvents(filters);
     let result = await read(processId, message);
-    console.log(result)
+    
     if (result) {
       let json = JSON.parse(result.Data);
-      console.log(json)
+      
       events = json;
     }
   } catch (e) {
@@ -155,7 +155,7 @@ export const register = async (processId:string, spec: any): Promise<void> => {
     // @ts-ignore
     let message = Register();
     let result = await send(processId, message, JSON.stringify(spec));
-    console.log(result)
+    
   } catch (e) {
     console.log(e);
   }
