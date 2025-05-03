@@ -22,8 +22,8 @@ export interface UserStore extends Readable<UserStoreData> {
   isConnected: () => Promise<boolean>;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => Promise<void>;
-  unsubscribe: (hubId:string) => Promise<void>;
-  subscribe_: (hubId:string) => Promise<void>;
+  unsubscribe: (hubId: string) => Promise<void>;
+  subscribe_: (hubId: string) => Promise<void>;
 }
 
 const initUserStore = (): UserStore => {
@@ -34,12 +34,10 @@ const initUserStore = (): UserStore => {
       let _currentUser = get(currentUser)
       try {
         const address = await window.arweaveWallet.getActiveAddress();
-        const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
-        const hub = await hubService.info(zone?.spec.processId);
         set({
           address: address,
-          zone: zone,
-          hub: hub
+          zone: undefined,
+          hub: undefined
         });
         return address
       } catch (error: unknown) {
@@ -53,22 +51,24 @@ const initUserStore = (): UserStore => {
       let _currentUser = get(currentUser)
       try {
         const address = await window.arweaveWallet.getActiveAddress();
-        const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
-        const hub = await hubService.info(zone?.spec.processId);
         let permissions = await window.arweaveWallet.getPermissions()
         let hasPermissions = true
         for (var i = 0; i < 0; i++) {
           let permission = PERMISSIONS[i];
           if (!permissions.includes(permission)) hasPermissions = false;
         }
-        if (hasPermissions) set({
-          address: address,
-          zone: zone,
-          hub: hub
-        });
+        if (hasPermissions) {
+          const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
+          const hub = await hubService.info(zone?.spec.processId);
+          set({
+            address: address,
+            zone: zone,
+            hub: hub
+          });
+        }
         return hasPermissions
       } catch (error: unknown) {
-        console.error(error);
+        console.log(error);
 
         // To avoding loop of callbacks on address.subscribe callbacks
         if (_currentUser.address !== null) set({ address: undefined, zone: undefined, hub: undefined });
@@ -80,8 +80,7 @@ const initUserStore = (): UserStore => {
       if (_currentUser.address) return;
       try {
         await window.arweaveWallet.connect(PERMISSIONS, APP_INFO, GATEWAY);
-
-        await currentUser.sync();
+        await currentUser.sync()
       } catch (error) {
         console.error("Failed to Connect", error);
       }
@@ -96,7 +95,7 @@ const initUserStore = (): UserStore => {
       }
     },
 
-    unsubscribe: async (hubId:string) => {
+    unsubscribe: async (hubId: string) => {
       let _currentUser = get(currentUser)
       if ((!_currentUser.address || !_currentUser.zone || !_currentUser.hub)) return
       _currentUser.hub.Following = _currentUser.hub.Following.filter((value) => value != hubId);
@@ -104,7 +103,7 @@ const initUserStore = (): UserStore => {
       await hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
     },
 
-    subscribe_: async (hubId:string) => {
+    subscribe_: async (hubId: string) => {
       let _currentUser = get(currentUser)
       if ((!_currentUser.address || !_currentUser.zone || !_currentUser.hub)) return
       if (_currentUser.hub.Following.includes(hubId)) return;

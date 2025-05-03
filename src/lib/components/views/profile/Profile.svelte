@@ -65,9 +65,9 @@
       //fetchPost();
       if (!hubZone) return;
       try {
-        /*hubService.info(hubZone.spec.processId).then((_hub) => {
+        hubService.info(hubZone.spec.processId).then((_hub) => {
           hub = _hub;
-        });*/
+        });
       } catch (e) {
         console.log(e);
       }
@@ -121,7 +121,7 @@
   });
 
   const onAddressParamChange = async () => {
-    //setup();
+    setup();
   };
 
   $: {
@@ -144,10 +144,10 @@
         console.log("Is Current User");
         hubZone = $currentUser.zone;
         hub = $currentUser.hub;
-        /*profileRegistryService.getZoneById(
+        profileRegistryService.getZoneById(
           PROFILE_REGISTRY_ID(),
           params.address,
-        );*/
+        );
       } else {
         profileRegistryService.getZoneById(
           PROFILE_REGISTRY_ID(),
