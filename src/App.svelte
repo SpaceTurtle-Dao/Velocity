@@ -8,7 +8,7 @@
   import Left from "$lib/components/views/main/LeftView.svelte";
   import Right from "$lib/components/views/main/RightView.svelte";
   import SignUp from "./lib/components/views/signup/SignUp.svelte";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import Feed from "$lib/components/views/feed/Feed.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
   import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
@@ -24,7 +24,7 @@
 
   let address: string;
 
-  addressStore.subscribe((value) => {
+  currentUser.subscribe((value) => {
     if (value.address) address = value.address;
   });
 
@@ -45,15 +45,15 @@
 
   onMount(async () => {
     console.log("getting connected status");
-    let isConnected = await addressStore.isConnected();
+    let isConnected = await currentUser.isConnected();
     console.log("got status");
-    if (isConnected) {
-      let address = await addressStore.sync();
+    if ($currentUser.address) {
+      currentUser.sync();
       if (address) {
-        profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address);
+        profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), $currentUser.address);
       }
     } else {
-      await addressStore.connectWallet();
+      await currentUser.connectWallet();
     }
   });
 </script>

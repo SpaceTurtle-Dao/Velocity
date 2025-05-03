@@ -13,7 +13,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import { profileRegistryService } from "$lib/services/ProfileRegistryService";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
 
@@ -158,14 +158,14 @@
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        {#if $addressStore.address}
-          {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), $addressStore.address) then profile}
-            {#if $profileRegistryService.has($addressStore.address)}
+        {#if $currentUser.address}
+          {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), $currentUser.address) then profile}
+            {#if $profileRegistryService.has($currentUser.address)}
               <ProfilePicture
                 size="lg"
-                src={$profileRegistryService.get($addressStore.address)?.spec
+                src={$profileRegistryService.get($currentUser.address)?.spec
                   .thumbnail}
-                name={$profileRegistryService.get($addressStore.address)?.spec
+                name={$profileRegistryService.get($currentUser.address)?.spec
                   .displayName}
               />
             {/if}

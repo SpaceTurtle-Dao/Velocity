@@ -12,7 +12,7 @@
     TestTube,
   } from "lucide-svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import { Loader } from "lucide-svelte";
   import Connect from "$lib/components/wallet/connect.svelte";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
@@ -25,15 +25,14 @@
   let zone: Zone;
 
   hubRegistryService.subscribe((zones) => {
-    if ($addressStore.address && zones.has($addressStore.address)) {
-      zone = zones.get($addressStore.address)!;
+    if ($currentUser.address && zones.has($currentUser.address)) {
+      zone = zones.get($currentUser.address)!;
     }
   });
 
   let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/" },
     { icon: Search, label: "Search", href: "/search" },
-    { icon: User, label: "Profile", href: "/profile/:address" },
     { icon: Mail, label: "Messages", href: "/messages" },
     { icon: TestTube, label: "Collections", href: "/collections" },
   ];
@@ -45,7 +44,7 @@
       {
         icon: User,
         label: "Profile",
-        href: `/profile/${$addressStore.address}`,
+        href: `/profile/${$currentUser.address}`,
       },
       { icon: Mail, label: "Messages", href: "/messages" },
       { icon: TestTube, label: "Collections", href: "/collections" },
@@ -53,8 +52,8 @@
   }
 
   onMount(() => {
-    if ($addressStore.address) {
-      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $addressStore.address);
+    if ($currentUser.address) {
+      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $currentUser.address);
     }
   });
 
@@ -68,7 +67,7 @@
           <li>
             <img class="w-10 h-10" src={Logo} alt="Logo" />
           </li>
-          {#if $addressStore.address}
+          {#if $currentUser.address}
             {#each menuItems2() as item}
               <li>
                 <a
@@ -115,7 +114,7 @@
           </li>
         </ul>
       </nav>
-      {#if $addressStore.address}
+      {#if $currentUser.address}
         {#if zone}
           <CreatePostModal />
         {:else}

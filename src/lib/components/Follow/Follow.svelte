@@ -1,7 +1,7 @@
 <script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { onMount } from "svelte";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import { hubService } from "$lib/services/HubService";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Zone } from "$lib/models/Zone";
@@ -9,44 +9,33 @@
   import { HUB_REGISTRY_ID } from "$lib/constants";
 
   export let hubId: string;
-  let hub: Hub;
-  let zone: Zone;
   let isSubscribed: boolean;
   let loader = false;
 
-  hubRegistryService.subscribe(async (zones) => {
-    if ($addressStore.address && zones.has($addressStore.address)) {
-      zone = zones.get($addressStore.address)!;
+  /*hubRegistryService.subscribe(async (zones) => {
+    if ($currentUser.address && zones.has($currentUser.address)) {
+      zone = zones.get($currentUser.address)!;
       hub = await hubService.info(zone?.spec.processId);
       isSubscribed = hub.Following.includes(hubId)!;
     }
-  });
+  });*/
 
-  async function unsubscribe() {
-    loader = true;
-    let temp = hub;
-    temp.Following = temp.Following.filter((value) => value != hubId);
-    hub = temp;
-    await hubService.updateFollowList(zone.spec.processId, hub.Following);
-    loader = false;
-  }
+  const unsubscribe = async () => {
+    currentUser.unsubscribe(hubId);
+  };
 
-  async function subscribe() {
-    if (hub.Following.includes(hubId)) return;
-    loader = true;
-    let temp = hub;
-    temp.Following.push(hubId);
-    hub = temp;
-    await hubService.updateFollowList(zone.spec.processId, hub.Following);
-    loader = false;
-  }
+  const subscribe = async () => {
+    currentUser.subscribe_(hubId);
+  };
+
   onMount(async () => {
-    if (!$addressStore.address) return;
-    await hubRegistryService.getZoneById(HUB_REGISTRY_ID(),$addressStore.address,);
+    if (!$currentUser.address) return;
+    hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $currentUser.address);
+    isSubscribed = $currentUser.hub?.Following.includes(hubId)!;
   });
 </script>
 
-{#if hub}
+{#if $currentUser.hub}
   {#if isSubscribed}
     <ButtonWithLoader
       {loader}

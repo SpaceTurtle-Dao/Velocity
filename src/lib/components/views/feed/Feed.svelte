@@ -5,7 +5,7 @@
   import { onMount, onDestroy } from "svelte";
   import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import { timestampService } from "$lib/utils/date-time";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { HUB_REGISTRY_ID } from "$lib/constants";
@@ -17,7 +17,6 @@
   let lastLoadedTimestamp: number | null = null;
   let scrollContainer: HTMLElement | null = null;
   let hubId: string;
-  let hub: Zone;
   let address: string;
 
   hubService.subscribe(async (posts) => {
@@ -32,11 +31,10 @@
     }
   });*/
 
-  addressStore.subscribe(async (value) => {
-    if (value.address && value.hub) {
+  currentUser.subscribe(async (value) => {
+    if (value.address && value.zone && value.hub) {
       address = value.address;
-      hub = value.hub;
-      hubId = hub.spec.processId;
+      hubId = value.zone.spec.processId;
       fetchFeedEvents();
       //hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address);
     }
@@ -73,9 +71,9 @@
   }
 
   onMount(async () => {
-    let isConnected = await addressStore.isConnected();
+    let isConnected = await currentUser.isConnected();
     if (!isConnected) {
-      await addressStore.connectWallet();
+      await currentUser.connectWallet();
     }
     scrollContainer = document.querySelector(".scrollbar-hidden");
     if (scrollContainer) {

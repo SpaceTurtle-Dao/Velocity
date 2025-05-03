@@ -6,7 +6,7 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import PostComponent from "../../posts/Post.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Link, CalendarDays } from "lucide-svelte";
@@ -31,7 +31,6 @@
 
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
-  let hubId: string;
   let hub: Hub;
   let hubZone: Zone;
   let profileZone: Zone;
@@ -54,35 +53,23 @@
   let showModal = false;
 
   profileRegistryService.subscribe((zones) => {
-    if(params.address && zones.has(params.address)){
-      profileZone = zones.get(params.address)!
-      console.log(profileZone)
-      fetchPost();
+    if (params.address && zones.has(params.address)) {
+      profileZone = zones.get(params.address)!;
+      console.log(profileZone);
     }
-  })
-
-  /*profileService.subscribe((profiles) => {
-    console.log(profiles);
-    if (params.address && profiles.has(params.address))
-      profile = profiles.get(params.address);
-    if (profile) {
-      fetchPost();
-    }
-  });*/
+  });
 
   hubRegistryService.subscribe(async (zones) => {
     console.log(zones);
     if (params.address && zones.has(params.address)) {
       hubZone = zones.get(params.address)!;
-      hubId = hubZone?.spec.processId;
-      console.log(zones);
-      console.log(hubId);
-      try{
-        hub = await hubService.info(hubId);
-      }catch(e){
-        hub = await hubService.info(hubId);
+      fetchPost();
+      if (!hubZone) return;
+      try {
+        hub = await hubService.info(hubZone.spec.processId);
+      } catch (e) {
+        console.log(e)
       }
-      console.log(hub);
     }
   });
 
@@ -90,14 +77,11 @@
     let _posts: Array<Post> = [];
     let temp = value.values().toArray();
     for (var i = 0; i < temp.length; i++) {
-      if (temp[i].from == hubId) {
+      if (temp[i].from == hubZone?.spec.processId) {
         _posts.push(temp[i]);
       }
     }
     posts = _posts;
-    /*posts = _posts.filter((post) => {
-      true
-    })*/
     media = posts.filter((value) => {
       if (value.mimeType) {
         return mimeTypes.includes(value.mimeType);
@@ -108,9 +92,11 @@
   });
 
   async function fetchPost() {
-    if (!hubId) return;
+    if (!hubZone?.spec.processId) return;
     try {
-      await hubService.fetchPostWithAuthors(hubId, [hubId]);
+      await hubService.fetchPostWithAuthors(hubZone?.spec.processId, [
+        hubZone?.spec.processId,
+      ]);
     } catch (e) {
       console.log(e);
     }
@@ -127,11 +113,11 @@
   }
 
   onMount(async () => {
-    await setup();
+    setup();
   });
 
   const onAddressParamChange = async () => {
-    await setup();
+    setup();
   };
 
   $: {
@@ -143,24 +129,34 @@
   let value = "post";
 
   async function setup() {
-    if (!params.address) return;
-    console.log(params.address);
     try {
-      await profileRegistryService.getZoneById(
-        PROFILE_REGISTRY_ID(),
-        params.address,
-      );
-      await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address);
+      //posts = [];
+      if (!params.address) return;
+      console.log(params.address);
+      if ($currentUser.address == params.address && $currentUser.zone && $currentUser.hub) {
+        hubZone = $currentUser.zone;
+        hub = $currentUser.hub;
+        profileRegistryService.getZoneById(
+          PROFILE_REGISTRY_ID(),
+          params.address,
+        );
+      } else {
+        profileRegistryService.getZoneById(
+          PROFILE_REGISTRY_ID(),
+          params.address,
+        );
+        hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address);
+      }
     } catch (error) {
       console.log(params.address);
       console.log("Error setting up profile:", error);
-      setup();
+      //setup();
     }
   }
 </script>
 
-{#if profileZone}
-  <div class="md:mt-10 max-w-prose">
+<div class="md:mt-10 max-w-prose">
+  {#if profileZone}
     <Card
       class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"
     >
@@ -199,9 +195,9 @@
       <CardContent>
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profileZone.spec.displayName}</p>
-          {#if params.address != $addressStore.address}
-            {#if hubId}
-              <Follow {hubId} />
+          {#if params.address != $currentUser.address}
+            {#if hubZone?.spec.processId}
+              <Follow hubId={hubZone?.spec.processId} />
             {/if}
           {:else}
             <Button
@@ -230,7 +226,8 @@
                 class="text-blue-400"
                 href={profileZone.spec.website}
                 target="_blank"
-                rel="noopener noreferrer">{getDisplayUrl(profileZone.spec.website)}</a
+                rel="noopener noreferrer"
+                >{getDisplayUrl(profileZone.spec.website)}</a
               >
             </div>
           {/if}
@@ -267,40 +264,39 @@
         </div>
       </CardContent>
     </Card>
-
-    <Tabs.Root bind:value class="max-w-prose ">
-      <Tabs.List class="grid grid-cols-4">
-        <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchPost} value="media">Assets</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchSubscriptions} value="following"
-          >Following</Tabs.Trigger
-        >
-        <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
-      </Tabs.List>
-      <Tabs.Content value="post">
-        {#each posts as post}
-          <div class="border border-border">
-            <PostComponent {post} />
-          </div>
-        {/each}
-      </Tabs.Content>
-      <Tabs.Content value="media">
-        {#each media as post}
-          <div class="border border-border max-w-prose">
-            <PostComponent {post} />
-          </div>
-        {/each}
-      </Tabs.Content>
-      <Tabs.Content value="following">
-        <!-- Placeholder for subscribed users list -->
-        <Users addresss={hub?.Following || []} />
-      </Tabs.Content>
-      <Tabs.Content value="followers">
-        <Users addresss={hub?.Followers || []} />
-      </Tabs.Content>
-    </Tabs.Root>
-  </div>
-{/if}
+  {/if}
+  <Tabs.Root bind:value class="max-w-prose ">
+    <Tabs.List class="grid grid-cols-4">
+      <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
+      <Tabs.Trigger on:click={fetchPost} value="media">Assets</Tabs.Trigger>
+      <Tabs.Trigger on:click={fetchSubscriptions} value="following"
+        >Following</Tabs.Trigger
+      >
+      <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
+    </Tabs.List>
+    <Tabs.Content value="post">
+      {#each posts as post}
+        <div class="border border-border">
+          <PostComponent {post} />
+        </div>
+      {/each}
+    </Tabs.Content>
+    <Tabs.Content value="media">
+      {#each media as post}
+        <div class="border border-border max-w-prose">
+          <PostComponent {post} />
+        </div>
+      {/each}
+    </Tabs.Content>
+    <Tabs.Content value="following">
+      <!-- Placeholder for subscribed users list -->
+      <Users addresss={hub?.Following || []} />
+    </Tabs.Content>
+    <Tabs.Content value="followers">
+      <Users addresss={hub?.Followers || []} />
+    </Tabs.Content>
+  </Tabs.Root>
+</div>
 
 <!-- Modal for UpdateProfile -->
 {#if showModal && profileZone}
@@ -320,7 +316,10 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile initialProfile={profileZone} on:profileUpdated={toggleModal} />
+      <UpdateProfile
+        initialProfile={profileZone}
+        on:profileUpdated={toggleModal}
+      />
     </div>
   </div>
 {/if}

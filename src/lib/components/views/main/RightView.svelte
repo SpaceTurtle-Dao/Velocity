@@ -71,9 +71,9 @@
   }
 
   function navigateToProfile(address: string, event: MouseEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-    clickedProfile = true;
+    //event.preventDefault();
+    //event.stopPropagation();
+    //clickedProfile = true;
     push(`/profile/${address}`);
   }
 

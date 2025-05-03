@@ -6,7 +6,7 @@
   import { event } from "$lib/ao/relay";
   import type { Post } from "$lib/models/Post";
   import { hubService } from "$lib/services/HubService";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import { profileService } from "$lib/services/ProfileService";
 
   export let post: Post;
@@ -16,7 +16,7 @@
   let _tags: Array<Tag> = [];
 
   async function repost() {
-    if (!$addressStore.address && !post) return;
+    if (!$currentUser.address && !post) return;
 
     let _tags: Array<Tag> = [
       {
@@ -27,7 +27,7 @@
         name: "Content",
         value: JSON.stringify({
           ...post.event,
-          repostedBy: !$addressStore.address,
+          repostedBy: !$currentUser.address,
         }),
       },
       {
@@ -52,8 +52,8 @@
   onMount(async () => {
     if (post.from) {
       await hubService.fetchRepost(post.from, post.id);
-      if($addressStore.hub?.spec.processId){
-        reposted = reposts.filter((value) => value.from == $addressStore.hub?.spec.processId).length > 0;
+      if($currentUser.hub?.spec.processId){
+        reposted = reposts.filter((value) => value.from == $currentUser.hub?.spec.processId).length > 0;
       }
     }
   });

@@ -8,10 +8,11 @@
   import { onMount } from "svelte";
   import { fetchProfile } from "$lib/ao/relay";
   import { PostType, type Post } from "$lib/models/Post";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
+  import type { Zone } from "$lib/models/Zone";
 
   export let post: Post;
-  export let profile: Profile;
+  export let profile: Zone;
 
   function formatContent(content: string): string {
     // console.log("hhhh", JSON.parse(content));
@@ -35,10 +36,10 @@
     <Repeat2Icon size={16} class="mr-2" />
     <span class="text-sm"
       >Reposted by
-      {#if profile.owner == $addressStore.address}
+      {#if profile.owner == $currentUser.address}
         You
       {:else}
-        @{profile.displayName}
+        @{profile.spec.displayName}
       {/if}
     </span>
   </div>
@@ -62,22 +63,22 @@
         <ProfileHoverCard {profile}>
           <div class="flex space-x-1">
             <div class="text-primary text-base font-medium mr-1 ml-2">
-              {profile.userName}
+              {profile.spec.userName}
             </div>
 
             <div class="text-muted-foreground text-base font-light truncate">
-              {"@" + profile.displayName}
+              {"@" + profile.spec.displayName}
             </div>
           </div>
         </ProfileHoverCard>
         <ProfileHoverCard {profile}>
           <div class="flex space-x-1">
             <div class="text-primary text-base font-medium mr-1 ml-2">
-              {profile.userName}
+              {profile.spec.userName}
             </div>
 
             <div class="text-muted-foreground text-base font-light truncate">
-              {"@" + profile.displayName}
+              {"@" + profile.spec.displayName}
             </div>
           </div>
         </ProfileHoverCard>
@@ -95,7 +96,7 @@
 
     <div class="text-start text-muted-foreground mt-5">
       {"Replying to "}
-      <span class="text-sky-500">{"@" + profile.displayName}</span>
+      <span class="text-sky-500">{"@" + profile.spec.displayName}</span>
     </div>
   </div>
 </div>

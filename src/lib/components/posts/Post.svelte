@@ -17,7 +17,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import { hubService } from "$lib/services/HubService";
   import { PostType, type Post } from "$lib/models/Post";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import type { Hub } from "$lib/models/Hub";
   import { profileRegistryService } from "$lib/services/ProfileRegistryService";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
@@ -36,9 +36,9 @@
   let dialogOpen = false;
 
   /*hubRegistryService.subscribe((hubs) => {
-    if (!$addressStore.address) return;
-    if (hubs.has($addressStore.address)) {
-      let _hubZone = hubs.get($addressStore.address);
+    if (!$currentUser.address) return;
+    if (hubs.has($currentUser.address)) {
+      let _hubZone = hubs.get($currentUser.address);
       if (_hubZone) hubZone = _hubZone;
     }
   });*/
@@ -169,7 +169,7 @@
             <div class="flex items-center text-muted-foreground mb-2">
               <Repeat2Icon size={16} class="mr-2" />
               <span class="text-sm">
-                {#if profile.owner == $addressStore?.address}
+                {#if profile.owner == $currentUser?.address}
                   You Reposted
                 {:else}
                   Reposted by @{profile.spec.userName}
@@ -214,11 +214,9 @@
                           class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
                         ></div>
                       {:then _profile}
-                        {#if $profileRegistryService.has(post.rePost.from)}
+                        {#if $profileRegistryService.get(post.rePost.from)}
                           <ProfileHoverCard
-                            profile={$profileRegistryService.get(
-                              post.rePost.from,
-                            )}
+                            profile={($profileRegistryService.get(post.rePost.from))}
                           >
                             <div class="flex space-x-1">
                               <p class="font-medium text-primary">

@@ -4,7 +4,7 @@ import { send, read } from "$lib/ao/process.svelte";
 import { FetchEvents, GetZones, GetZoneById, Register, Info, UpdateProfile } from "$lib/ao/messegeFactory.svelte";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
-import { addressStore } from "$lib/stores/address.store";
+import { currentUser } from "$lib/stores/currentUser.store";
 import { HUB_REGISTRY_ID } from "$lib/constants";
 //@ts-ignore
 import { Eval } from "./messegeFactory.svelte";
@@ -12,7 +12,7 @@ import type { Spec } from "$lib/models/Spec";
 import type { Hub } from "$lib/models/Hub";
 
 export const evalProcess = async (data: string, processId: string) => {
-  await addressStore.connectWallet();
+  await currentUser.connectWallet();
 
   try {
     const tags = Eval();
@@ -25,7 +25,7 @@ export const evalProcess = async (data: string, processId: string) => {
 };
 
 export const event = async (hub: string, tags: Array<Tag>) => {
-  await addressStore.connectWallet();
+  await currentUser.connectWallet();
   const actionTag: Tag = {
     name: "Action",
     value: "Event",
@@ -43,7 +43,7 @@ export const event = async (hub: string, tags: Array<Tag>) => {
 };
 
 export const updateProfile = async (processId: string, data: string) => {
-  await addressStore.connectWallet();
+  await currentUser.connectWallet();
   const tags: Tag[] = UpdateProfile();
   try {
     console.log("***TAGS***");

@@ -42,7 +42,7 @@ const service = (): HubRegistryService => {
         set(zones)
         return zone
       } else {
-        console.log("doesn't have zone")
+        console.log("fetching zone")
         let zone = await getZone(processId, owner)
 
         zones.set(zone.owner, zone)

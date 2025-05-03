@@ -5,7 +5,7 @@ import { get, writable, type Readable } from "svelte/store";
 import Arweave from "arweave";
 import { connect, createDataItemSigner } from "@permaweb/aoconnect";
 import Permaweb, { type AssetCreateArgsType, type AssetDetailType, type AssetHeaderType, type CollectionDetailType, type CollectionType, } from '@permaweb/libs'
-import { addressStore } from "$lib/stores/address.store";
+import { currentUser } from "$lib/stores/currentUser.store";
 import { send } from "$lib/ao/process.svelte";
 
 
@@ -163,7 +163,7 @@ const service = (): UCMService => {
             _tags.push(swapTag);
             _tags.push(priceTag);
             _tags.push(denominationTag);
-            await addressStore.connectWallet();
+            await currentUser.connectWallet();
             try {
                 let result = await send(ARToken, _tags, null);
                 console.log(result)

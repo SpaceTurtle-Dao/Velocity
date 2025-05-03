@@ -19,7 +19,7 @@
   import { Camera } from "lucide-svelte";
   import { upload } from "$lib/ao/uploader";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import { profileService } from "$lib/services/ProfileService";
   import { profileRegistryService } from "$lib/services/ProfileRegistryService";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
@@ -109,7 +109,7 @@
         bot: profile.bot,
       });*/
       try {
-        if ($addressStore.address) {
+        if ($currentUser.address) {
           /*const tags: Tag[] = [
             { name: "UserName", value: profile.name },
             { name: "DisplayName", value: profile.display_name },
@@ -144,7 +144,7 @@
             PROFILE_REGISTRY_ID(),
             profileSpec,
           );
-          await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(),$addressStore.address)
+          await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(),$currentUser.address)
           console.log("Profile updated successfully:", result);
           dispatch("profileUpdated");
         }

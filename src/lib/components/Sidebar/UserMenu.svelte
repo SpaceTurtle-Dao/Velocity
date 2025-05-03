@@ -3,7 +3,7 @@
        import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
        import { ARWEAVE_ADDRESS } from "$lib/constants";
        import { profileFromEvent, type Profile } from "$lib/models/Profile";
-       import { addressStore } from "$lib/stores/address.store";
+       import { currentUser } from "$lib/stores/currentUser.store";
        import { onMount } from "svelte";
        import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
        import { profileService } from "$lib/services/ProfileService";
@@ -17,12 +17,17 @@
        }
 
        async function diconnectWallet() {
-              await addressStore.disconnectWallet();
+              await currentUser.disconnectWallet();
        }
 
+       profileService.subscribe(async (profiles) => {
+              if ($currentUser.address && profiles.has($currentUser.address)) {
+                     profile = await profiles.get($currentUser.address);
+              }
+       });
+
        onMount(async () => {
-              if (!$addressStore.address) return;
-              profile = await profileService.get($addressStore.address);
+              
        });
 </script>
 

@@ -11,7 +11,7 @@
   import { isMobile } from "$lib/stores/is-mobile.store";
   import GifSearchDialog from "$lib/components/GifDailog/gifDailog.svelte";
   import { profileService } from "$lib/services/ProfileService";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import { onMount } from "svelte";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { hubService } from "$lib/services/HubService";
@@ -33,25 +33,25 @@
   let profileZone: Zone;
 
   hubRegistryService.subscribe((zones) => {
-    if ($addressStore.address && zones.has($addressStore.address)) {
-      hubZone = zones.get($addressStore.address)!;
+    if ($currentUser.address && zones.has($currentUser.address)) {
+      hubZone = zones.get($currentUser.address)!;
       hubId = hubZone.spec.processId;
     }
   });
 
   profileRegistryService.subscribe((zones) => {
-    if ($addressStore.address && zones.has($addressStore.address)) {
-      profileZone = zones.get($addressStore.address)!;
+    if ($currentUser.address && zones.has($currentUser.address)) {
+      profileZone = zones.get($currentUser.address)!;
       hubId = profileZone.spec.processId;
     }
   });
 
   async function initializeHubId() {
-    if ($addressStore.address) {
-      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $addressStore.address);
+    if ($currentUser.address) {
+      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $currentUser.address);
       profileRegistryService.getZoneById(
         PROFILE_REGISTRY_ID(),
-        $addressStore.address,
+        $currentUser.address,
       );
     }
   }

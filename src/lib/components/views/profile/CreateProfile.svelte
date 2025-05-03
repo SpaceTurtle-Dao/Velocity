@@ -18,7 +18,7 @@
     } from "$lib/components/ui/avatar";
     import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
     import { profileRegistryService } from "$lib/services/ProfileRegistryService";
-    import { addressStore } from "$lib/stores/address.store";
+    import { currentUser } from "$lib/stores/currentUser.store";
 
     const initialProfileSchema = z.object({
         name: z.string().min(1, "Name is required"),
@@ -94,10 +94,10 @@
                 coverImage: profile.coverImage,
             });
 
-            if ($addressStore.address) {
+            if ($currentUser.address) {
                 profileRegistryService.getZoneById(
                     PROFILE_REGISTRY_ID(),
-                    $addressStore.address!,
+                    $currentUser.address!,
                 );
             }
             // Navigate and close dialog

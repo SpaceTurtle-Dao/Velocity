@@ -3,7 +3,7 @@
   import { MoreHorizontal } from "lucide-svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import DisconnectButton from "$lib/components/DisconnectWallet/DisconnectWallet.svelte";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import { writable } from "svelte/store";
   import { profileService } from "$lib/services/ProfileService";
   import type { Profile } from "$lib/models/Profile";
@@ -16,8 +16,8 @@
   let profile: Zone;
 
   profileRegistryService.subscribe((zones) => {
-    if ($addressStore.address && zones.has($addressStore.address)) {
-      profile = zones.get($addressStore.address)!;
+    if ($currentUser.address && zones.has($currentUser.address)) {
+      profile = zones.get($currentUser.address)!;
     }
   });
 
@@ -27,7 +27,7 @@
 
   async function handleDisconnect() {
     try {
-      await addressStore.disconnectWallet();
+      await currentUser.disconnectWallet();
 
       const { subscribe, set } = writable();
       set(undefined);

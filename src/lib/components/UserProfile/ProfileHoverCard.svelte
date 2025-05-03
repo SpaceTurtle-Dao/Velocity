@@ -7,7 +7,7 @@
   import type { Profile } from "$lib/models/Profile";
   import Follow from "../Follow/Follow.svelte";
   import { Skeleton } from "$lib/components/ui/skeleton";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/stores/currentUser.store";
   import { hubService } from "$lib/services/HubService";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Hub } from "$lib/models/Hub";
@@ -16,13 +16,12 @@
 
   export let profile: Zone | undefined;
   let hub: Hub;
-  let zone: Zone;
-  let isCurrentUser = $addressStore.address === profile?.owner;
+  let isCurrentUser = $currentUser.address === profile?.owner;
 
   hubRegistryService.subscribe(async (zones) => {
     if (!profile) return;
     if (zones.has(profile.owner)) {
-      zone = zones.get(profile.owner)!;
+      let zone = zones.get(profile.owner)!;
       try{
         hub = await hubService.info(zone.spec.processId);
       }catch(e){

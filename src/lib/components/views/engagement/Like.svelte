@@ -6,7 +6,7 @@
     import { event } from "$lib/ao/relay";
     import type { Post } from "$lib/models/Post";
     import { hubService } from "$lib/services/HubService";
-    import { addressStore } from "$lib/stores/address.store";
+    import { currentUser } from "$lib/stores/currentUser.store";
     import { profileService } from "$lib/services/ProfileService";
     import { hubRegistryService } from "$lib/services/HubRegistryService";
 
@@ -21,7 +21,7 @@
     };
 
     async function like() {
-        if(!$addressStore.hub?.spec.processId) return
+        if(!$currentUser.hub?.spec.processId) return
         let _tags: Array<Tag> = [];
 
         let contentTag: Tag = {
@@ -44,9 +44,9 @@
             console.log("**Likes**");
             let temp = likes.filter((like) => {
                 console.log(like.From);
-                console.log($addressStore.hub?.spec.processId);
+                console.log($currentUser.hub?.spec.processId);
                 console.log(like);
-                return like.From != $addressStore.hub?.spec.processId;
+                return like.From != $currentUser.hub?.spec.processId;
             });
             likes = temp;
             liked = false;
@@ -62,9 +62,9 @@
             console.log("**Likes**");
             let temp = likes.filter((like) => {
                 console.log(like.From);
-                console.log($addressStore.hub?.spec.processId);
+                console.log($currentUser.hub?.spec.processId);
                 console.log(like);
-                return like.From == $addressStore.hub?.spec.processId;
+                return like.From == $currentUser.hub?.spec.processId;
             });
             liked = temp.length > 0;
         });
@@ -77,9 +77,9 @@
                 console.log("**Likes**");
                 let temp = likes.filter((like) => {
                     console.log(like.From);
-                    console.log($addressStore.hub?.spec.processId);
+                    console.log($currentUser.hub?.spec.processId);
                     console.log(like);
-                    return like.From == $addressStore.hub?.spec.processId;
+                    return like.From == $currentUser.hub?.spec.processId;
                 });
                 liked = temp.length > 0;
             });

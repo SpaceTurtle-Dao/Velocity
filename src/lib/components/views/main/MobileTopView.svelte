@@ -4,7 +4,7 @@
   import Logo from "../../../../assets/Logo2.png";
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import { writable } from "svelte/store";
-  import { addressStore } from "$lib/stores/address.store"; // Make sure to import your address store
+  import { currentUser } from "$lib/stores/currentUser.store"; // Make sure to import your address store
   import { profileService } from "$lib/services/ProfileService";
 
   let opacity = "opacity-100";
@@ -13,7 +13,7 @@
   async function handleDisconnect() {
     try {
       // Disconnect the wallet
-      await addressStore.disconnectWallet();
+      await currentUser.disconnectWallet();
 
       // This will clear the stores
       const { subscribe, set } = writable();
@@ -54,8 +54,8 @@
   <div class="px-4 py-2 flex justify-between border-b border-gray-800">
     <div class="profile-menu relative">
       <button on:click={toggleDisconnect} class="focus:outline-none">
-        {#if $addressStore.address}
-          <!--{#await profileService.get($addressStore.address) then profile}
+        {#if $currentUser.address}
+          <!--{#await profileService.get($currentUser.address) then profile}
             <ProfilePicture
               size="sm"
               src={profile.thumbnail}
