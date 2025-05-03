@@ -58,16 +58,14 @@
   });
 </script>
 
-{#if address}
-  <div class="bg-background">
-    <MobileTopView />
-    <div class="flex w-full bg-background justify-center">
-      <Left />
-      <Middle>
-        <Router {routes} />
-      </Middle>
-      <Right />
-    </div>
-    <MobileBottomNavBar />
+<div class="bg-background">
+  <MobileTopView />
+  <div class="flex w-full bg-background justify-center">
+    <Left />
+    <Middle>
+      <Router {routes} />
+    </Middle>
+    <Right />
   </div>
-{/if}
+  <MobileBottomNavBar />
+</div>

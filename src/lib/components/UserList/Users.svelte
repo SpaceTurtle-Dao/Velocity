@@ -54,6 +54,12 @@
       }
     }*/
   }
+
+  onMount(async () => {
+    console.log("**Followers**")
+    console.log(addresss)
+  });
+
 </script>
 
 <div class="w-full h-full">

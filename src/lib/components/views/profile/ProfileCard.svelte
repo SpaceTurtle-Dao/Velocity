@@ -11,10 +11,27 @@
   import { profileRegistryService } from "$lib/services/ProfileRegistryService";
   import type { Zone } from "$lib/models/Zone";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
 
   export let hubId: string;
-  let profile: Zone;
   let address: string;
+  let profile: Zone;
+
+  hubRegistryService.subscribe((zones) => {
+    let zone = zones
+      .values()
+      .toArray()
+      .find((zone) => {
+        zone.spec.processId == hubId;
+      });
+
+    if (zone) {
+      address = zone.owner;
+      profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address);
+    }else{
+
+    }
+  });
 
   profileRegistryService.subscribe((zones) => {
     if (address && zones.has(address)) {
@@ -28,9 +45,14 @@
   }
 
   onMount(async () => {
-    let hub = await hubService.info(hubId);
-    address = hub.User;
-    profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address);
+    console.log("**Loading Profile card**");
+    hubService.info(hubId).then((_hub) => {
+      console.log("**Got Info**")
+      console.log(_hub)
+      address = _hub.User
+      profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address);
+    }).catch(console.log);
+    
   });
 </script>
 

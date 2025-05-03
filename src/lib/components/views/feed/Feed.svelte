@@ -71,10 +71,10 @@
   }
 
   onMount(async () => {
-    let isConnected = await currentUser.isConnected();
+    /*let isConnected = await currentUser.isConnected();
     if (!isConnected) {
       await currentUser.connectWallet();
-    }
+    }*/
     scrollContainer = document.querySelector(".scrollbar-hidden");
     if (scrollContainer) {
       scrollContainer.addEventListener("scroll", handleScroll);

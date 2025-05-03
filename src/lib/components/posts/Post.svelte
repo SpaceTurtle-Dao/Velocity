@@ -46,9 +46,6 @@
   profileRegistryService.subscribe((zones) => {
     if (zones.has(post.owner)) {
       profile = zones.get(post.owner)!;
-      console.log(post.owner);
-      console.log(profile);
-      console.log("got data");
     }
   });
 

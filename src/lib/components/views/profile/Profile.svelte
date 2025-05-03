@@ -60,21 +60,22 @@
   });
 
   hubRegistryService.subscribe(async (zones) => {
-    console.log(zones);
     if (params.address && zones.has(params.address)) {
       hubZone = zones.get(params.address)!;
-      fetchPost();
+      //fetchPost();
       if (!hubZone) return;
       try {
-        hub = await hubService.info(hubZone.spec.processId);
+        /*hubService.info(hubZone.spec.processId).then((_hub) => {
+          hub = _hub;
+        });*/
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
     }
   });
 
   hubService.subscribe((value) => {
-    let _posts: Array<Post> = [];
+    /*let _posts: Array<Post> = [];
     let temp = value.values().toArray();
     for (var i = 0; i < temp.length; i++) {
       if (temp[i].from == hubZone?.spec.processId) {
@@ -88,24 +89,27 @@
       } else {
         return false;
       }
-    });
+    });*/
   });
 
   async function fetchPost() {
-    if (!hubZone?.spec.processId) return;
+    /*if (!hubZone?.spec.processId) return;
     try {
-      await hubService.fetchPostWithAuthors(hubZone?.spec.processId, [
+      hubService.fetchPostWithAuthors(hubZone?.spec.processId, [
         hubZone?.spec.processId,
       ]);
     } catch (e) {
       console.log(e);
-    }
+    }*/
   }
 
   // Placeholder functions - implement as needed
-  async function fetchSubscriptions() {
-    console.log("Fetching subscriptions");
-    // Implement subscription fetching logic
+  async function fetchFolloing() {
+    /*console.log("Fetching following");
+    console.log(hubZone.spec.processId)
+    hubService.info(hubZone.spec.processId).then((_hub) => {
+      hub = _hub;
+    });*/
   }
 
   function toggleModal() {
@@ -117,7 +121,7 @@
   });
 
   const onAddressParamChange = async () => {
-    setup();
+    //setup();
   };
 
   $: {
@@ -130,16 +134,20 @@
 
   async function setup() {
     try {
-      //posts = [];
       if (!params.address) return;
       console.log(params.address);
-      if ($currentUser.address == params.address && $currentUser.zone && $currentUser.hub) {
+      if (
+        $currentUser.address == params.address &&
+        $currentUser.zone &&
+        $currentUser.hub
+      ) {
+        console.log("Is Current User");
         hubZone = $currentUser.zone;
         hub = $currentUser.hub;
-        profileRegistryService.getZoneById(
+        /*profileRegistryService.getZoneById(
           PROFILE_REGISTRY_ID(),
           params.address,
-        );
+        );*/
       } else {
         profileRegistryService.getZoneById(
           PROFILE_REGISTRY_ID(),
@@ -150,7 +158,6 @@
     } catch (error) {
       console.log(params.address);
       console.log("Error setting up profile:", error);
-      //setup();
     }
   }
 </script>
@@ -269,7 +276,7 @@
     <Tabs.List class="grid grid-cols-4">
       <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
       <Tabs.Trigger on:click={fetchPost} value="media">Assets</Tabs.Trigger>
-      <Tabs.Trigger on:click={fetchSubscriptions} value="following"
+      <Tabs.Trigger on:click={fetchFolloing} value="following"
         >Following</Tabs.Trigger
       >
       <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
@@ -290,10 +297,14 @@
     </Tabs.Content>
     <Tabs.Content value="following">
       <!-- Placeholder for subscribed users list -->
-      <Users addresss={hub?.Following || []} />
+      {#if hub}
+        <Users addresss={hub?.Following || []} />
+      {/if}
     </Tabs.Content>
     <Tabs.Content value="followers">
-      <Users addresss={hub?.Followers || []} />
+      {#if hub}
+        <Users addresss={hub?.Followers || []} />
+      {/if}
     </Tabs.Content>
   </Tabs.Root>
 </div>

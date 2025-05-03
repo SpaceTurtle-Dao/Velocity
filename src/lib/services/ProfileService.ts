@@ -136,30 +136,21 @@ const service = (): ProfileService => {
 
 async function evaluateProfile(profileData: ProfileCreateData, processId: string) {
   try {
-    await sleep(3000);
     await evalProcess(luaModule, processId);
     console.log("*** PROFILE ID ****", processId);
-    const args = {
-      userName: profileData.userName,
-      displayName: profileData.displayName || profileData.userName,
+    const data = {
+      UserName: profileData.userName,
+      DisplayName: profileData.displayName || profileData.userName,
       description: profileData.description,
-      thumbnail: profileData.thumbnail,
-      coverImage: profileData.coverImage,
+      ProfileImage: profileData.thumbnail,
+      CoverImage: profileData.coverImage,
     };
     const wallet = typeof window !== "undefined" ? window.arweaveWallet : "";
-    const permaweb = Permaweb.init({
-      ao: connect({
-        MU_URL: MU_URL(),
-        CU_URL: CU_URL(),
-        GATEWAY_URL: GATEWAY_URL(),
-      },),
-      arweave: Arweave.init({}),
-      signer: createDataItemSigner(wallet),
-    });
-    const result = await permaweb.updateProfile(args, processId);
+    await profileService.update(processId, JSON.stringify(data))
 
-    console.log("**REsults***", result);
+    //console.log("**REsults***", result);
   } catch (e) {
+    console.log(e)
     await evaluateProfile(profileData, processId);
   }
 
