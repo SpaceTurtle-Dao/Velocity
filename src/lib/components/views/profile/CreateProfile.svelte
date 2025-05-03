@@ -94,7 +94,7 @@
                 coverImage: profile.coverImage,
             });
 
-            if ($currentUser.address) {
+            if ($currentUser) {
                 profileRegistryService.getZoneById(
                     PROFILE_REGISTRY_ID(),
                     $currentUser.address!,

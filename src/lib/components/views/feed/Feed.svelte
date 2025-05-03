@@ -31,10 +31,10 @@
     }
   });*/
 
-  currentUser.subscribe(async (value) => {
-    if (value.address && value.zone && value.hub) {
-      address = value.address;
-      hubId = value.zone.spec.processId;
+  currentUser.subscribe(async (_currentUser) => {
+    if (_currentUser) {
+      address = _currentUser.address;
+      hubId = _currentUser.zone.spec.processId;
       fetchFeedEvents();
       //hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address);
     }

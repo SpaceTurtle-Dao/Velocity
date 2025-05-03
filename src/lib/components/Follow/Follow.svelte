@@ -21,21 +21,25 @@
   });*/
 
   const unsubscribe = async () => {
-    currentUser.unsubscribe(hubId);
+    loader = true;
+    await currentUser.unsubscribe(hubId);
+    loader = false;
   };
 
   const subscribe = async () => {
-    currentUser.subscribe_(hubId);
+    loader = true;
+    await currentUser.subscribe_(hubId);
+    loader = false;
   };
 
   onMount(async () => {
-    if (!$currentUser.address) return;
+    if (!$currentUser) return;
     hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $currentUser.address);
     isSubscribed = $currentUser.hub?.Following.includes(hubId)!;
   });
 </script>
 
-{#if $currentUser.hub}
+{#if $currentUser}
   {#if isSubscribed}
     <ButtonWithLoader
       {loader}

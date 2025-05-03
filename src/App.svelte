@@ -17,16 +17,7 @@
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
   import CollectionsPage from "$lib/components/Assets_Card/CollectionPage.svelte";
   // import { postService } from "$lib/services/PostService";
-  import { profileService } from "$lib/services/ProfileService";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
-  import { PROFILE_REGISTRY_ID } from "$lib/constants";
-
-  let address: string;
-
-  currentUser.subscribe((value) => {
-    if (value.address) address = value.address;
-  });
 
   //let isFollowListAlreadyFetched = false;
   //let initialRoute = window.location.hash.slice(1) || "/";
@@ -47,14 +38,7 @@
     console.log("getting connected status");
     let isConnected = await currentUser.isConnected();
     console.log("got status");
-    if ($currentUser.address) {
-      currentUser.sync();
-      if (address) {
-        profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), $currentUser.address);
-      }
-    } else {
-      await currentUser.connectWallet();
-    }
+    if (!isConnected) await currentUser.connectWallet();
   });
 </script>
 

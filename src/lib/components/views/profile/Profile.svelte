@@ -137,9 +137,8 @@
       if (!params.address) return;
       console.log(params.address);
       if (
-        $currentUser.address == params.address &&
-        $currentUser.zone &&
-        $currentUser.hub
+        $currentUser &&
+        $currentUser.address == params.address
       ) {
         console.log("Is Current User");
         hubZone = $currentUser.zone;
@@ -153,7 +152,9 @@
           PROFILE_REGISTRY_ID(),
           params.address,
         );
-        hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address);
+        hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address).then((_zone) => {
+          hubZone = _zone
+        });
       }
     } catch (error) {
       console.log(params.address);
@@ -202,7 +203,7 @@
       <CardContent>
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profileZone.spec.displayName}</p>
-          {#if params.address != $currentUser.address}
+          {#if $currentUser && params.address != $currentUser.address}
             {#if hubZone?.spec.processId}
               <Follow hubId={hubZone?.spec.processId} />
             {/if}

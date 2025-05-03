@@ -54,7 +54,7 @@
   <div class="px-4 py-2 flex justify-between border-b border-gray-800">
     <div class="profile-menu relative">
       <button on:click={toggleDisconnect} class="focus:outline-none">
-        {#if $currentUser.address}
+        {#if $currentUser}
           <!--{#await profileService.get($currentUser.address) then profile}
             <ProfilePicture
               size="sm"

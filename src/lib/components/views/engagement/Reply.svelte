@@ -158,7 +158,7 @@
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        {#if $currentUser.address}
+        {#if $currentUser}
           {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), $currentUser.address) then profile}
             {#if $profileRegistryService.has($currentUser.address)}
               <ProfilePicture

@@ -36,7 +36,7 @@
     <Repeat2Icon size={16} class="mr-2" />
     <span class="text-sm"
       >Reposted by
-      {#if profile.owner == $currentUser.address}
+      {#if $currentUser && profile.owner == $currentUser.address}
         You
       {:else}
         @{profile.spec.displayName}

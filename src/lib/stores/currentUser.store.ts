@@ -1,4 +1,4 @@
-import { HUB_REGISTRY_ID } from "$lib/constants";
+import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
 import {
   APP_INFO,
   GATEWAY,
@@ -8,17 +8,18 @@ import type { Hub } from "$lib/models/Hub";
 import type { Zone } from "$lib/models/Zone";
 import { hubRegistryService } from "$lib/services/HubRegistryService";
 import { hubService } from "$lib/services/HubService";
+import { profileRegistryService } from "$lib/services/ProfileRegistryService";
 import type { Option } from "$lib/types/option";
 import { writable, type Readable, get } from "svelte/store";
 
 export interface UserStoreData {
-  address: Option<string>;
-  hub: Option<Hub>;
-  zone: Option<Zone>;
+  address: string;
+  hub: Hub;
+  zone: Zone;
 }
 
-export interface UserStore extends Readable<UserStoreData> {
-  sync: () => Promise<string | undefined>;
+export interface UserStore extends Readable<UserStoreData | undefined> {
+  setup: () => Promise<void>;
   isConnected: () => Promise<boolean>;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => Promise<void>;
@@ -27,28 +28,26 @@ export interface UserStore extends Readable<UserStoreData> {
 }
 
 const initUserStore = (): UserStore => {
-  const { set, subscribe } = writable<UserStoreData>({ address: undefined, zone: undefined, hub: undefined });
+  const { set, subscribe } = writable<UserStoreData| undefined>();
   return {
     subscribe,
-    sync: async (): Promise<string | undefined> => {
-      let _currentUser = get(currentUser)
+    setup: async (): Promise<void> => {
       try {
         const address = await window.arweaveWallet.getActiveAddress();
+        const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
+        const hub = await hubService.info(zone?.spec.processId);
         set({
           address: address,
-          zone: undefined,
-          hub: undefined
+          zone: zone,
+          hub: hub
         });
-        return address
       } catch (error: unknown) {
-        console.error(error);
-
+        console.log(error);
         // To avoding loop of callbacks on address.subscribe callbacks
-        if (_currentUser.address !== null) set({ address: undefined, zone: undefined, hub: undefined });
+        set(undefined);
       }
     },
     isConnected: async (): Promise<boolean> => {
-      let _currentUser = get(currentUser)
       try {
         const address = await window.arweaveWallet.getActiveAddress();
         let permissions = await window.arweaveWallet.getPermissions()
@@ -60,6 +59,7 @@ const initUserStore = (): UserStore => {
         if (hasPermissions) {
           const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
           const hub = await hubService.info(zone?.spec.processId);
+          profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address);
           set({
             address: address,
             zone: zone,
@@ -69,19 +69,17 @@ const initUserStore = (): UserStore => {
         return hasPermissions
       } catch (error: unknown) {
         console.log(error);
-
-        // To avoding loop of callbacks on address.subscribe callbacks
-        if (_currentUser.address !== null) set({ address: undefined, zone: undefined, hub: undefined });
         return false
       }
     },
     connectWallet: async () => {
       let _currentUser = get(currentUser)
-      if (_currentUser.address) return;
+      if (_currentUser) return;
       try {
         await window.arweaveWallet.connect(PERMISSIONS, APP_INFO, GATEWAY);
-        await currentUser.sync()
+        await currentUser.setup()
       } catch (error) {
+        // To avoding loop of callbacks on address.subscribe callbacks
         console.error("Failed to Connect", error);
       }
     },
@@ -89,7 +87,7 @@ const initUserStore = (): UserStore => {
     disconnectWallet: async () => {
       try {
         await window.arweaveWallet.disconnect();
-        set({ address: undefined, zone: undefined, hub: undefined });
+        set(undefined);
       } catch (error) {
         console.error("Failed to Disconnect", error);
       }
@@ -97,19 +95,19 @@ const initUserStore = (): UserStore => {
 
     unsubscribe: async (hubId: string) => {
       let _currentUser = get(currentUser)
-      if ((!_currentUser.address || !_currentUser.zone || !_currentUser.hub)) return
+      if (!_currentUser) return
       _currentUser.hub.Following = _currentUser.hub.Following.filter((value) => value != hubId);
       set(_currentUser);
-      await hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
+      hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
     },
 
     subscribe_: async (hubId: string) => {
       let _currentUser = get(currentUser)
-      if ((!_currentUser.address || !_currentUser.zone || !_currentUser.hub)) return
+      if (!_currentUser) return
       if (_currentUser.hub.Following.includes(hubId)) return;
       _currentUser.hub.Following.push(hubId);
       set(_currentUser);
-      await hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
+      hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
     },
   };
 };

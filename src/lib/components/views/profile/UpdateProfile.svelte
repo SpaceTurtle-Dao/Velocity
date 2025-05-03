@@ -109,7 +109,7 @@
         bot: profile.bot,
       });*/
       try {
-        if ($currentUser.address) {
+        if ($currentUser) {
           /*const tags: Tag[] = [
             { name: "UserName", value: profile.name },
             { name: "DisplayName", value: profile.display_name },

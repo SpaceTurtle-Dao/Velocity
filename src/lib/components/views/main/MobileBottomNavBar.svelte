@@ -16,9 +16,9 @@
       /></a
     >
 
-    <a href="/profile/{$currentUser.address}" use:link
+    <a href="/profile/{$currentUser?.address}" use:link
       ><User
-        class={$location === `/profile/${$currentUser.address}`
+        class={$location === `/profile/${$currentUser?.address}`
           ? ""
           : "text-muted-foreground"}
         size={28}

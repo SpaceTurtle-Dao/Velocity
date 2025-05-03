@@ -16,7 +16,7 @@
   let profile: Zone;
 
   profileRegistryService.subscribe((zones) => {
-    if ($currentUser.address && zones.has($currentUser.address)) {
+    if ($currentUser && zones.has($currentUser.address)) {
       profile = zones.get($currentUser.address)!;
     }
   });

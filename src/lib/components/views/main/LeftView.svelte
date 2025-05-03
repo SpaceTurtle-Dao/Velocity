@@ -25,7 +25,7 @@
   let zone: Zone;
 
   hubRegistryService.subscribe((zones) => {
-    if ($currentUser.address && zones.has($currentUser.address)) {
+    if ($currentUser && zones.has($currentUser.address)) {
       zone = zones.get($currentUser.address)!;
     }
   });
@@ -44,7 +44,7 @@
       {
         icon: User,
         label: "Profile",
-        href: `/profile/${$currentUser.address}`,
+        href: `/profile/${$currentUser?.address}`,
       },
       { icon: Mail, label: "Messages", href: "/messages" },
       { icon: TestTube, label: "Collections", href: "/collections" },
@@ -52,7 +52,7 @@
   }
 
   onMount(() => {
-    if ($currentUser.address) {
+    if ($currentUser) {
       hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $currentUser.address);
     }
   });
@@ -67,7 +67,7 @@
           <li>
             <img class="w-10 h-10" src={Logo} alt="Logo" />
           </li>
-          {#if $currentUser.address}
+          {#if $currentUser}
             {#each menuItems2() as item}
               <li>
                 <a
@@ -114,7 +114,7 @@
           </li>
         </ul>
       </nav>
-      {#if $currentUser.address}
+      {#if $currentUser}
         {#if zone}
           <CreatePostModal />
         {:else}

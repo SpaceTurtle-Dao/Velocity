@@ -21,7 +21,7 @@
        }
 
        profileService.subscribe(async (profiles) => {
-              if ($currentUser.address && profiles.has($currentUser.address)) {
+              if ($currentUser && profiles.has($currentUser.address)) {
                      profile = await profiles.get($currentUser.address);
               }
        });

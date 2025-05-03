@@ -16,7 +16,7 @@
 
   export let profile: Zone | undefined;
   let hub: Hub;
-  let isCurrentUser = $currentUser.address === profile?.owner;
+  let isCurrentUser = $currentUser && $currentUser.address === profile?.owner;
 
   hubRegistryService.subscribe(async (zones) => {
     if (!profile) return;

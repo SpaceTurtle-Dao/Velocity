@@ -21,7 +21,7 @@
     };
 
     async function like() {
-        if(!$currentUser.hub?.spec.processId) return
+        if(!$currentUser) return
         let _tags: Array<Tag> = [];
 
         let contentTag: Tag = {
@@ -77,9 +77,9 @@
                 console.log("**Likes**");
                 let temp = likes.filter((like) => {
                     console.log(like.From);
-                    console.log($currentUser.hub?.spec.processId);
+                    console.log($currentUser?.hub.spec.processId);
                     console.log(like);
-                    return like.From == $currentUser.hub?.spec.processId;
+                    return like.From == $currentUser?.hub.spec.processId;
                 });
                 liked = temp.length > 0;
             });

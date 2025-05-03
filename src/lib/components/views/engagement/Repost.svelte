@@ -16,7 +16,7 @@
   let _tags: Array<Tag> = [];
 
   async function repost() {
-    if (!$currentUser.address && !post) return;
+    if (!$currentUser && !post) return;
 
     let _tags: Array<Tag> = [
       {
@@ -27,7 +27,7 @@
         name: "Content",
         value: JSON.stringify({
           ...post.event,
-          repostedBy: !$currentUser.address,
+          repostedBy: !$currentUser?.address,
         }),
       },
       {
@@ -52,7 +52,7 @@
   onMount(async () => {
     if (post.from) {
       await hubService.fetchRepost(post.from, post.id);
-      if($currentUser.hub?.spec.processId){
+      if($currentUser){
         reposted = reposts.filter((value) => value.from == $currentUser.hub?.spec.processId).length > 0;
       }
     }

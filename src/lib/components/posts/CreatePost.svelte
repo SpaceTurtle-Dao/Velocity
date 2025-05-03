@@ -33,21 +33,21 @@
   let profileZone: Zone;
 
   hubRegistryService.subscribe((zones) => {
-    if ($currentUser.address && zones.has($currentUser.address)) {
+    if ($currentUser && zones.has($currentUser.address)) {
       hubZone = zones.get($currentUser.address)!;
       hubId = hubZone.spec.processId;
     }
   });
 
   profileRegistryService.subscribe((zones) => {
-    if ($currentUser.address && zones.has($currentUser.address)) {
+    if ($currentUser && zones.has($currentUser.address)) {
       profileZone = zones.get($currentUser.address)!;
       hubId = profileZone.spec.processId;
     }
   });
 
   async function initializeHubId() {
-    if ($currentUser.address) {
+    if ($currentUser) {
       hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $currentUser.address);
       profileRegistryService.getZoneById(
         PROFILE_REGISTRY_ID(),
