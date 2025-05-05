@@ -55,19 +55,18 @@
   profileRegistryService.subscribe((zones) => {
     if (params.address && zones.has(params.address)) {
       profileZone = zones.get(params.address)!;
-      console.log(profileZone);
     }
   });
 
   hubRegistryService.subscribe(async (zones) => {
-    if (params.address && zones.has(params.address)) {
+    if (params.address && zones.get(params.address)) {
       hubZone = zones.get(params.address)!;
-      //fetchPost();
       if (!hubZone) return;
       try {
-        hubService.info(hubZone.spec.processId).then((_hub) => {
+        /*hubService.info(hubZone.spec.processId).then((_hub) => {
           hub = _hub;
-        });
+          console.log(hub);
+        });*/
       } catch (e) {
         console.log(e);
       }
@@ -75,7 +74,7 @@
   });
 
   hubService.subscribe((value) => {
-    /*let _posts: Array<Post> = [];
+    let _posts: Array<Post> = [];
     let temp = value.values().toArray();
     for (var i = 0; i < temp.length; i++) {
       if (temp[i].from == hubZone?.spec.processId) {
@@ -89,18 +88,18 @@
       } else {
         return false;
       }
-    });*/
+    });
   });
 
   async function fetchPost() {
-    /*if (!hubZone?.spec.processId) return;
+    if (!hubZone?.spec.processId) return;
     try {
       hubService.fetchPostWithAuthors(hubZone?.spec.processId, [
         hubZone?.spec.processId,
       ]);
     } catch (e) {
       console.log(e);
-    }*/
+    }
   }
 
   // Placeholder functions - implement as needed
@@ -117,7 +116,7 @@
   }
 
   onMount(async () => {
-    setup();
+    //setup();
   });
 
   const onAddressParamChange = async () => {
@@ -136,25 +135,23 @@
     try {
       if (!params.address) return;
       console.log(params.address);
-      if (
-        $currentUser &&
-        $currentUser.address == params.address
-      ) {
+      if ($currentUser && $currentUser.address == params.address) {
         console.log("Is Current User");
         hubZone = $currentUser.zone;
         hub = $currentUser.hub;
-        profileRegistryService.getZoneById(
+        fetchPost();
+        /*profileRegistryService.getZoneById(
           PROFILE_REGISTRY_ID(),
           params.address,
-        );
+        );*/
       } else {
-        profileRegistryService.getZoneById(
+        console.log("Is Not Current User");
+        /*profileRegistryService.getZoneById(
           PROFILE_REGISTRY_ID(),
           params.address,
-        );
-        hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address).then((_zone) => {
-          hubZone = _zone
-        });
+        );*/
+        //hubZone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
+        //fetchPost();
       }
     } catch (error) {
       console.log(params.address);
@@ -299,12 +296,12 @@
     <Tabs.Content value="following">
       <!-- Placeholder for subscribed users list -->
       {#if hub}
-        <Users addresss={hub?.Following || []} />
+        <Users addresss={hub.Following || []} />
       {/if}
     </Tabs.Content>
     <Tabs.Content value="followers">
       {#if hub}
-        <Users addresss={hub?.Followers || []} />
+        <Users addresss={hub.Followers || []} />
       {/if}
     </Tabs.Content>
   </Tabs.Root>

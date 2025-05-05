@@ -74,7 +74,6 @@
   }
 
   onMount(async () => {
-    console.log("loading data");
     loadData();
   });
 

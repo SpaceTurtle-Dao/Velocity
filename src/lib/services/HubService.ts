@@ -4,10 +4,7 @@ import { PostType, type Post } from "$lib/models/Post";
 import { luaModule } from "./hub_lua";
 import { createProcess } from "$lib/ao/process.svelte";
 import type { Hub } from "$lib/models/Hub";
-import type { promises } from "dns";
 import type { Tag } from "$lib/models/Tag";
-import { hubRegistryService } from "./HubRegistryService";
-import { HUB_REGISTRY_ID } from "$lib/constants";
 export interface HubService extends Readable<Map<string, Post>> {
     info: (hub: string) => Promise<Hub>
     fetchPost: (hub: string, since: Number, until: Number) => Promise<void>;
@@ -29,7 +26,6 @@ const service = (): HubService => {
         info: async (hubId: string): Promise<Hub> => {
 
             let temp = await info(hubId)
-            hubRegistryService.getZoneById(HUB_REGISTRY_ID(),temp.User)
             //console.log(temp)
             let hub: Hub = {
                 User: temp.User,

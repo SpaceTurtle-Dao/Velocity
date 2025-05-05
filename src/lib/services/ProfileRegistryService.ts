@@ -3,7 +3,7 @@ import { get, writable, type Readable } from "svelte/store";
 import type { Zone } from "$lib/models/Zone";
 export interface ProfileRegistryService extends Readable<Map<string, Zone>> {
   getZones: (processId: string, filters: string, page: Number, limit: Number) => Promise<void>;
-  getZoneById: (processId: string, owner: string) => Promise<void>;
+  getZoneById: (processId: string, owner: string) => Promise<Zone>;
   fetchZones: (processId: string, filters: string, page: Number, limit: Number) => Promise<Zone[]>;
   register: (processId: string, spec: any) => Promise<void>;
 }
@@ -33,25 +33,26 @@ const service = (): ProfileRegistryService => {
     fetchZones: async (processId: string, filters: string, page: Number, limit: Number): Promise<Zone[]> => {
       return await getZones(processId, filters, page, limit)
     },
-    getZoneById: async (processId: string, owner: string): Promise<void> => {
+    getZoneById: async (processId: string, owner: string): Promise<Zone> => {
       console.log("Profile Registry")
       console.log(processId)
       let zones = get(profileRegistryService)
-      if (zones.has(owner)) {
+      let zone = zones.get(owner)
+      if (zone) {
+        console.log("Has Profile")
         getZone(processId, owner).then((_zone) => {
           console.log(_zone)
           zones.set(_zone.owner, _zone)
           set(zones)
-          console.log(zones)
         })
-        console.log(zones)
+        return zone
       } else {
-        console.log("doesn't have zone")
-        let _zones = await getZone(processId, owner)
-        console.log(_zones)
-        zones.set(_zones.owner, _zones)
+        console.log("doesn't have Profile")
+        let _zone = await getZone(processId, owner)
+        console.log(_zone)
+        zones.set(_zone.owner, _zone)
         set(zones)
-        console.log(zones)
+        return _zone 
       }
     },
   };
