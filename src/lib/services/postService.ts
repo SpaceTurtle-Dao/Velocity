@@ -3,7 +3,7 @@ import { get, writable, type Readable } from "svelte/store";
 import { PostType, type Post } from "$lib/models/Post";
 
 
-export interface HubService extends Readable<Map<string, Post>> {
+export interface PostService extends Readable<Map<string, Post>> {
     fetchPost: (hubId: string, since: Number, until: Number) => Promise<void>;
     fetchPostWithAuthors: (hub: string, authors: string[]) => Promise<void>;
     fetchReplies: (hubId: string, id: string) => Promise<void>;
@@ -12,15 +12,13 @@ export interface HubService extends Readable<Map<string, Post>> {
     get: (hubId: string, id: string) => Promise<Post>;
 }
 
-const service = (): HubService => {
+const service = (): PostService => {
     const { subscribe, set, update } = writable<Map<string, Post>>(
         new Map<string, any>()
     );
     return {
         subscribe,
         fetchPost: async (hubId: string, since: Number, until: Number): Promise<void> => {
-            // console.log("since",since);
-            // console.log("limit",until);
             let posts = get(postService)
             console.log("**POST SIZE**")
             console.log(posts.size)
