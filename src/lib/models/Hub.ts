@@ -1,3 +1,5 @@
+import type { Post } from "./Post"
+import type { Profile } from "./Profile"
 import type { Spec } from "./Spec"
 
 export type Hub = {

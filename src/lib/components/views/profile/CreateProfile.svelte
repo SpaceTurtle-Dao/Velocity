@@ -5,10 +5,8 @@
     import { Label } from "$lib/components/ui/label";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
-    import { walletAddress } from "$lib/stores/walletStore";
     import { navigate } from "svelte-routing";
     import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-    import { profileService } from "$lib/services/ProfileService";
     import { upload } from "$lib/ao/uploader";
     import { Camera } from "lucide-svelte";
     import {
@@ -17,8 +15,8 @@
         AvatarImage,
     } from "$lib/components/ui/avatar";
     import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
-    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
     import { currentUser } from "$lib/stores/currentUser.store";
+    import { hubService } from "$lib/services/HubService";
 
     const initialProfileSchema = z.object({
         name: z.string().min(1, "Name is required"),
@@ -86,20 +84,13 @@
                 profile.coverImage = _bannerFile.hash;
             }
 
-            const profileId = await profileService.create({
+            const profileId = await hubService.create({
                 userName: profile.name,
                 displayName: profile.display_name,
                 description: profile.description,
                 thumbnail: profile.thumbnail,
                 coverImage: profile.coverImage,
             });
-
-            if ($currentUser) {
-                profileRegistryService.getZoneById(
-                    PROFILE_REGISTRY_ID(),
-                    $currentUser.address!,
-                );
-            }
             // Navigate and close dialog
             isLoading = false;
             navigate("/profile", { replace: true });

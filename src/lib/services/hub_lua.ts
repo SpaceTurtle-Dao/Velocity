@@ -260,7 +260,7 @@ local function event(msg)
         else
             table.insert(Events, msg)
         end
-    elseif utils.includes(msg.From, followList) and msg.Kind == "1" or msg.Kind == "6" then
+    elseif utils.includes(msg.From, followList) and msg.Kind == "1" or msg.Kind == "6" msg.Kind == "0" then
         table.insert(Events, msg)
     end
 end

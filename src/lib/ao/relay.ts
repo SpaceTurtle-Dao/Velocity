@@ -94,34 +94,6 @@ export const fetchEvents = async (processId: string, filters: string): Promise<a
   return events;
 };
 
-export const fetchProfile = async (hub: string, address: string): Promise<Profile> => {
-  //console.log("Address", address);
-  const filter = JSON.stringify([
-    {
-      kinds: ["0"],
-      authors: [address],
-      //   limit: 1,
-    },
-  ]);
-
-  let messages = await fetchEvents(hub, filter);
-  //console.log("Messages from App", messages);
-
-  try {
-    // messages[0] give the latest profile change of this address and it  return that
-    let message = messages[0];
-    if (!message) throw ("message is empty");
-    let profile = JSON.parse(message.Content);
-    profile.address = message.From;
-    profile.created_at = messages[0].Timestamp;
-    profile.updated_at = message.Timestamp;
-    console.log("Profile from App", profile);
-    return profile;
-  } catch (e) {
-    throw e;
-  }
-};
-
 export const fetchFollowList = async (
   hub: string
 ): Promise<Array<string>> => {

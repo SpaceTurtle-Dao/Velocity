@@ -1,27 +1,15 @@
-import { evalProcess, fetchEvents, info, event } from "$lib/ao/relay";
+import { fetchEvents, } from "$lib/ao/relay";
 import { get, writable, type Readable } from "svelte/store";
 import { PostType, type Post } from "$lib/models/Post";
-import { luaModule } from "./hub_lua";
-import { createProcess } from "$lib/ao/process.svelte";
-import type { Hub } from "$lib/models/Hub";
-import type { Tag } from "$lib/models/Tag";
-import type { Profile, ProfileCreateData } from "$lib/models/Profile";
-import { HUB_REGISTRY_ID } from "$lib/constants";
-import { hubRegistryService } from "./HubRegistryService";
 
 
 export interface HubService extends Readable<Map<string, Post>> {
-    info: (hubIds: string) => Promise<Hub>
-    fetchProfies: (hubId: string, addresses: string[]) => Promise<Profile[]>;
     fetchPost: (hubId: string, since: Number, until: Number) => Promise<void>;
     fetchPostWithAuthors: (hub: string, authors: string[]) => Promise<void>;
     fetchReplies: (hubId: string, id: string) => Promise<void>;
     fetchRepost: (hubId: string, id: string) => Promise<void>;
     fetchLikes: (hubId: string, id: string) => Promise<any[]>;
     get: (hubId: string, id: string) => Promise<Post>;
-    updateFollowList: (hubId: string, followList: string[]) => Promise<void>;
-    create: (profileData: ProfileCreateData) => Promise<string>;
-    updateProfile: (hubId: string, profile: Profile) => Promise<void>;
 }
 
 const service = (): HubService => {
@@ -30,50 +18,10 @@ const service = (): HubService => {
     );
     return {
         subscribe,
-        info: async (hubId: string): Promise<Hub> => {
-
-            let temp = await info(hubId)
-            //console.log(temp)
-            let hub: Hub = {
-                User: temp.User,
-                Followers: JSON.parse(temp.Followers),
-                Following: JSON.parse(temp.Following),
-                spec: temp.spec
-            };
-            return hub
-        },
-        fetchProfies: async (hubId: string, addresses: string[]): Promise<Profile[]> => {
-            let profiles: Profile[] = [];
-            const filter = JSON.stringify([
-                {
-                    kinds: ["0"],
-                    authors: addresses,
-                    //   limit: 1,
-                },
-            ]);
-
-            let messages = await fetchEvents(hubId, filter);
-            try {
-                // messages[0] give the latest profile change of this address and it  return that
-                let message = messages[0];
-                for (var i = 0; i < messages.length; i++) {
-                    if (!message) throw ("message is empty");
-                    let profile = JSON.parse(message.Content);
-                    profile.address = message.From;
-                    profile.created_at = messages[0].Timestamp;
-                    profile.updated_at = message.Timestamp;
-                    console.log("Profile from App", profile);
-                    profiles.push(profile)
-                }
-                return profiles;
-            } catch (e) {
-                throw e;
-            }
-        },
         fetchPost: async (hubId: string, since: Number, until: Number): Promise<void> => {
             // console.log("since",since);
             // console.log("limit",until);
-            let posts = get(hubService)
+            let posts = get(postService)
             console.log("**POST SIZE**")
             console.log(posts.size)
             if (posts.size > 0) {
@@ -131,7 +79,7 @@ const service = (): HubService => {
             }
         },
         fetchPostWithAuthors: async (hub: string, authors: string[] = []): Promise<void> => {
-            let posts = get(hubService)
+            let posts = get(postService)
             let _posts = posts.values().toArray().filter((post) => {
                 return authors.includes(post.from)
             })
@@ -185,7 +133,7 @@ const service = (): HubService => {
         },
         fetchReplies: async (hub: string, id: string): Promise<void> => {
             //console.log("getting Replies")
-            let posts = get(hubService);
+            let posts = get(postService);
             try {
                 const filter = {
                     kinds: ["1"],
@@ -210,7 +158,7 @@ const service = (): HubService => {
             }
         },
         fetchRepost: async (hub: string, id: string): Promise<void> => {
-            let posts = get(hubService);
+            let posts = get(postService);
             try {
                 const filter = {
                     kinds: ["6"],
@@ -252,7 +200,7 @@ const service = (): HubService => {
             }
         },
         get: async (hub: string, id: string): Promise<Post> => {
-            let posts = get(hubService)
+            let posts = get(postService)
             if (posts.has(id)) {
                 try {
                     const filter = {
@@ -298,58 +246,6 @@ const service = (): HubService => {
                 }
             }
 
-        },
-        updateFollowList: async (hubId: string, followList: string[]) => {
-            try {
-
-                let kind: Tag = { name: "Kind", value: "3" };
-                let pTag: Tag = { name: "p", value: JSON.stringify(followList) };
-                let tags: Tag[] = [kind, pTag];
-
-                await event(hubId, tags);
-            } catch (error) {
-                console.log(error);
-            }
-        },
-        create: async (profileData: ProfileCreateData): Promise<string> => {
-            try {
-                const processId = await createProcess();
-                evaluateHub(processId)
-                console.log("ProfileId", processId);
-                const hubSpec = {
-                    type: "hub",
-                    kinds: ["0", "1", "7", "6", "3", "2"],
-                    description: "Social message hub",
-                    version: "1.0.0",
-                    processId: processId
-                };
-                /*const profileSpec = {
-                  type: "profile",
-                  userName: profileData.userName,
-                  displayName: profileData.displayName || "",
-                  description: profileData.description || "",
-                  thumbnail: profileData.thumbnail || "",
-                  coverImage: profileData.coverImage || "",
-                  processId: processId
-                };*/
-                await hubRegistryService.register(HUB_REGISTRY_ID(), hubSpec);
-                await createProfile(processId, profileData)
-                //await profileRegistryService.register(PROFILE_REGISTRY_ID(), profileSpec);
-                console.log("*** Hub ID ***", processId);
-                //console.log("*** Profile ID ***", processId);
-                return processId;
-            } catch (error) {
-                console.log("Failed to register profile:", error);
-                throw (error)
-            }
-        },
-        updateProfile: async (hubId: string, profile: Profile): Promise<void> => {
-            try {
-                await createProfile(hubId, profile)
-            } catch (error) {
-                console.log("Failed to register profile:", error);
-                throw (error)
-            }
         },
     };
 };
@@ -406,41 +302,8 @@ async function getRepost(post: Post): Promise<Post> {
     return _post
 }
 
-async function evaluateHub(processId: string) {
-    try {
-        await sleep(3000);
-        await evalProcess(luaModule, processId);
-    } catch (e) {
-        await evaluateHub(processId);
-    }
-
-}
-
 function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function createProfile(hubId: string, profileData: ProfileCreateData) {
-    try {
-        let tags: Array<Tag> = [];
-        // Prepare the content for the event
-        const content = JSON.stringify(profileData);
-
-        const kindTag: Tag = {
-            name: "Kind",
-            value: "0",
-        };
-
-        const contentTag: Tag = {
-            name: "Content",
-            value: content,
-        };
-        tags.push(kindTag);
-        tags.push(contentTag);
-        await event(hubId, tags)
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-export const hubService = service();
+export const postService = service();
