@@ -8,7 +8,7 @@ import type { Hub } from "$lib/models/Hub";
 import type { Zone } from "$lib/models/Zone";
 import { hubRegistryService } from "$lib/services/HubRegistryService";
 import { hubService } from "$lib/services/HubService";
-import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+import { profileService } from "$lib/services/ProfileService";
 import type { Option } from "$lib/types/option";
 import { writable, type Readable, get } from "svelte/store";
 
@@ -59,7 +59,7 @@ const initUserStore = (): UserStore => {
         if (hasPermissions) {
           const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
           const hub = await hubService.info(zone?.spec.processId);
-          profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address);
+          profileService.fetchProfiles(zone?.spec.processId, [address]);
           set({
             address: address,
             zone: zone,

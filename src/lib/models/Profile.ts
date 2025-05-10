@@ -14,6 +14,7 @@ export type Profile = {
   description?: string;
   id: string;
   owner: string;
+  from:string;
   website?: string;
   thumbnail?: string;
   bot?: boolean;

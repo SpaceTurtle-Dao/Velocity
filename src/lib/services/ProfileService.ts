@@ -4,7 +4,7 @@ import type { Tag } from "$lib/models/Tag";
 import type { Profile, ProfileCreateData } from "$lib/models/Profile";
 
 export interface ProfileService extends Readable<Map<string, Profile>> {
-    fetchProfies: (hubId: string, addresses: string[]) => Promise<void>;
+    fetchProfiles: (hubId: string, addresses: string[]) => Promise<void>;
     updateProfile: (hubId: string, profile: Profile) => Promise<void>;
 }
 
@@ -14,7 +14,7 @@ const service = (): ProfileService => {
     );
     return {
         subscribe,
-        fetchProfies: async (hubId: string, addresses: string[]): Promise<void> => {
+        fetchProfiles: async (hubId: string, addresses: string[]): Promise<void> => {
             let profiles = get(profileService)
             const filter = JSON.stringify([
                 {
@@ -31,7 +31,7 @@ const service = (): ProfileService => {
                 for (var i = 0; i < messages.length; i++) {
                     if (!message) throw ("message is empty");
                     let profile = JSON.parse(message.Content);
-                    profile.address = message.From;
+                    profile.from = message.From;
                     profile.created_at = messages[0].Timestamp;
                     profile.updated_at = message.Timestamp;
                     console.log("Profile from App", profile);

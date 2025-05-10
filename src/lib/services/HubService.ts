@@ -11,7 +11,7 @@ import { hubRegistryService } from "./HubRegistryService";
 
 
 export interface HubService extends Readable<Map<string, Hub>> {
-    info: (hubId: string) => Promise<void>
+    info: (hubId: string) => Promise<Hub>
     updateFollowList: (hubId: string, followList: string[]) => Promise<void>;
     create: (profileData: ProfileCreateData) => Promise<string>;
 }
@@ -22,7 +22,7 @@ const service = (): HubService => {
     );
     return {
         subscribe,
-        info: async (hubId: string): Promise<void> => {
+        info: async (hubId: string): Promise<Hub> => {
 
             let temp = await info(hubId)
             //console.log(temp)
@@ -32,6 +32,7 @@ const service = (): HubService => {
                 Following: JSON.parse(temp.Following),
                 spec: temp.spec
             };
+            return hub
         },
         updateFollowList: async (hubId: string, followList: string[]) => {
             try {

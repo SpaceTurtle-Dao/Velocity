@@ -7,17 +7,15 @@
   import { writable } from "svelte/store";
   import { profileService } from "$lib/services/ProfileService";
   import type { Profile } from "$lib/models/Profile";
-    import type { Zone } from "$lib/models/Zone";
-    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
 
   let isMenuOpen = false;
   let menuRef: HTMLDivElement;
 
-  let profile: Zone;
+  let profile: Profile;
 
-  profileRegistryService.subscribe((zones) => {
-    if ($currentUser && zones.has($currentUser.address)) {
-      profile = zones.get($currentUser.address)!;
+  profileService.subscribe((profiles) => {
+    if ($currentUser && profiles.has($currentUser.address)) {
+      profile = profiles.get($currentUser.address)!;
     }
   });
 
@@ -56,23 +54,23 @@
   }
 </script>
 
-{#if profile}
+{#if $currentUser}
   <div class="relative" bind:this={menuRef}>
     <button
       on:click={toggleMenu}
       class="flex items-center space-x-4 focus:outline-none"
     >
-      {#if profile.spec.thumbnail}
+      {#if profile.thumbnail}
         <ProfilePicture
-          src={toUrl(profile.spec.thumbnail)}
-          name={profile.spec.userName}
+          src={toUrl(profile.thumbnail)}
+          name={profile.userName}
         />
       {:else}
-        <ProfilePicture src="" name={profile.spec.userName} />
+        <ProfilePicture src="" name={profile.userName} />
       {/if}
       <div class="flex-grow text-left">
-        <p class="font-semibold text-white">{profile.spec.displayName}</p>
-        <p class="text-sm text-white">@{profile.spec.userName}</p>
+        <p class="font-semibold text-white">{profile.displayName}</p>
+        <p class="text-sm text-white">@{profile.userName}</p>
       </div>
       <MoreHorizontal class="w-5 h-5 text-white" />
     </button>

@@ -10,7 +10,7 @@
   import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
-    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+    import { profileService } from "$lib/services/ProfileService";
 
   let searchQuery = "";
   let searchResults: Zone[] = [];
@@ -53,12 +53,12 @@
         },
       );
 
-      searchResults = await profileRegistryService.fetchZones(
+      /*searchResults = await profileService.fetchZones(
         PROFILE_REGISTRY_ID(),
         filters,
         0,
         100,
-      );
+      );*/
       console.log(searchResults);
       if (isSearchFocused && searchQuery.trim()) {
       }

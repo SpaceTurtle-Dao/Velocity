@@ -10,15 +10,12 @@
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import GifSearchDialog from "$lib/components/GifDailog/gifDailog.svelte";
-  import { profileService } from "$lib/services/ProfileService";
   import { currentUser } from "$lib/stores/currentUser.store";
   import { onMount } from "svelte";
-  import { hubRegistryService } from "$lib/services/HubRegistryService";
-  import { hubService } from "$lib/services/HubService";
+  import { postService } from "$lib/services/PostService";
   import { timestampService } from "$lib/utils/date-time";
-  import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
-  import type { Zone } from "$lib/models/Zone";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { profileService } from "$lib/services/ProfileService";
+  import type { Profile } from "$lib/models/Profile";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -28,33 +25,13 @@
   let dialogOpen = false;
   let gifSearchOpen = false;
   let selectedGifUrl: string | null = null;
-  let hubId: string;
-  let hubZone: Zone;
-  let profileZone: Zone;
+  let profile: Profile;
 
-  hubRegistryService.subscribe((zones) => {
-    if ($currentUser && zones.has($currentUser.address)) {
-      hubZone = zones.get($currentUser.address)!;
-      hubId = hubZone.spec.processId;
+  profileService.subscribe((profiles) => {
+    if ($currentUser && profiles.has($currentUser.address)) {
+      profile = profiles.get($currentUser.address)!;
     }
   });
-
-  profileRegistryService.subscribe((zones) => {
-    if ($currentUser && zones.has($currentUser.address)) {
-      profileZone = zones.get($currentUser.address)!;
-      hubId = profileZone.spec.processId;
-    }
-  });
-
-  async function initializeHubId() {
-    if ($currentUser) {
-      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $currentUser.address);
-      profileRegistryService.getZoneById(
-        PROFILE_REGISTRY_ID(),
-        $currentUser.address,
-      );
-    }
-  }
 
   function clearFields() {
     content = "";
@@ -99,10 +76,7 @@
   }
 
   async function handleSubmit() {
-    if (!hubId) {
-      await initializeHubId(); // Ensure we have the hubId
-    }
-
+    if (!$currentUser)return
     isLoading = true;
     let kind: Tag = {
       name: "Kind",
@@ -148,13 +122,13 @@
       };
       _tags.push(contentTag);
 
-      await event(hubId, _tags);
+      await event($currentUser.zone.spec.processId, _tags);
       dialogOpen = false;
       clearFields();
       const now = new Date();
       const since = timestampService.subtract(new Date(), 10, "days").getTime();
       const until = now.getTime();
-      await hubService.fetchPost(hubId, since, until);
+      await postService.fetchPost($currentUser.zone.spec.processId, since, until);
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {
@@ -163,7 +137,7 @@
   }
 
   onMount(async () => {
-    initializeHubId();
+    
   });
 
   $: if (dialogOpen === false) {
@@ -191,15 +165,15 @@
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        {#if profileZone}
-          {#if profileZone.spec.thumbnail}
+        {#if profile}
+          {#if profile.thumbnail}
             <ProfilePicture
-              src={`https://www.arweave.net/${profileZone.spec.thumbnail}`}
-              name={profileZone.spec.userName}
+              src={`https://www.arweave.net/${profile.thumbnail}`}
+              name={profile.userName}
               size="lg"
             />
           {:else}
-            <ProfilePicture src="" name={profileZone.spec.userName} size="lg" />
+            <ProfilePicture src="" name={profile.userName} size="lg" />
           {/if}
         {/if}
 

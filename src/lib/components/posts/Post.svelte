@@ -19,7 +19,6 @@
   import { PostType, type Post } from "$lib/models/Post";
   import { currentUser } from "$lib/stores/currentUser.store";
   import type { Hub } from "$lib/models/Hub";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
@@ -27,7 +26,7 @@
   export let post: Post;
   //let hub: Hub;
   let replies: Post[] = [];
-  let profile: Zone;
+  let profile: Profile;
   let replyingTo: Profile;
   let replyCount = 0;
   let hubZone: Zone;
@@ -43,9 +42,9 @@
     }
   });*/
 
-  profileRegistryService.subscribe((zones) => {
-    if (zones.has(post.owner)) {
-      profile = zones.get(post.owner)!;
+  profileService.subscribe((profiles) => {
+    if (profiles.has(post.owner)) {
+      profile = profiles.get(post.owner)!;
     }
   });
 
@@ -66,7 +65,7 @@
   }
 
   async function loadData() {
-    profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.owner);
+    profileService.fetchProfiles(post.from, [post.owner]);
     //hub = profile.hubId;
     //replies = await hubService.fetchReplies(hub, postId);
     //replyCount = replies.length;
@@ -151,11 +150,10 @@
           {#if post.type == PostType.Reply && post.p}
             <div class="flex items-center text-muted-foreground mb-2">
               <CornerDownRight size={16} class="mr-2" />
-              {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.p) then _profile}
-                {#if $profileRegistryService.has(post.p)}
+              {#await profileService.fetchProfiles(post.from, [post.p]) then _profile}
+                {#if $profileService.has(post.p)}
                   <span class="text-sm"
-                    >Replying to @{$profileRegistryService.get(post.p)?.spec
-                      .userName}</span
+                    >Replying to @{$profileService.get(post.p)?.userName}</span
                   >
                 {/if}
               {/await}
@@ -168,7 +166,7 @@
                 {#if profile.owner == $currentUser?.address}
                   You Reposted
                 {:else}
-                  Reposted by @{profile.spec.userName}
+                  Reposted by @{profile.userName}
                 {/if}
               </span>
             </div>
@@ -178,15 +176,15 @@
             <div>
               <div class="flex justify-start space-x-3">
                 {#if post.rePost && profile}
-                  {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.rePost.from)}
+                  {#await profileService.fetchProfiles(post.from, [post.rePost.owner])}
                     <div
                       class="hidden sm:block h-9 w-9 rounded-full bg-gray-200 animate-pulse"
                     ></div>
                   {:then _profile}
                     <div>
-                      {#if $profileRegistryService.has(post.rePost.from)}
+                      {#if $profileService.has(post.rePost.from)}
                         <ProfilePictureHoverCard
-                          profile={$profileRegistryService.get(
+                          profile={$profileService.get(
                             post.rePost.from,
                           )}
                         />
@@ -205,24 +203,22 @@
                 <div class="flex-1">
                   <div class="flex space-x-1 mb-1">
                     {#if post.rePost}
-                      {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.rePost.from)}
+                      {#await profileService.fetchProfiles(post.rePost.from, [post.rePost.owner])}
                         <div
                           class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
                         ></div>
                       {:then _profile}
-                        {#if $profileRegistryService.get(post.rePost.from)}
+                        {#if $profileService.get(post.rePost.from)}
                           <ProfileHoverCard
-                            profile={($profileRegistryService.get(post.rePost.from))}
+                            profile={($profileService.get(post.rePost.owner))}
                           >
                             <div class="flex space-x-1">
                               <p class="font-medium text-primary">
-                                {$profileRegistryService.get(post.rePost.from)
-                                  ?.spec.userName}
+                                {$profileService.get(post.rePost.owner)?.userName}
                               </p>
                               <span
                                 class="text-muted-foreground pl-0.5 text-ellipsis"
-                                >@{$profileRegistryService.get(post.rePost.from)
-                                  ?.spec.displayName}</span
+                                >@{$profileService.get(post.rePost.owner)?.displayName}</span
                               >
                             </div>
                           </ProfileHoverCard>
@@ -232,11 +228,11 @@
                       <ProfileHoverCard {profile}>
                         <div class="flex space-x-1">
                           <p class="font-medium text-primary">
-                            {profile.spec.userName}
+                            {profile.userName}
                           </p>
                           <span
                             class="text-muted-foreground pl-0.5 text-ellipsis"
-                            >@{profile.spec.displayName}</span
+                            >@{profile.displayName}</span
                           >
                         </div>
                       </ProfileHoverCard>

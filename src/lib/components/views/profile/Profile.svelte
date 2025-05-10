@@ -25,7 +25,8 @@
   import type { Hub } from "$lib/models/Hub";
   import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import type { Profile } from "$lib/models/Profile";
+    import { postService } from "$lib/services/PostService";
 
   export let params: { address?: string } = {};
 
@@ -33,7 +34,7 @@
   let media: Array<Post> = [];
   let hub: Hub;
   let hubZone: Zone;
-  let profileZone: Zone;
+  let profile: Profile;
 
   let mimeTypes: string[] = [
     "image/apng",
@@ -52,9 +53,9 @@
 
   let showModal = false;
 
-  profileRegistryService.subscribe((zones) => {
-    if (params.address && zones.has(params.address)) {
-      profileZone = zones.get(params.address)!;
+  profileService.subscribe((profiles) => {
+    if (params.address && profiles.has(params.address)) {
+      profile = $profileService.get(params.address)!;
     }
   });
 
@@ -73,11 +74,11 @@
     }
   });
 
-  hubService.subscribe((value) => {
+  postService.subscribe((value) => {
     let _posts: Array<Post> = [];
     let temp = value.values().toArray();
     for (var i = 0; i < temp.length; i++) {
-      if (temp[i].from == hubZone?.spec.processId) {
+      if (temp[i].from == profile.from) {
         _posts.push(temp[i]);
       }
     }
@@ -94,8 +95,8 @@
   async function fetchPost() {
     if (!hubZone?.spec.processId) return;
     try {
-      hubService.fetchPostWithAuthors(hubZone?.spec.processId, [
-        hubZone?.spec.processId,
+      postService.fetchPostWithAuthors(profile.from, [
+        profile.owner,
       ]);
     } catch (e) {
       console.log(e);
@@ -161,15 +162,15 @@
 </script>
 
 <div class="md:mt-10 max-w-prose">
-  {#if profileZone}
+  {#if profile}
     <Card
       class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"
     >
       <div class="relative mb-10">
         <div class="bg-gray-200 relative">
-          {#if profileZone.spec.coverImage}
+          {#if profile.coverImage}
             <img
-              src={`https://www.arweave.net/${profileZone.spec.coverImage}`}
+              src={`https://www.arweave.net/${profile.coverImage}`}
               alt="Banner"
               class="w-full max-h-48 object-cover"
             />
@@ -180,16 +181,16 @@
         <div class="absolute bottom-0 left-4 transform translate-y-1/3">
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
-              {#if profileZone.spec.thumbnail}
+              {#if profile.thumbnail}
                 <AvatarImage
                   class="object-cover"
-                  src={`https://www.arweave.net/${profileZone.spec.thumbnail}`}
-                  alt={profileZone.spec.displayName}
+                  src={`https://www.arweave.net/${profile.thumbnail}`}
+                  alt={profile.displayName}
                 />
               {/if}
               <AvatarFallback
-                >{profileZone.spec.displayName
-                  ? profileZone.spec.displayName[0].toUpperCase()
+                >{profile.displayName
+                  ? profile.displayName[0].toUpperCase()
                   : "U"}</AvatarFallback
               >
             </Avatar>
@@ -199,7 +200,7 @@
 
       <CardContent>
         <div class="flex justify-between space-x-2">
-          <p class="font-bold text-2xl">{profileZone.spec.displayName}</p>
+          <p class="font-bold text-2xl">{profile.displayName}</p>
           {#if $currentUser && params.address != $currentUser.address}
             {#if hubZone?.spec.processId}
               <Follow hubId={hubZone?.spec.processId} />
@@ -216,23 +217,23 @@
           {/if}
         </div>
         <p class="text-muted-foreground">
-          @{profileZone.spec.userName}
+          @{profile.userName}
         </p>
-        {#if profileZone.spec.description}
+        {#if profile.description}
           <p class="pt-2.5">
-            {profileZone.spec.description}
+            {profile.description}
           </p>
         {/if}
         <div class="flex flex-row space-x-5 pt-2.5">
-          {#if profileZone.spec.website}
+          {#if profile.website}
             <div class="flex flex-row space-x-1 justify-end items-center">
               <Link size={16} />
               <a
                 class="text-blue-400"
-                href={profileZone.spec.website}
+                href={profile.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                >{getDisplayUrl(profileZone.spec.website)}</a
+                >{getDisplayUrl(profile.website)}</a
               >
             </div>
           {/if}
@@ -241,7 +242,7 @@
           >
             <CalendarDays size={16} />
             <p>
-              Joined {formatJoinedTimestamp(Number(profileZone.registeredAt))}
+              Joined {formatJoinedTimestamp(Number(profile.created_at))}
             </p>
           </div>
         </div>
@@ -308,7 +309,7 @@
 </div>
 
 <!-- Modal for UpdateProfile -->
-{#if showModal && profileZone}
+{#if showModal && profile}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
@@ -326,7 +327,7 @@
         >
       </div>
       <UpdateProfile
-        initialProfile={profileZone}
+        initialProfile={profile}
         on:profileUpdated={toggleModal}
       />
     </div>

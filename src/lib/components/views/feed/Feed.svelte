@@ -10,6 +10,7 @@
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { HUB_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
+    import { postService } from "$lib/services/PostService";
 
   let feed: Array<Post> = [];
   let isLoadingFeed = true;
@@ -19,7 +20,7 @@
   let hubId: string;
   let address: string;
 
-  hubService.subscribe(async (posts) => {
+  postService.subscribe(async (posts) => {
     feed = posts.values().toArray();
   });
 
@@ -48,8 +49,7 @@
       since = lastLoadedTimestamp
     }
     try {
-      hubService.fetchPost(hubId, since, until);
-      
+      postService.fetchPost(hubId, since, until);
       lastLoadedTimestamp = until;
     } catch (error) {
     } finally {
