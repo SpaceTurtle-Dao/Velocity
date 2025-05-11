@@ -2,15 +2,12 @@
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { Search as SearchIcon } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { fetchEvents } from "$lib/ao/relay";
-  import type { Profile } from "$lib/models/Profile";
-  import { profileFromEvent } from "$lib/models/Profile";
-  import { link, push, replace } from "svelte-spa-router";
+  import { push } from "svelte-spa-router";
   import TrendingAssets from "$lib/components/Assets_Card/TrendingAssets.svelte";
-  import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
+  import { ARWEAVE_ADDRESS } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
-  import { hubRegistryService } from "$lib/services/HubRegistryService";
     import { profileService } from "$lib/services/ProfileService";
+    import { currentUser } from "$lib/services/userService";
 
   let searchQuery = "";
   let searchResults: Zone[] = [];
@@ -18,7 +15,6 @@
   let debounceTimer: NodeJS.Timeout;
   let isSearchFocused = false;
   let clickedProfile = false;
-  let hub: string = "";
 
   function toUrl(tx: string) {
     return ARWEAVE_ADDRESS + tx;
@@ -45,20 +41,13 @@
     }
 
     isLoading = true;
-    console.log(searchQuery.toLowerCase())
+    console.log(searchQuery.toLowerCase());
     try {
-      const filters = JSON.stringify(
-        {
-          search: searchQuery.toLowerCase(),
-        },
-      );
-
-      /*searchResults = await profileService.fetchZones(
-        PROFILE_REGISTRY_ID(),
-        filters,
-        0,
-        100,
-      );*/
+      const filters = JSON.stringify({
+        search: searchQuery.toLowerCase(),
+      });
+      //create a way to search through a list of known hubs
+      //searchResults = await profileService.searchProfiles($currentUser?.profile.from,searchQuery)
       console.log(searchResults);
       if (isSearchFocused && searchQuery.trim()) {
       }

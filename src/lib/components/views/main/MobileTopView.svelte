@@ -5,7 +5,7 @@
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import { writable } from "svelte/store";
   import { currentUser } from "$lib/services/userService"; // Make sure to import your address store
-  import { profileService } from "$lib/services/ProfileService";
+  import { walletService } from "$lib/services/walletService";
 
   let opacity = "opacity-100";
   let showDisconnect = false;
@@ -13,7 +13,7 @@
   async function handleDisconnect() {
     try {
       // Disconnect the wallet
-      await currentUser.disconnectWallet();
+      await walletService.disconnectWallet();
 
       // This will clear the stores
       const { subscribe, set } = writable();

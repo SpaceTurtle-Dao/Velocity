@@ -18,7 +18,6 @@
   import CreateProfile from "../profile/CreateProfile.svelte";
   import { onMount } from "svelte";
   import { walletService } from "$lib/services/walletService";
-  import { isConnected } from "$lib/stores/profile.store";
 
   let loader = false;
 
