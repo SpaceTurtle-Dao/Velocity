@@ -36,6 +36,7 @@ const service = (): PostService => {
                     const _filters = JSON.stringify([filter, filter2]);
                     fetchEvents(hubId, _filters).then((events) => {
                         for (var i = 0; i < events.length; i++) {
+                            console.log(events[i])
                             if (events[i].Content) {
                                 let post = postFactory(events[i]);
                                 posts.set(post.id, post)

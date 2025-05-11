@@ -304,5 +304,5 @@ Handlers.add('Info', Handlers.utils.hasMatchingTag('Action', 'Info'), function(m
     })
 end)
 
-table.insert(ao.authorities,"fcoN_xJeisVsPXA-trzVAuIiqO3ydLQxM-L4XbrQKzY")
+table.insert(ao.authorities,"5btmdnmjWiFugymH7BepSig8cq1_zE-EQVumcXn0i_4")
 `
