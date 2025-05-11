@@ -26,8 +26,8 @@
   import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
   import type { Profile } from "$lib/models/Profile";
-    import { postService } from "$lib/services/PostService";
-    import { P } from "flowbite-svelte";
+  import { postService } from "$lib/services/PostService";
+  import { P } from "flowbite-svelte";
 
   export let params: { address?: string } = {};
 
@@ -62,16 +62,16 @@
 
   hubService.subscribe((hubs) => {
     if (params.address && hubs.get(params.address)) {
-      hub = hubs.get(params.address)!
+      hub = hubs.get(params.address)!;
     }
-  })
+  });
 
   hubRegistryService.subscribe(async (zones) => {
     if (params.address && zones.get(params.address)) {
       hubZone = zones.get(params.address)!;
       if (!hubZone) return;
       try {
-        hubService.info(hubZone.spec.processId)
+        hubService.info(hubZone.spec.processId);
       } catch (e) {
         console.log(e);
       }
@@ -79,6 +79,7 @@
   });
 
   postService.subscribe((value) => {
+    posts = []
     let _posts: Array<Post> = [];
     let temp = value.values().toArray();
     for (var i = 0; i < temp.length; i++) {
@@ -121,7 +122,7 @@
   }
 
   onMount(async () => {
-    //setup();
+    setup();
   });
 
   const onAddressParamChange = async () => {
@@ -140,19 +141,23 @@
     try {
       if (!params.address) return;
       console.log(params.address);
+      posts = []
       if ($currentUser && $currentUser.address == params.address) {
         console.log("Is Current User");
         hubZone = $currentUser.zone;
         hub = $currentUser.hub;
+        profile = $currentUser.profile
         fetchPost();
       } else {
         console.log("Is Not Current User");
-        hubZone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
-        profileService.fetchProfiles(
-          hubZone.spec.processId,
-          [hubZone.spec.processId],
-        );
-        fetchPost();
+        hubRegistryService
+          .getZoneById(HUB_REGISTRY_ID(), params.address)
+          .then((_hubZone) => {
+            profileService.fetchProfiles(hubZone.spec.processId, [
+              hubZone.spec.processId,
+            ]);
+            fetchPost();
+          });
       }
     } catch (error) {
       console.log(params.address);
@@ -232,8 +237,7 @@
                 class="text-blue-400"
                 href={profile.website}
                 target="_blank"
-                rel="noopener noreferrer"
-                >{getDisplayUrl(profile.website)}</a
+                rel="noopener noreferrer">{getDisplayUrl(profile.website)}</a
               >
             </div>
           {/if}
@@ -326,10 +330,7 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile
-        initialProfile={profile}
-        on:profileUpdated={toggleModal}
-      />
+      <UpdateProfile initialProfile={profile} on:profileUpdated={toggleModal} />
     </div>
   </div>
 {/if}

@@ -8,6 +8,7 @@
   import { hubService } from "$lib/services/HubService";
   import { currentUser } from "$lib/services/userService";
   import { profileService } from "$lib/services/ProfileService";
+    import { postService } from "$lib/services/PostService";
 
   export let post: Post;
 
@@ -46,12 +47,12 @@
     reposted = true;
 
     // Refresh reposts to ensure consistency
-    await hubService.fetchRepost(post.from, post.id);
+    await postService.fetchRepost(post.from, post.id);
   }
 
   onMount(async () => {
     if (post.from) {
-      await hubService.fetchRepost(post.from, post.id);
+      await postService.fetchRepost(post.from, post.id);
       if($currentUser){
         reposted = reposts.filter((value) => value.from == $currentUser.hub?.spec.processId).length > 0;
       }

@@ -9,6 +9,7 @@
     import { currentUser } from "$lib/services/userService";
     import { profileService } from "$lib/services/ProfileService";
     import { hubRegistryService } from "$lib/services/HubRegistryService";
+    import { postService } from "$lib/services/PostService";
 
     export let post: Post;
 
@@ -57,7 +58,7 @@
             liked = true;
         }
         await event(post.from, _tags);
-        hubService.fetchLikes(post.from, post.id).then((_likes) => {
+        postService.fetchLikes(post.from, post.id).then((_likes) => {
             likes = _likes;
             console.log("**Likes**");
             let temp = likes.filter((like) => {
@@ -72,7 +73,7 @@
 
     onMount(async () => {
         if (post.from) {
-            hubService.fetchLikes(post.from, post.id).then((_likes) => {
+            postService.fetchLikes(post.from, post.id).then((_likes) => {
                 likes = _likes;
                 console.log("**Likes**");
                 let temp = likes.filter((like) => {
