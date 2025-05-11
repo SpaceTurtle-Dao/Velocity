@@ -19,7 +19,7 @@
   import { Camera } from "lucide-svelte";
   import { upload } from "$lib/ao/uploader";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-  import { currentUser } from "$lib/stores/currentUser.store";
+  import { currentUser } from "$lib/services/userService";
   import { profileService } from "$lib/services/ProfileService";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";

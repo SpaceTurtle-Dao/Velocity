@@ -6,7 +6,7 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
-  import { currentUser } from "$lib/stores/currentUser.store";
+  import { currentUser } from "$lib/services/userService";
   import PostComponent from "../../posts/Post.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Link, CalendarDays } from "lucide-svelte";
@@ -27,6 +27,7 @@
   import type { Zone } from "$lib/models/Zone";
   import type { Profile } from "$lib/models/Profile";
     import { postService } from "$lib/services/PostService";
+    import { P } from "flowbite-svelte";
 
   export let params: { address?: string } = {};
 
@@ -55,19 +56,22 @@
 
   profileService.subscribe((profiles) => {
     if (params.address && profiles.has(params.address)) {
-      profile = $profileService.get(params.address)!;
+      profile = profiles.get(params.address)!;
     }
   });
+
+  hubService.subscribe((hubs) => {
+    if (params.address && hubs.get(params.address)) {
+      hub = hubs.get(params.address)!
+    }
+  })
 
   hubRegistryService.subscribe(async (zones) => {
     if (params.address && zones.get(params.address)) {
       hubZone = zones.get(params.address)!;
       if (!hubZone) return;
       try {
-        /*hubService.info(hubZone.spec.processId).then((_hub) => {
-          hub = _hub;
-          console.log(hub);
-        });*/
+        hubService.info(hubZone.spec.processId)
       } catch (e) {
         console.log(e);
       }
@@ -95,8 +99,8 @@
   async function fetchPost() {
     if (!hubZone?.spec.processId) return;
     try {
-      postService.fetchPostWithAuthors(profile.from, [
-        profile.owner,
+      postService.fetchPostWithAuthors(hubZone.spec.processId, [
+        hubZone.spec.processId,
       ]);
     } catch (e) {
       console.log(e);
@@ -141,18 +145,14 @@
         hubZone = $currentUser.zone;
         hub = $currentUser.hub;
         fetchPost();
-        /*profileRegistryService.getZoneById(
-          PROFILE_REGISTRY_ID(),
-          params.address,
-        );*/
       } else {
         console.log("Is Not Current User");
-        /*profileRegistryService.getZoneById(
-          PROFILE_REGISTRY_ID(),
-          params.address,
-        );*/
-        //hubZone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
-        //fetchPost();
+        hubZone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
+        profileService.fetchProfiles(
+          hubZone.spec.processId,
+          [hubZone.spec.processId],
+        );
+        fetchPost();
       }
     } catch (error) {
       console.log(params.address);

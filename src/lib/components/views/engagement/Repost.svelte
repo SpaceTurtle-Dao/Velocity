@@ -6,7 +6,7 @@
   import { event } from "$lib/ao/relay";
   import type { Post } from "$lib/models/Post";
   import { hubService } from "$lib/services/HubService";
-  import { currentUser } from "$lib/stores/currentUser.store";
+  import { currentUser } from "$lib/services/userService";
   import { profileService } from "$lib/services/ProfileService";
 
   export let post: Post;

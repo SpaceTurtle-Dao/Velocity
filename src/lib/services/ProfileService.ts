@@ -4,7 +4,7 @@ import type { Tag } from "$lib/models/Tag";
 import type { Profile, ProfileCreateData } from "$lib/models/Profile";
 
 export interface ProfileService extends Readable<Map<string, Profile>> {
-    fetchProfiles: (hubId: string, addresses: string[]) => Promise<void>;
+    fetchProfiles: (hubId: string, addresses: string[]) => Promise<Map<string, Profile>>;
     updateProfile: (hubId: string, profile: Profile) => Promise<void>;
 }
 
@@ -14,7 +14,7 @@ const service = (): ProfileService => {
     );
     return {
         subscribe,
-        fetchProfiles: async (hubId: string, addresses: string[]): Promise<void> => {
+        fetchProfiles: async (hubId: string, addresses: string[]): Promise<Map<string, Profile>> => {
             let profiles = get(profileService)
             const filter = JSON.stringify([
                 {
@@ -25,6 +25,7 @@ const service = (): ProfileService => {
             ]);
 
             let messages = await fetchEvents(hubId, filter);
+            console.log(messages)
             try {
                 // messages[0] give the latest profile change of this address and it  return that
                 let message = messages[0];
@@ -34,9 +35,11 @@ const service = (): ProfileService => {
                     profile.from = message.From;
                     profile.created_at = messages[0].Timestamp;
                     profile.updated_at = message.Timestamp;
-                    console.log("Profile from App", profile);
-                    profiles.set(profile.address,profile)
+                    console.log(profile);
+                    profiles.set(message.Owner,profile)
                 }
+                set(profiles)
+                return profiles
             } catch (e) {
                 throw e;
             }

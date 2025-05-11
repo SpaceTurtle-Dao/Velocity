@@ -12,23 +12,15 @@
     TestTube,
   } from "lucide-svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
-  import { currentUser } from "$lib/stores/currentUser.store";
+  import { currentUser } from "$lib/services/userService";
   import { Loader } from "lucide-svelte";
   import Connect from "$lib/components/wallet/connect.svelte";
-  import { hubRegistryService } from "$lib/services/HubRegistryService";
   import CreateProfile from "../profile/CreateProfile.svelte";
-  import type { Zone } from "$lib/models/Zone";
   import { onMount } from "svelte";
-  import { HUB_REGISTRY_ID } from "$lib/constants";
+  import { walletService } from "$lib/services/walletService";
+  import { isConnected } from "$lib/stores/profile.store";
 
   let loader = false;
-  let zone: Zone;
-
-  hubRegistryService.subscribe((zones) => {
-    if ($currentUser && zones.has($currentUser.address)) {
-      zone = zones.get($currentUser.address)!;
-    }
-  });
 
   let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/" },
@@ -51,12 +43,14 @@
     ];
   }
 
-  onMount(() => {
-    if ($currentUser) {
-      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $currentUser.address);
-    }
+  walletService.subscribe((address) => {
+    if (!address) return;
+    currentUser.setup(address).then(() => (loader = false));
   });
 
+  onMount(() => {
+    walletService.isConnected();
+  });
 </script>
 
 {#if !$isMobile}
@@ -115,11 +109,12 @@
         </ul>
       </nav>
       {#if $currentUser}
-        {#if zone}
-          <CreatePostModal />
-        {:else}
-          <CreateProfile />
-        {/if}
+        <CreatePostModal />
+        <div class="p-4">
+          <LowerProfile profile={$currentUser.profile} />
+        </div>
+      {:else if $walletService && !$currentUser}
+        <CreateProfile />
       {:else}
         <div class="mt-8 flex flex-col items-center justify-center">
           {#if loader}
@@ -129,9 +124,6 @@
           {/if}
         </div>
       {/if}
-      <div class="p-4">
-        <LowerProfile />
-      </div>
     </div>
   </div>
 {/if}

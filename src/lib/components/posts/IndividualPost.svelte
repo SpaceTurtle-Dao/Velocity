@@ -18,7 +18,7 @@
   import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
-  import { currentUser } from "$lib/stores/currentUser.store";
+  import { currentUser } from "$lib/services/userService";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
     import { postService } from "$lib/services/PostService";

@@ -1,7 +1,7 @@
 <script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { onMount } from "svelte";
-  import { currentUser } from "$lib/stores/currentUser.store";
+  import { currentUser } from "$lib/services/userService";
   import { hubService } from "$lib/services/HubService";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Zone } from "$lib/models/Zone";

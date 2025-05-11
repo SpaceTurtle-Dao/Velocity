@@ -100,10 +100,11 @@
 			process: processId,
 		});
 		if (Error == undefined) {
+			console.log(Messages)
 			//let message = Messages.pop();
 			//let data = JSON.parse(message.Data);
 		} else {
+			throw Error;
 		}
-		throw Error;
 	};
 </script>

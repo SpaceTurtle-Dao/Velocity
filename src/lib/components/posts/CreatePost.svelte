@@ -10,7 +10,7 @@
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import GifSearchDialog from "$lib/components/GifDailog/gifDailog.svelte";
-  import { currentUser } from "$lib/stores/currentUser.store";
+  import { currentUser } from "$lib/services/userService";
   import { onMount } from "svelte";
   import { postService } from "$lib/services/PostService";
   import { timestampService } from "$lib/utils/date-time";

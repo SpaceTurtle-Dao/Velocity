@@ -4,20 +4,20 @@ import { send, read } from "$lib/ao/process.svelte";
 import { FetchEvents, GetZones, GetZoneById, Register, Info, UpdateProfile } from "$lib/ao/messegeFactory.svelte";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
-import { currentUser } from "$lib/stores/currentUser.store";
+import { currentUser } from "$lib/services/userService";
 import { HUB_REGISTRY_ID } from "$lib/constants";
 //@ts-ignore
 import { Eval } from "./messegeFactory.svelte";
 import type { Spec } from "$lib/models/Spec";
 import type { Hub } from "$lib/models/Hub";
+import { walletService } from "$lib/services/walletService";
 
 export const evalProcess = async (data: string, processId: string) => {
-  await currentUser.connectWallet();
-
+  //await walletService.connectWallet();
   try {
     const tags = Eval();
     // @ts-ignore
-    let result = await send(processId, tags, data,);
+    await send(processId, tags, data);
     ;
   } catch (e) {
     console.log(e);
@@ -25,7 +25,7 @@ export const evalProcess = async (data: string, processId: string) => {
 };
 
 export const event = async (hub: string, tags: Array<Tag>) => {
-  await currentUser.connectWallet();
+  //await walletService.connectWallet();
   const actionTag: Tag = {
     name: "Action",
     value: "Event",
@@ -43,7 +43,7 @@ export const event = async (hub: string, tags: Array<Tag>) => {
 };
 
 export const updateProfile = async (processId: string, data: string) => {
-  await currentUser.connectWallet();
+  //await walletService.connectWallet();
   const tags: Tag[] = UpdateProfile();
   try {
     console.log("***TAGS***");
@@ -80,6 +80,8 @@ export const fetchEvents = async (processId: string, filters: string): Promise<a
   try {
     // @ts-ignore
     let message = FetchEvents(filters);
+    console.log(message)
+    console.log(processId)
     let result = await read(processId, message);
     
     if (result) {
@@ -126,7 +128,7 @@ export const register = async (processId:string, spec: any): Promise<void> => {
   try {
     // @ts-ignore
     let message = Register();
-    let result = await send(processId, message, JSON.stringify(spec));
+    await send(processId, message, JSON.stringify(spec));
     
   } catch (e) {
     console.log(e);

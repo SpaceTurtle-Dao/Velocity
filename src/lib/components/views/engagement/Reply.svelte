@@ -13,8 +13,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
-  import { currentUser } from "$lib/stores/currentUser.store";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { currentUser } from "$lib/services/userService";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
 
   export let post: Post;
@@ -159,14 +158,12 @@
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
         {#if $currentUser}
-          {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), $currentUser.address) then profile}
-            {#if $profileRegistryService.has($currentUser.address)}
+          {#await profileService.fetchProfiles(PROFILE_REGISTRY_ID(), [$currentUser.address]) then _}
+            {#if $profileService.has($currentUser.address)}
               <ProfilePicture
                 size="lg"
-                src={$profileRegistryService.get($currentUser.address)?.spec
-                  .thumbnail}
-                name={$profileRegistryService.get($currentUser.address)?.spec
-                  .displayName}
+                src={$profileService.get($currentUser.address)?.thumbnail || ""}
+                name={$profileService.get($currentUser.address)?.displayName || "anon"}
               />
             {/if}
           {/await}

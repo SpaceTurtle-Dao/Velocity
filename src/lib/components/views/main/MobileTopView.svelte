@@ -4,7 +4,7 @@
   import Logo from "../../../../assets/Logo2.png";
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import { writable } from "svelte/store";
-  import { currentUser } from "$lib/stores/currentUser.store"; // Make sure to import your address store
+  import { currentUser } from "$lib/services/userService"; // Make sure to import your address store
   import { profileService } from "$lib/services/ProfileService";
 
   let opacity = "opacity-100";

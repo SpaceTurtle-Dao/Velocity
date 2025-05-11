@@ -8,49 +8,31 @@
   import { onMount } from "svelte";
   import { hubService } from "$lib/services/HubService";
   import ProfilePictureHoverCard from "$lib/components/UserProfile/ProfilePictureHoverCard.svelte";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
   import type { Zone } from "$lib/models/Zone";
   import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
+    import type { Hub } from "$lib/models/Hub";
 
   export let hubId: string;
-  let address: string;
-  let profile: Zone;
+  let hub: Hub | undefined;
+  let profile: Profile;
 
-  hubRegistryService.subscribe((zones) => {
-    let zone = zones
+  hubService.subscribe((hubs) => {
+    hub = hubs
       .values()
       .toArray()
-      .find((zone) => {
-        zone.spec.processId == hubId;
+      .find((hub) => {
+        hub.spec.processId == hubId;
       });
+      if(!hub)return;
+      profileService.fetchProfiles(hubId, [hub.User]);
+  })
 
-    if (zone) {
-      console.log("**Got Hub Zone**");
-      address = zone.owner
-      console.log(zone.owner)
-      if (!profile) {
-        profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), zone.owner);
-      }
-    } else {
-      console.log("No zone found");
-      hubService
-      .info(hubId)
-      .then(async (_hub) => {
-        console.log("**Got Info**");
-        //console.log(_hub)
-        address = _hub.User;
-        hubRegistryService.getZoneById(HUB_REGISTRY_ID(),_hub.User)
-        profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), _hub.User);
-      })
-      .catch(console.log);
-    }
-  });
 
-  profileRegistryService.subscribe((zones) => {
-    if (address && zones.has(address)) {
+  profileService.subscribe((profiles) => {
+    if (hub && profiles.has(hub.User)) {
       console.log("**Got Profile Zone**");
-      profile = zones.get(address)!;
+      profile = profiles.get(hub.User)!;
       console.log(profile.owner);
     }
   });
@@ -61,6 +43,7 @@
 
   onMount(async () => {
     console.log("**Loading Profile card**");
+    hubService.info(hubId)
     
   });
 </script>
@@ -73,25 +56,25 @@
         </div>
         <div class="grid overflow-hidden">
           <ProfileHoverCard {profile}>
-            {profile.spec.userName}
+            {profile.userName}
           </ProfileHoverCard>
 
           <p class="text-muted-foreground text-sm truncate">
-            @{profile.spec.displayName}
+            @{profile.displayName}
           </p>
-          {#if profile.spec.description}
+          {#if profile.description}
             <p class="line-clamp-2" id={profile.owner}>
-              {profile.spec.description}
+              {profile.description}
             </p>
           {/if}
-          {#if profile.spec.website}
+          {#if profile.website}
             <a
               class="text-blue-500 hover:underline"
-              href={profile.spec.website}
+              href={profile.website}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {getDisplayUrl(profile.spec.website)}
+              {getDisplayUrl(profile.website)}
             </a>
           {/if}
         </div>

@@ -5,24 +5,22 @@ import {
   PERMISSIONS,
 } from "$lib/constants/wallet.constants";
 import type { Hub } from "$lib/models/Hub";
+import type { Profile } from "$lib/models/Profile";
 import type { Zone } from "$lib/models/Zone";
 import { hubRegistryService } from "$lib/services/HubRegistryService";
 import { hubService } from "$lib/services/HubService";
 import { profileService } from "$lib/services/ProfileService";
-import type { Option } from "$lib/types/option";
 import { writable, type Readable, get } from "svelte/store";
 
 export interface UserStoreData {
   address: string;
   hub: Hub;
   zone: Zone;
+  profile:Profile;
 }
 
-export interface UserStore extends Readable<UserStoreData | undefined> {
-  setup: () => Promise<void>;
-  isConnected: () => Promise<boolean>;
-  connectWallet: () => Promise<void>;
-  disconnectWallet: () => Promise<void>;
+export interface UserStore extends Readable<(UserStoreData | undefined)> {
+  setup: (address:string) => Promise<void>;
   unsubscribe: (hubId: string) => Promise<void>;
   subscribe_: (hubId: string) => Promise<void>;
 }
@@ -31,68 +29,27 @@ const initUserStore = (): UserStore => {
   const { set, subscribe } = writable<UserStoreData| undefined>();
   return {
     subscribe,
-    setup: async (): Promise<void> => {
+    setup: async (address:string): Promise<void> => {
       try {
-        const address = await window.arweaveWallet.getActiveAddress();
+        console.log("setting up")
         const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
         const hub = await hubService.info(zone?.spec.processId);
+        const profiles = await profileService.fetchProfiles(zone?.spec.processId, [zone.spec.processId]);
+        const profile = profiles.get(address)
+        if(!profile) return;
+        console.log("setup complete")
         set({
           address: address,
           zone: zone,
-          hub: hub
+          hub: hub,
+          profile:profile
         });
-      } catch (error: unknown) {
+      } catch (error) {
         console.log(error);
         // To avoding loop of callbacks on address.subscribe callbacks
         set(undefined);
       }
     },
-    isConnected: async (): Promise<boolean> => {
-      try {
-        const address = await window.arweaveWallet.getActiveAddress();
-        let permissions = await window.arweaveWallet.getPermissions()
-        let hasPermissions = true
-        for (var i = 0; i < 0; i++) {
-          let permission = PERMISSIONS[i];
-          if (!permissions.includes(permission)) hasPermissions = false;
-        }
-        if (hasPermissions) {
-          const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
-          const hub = await hubService.info(zone?.spec.processId);
-          profileService.fetchProfiles(zone?.spec.processId, [address]);
-          set({
-            address: address,
-            zone: zone,
-            hub: hub
-          });
-        }
-        return hasPermissions
-      } catch (error: unknown) {
-        console.log(error);
-        return false
-      }
-    },
-    connectWallet: async () => {
-      let _currentUser = get(currentUser)
-      if (_currentUser) return;
-      try {
-        await window.arweaveWallet.connect(PERMISSIONS, APP_INFO, GATEWAY);
-        await currentUser.setup()
-      } catch (error) {
-        // To avoding loop of callbacks on address.subscribe callbacks
-        console.error("Failed to Connect", error);
-      }
-    },
-
-    disconnectWallet: async () => {
-      try {
-        await window.arweaveWallet.disconnect();
-        set(undefined);
-      } catch (error) {
-        console.error("Failed to Disconnect", error);
-      }
-    },
-
     unsubscribe: async (hubId: string) => {
       let _currentUser = get(currentUser)
       if (!_currentUser) return
@@ -110,6 +67,7 @@ const initUserStore = (): UserStore => {
       hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
     },
   };
+  
 };
 
 export const currentUser = initUserStore();

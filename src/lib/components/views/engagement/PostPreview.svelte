@@ -6,13 +6,12 @@
   import { Repeat2Icon } from "lucide-svelte";
   import { profileService } from "$lib/services/ProfileService";
   import { onMount } from "svelte";
-  import { fetchProfile } from "$lib/ao/relay";
   import { PostType, type Post } from "$lib/models/Post";
-  import { currentUser } from "$lib/stores/currentUser.store";
+  import { currentUser } from "$lib/services/userService";
   import type { Zone } from "$lib/models/Zone";
 
   export let post: Post;
-  export let profile: Zone;
+  export let profile: Profile;
 
   function formatContent(content: string): string {
     // console.log("hhhh", JSON.parse(content));
@@ -39,7 +38,7 @@
       {#if $currentUser && profile.owner == $currentUser.address}
         You
       {:else}
-        @{profile.spec.displayName}
+        @{profile.displayName}
       {/if}
     </span>
   </div>
@@ -63,22 +62,22 @@
         <ProfileHoverCard {profile}>
           <div class="flex space-x-1">
             <div class="text-primary text-base font-medium mr-1 ml-2">
-              {profile.spec.userName}
+              {profile.userName}
             </div>
 
             <div class="text-muted-foreground text-base font-light truncate">
-              {"@" + profile.spec.displayName}
+              {"@" + profile.displayName}
             </div>
           </div>
         </ProfileHoverCard>
         <ProfileHoverCard {profile}>
           <div class="flex space-x-1">
             <div class="text-primary text-base font-medium mr-1 ml-2">
-              {profile.spec.userName}
+              {profile.userName}
             </div>
 
             <div class="text-muted-foreground text-base font-light truncate">
-              {"@" + profile.spec.displayName}
+              {"@" + profile.displayName}
             </div>
           </div>
         </ProfileHoverCard>
@@ -96,7 +95,7 @@
 
     <div class="text-start text-muted-foreground mt-5">
       {"Replying to "}
-      <span class="text-sky-500">{"@" + profile.spec.displayName}</span>
+      <span class="text-sky-500">{"@" + profile.displayName}</span>
     </div>
   </div>
 </div>

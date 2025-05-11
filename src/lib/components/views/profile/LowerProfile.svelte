@@ -3,15 +3,16 @@
   import { MoreHorizontal } from "lucide-svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import DisconnectButton from "$lib/components/DisconnectWallet/DisconnectWallet.svelte";
-  import { currentUser } from "$lib/stores/currentUser.store";
+  import { currentUser } from "$lib/services/userService";
   import { writable } from "svelte/store";
   import { profileService } from "$lib/services/ProfileService";
   import type { Profile } from "$lib/models/Profile";
+  import { walletService } from "$lib/services/walletService";
 
   let isMenuOpen = false;
   let menuRef: HTMLDivElement;
 
-  let profile: Profile;
+  export let profile: Profile;
 
   profileService.subscribe((profiles) => {
     if ($currentUser && profiles.has($currentUser.address)) {
@@ -25,7 +26,7 @@
 
   async function handleDisconnect() {
     try {
-      await currentUser.disconnectWallet();
+      await walletService.disconnectWallet();
 
       const { subscribe, set } = writable();
       set(undefined);
@@ -54,7 +55,7 @@
   }
 </script>
 
-{#if $currentUser}
+{#if profile}
   <div class="relative" bind:this={menuRef}>
     <button
       on:click={toggleMenu}

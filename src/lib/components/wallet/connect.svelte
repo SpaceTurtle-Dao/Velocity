@@ -1,6 +1,6 @@
 <script>
     import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-    import { currentUser } from "$lib/stores/currentUser.store";
+    import { walletService } from "$lib/services/walletService";
     export let loader = false;
 </script>
 
@@ -9,7 +9,6 @@
     class="w-full"
     on:click={async () => {
         loader = true;
-        await currentUser.connectWallet();
-        loader = false;
+        await walletService.connectWallet();
     }}>Connect Wallet</ButtonWithLoader
 >

@@ -8,6 +8,7 @@ import type { Tag } from "$lib/models/Tag";
 import type { Profile, ProfileCreateData } from "$lib/models/Profile";
 import { HUB_REGISTRY_ID } from "$lib/constants";
 import { hubRegistryService } from "./HubRegistryService";
+import { profileService } from "./ProfileService";
 
 
 export interface HubService extends Readable<Map<string, Hub>> {
@@ -23,7 +24,7 @@ const service = (): HubService => {
     return {
         subscribe,
         info: async (hubId: string): Promise<Hub> => {
-
+            let hubs = get(hubService)
             let temp = await info(hubId)
             //console.log(temp)
             let hub: Hub = {
@@ -32,6 +33,8 @@ const service = (): HubService => {
                 Following: JSON.parse(temp.Following),
                 spec: temp.spec
             };
+            hubs.set(temp.User,hub)
+            set(hubs)
             return hub
         },
         updateFollowList: async (hubId: string, followList: string[]) => {
@@ -49,7 +52,8 @@ const service = (): HubService => {
         create: async (profileData: ProfileCreateData): Promise<string> => {
             try {
                 const processId = await createProcess();
-                evaluateHub(processId)
+                console.log(processId)
+                await evaluateHub(processId)
                 console.log("ProfileId", processId);
                 const hubSpec = {
                     type: "hub",
@@ -58,18 +62,8 @@ const service = (): HubService => {
                     version: "1.0.0",
                     processId: processId
                 };
-                /*const profileSpec = {
-                  type: "profile",
-                  userName: profileData.userName,
-                  displayName: profileData.displayName || "",
-                  description: profileData.description || "",
-                  thumbnail: profileData.thumbnail || "",
-                  coverImage: profileData.coverImage || "",
-                  processId: processId
-                };*/
                 await hubRegistryService.register(HUB_REGISTRY_ID(), hubSpec);
                 await createProfile(processId, profileData)
-                //await profileRegistryService.register(PROFILE_REGISTRY_ID(), profileSpec);
                 console.log("*** Hub ID ***", processId);
                 //console.log("*** Profile ID ***", processId);
                 return processId;
@@ -83,10 +77,9 @@ const service = (): HubService => {
 
 async function evaluateHub(processId: string) {
     try {
-        await sleep(3000);
         await evalProcess(luaModule, processId);
     } catch (e) {
-        await evaluateHub(processId);
+        console.log(e)
     }
 
 }

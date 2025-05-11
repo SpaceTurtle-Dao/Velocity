@@ -15,8 +15,11 @@
         AvatarImage,
     } from "$lib/components/ui/avatar";
     import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
-    import { currentUser } from "$lib/stores/currentUser.store";
+    import { currentUser } from "$lib/services/userService";
     import { hubService } from "$lib/services/HubService";
+    import { walk } from "svelte/compiler";
+    import { walletService } from "$lib/services/walletService";
+    import { profileService } from "$lib/services/ProfileService";
 
     const initialProfileSchema = z.object({
         name: z.string().min(1, "Name is required"),
@@ -84,13 +87,16 @@
                 profile.coverImage = _bannerFile.hash;
             }
 
-            const profileId = await hubService.create({
+            const hubId = await hubService.create({
                 userName: profile.name,
                 displayName: profile.display_name,
                 description: profile.description,
                 thumbnail: profile.thumbnail,
                 coverImage: profile.coverImage,
             });
+            if($currentUser?.address){
+                profileService.fetchProfiles($currentUser?.zone.spec.processId,[$currentUser?.address])
+            }
             // Navigate and close dialog
             isLoading = false;
             navigate("/profile", { replace: true });
