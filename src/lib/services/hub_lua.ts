@@ -1,308 +1,356 @@
 export const luaModule = `
--- Initialize global variables
---local ao = require('ao')
-local json = require('json');
+-- Required Libraries
+local json = require('json')
 local bint = require('.bint')(256)
 local utils = require(".utils")
 
 Variant = "0.0.1"
 RegistryProcess = "dVL1cJFikqBQRbtHQiOxwto774TilKtrymfcaQO8HGQ"
 
-local spec = {
-    type = "hub",
-    description = "Social message hub",
-    version = "0.1"
+Kinds = {
+    PROFILE_UPDATE = "0",
+    NOTE = "1",
+    FOLLOW = "3",
+    WRAPPED_SEAL = "6",
+    DELETE = "7",
+    GOSSIP = "1000"
 }
 
-if not Events then Events = {} end
-if not Followers then Followers = {} end
-
--- Utils helper functions
-Utils = {
-    add = function(a, b)
-        return tostring(bint(a) + bint(b))
-    end,
-    subtract = function(a, b)
-        return tostring(bint(a) - bint(b))
-    end,
-    toBalanceValue = function(a)
-        return tostring(bint(a))
-    end,
-    toNumber = function(a)
-        return tonumber(a)
-    end
+State = {
+    Events = Events or {},
+    Owner = Owner,
+    Spec = {
+        type = "hub",
+        description = "Social message hub",
+        version = "0.1"
+    }
 }
 
-function Spairs(t, order)
-    -- collect the keys
-    local keys = {}
-    for k in pairs(t) do keys[#keys + 1] = k end
-
-    -- if order function given, sort by it by passing the table and keys a, b,
-    -- otherwise just sort the keys
-    if order then
-        table.sort(keys, function(a, b) return order(t, a, b) end)
-    else
-        table.sort(keys)
-    end
-
-    -- return the iterator function
-    local i = 0
-    return function()
-        i = i + 1
-        if keys[i] then
-            return keys[i], t[keys[i]]
-        end
-    end
-end
-
-local function some(arr, predicate)
-    for i = 1, #arr do
-        if predicate(arr[i]) then
-            return true
-        end
-    end
-    return false
-end
-
+-- Slice helper for pagination
 function slice(tbl, start_idx, end_idx)
     local new_table = {}
     table.move(tbl, start_idx or 1, end_idx or #tbl, 1, new_table)
     return new_table
 end
 
-function compareArrays(oldArray, newArray)
-    -- Convert arrays to hash tables for efficient lookup
-    local oldSet = {}
-    local newSet = {}
-
-    -- Populate oldSet
-    for _, value in ipairs(oldArray) do
-        oldSet[value] = true
+-- Helpers
+local function getTag(tags, key)
+    for _, tag in ipairs(tags or {}) do
+        if tag[1] == key then return tag[2] end
     end
-
-    -- Populate newSet
-    for _, value in ipairs(newArray) do
-        newSet[value] = true
-    end
-
-    -- Find additions: elements in newArray not in oldArray
-    local additions = {}
-    for _, value in ipairs(newArray) do
-        if not oldSet[value] then
-            table.insert(additions, value)
-        end
-    end
-
-    -- Find deletions: elements in oldArray not in newArray
-    local deletions = {}
-    for _, value in ipairs(oldArray) do
-        if not newSet[value] then
-            table.insert(deletions, value)
-        end
-    end
-
-    return {
-        additions = additions,
-        deletions = deletions
-    }
+    return nil
 end
 
-local function filter(filter, events)
-    local _events = events
-    table.sort(_events, function(a, b)
-        return a.Timestamp > b.Timestamp
-    end)
-    if filter.limit and filter.limit < #events then
-        _events = slice(events, 1, filter.limit)
+local function hasSeenReference(sig)
+    for _, e in ipairs(State.Events) do
+        if e.Kind == Kinds.GOSSIP and getTag(e.Tags, "reference-signature") == sig then
+            return true
+        end
+    end
+    return false
+end
+
+local function getFollowList(events, from)
+    local profileUpdates = utils.filter(function(e)
+        return e.Kind == Kinds.FOLLOW and e.From == from
+    end, events)
+
+    if #profileUpdates == 0 then return {} end
+
+    local latest = profileUpdates[#profileUpdates]
+    local list = {}
+
+    for _, tag in ipairs(latest.Tags or {}) do
+        if tag[1] == "p" then table.insert(list, tag[2]) end
     end
 
+    return list
+end
+
+local function getFollowers(events, pubkey)
+    local followers = {}
+
+    for _, e in ipairs(events) do
+        if e.Kind == Kinds.FOLLOW then
+            for _, tag in ipairs(e.Tags or {}) do
+                if tag[1] == "p" and tag[2] == pubkey then
+                    table.insert(followers, e.From)
+                    break
+                end
+            end
+        end
+    end
+
+    return followers
+end
+
+local function broadcastToFollowers(msg)
+    local followers = getFollowers(State.Events, State.Owner)
+    for _, follower in ipairs(followers) do
+        ao.send({
+            Target = follower,
+            Action = "Event",
+            Data = msg.Data,
+            Tags = msg.Tags
+        })
+    end
+end
+
+local function routeInternal(msg)
+    if msg.Kind == Kinds.DELETE then
+        State.Events = utils.filter(function(e) return e.Id ~= msg.Id end, State.Events)
+    else
+        table.insert(State.Events, msg)
+    end
+end
+
+-- Filtering logic for client queries
+local function filter(filter, events)
+    local _events = events
+
+    -- Early filtering
     if filter.ids then
-        _events = utils.filter(function(event)
-            return utils.includes(event.Id, filter.ids)
+        _events = utils.filter(function(e)
+            return utils.includes(e.Id, filter.ids)
         end, _events)
     end
 
     if filter.authors then
-        _events = utils.filter(function(event)
-            return utils.includes(event.From, filter.authors)
+        _events = utils.filter(function(e)
+            return utils.includes(e.From, filter.authors)
         end, _events)
     end
 
     if filter.kinds then
-        _events = utils.filter(function(event)
-            return utils.includes(event.Kind, filter.kinds)
+        _events = utils.filter(function(e)
+            return utils.includes(e.Kind, filter.kinds)
         end, _events)
     end
 
     if filter.since then
-        _events = utils.filter(function(event)
-            return event.Timestamp > filter.since
+        _events = utils.filter(function(e)
+            return e.Timestamp > filter.since
         end, _events)
     end
 
     if filter["until"] then
-        _events = utils.filter(function(event)
-            return event.Timestamp < filter["until"]
-        end, _events)
-    end
-
-    if filter.search then
-        _events = utils.filter(function(event)
-            return string.find(string.lower(event.Content), string.lower(filter.search))
+        _events = utils.filter(function(e)
+            return e.Timestamp < filter["until"]
         end, _events)
     end
 
     if filter.tags then
-        for key, tags in pairs(filter.tags) do
+        for tagKey, expectedValues in pairs(filter.tags) do
             _events = utils.filter(function(e)
-                if e[key] then
-                    return utils.includes(e[key], tags)
+                for _, tag in ipairs(e.Tags or {}) do
+                    if tag[1] == tagKey and utils.includes(tag[2], expectedValues) then
+                        return true
+                    end
                 end
                 return false
-            end, events)
+            end, _events)
         end
     end
+
+    -- Refactored: restrict search to tags in kind:1000 only
+    if filter.search then
+        _events = utils.filter(function(e)
+            if e.Kind ~= Kinds.GOSSIP then return false end
+            for _, tag in ipairs(e.Tags or {}) do
+                if string.find(string.lower(tag[2] or ""), string.lower(filter.search)) then
+                    return true
+                end
+            end
+            return false
+        end, _events)
+    end
+
+    table.sort(_events, function(a, b) return a.Timestamp > b.Timestamp end)
+
+    local limit = math.min(filter.limit or 50, 500)
+    if #_events > limit then
+        _events = slice(_events, 1, limit)
+    end
+
     return _events
 end
 
-local function fetch(tbl, page, size)
-    local start = (page - 1) * size + 1
-    local endPage = page * size
-    local result = {};
-    for i = start, endPage do
-        if tbl[i] then
-            table.insert(result, tbl[i])
-        else
-            break
-        end
-    end
-    return result;
-end
-
-local function getFollowLists()
-    local followLists = utils.filter(function(event)
-        return utils.includes(event.Kind, { "3" })
-    end, Events)
-    local followList = {}
-    if #followLists > 0 then followList = json.decode(followLists[#followLists].p) end
-    return followList
-end
-
+-- FetchEvents handler
 local function fetchEvents(msg)
-    local filters = json.decode(msg.Filters)
-    local _events = Events
-    for k, v in ipairs(filters) do
-        _events = filter(v, _events)
+    local filters = json.decode(msg.Filters or "[]")
+    local result = State.Events
+
+    for _, f in ipairs(filters) do
+        result = filter(f, result)
     end
+
     ao.send({
         Target = msg.From,
-        Data = json.encode(_events)
+        Data = json.encode(result)
     })
 end
 
-local function event(msg)
-    local followList = getFollowLists()
-    if msg.From == Owner then
-        for i = 1, #Followers do
-            ao.send({
-                Target = Followers[i],
-                Action = "Event",
-                Data = msg.Data,
-                Tags = msg.Tags
-            })
-        end
-        msg.From = msg.Target
-        if msg.Kind == "7" and msg.Content and msg.e and msg.p then
-            local _event = utils.find(
-                function(event)
-                    return msg.From == event.From and msg.Kind == event.Kind and msg.e == event.e and
-                        msg.p == event.p
-                end,
-                Events
-            )
-            if _event then
-                Events = utils.filter(function(event)
-                    return event.Id ~= _event.Id
-                end, Events)
-            else
-                table.insert(Events, msg)
+-- Main Event Handler
+function event(msg)
+    local myFollowList = getFollowList(State.Events, State.Owner)
+    local isFollowing = utils.includes(msg.From, myFollowList)
+
+    if msg.Kind == Kinds.FOLLOW then
+        for _, tag in ipairs(msg.Tags or {}) do
+            if tag[1] == "p" and tag[2] == State.Owner then
+                table.insert(State.Events, msg)
+                break
             end
-        elseif msg.Kind == "3" and msg.p then
-            -- handle follow list update
-            local _events = Events
-            local oldArray = {}
-            _events = utils.filter(function(event)
-                return utils.includes(event.Kind, { "3" })
-            end, _events)
-            if #_events > 0 then oldArray = json.decode(_events[#_events].p) end
-            local newArray = json.decode(msg.p)
-            local results = compareArrays(oldArray, newArray)
-            local additions = results.additions
-            local deletions = results.deletions
-            table.insert(Events, msg)
-            for i, v in ipairs(additions) do
+        end
+        return
+    end
+
+    if msg.From == State.Owner then
+        broadcastToFollowers(msg)
+        routeInternal(msg)
+        return
+    end
+
+    local allowedKinds = {
+        [Kinds.NOTE] = true,
+        [Kinds.WRAPPED_SEAL] = true,
+        [Kinds.PROFILE_UPDATE] = true,
+        [Kinds.GOSSIP] = true
+    }
+
+    if isFollowing and allowedKinds[msg.Kind] then
+        local shouldGossip = msg.Kind ~= Kinds.GOSSIP
+            and msg.Signature
+            and not hasSeenReference(msg.Signature)
+
+        table.insert(State.Events, msg)
+
+        if shouldGossip then
+            local gossipTags = {
+                { "hub", "true" },
+                { "received-from", msg.From },
+                { "reference-signature", msg.Signature },
+                { "referenced-kind", msg.Kind },
+                { "Kind", Kinds.GOSSIP }
+            }
+
+            for _, tag in ipairs(msg.Tags or {}) do
+                table.insert(gossipTags, tag)
+            end
+
+            local gossipMsg = {
+                Kind = Kinds.GOSSIP,
+                Tags = gossipTags,
+                Data = "Gossip propagation for kind " .. msg.Kind
+            }
+
+            table.insert(State.Events, gossipMsg)
+
+            local followers = getFollowers(State.Events, State.Owner)
+            for _, follower in ipairs(followers) do
                 ao.send({
-                    Target = v,
-                    Action = "Follow",
-                    Kind = "2",
-                    Content = "+"
+                    Target = follower,
+                    Action = "Event",
+                    Data = gossipMsg.Data,
+                    Tags = gossipMsg.Tags
                 })
             end
-            for i, v in ipairs(deletions) do
-                ao.send({
-                    Target = v,
-                    Action = "Follow",
-                    Kind = "2",
-                    Content = "-"
-                })
-            end
-        else
-            table.insert(Events, msg)
         end
-    elseif utils.includes(msg.From, followList) and msg.Kind == "1" or msg.Kind == "6" or msg.Kind == "0" then
-        table.insert(Events, msg)
     end
 end
 
+-- Register Handlers
+Handlers.add('Event', Handlers.utils.hasMatchingTag('Action', 'Event'), event)
 
-Handlers.add('FetchEvents', Handlers.utils.hasMatchingTag('Action', 'FetchEvents'), function(msg)
-    fetchEvents(msg)
-end)
-
-
-Handlers.add('Event', Handlers.utils.hasMatchingTag('Action', 'Event'), function(msg)
-    event(msg)
-end)
-
-Handlers.add('Follow', Handlers.utils.hasMatchingTag('Action', 'Follow'), function(msg)
-    if msg.Kind == "2" and (msg.Content == "+" or msg.Content == "") then
-        if utils.includes(msg.From, Followers) then return end
-        table.insert(Followers, msg.From)
-    elseif msg.Kind == "2" and msg.Content == "-" then
-        Followers = utils.filter(function(follower)
-            return msg.From ~= follower
-        end, Followers)
-    end
-end)
-
-Handlers.add('DeleteEvents', Handlers.utils.hasMatchingTag('Action', 'DeleteEvents'), function(msg)
-    if msg.From == Owner then
-        Events = {}
-    end
-end)
+Handlers.add('FetchEvents', Handlers.utils.hasMatchingTag('Action', 'FetchEvents'), fetchEvents)
 
 Handlers.add('Info', Handlers.utils.hasMatchingTag('Action', 'Info'), function(msg)
     ao.send({
         Target = msg.From,
         Data = json.encode({
-            User = Owner,
-            spec = spec,
-            Followers = json.encode(Followers),
-            Following = json.encode(getFollowLists())
+            User = State.Owner,
+            spec = State.Spec,
+            Followers = getFollowers(State.Events, State.Owner),
+            Following = getFollowList(State.Events, State.Owner)
         })
     })
 end)
 
+
 table.insert(ao.authorities,"5btmdnmjWiFugymH7BepSig8cq1_zE-EQVumcXn0i_4")
+
+function simulateGossipTest()
+    print("\\n--- Running Gossip Simulation ---")
+
+    State.Owner = "HubA"
+    State.Events = {}
+
+    -- Hub A follows Hub B
+    table.insert(State.Events, {
+        Kind = Kinds.FOLLOW,
+        From = "HubA",
+        Tags = {
+            { "p", "HubB" }
+        }
+    })
+
+    -- Hub C follows Hub A
+    table.insert(State.Events, {
+        Kind = Kinds.FOLLOW,
+        From = "HubC",
+        Tags = {
+            { "p", "HubA" }
+        }
+    })
+
+    -- Hub B sends a NOTE (should be accepted + gossiped to HubC)
+    event({
+        Kind = Kinds.NOTE,
+        From = "HubB",
+        Signature = "sig001",
+        Tags = {},
+        Data = "Note from Hub B"
+    })
+
+    -- Hub D sends a NOTE (should be ignored)
+    event({
+        Kind = Kinds.NOTE,
+        From = "HubD",
+        Signature = "sig002",
+        Tags = {},
+        Data = "Sneaky message from Hub D"
+    })
+
+    -- Hub B sends a GOSSIP (should be accepted but not gossiped again)
+    event({
+        Kind = Kinds.GOSSIP,
+        From = "HubB",
+        Signature = "sig003",
+        Tags = {
+            { "hub", "true" },
+            { "received-from", "HubZ" },
+            { "reference-signature", "sig999" },
+            { "referenced-kind", "0" }
+        },
+        Data = "Hub B gossip"
+    })
+
+    -- Hub C sends a NOTE (should be ignored)
+    event({
+        Kind = Kinds.NOTE,
+        From = "HubC",
+        Signature = "sig004",
+        Tags = {},
+        Data = "Note from follower (should be ignored)"
+    })
+
+    -- Summary
+    print("\\n--- Final Stored Events ---")
+    for i, e in ipairs(State.Events) do
+        print(i .. ": Kind=" .. e.Kind .. " From=" .. (e.From or "Unknown") .. " Data=" .. (e.Data or ""))
+        if e.Kind == Kinds.GOSSIP then
+            print("    ↳ GOSSIP: ref=" .. (getTag(e.Tags, "reference-signature") or "none"))
+        end
+    end
+end
 `
