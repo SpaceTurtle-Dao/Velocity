@@ -215,6 +215,7 @@ function event(msg)
         [Kinds.NOTE] = true,
         [Kinds.WRAPPED_SEAL] = true,
         [Kinds.PROFILE_UPDATE] = true,
+        [Kinds.FOLLOW] = true,
         [Kinds.GOSSIP] = true
     }
 

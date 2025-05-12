@@ -55,7 +55,8 @@ const initUserStore = (): UserStore => {
       if (!_currentUser) return
       _currentUser.hub.Following = _currentUser.hub.Following.filter((value) => value != hubId);
       set(_currentUser);
-      hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
+      hubService.updateFollowList(hubId, _currentUser.hub.Following);
+      hubService.updateFollowList(hubId, _currentUser.hub.Following);
     },
 
     subscribe_: async (hubId: string) => {
@@ -65,6 +66,7 @@ const initUserStore = (): UserStore => {
       _currentUser.hub.Following.push(hubId);
       set(_currentUser);
       hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
+      hubService.updateFollowList(hubId, _currentUser.hub.Following);
     },
   };
   
