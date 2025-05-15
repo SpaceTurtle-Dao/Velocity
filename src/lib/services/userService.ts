@@ -21,8 +21,8 @@ export interface UserStoreData {
 
 export interface UserStore extends Readable<(UserStoreData | undefined)> {
   setup: (address:string) => Promise<void>;
-  unsubscribe: (hubId: string) => Promise<void>;
-  subscribe_: (hubId: string) => Promise<void>;
+  unfollow: (hubId: string) => Promise<void>;
+  follow: (hubId: string) => Promise<void>;
 }
 
 const initUserStore = (): UserStore => {
@@ -50,16 +50,16 @@ const initUserStore = (): UserStore => {
         set(undefined);
       }
     },
-    unsubscribe: async (hubId: string) => {
+    unfollow: async (hubId: string) => {
       let _currentUser = get(currentUser)
       if (!_currentUser) return
       _currentUser.hub.Following = _currentUser.hub.Following.filter((value) => value != hubId);
       set(_currentUser);
-      hubService.updateFollowList(hubId, _currentUser.hub.Following);
+      hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
       hubService.updateFollowList(hubId, _currentUser.hub.Following);
     },
 
-    subscribe_: async (hubId: string) => {
+    follow: async (hubId: string) => {
       let _currentUser = get(currentUser)
       if (!_currentUser) return
       if (_currentUser.hub.Following.includes(hubId)) return;

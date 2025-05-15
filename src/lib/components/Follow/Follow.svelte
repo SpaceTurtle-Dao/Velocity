@@ -22,13 +22,13 @@
 
   const unsubscribe = async () => {
     loader = true;
-    await currentUser.unsubscribe(hubId);
+    await currentUser.unfollow(hubId);
     loader = false;
   };
 
   const subscribe = async () => {
     loader = true;
-    await currentUser.subscribe_(hubId);
+    await currentUser.follow(hubId);
     loader = false;
   };
 
