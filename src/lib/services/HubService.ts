@@ -25,16 +25,9 @@ const service = (): HubService => {
         subscribe,
         info: async (hubId: string): Promise<Hub> => {
             let hubs = get(hubService)
-            let temp = await info(hubId)
-            temp.spec.processId = hubId
-            console.log(temp)
-            let hub: Hub = {
-                User: temp.User,
-                Followers: temp.Followers,
-                Following: temp.Following,
-                spec: temp.spec
-            };
-            hubs.set(temp.User,hub)
+            let hub: Hub = await info(hubId)
+            console.log(hub)
+            hubs.set(hub.User,hub)
             set(hubs)
             return hub
         },

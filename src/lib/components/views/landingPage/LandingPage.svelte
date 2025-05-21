@@ -8,6 +8,7 @@
   import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import { push, replace } from "svelte-spa-router";
+    import { walletService } from "$lib/services/walletService";
 
   let isLoading = true;
   let loader = false;
@@ -79,7 +80,7 @@
             class="w-3/4"
             on:click={async () => {
               loader = true
-              await currentUser.connectWallet();
+              await walletService.connectWallet();
               loader = false;
               replace("/feed")
             }}>Connect Wallet</ButtonWithLoader

@@ -36,7 +36,7 @@ const initUserStore = (): UserStore => {
         console.log(zone)
         const hub = await hubService.info(zone?.spec.processId);
         console.log(hub)
-        const profiles = await profileService.fetchProfiles(zone?.spec.processId, [zone.spec.processId]);
+        const profiles = await profileService.fetchProfiles(zone?.spec.processId, [zone?.spec.processId]);
         console.log(profiles)
         const profile = profiles.get(address)
         if(!profile) return;

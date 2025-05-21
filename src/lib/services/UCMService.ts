@@ -163,7 +163,6 @@ const service = (): UCMService => {
             _tags.push(swapTag);
             _tags.push(priceTag);
             _tags.push(denominationTag);
-            await currentUser.connectWallet();
             try {
                 let result = await send(ARToken, _tags, null);
                 console.log(result)

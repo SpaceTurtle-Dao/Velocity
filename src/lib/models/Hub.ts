@@ -6,5 +6,5 @@ export type Hub = {
     User: string,
     Followers: string[],
     Following: string[],
-    spec:Spec
+    Spec:Spec
 }
