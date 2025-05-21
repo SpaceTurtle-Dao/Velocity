@@ -33,8 +33,11 @@ const initUserStore = (): UserStore => {
       try {
         console.log("setting up")
         const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
+        console.log(zone)
         const hub = await hubService.info(zone?.spec.processId);
+        console.log(hub)
         const profiles = await profileService.fetchProfiles(zone?.spec.processId, [zone.spec.processId]);
+        console.log(profiles)
         const profile = profiles.get(address)
         if(!profile) return;
         console.log("setup complete")
@@ -55,8 +58,8 @@ const initUserStore = (): UserStore => {
       if (!_currentUser) return
       _currentUser.hub.Following = _currentUser.hub.Following.filter((value) => value != hubId);
       set(_currentUser);
-      hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
-      hubService.updateFollowList(hubId, _currentUser.hub.Following);
+      await hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
+      await hubService.updateFollowList(hubId, _currentUser.hub.Following);
     },
 
     follow: async (hubId: string) => {
@@ -65,8 +68,8 @@ const initUserStore = (): UserStore => {
       if (_currentUser.hub.Following.includes(hubId)) return;
       _currentUser.hub.Following.push(hubId);
       set(_currentUser);
-      hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
-      hubService.updateFollowList(hubId, _currentUser.hub.Following);
+      await hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
+      await hubService.updateFollowList(hubId, _currentUser.hub.Following);
     },
   };
   

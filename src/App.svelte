@@ -25,7 +25,7 @@
   const routes = {
     "/": Feed,
     "/search": CreateProfile,
-    // "/createprofile": CreateProfile,
+    //"/createprofile": CreateProfile,
     "/messages": MessagesPage,
     "/profile/:address": Profile,
     "/post/:hubId/:id": IndividualPost,

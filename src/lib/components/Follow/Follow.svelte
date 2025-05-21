@@ -20,13 +20,13 @@
     }
   });*/
 
-  const unsubscribe = async () => {
+  const unfollow = async () => {
     loader = true;
     await currentUser.unfollow(hubId);
     loader = false;
   };
 
-  const subscribe = async () => {
+  const follow = async () => {
     loader = true;
     await currentUser.follow(hubId);
     loader = false;
@@ -45,7 +45,7 @@
       {loader}
       class="group text-sm font-bold h-8 w-[120px]  rounded-full text-primary  hover:border-red-800 border-input bg-background hover:bg-accent hover:text-accent-foreground border"
       loaderClass="size-5"
-      on:click={unsubscribe}
+      on:click={unfollow}
       disabled={loader}
     >
       <span class="group-hover:hidden">Following</span>
@@ -56,7 +56,7 @@
       {loader}
       class="group text-sm font-bold h-8 w-[102px] rounded-full"
       loaderClass="size-5"
-      on:click={subscribe}
+      on:click={follow}
       disabled={loader}
       >Follow
     </ButtonWithLoader>

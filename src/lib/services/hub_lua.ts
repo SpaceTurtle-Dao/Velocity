@@ -182,7 +182,7 @@ function event(msg)
     local myFollowList = getFollowList(State.Events, State.Owner)
     local isFollowing = utils.includes(msg.From, myFollowList)
 
-    if msg.Kind == Kinds.FOLLOW then
+    if msg.Kind == Kinds.FOLLOW and msg.From ~= State.Owner then
         local newFollowList = {}
         for _, tag in ipairs(msg.Tags or {}) do
             if tag[1] == "p" then
@@ -245,6 +245,7 @@ function event(msg)
     end
 
     if msg.From == State.Owner then
+        msg.From = msg.Target
         broadcastToFollowers(msg)
         table.insert(State.Events, msg)
         return
