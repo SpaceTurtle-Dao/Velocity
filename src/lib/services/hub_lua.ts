@@ -264,8 +264,8 @@ function event(msg)
     end
 
     if msg.From == State.Owner then
-        broadcastToFollowers(msg)
         table.insert(State.Events, msg)
+        broadcastToFollowers(msg)
         return
     end
 
@@ -299,7 +299,7 @@ Handlers.add("Event", function(msg)
     local isFollowed = utils.includes(msg.From, following)
 
     if isOwner or isFollowed or msg.Kind == "3" then
-        if isOwner then msg.From = msg.Target end 
+        if isOwner then msg.From = ao.id end 
         event(msg)
     end
 end)

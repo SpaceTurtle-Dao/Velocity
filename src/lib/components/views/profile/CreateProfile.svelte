@@ -20,6 +20,7 @@
     import { walk } from "svelte/compiler";
     import { walletService } from "$lib/services/walletService";
     import { profileService } from "$lib/services/ProfileService";
+    import { push } from "svelte-spa-router";
 
     const initialProfileSchema = z.object({
         name: z.string().min(1, "Name is required"),
@@ -72,6 +73,7 @@
     }
 
     async function createProfile() {
+        if(!$walletService) return;
         isLoading = true;
         try {
             initialProfileSchema.parse(profile);
@@ -94,12 +96,11 @@
                 thumbnail: profile.thumbnail,
                 coverImage: profile.coverImage,
             });
-            if($currentUser?.address){
-                profileService.fetchProfiles($currentUser?.zone.spec.processId,[$currentUser?.address])
-            }
+            await currentUser.setup($walletService)
+            console.log($currentUser)
             // Navigate and close dialog
             isLoading = false;
-            navigate("/profile", { replace: true });
+            push("#/profile/"+$currentUser?.address);
             isOpen = false;
         } catch (err) {
             if (err instanceof z.ZodError) {
