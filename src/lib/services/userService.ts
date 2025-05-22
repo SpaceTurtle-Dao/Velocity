@@ -1,9 +1,4 @@
 import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
-import {
-  APP_INFO,
-  GATEWAY,
-  PERMISSIONS,
-} from "$lib/constants/wallet.constants";
 import type { Hub } from "$lib/models/Hub";
 import type { Profile, ProfileCreateData } from "$lib/models/Profile";
 import type { Tag } from "$lib/models/Tag";
@@ -26,7 +21,7 @@ export interface UserStore extends Readable<(UserStoreData | undefined)> {
   unfollow: (hubId: string) => Promise<void>;
   follow: (hubId: string) => Promise<void>;
   updateProfile: (hubId: string, profile: Profile) => Promise<void>;
-  post: (hubId: string, tags: Tag[]) => Promise<void>
+  createEvent: (hubId: string, tags: Tag[], kind:string) => Promise<void>
 }
 
 const initUserStore = (): UserStore => {
@@ -83,9 +78,9 @@ const initUserStore = (): UserStore => {
         throw (error)
       }
     },
-    post: async (hubId: string, tags: Tag[]) => {
+    createEvent: async (hubId: string, tags: Tag[], kind:string) => {
       let _currentUser = get(currentUser)
-      let fee = (await queryFee(hubId, "1")).requiredFee
+      let fee = (await queryFee(hubId, kind)).requiredFee
       if (!_currentUser) return
       if (_currentUser.hub.Spec.processId == hubId || fee == 0) {
         try {

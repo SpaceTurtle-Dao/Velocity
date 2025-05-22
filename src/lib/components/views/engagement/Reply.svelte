@@ -2,7 +2,6 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
@@ -90,7 +89,7 @@
 
       tags.push({ name: "Content", value: _content });
 
-      newReply = await aoEvent(hubId, tags);
+      newReply = await currentUser.createEvent(hubId, tags, "1");
 
       const replyTags = tags.reduce((acc: any, tag) => {
         acc[tag.name.toLowerCase()] = tag.value;

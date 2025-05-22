@@ -3,12 +3,8 @@
     import type { Tag } from "$lib/models/Tag";
     import { Heart } from "lucide-svelte";
     import { onMount } from "svelte";
-    import { event } from "$lib/ao/relay";
     import type { Post } from "$lib/models/Post";
-    import { hubService } from "$lib/services/HubService";
     import { currentUser } from "$lib/services/userService";
-    import { profileService } from "$lib/services/ProfileService";
-    import { hubRegistryService } from "$lib/services/HubRegistryService";
     import { postService } from "$lib/services/PostService";
 
     export let post: Post;
@@ -45,9 +41,9 @@
             console.log("**Likes**");
             let temp = likes.filter((like) => {
                 console.log(like.From);
-                console.log($currentUser.hub?.spec.processId);
+                console.log($currentUser.hub?.Spec.processId);
                 console.log(like);
-                return like.From != $currentUser.hub?.spec.processId;
+                return like.From != $currentUser.hub?.Spec.processId;
             });
             likes = temp;
             liked = false;
@@ -57,15 +53,15 @@
             likes = temp;
             liked = true;
         }
-        await event(post.from, _tags);
+        await currentUser.createEvent(post.from, _tags, "7");
         postService.fetchLikes(post.from, post.id).then((_likes) => {
             likes = _likes;
             console.log("**Likes**");
             let temp = likes.filter((like) => {
                 console.log(like.From);
-                console.log($currentUser.hub?.spec.processId);
+                console.log($currentUser.hub?.Spec.processId);
                 console.log(like);
-                return like.From == $currentUser.hub?.spec.processId;
+                return like.From == $currentUser.hub?.Spec.processId;
             });
             liked = temp.length > 0;
         });
@@ -78,9 +74,9 @@
                 console.log("**Likes**");
                 let temp = likes.filter((like) => {
                     console.log(like.From);
-                    console.log($currentUser?.hub.spec.processId);
+                    console.log($currentUser?.hub.Spec.processId);
                     console.log(like);
-                    return like.From == $currentUser?.hub.spec.processId;
+                    return like.From == $currentUser?.hub.Spec.processId;
                 });
                 liked = temp.length > 0;
             });

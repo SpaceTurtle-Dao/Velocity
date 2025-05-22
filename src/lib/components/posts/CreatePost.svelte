@@ -122,7 +122,7 @@
       };
       _tags.push(contentTag);
 
-      await event($currentUser.zone.spec.processId, _tags);
+      await currentUser.createEvent($currentUser.zone.spec.processId, _tags, "1");
       dialogOpen = false;
       clearFields();
       const now = new Date();
