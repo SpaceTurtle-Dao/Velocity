@@ -6,7 +6,6 @@ import type { Profile, ProfileCreateData } from "$lib/models/Profile";
 export interface ProfileService extends Readable<Map<string, Profile>> {
     fetchProfiles: (hubId: string, addresses: string[]) => Promise<Map<string, Profile>>;
     searchProfiles: (hubId: string, search: string) => Promise<Map<string, Profile>>;
-    updateProfile: (hubId: string, profile: Profile) => Promise<void>;
 }
 
 const service = (): ProfileService => {
@@ -75,38 +74,7 @@ const service = (): ProfileService => {
                 throw e;
             }
         },
-        updateProfile: async (hubId: string, profile: Profile): Promise<void> => {
-            try {
-                await createProfile(hubId, profile)
-            } catch (error) {
-                console.log("Failed to register profile:", error);
-                throw (error)
-            }
-        },
     };
 };
-
-async function createProfile(hubId: string, profileData: ProfileCreateData) {
-    try {
-        let tags: Array<Tag> = [];
-        // Prepare the content for the event
-        const content = JSON.stringify(profileData);
-
-        const kindTag: Tag = {
-            name: "Kind",
-            value: "0",
-        };
-
-        const contentTag: Tag = {
-            name: "Content",
-            value: content,
-        };
-        tags.push(kindTag);
-        tags.push(contentTag);
-        await event(hubId, tags)
-    } catch (err) {
-        console.log(err)
-    }
-}
 
 export const profileService = service();

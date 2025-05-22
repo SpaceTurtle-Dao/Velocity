@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { z } from "zod";
-  import type { Profile, UserInfo } from "$lib/models/Profile";
+  import type { Profile } from "$lib/models/Profile";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import { Textarea } from "$lib/components/ui/textarea";
@@ -21,8 +21,6 @@
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import { currentUser } from "$lib/services/userService";
   import { profileService } from "$lib/services/ProfileService";
-  import { PROFILE_REGISTRY_ID } from "$lib/constants";
-  import type { Zone } from "$lib/models/Zone";
 
   export let initialProfile: Profile;
 
@@ -123,7 +121,7 @@
           initialProfile.profileImage = _profile.profileImage
           initialProfile.coverImage = _profile.coverImage
 
-          const result = await profileService.updateProfile(
+          const result = await currentUser.updateProfile(
             initialProfile.from,
             initialProfile,
           );

@@ -5,7 +5,7 @@ import {
   PERMISSIONS,
 } from "$lib/constants/wallet.constants";
 import type { Hub } from "$lib/models/Hub";
-import type { Profile } from "$lib/models/Profile";
+import type { Profile, ProfileCreateData } from "$lib/models/Profile";
 import type { Tag } from "$lib/models/Tag";
 import type { Zone } from "$lib/models/Zone";
 import { hubRegistryService } from "$lib/services/HubRegistryService";
@@ -25,6 +25,7 @@ export interface UserStore extends Readable<(UserStoreData | undefined)> {
   setup: (address: string) => Promise<void>;
   unfollow: (hubId: string) => Promise<void>;
   follow: (hubId: string) => Promise<void>;
+  updateProfile: (hubId: string, profile: Profile) => Promise<void>;
   post: (hubId: string, tags: Tag[]) => Promise<void>
 }
 
@@ -74,28 +75,59 @@ const initUserStore = (): UserStore => {
       await hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
       await hubService.updateFollowList(hubId, _currentUser.hub.Following);
     },
+    updateProfile: async (hubId: string, profile: Profile): Promise<void> => {
+      try {
+        await createProfile(hubId, profile)
+      } catch (error) {
+        console.log("Failed to register profile:", error);
+        throw (error)
+      }
+    },
     post: async (hubId: string, tags: Tag[]) => {
       let _currentUser = get(currentUser)
-      let fee = (await queryFee(hubId,"1")).requiredFee
+      let fee = (await queryFee(hubId, "1")).requiredFee
       if (!_currentUser) return
-      if(_currentUser.hub.Spec.processId == hubId || fee == 0){
-        try{
+      if (_currentUser.hub.Spec.processId == hubId || fee == 0) {
+        try {
           await event(hubId, tags);
-        }catch(e){
+        } catch (e) {
           console.log(e)
         }
-      }else{
+      } else {
         //payedEvent
-        try{
+        try {
           let payload = JSON.stringify(tags)
           await payedEvent(hubId, fee, payload)
-        }catch(e){
+        } catch (e) {
           console.log(e)
         }
       }
     },
   };
 };
+
+async function createProfile(hubId: string, profileData: ProfileCreateData) {
+  try {
+    let tags: Array<Tag> = [];
+    // Prepare the content for the event
+    const content = JSON.stringify(profileData);
+
+    const kindTag: Tag = {
+      name: "Kind",
+      value: "0",
+    };
+
+    const contentTag: Tag = {
+      name: "Content",
+      value: content,
+    };
+    tags.push(kindTag);
+    tags.push(contentTag);
+    await event(hubId, tags)
+  } catch (err) {
+    console.log(err)
+  }
+}
 
 export const currentUser = initUserStore();
 
