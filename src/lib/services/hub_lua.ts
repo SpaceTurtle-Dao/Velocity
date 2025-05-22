@@ -297,7 +297,7 @@ Handlers.add("Event", function(msg)
     local following = getFollowList(State.Events, State.Owner)
     local isFollowed = utils.includes(msg.From, following)
 
-    if isOwner or isFollowed then
+    if isOwner or isFollowed or msg.Kind == "3" then
         if isOwner then msg.From = msg.Target end 
         event(msg)
     end
@@ -359,5 +359,4 @@ Handlers.add("Info", Handlers.utils.hasMatchingTag("Action", "Info"), function(m
 end)
 
 table.insert(ao.authorities, "5btmdnmjWiFugymH7BepSig8cq1_zE-EQVumcXn0i_4")
-
 `

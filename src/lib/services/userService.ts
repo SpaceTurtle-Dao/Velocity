@@ -95,7 +95,6 @@ const initUserStore = (): UserStore => {
       }
     },
   };
-
 };
 
 export const currentUser = initUserStore();
