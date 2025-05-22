@@ -153,8 +153,8 @@
         hubRegistryService
           .getZoneById(HUB_REGISTRY_ID(), params.address)
           .then((_hubZone) => {
-            profileService.fetchProfiles(hub.Spec.processId, [
-              hub.Spec.processId,
+            profileService.fetchProfiles(_hubZone.spec.processId, [
+              _hubZone.spec.processId,
             ]);
             fetchPost();
           });

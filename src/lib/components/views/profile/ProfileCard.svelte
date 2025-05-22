@@ -17,18 +17,6 @@
   let hub: Hub | undefined;
   let profile: Profile;
 
-  hubService.subscribe((hubs) => {
-    hub = hubs
-      .values()
-      .toArray()
-      .find((hub) => {
-        hub.spec.processId == hubId;
-      });
-      if(!hub)return;
-      profileService.fetchProfiles(hubId, [hub.User]);
-  })
-
-
   profileService.subscribe((profiles) => {
     if (hub && profiles.has(hub.User)) {
       console.log("**Got Profile Zone**");
@@ -43,7 +31,8 @@
 
   onMount(async () => {
     console.log("**Loading Profile card**");
-    hubService.info(hubId)
+    hub = await hubService.info(hubId)
+    profileService.fetchProfiles(hubId, [hubId]);
     
   });
 </script>

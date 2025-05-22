@@ -57,7 +57,7 @@ const initUserStore = (): UserStore => {
       if (!_currentUser) return
       _currentUser.hub.Following = _currentUser.hub.Following.filter((value) => value != hubId);
       set(_currentUser);
-      await hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
+      await hubService.updateFollowList(_currentUser.hub.Spec.processId, _currentUser.hub.Following);
       await hubService.updateFollowList(hubId, _currentUser.hub.Following);
     },
 
@@ -67,7 +67,7 @@ const initUserStore = (): UserStore => {
       if (_currentUser.hub.Following.includes(hubId)) return;
       _currentUser.hub.Following.push(hubId);
       set(_currentUser);
-      await hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
+      await hubService.updateFollowList(_currentUser.hub.Spec.processId, _currentUser.hub.Following);
       await hubService.updateFollowList(hubId, _currentUser.hub.Following);
     },
     updateProfile: async (hubId: string, profile: Profile): Promise<void> => {

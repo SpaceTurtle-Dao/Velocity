@@ -76,7 +76,6 @@ export const info = async (processId: string): Promise<any> => {
     //
     if (result) {
       let json = JSON.parse(result.Data);
-      //
       return json;
     } else {
       throw ("Not Found")
@@ -118,7 +117,6 @@ export const fetchEvents = async (processId: string, filters: string): Promise<a
     let result = await read(processId, message);
 
     if (result) {
-      console.log(result)
       let json = JSON.parse(result.Data);
       events = json;
     }
