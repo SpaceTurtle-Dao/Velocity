@@ -91,7 +91,9 @@ export const queryFee = async (hubId: string, kind: string): Promise<any> => {
   try {
     // @ts-ignore
     let message = QueryFee(kind);
+    console.log(message)
     let result = await read(hubId, message);
+    console.log(result)
     //
     if (result) {
       let json = JSON.parse(result.Data);

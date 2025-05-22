@@ -121,8 +121,8 @@
         value: _content,
       };
       _tags.push(contentTag);
-
-      await currentUser.createEvent($currentUser.zone.spec.processId, _tags, "1");
+      console.log($currentUser.hub.Spec)
+      await currentUser.createEvent($currentUser.hub.Spec.processId, _tags, "1");
       dialogOpen = false;
       clearFields();
       const now = new Date();

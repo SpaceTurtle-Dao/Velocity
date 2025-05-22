@@ -79,6 +79,7 @@ const initUserStore = (): UserStore => {
       }
     },
     createEvent: async (hubId: string, tags: Tag[], kind:string) => {
+      console.log(hubId)
       let _currentUser = get(currentUser)
       let fee = (await queryFee(hubId, kind)).requiredFee
       if (!_currentUser) return
