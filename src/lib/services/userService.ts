@@ -6,30 +6,33 @@ import {
 } from "$lib/constants/wallet.constants";
 import type { Hub } from "$lib/models/Hub";
 import type { Profile } from "$lib/models/Profile";
+import type { Tag } from "$lib/models/Tag";
 import type { Zone } from "$lib/models/Zone";
 import { hubRegistryService } from "$lib/services/HubRegistryService";
 import { hubService } from "$lib/services/HubService";
 import { profileService } from "$lib/services/ProfileService";
 import { writable, type Readable, get } from "svelte/store";
+import { event, payedEvent, queryFee } from "$lib/ao/relay";
 
 export interface UserStoreData {
   address: string;
   hub: Hub;
   zone: Zone;
-  profile:Profile;
+  profile: Profile;
 }
 
 export interface UserStore extends Readable<(UserStoreData | undefined)> {
-  setup: (address:string) => Promise<void>;
+  setup: (address: string) => Promise<void>;
   unfollow: (hubId: string) => Promise<void>;
   follow: (hubId: string) => Promise<void>;
+  post: (hubId: string, tags: Tag[]) => Promise<void>
 }
 
 const initUserStore = (): UserStore => {
-  const { set, subscribe } = writable<UserStoreData| undefined>();
+  const { set, subscribe } = writable<UserStoreData | undefined>();
   return {
     subscribe,
-    setup: async (address:string): Promise<void> => {
+    setup: async (address: string): Promise<void> => {
       try {
         console.log("setting up")
         const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
@@ -39,13 +42,13 @@ const initUserStore = (): UserStore => {
         const profiles = await profileService.fetchProfiles(zone?.spec.processId, [zone?.spec.processId]);
         console.log(profiles)
         const profile = profiles.get(address)
-        if(!profile) return;
+        if (!profile) return;
         console.log("setup complete")
         set({
           address: address,
           zone: zone,
           hub: hub,
-          profile:profile
+          profile: profile
         });
       } catch (error) {
         console.log(error);
@@ -71,8 +74,28 @@ const initUserStore = (): UserStore => {
       await hubService.updateFollowList(_currentUser.zone.spec.processId, _currentUser.hub.Following);
       await hubService.updateFollowList(hubId, _currentUser.hub.Following);
     },
+    post: async (hubId: string, tags: Tag[]) => {
+      let _currentUser = get(currentUser)
+      let fee = (await queryFee(hubId,"1")).requiredFee
+      if (!_currentUser) return
+      if(_currentUser.hub.Spec.processId == hubId || fee == 0){
+        try{
+          await event(hubId, tags);
+        }catch(e){
+          console.log(e)
+        }
+      }else{
+        //payedEvent
+        try{
+          let payload = JSON.stringify(tags)
+          await payedEvent(hubId, fee, payload)
+        }catch(e){
+          console.log(e)
+        }
+      }
+    },
   };
-  
+
 };
 
 export const currentUser = initUserStore();

@@ -26,10 +26,10 @@ State = {
 
 State.FeePolicy = State.FeePolicy or {
     base = {
-        [Kinds.NOTE] = 0.05,
-        [Kinds.WRAPPED_SEAL] = 0.1,
-        [Kinds.PROFILE_UPDATE] = 0.01,
-        [Kinds.REACTION] = 0.02
+        [Kinds.NOTE] = 5000,
+        [Kinds.WRAPPED_SEAL] = 10000,
+        [Kinds.PROFILE_UPDATE] = 10000,
+        [Kinds.REACTION] = 2000
     },
     scaleFactor = 1000,
     spikeEnabled = true,
@@ -110,8 +110,10 @@ local function broadcastToFollowers(msg)
 end
 
 local function calculateDynamicFee(kind, from)
+    local myFollowList = getFollowList(State.Events, State.Owner)
+    local isFollowing = utils.includes(from, myFollowList)
     local base = State.FeePolicy.base[kind] or 0
-    if from == State.Owner then return base end
+    if from == State.Owner or isFollowing then return 0 end
 
     local volumeFactor = #State.Events / (State.FeePolicy.scaleFactor or 1000)
 
@@ -320,7 +322,7 @@ Handlers.add("Credit-Notice", Handlers.utils.hasMatchingTag("Action", "Credit-No
 end)
 
 Handlers.add("QueryFee", Handlers.utils.hasMatchingTag("Action", "QueryFee"), function(msg)
-    local kind = getTag(msg.Tags, "kind")
+    local kind = getTag(msg.Tags, "Kind")
     if not kind then return end
     local fee = calculateDynamicFee(kind, msg.From)
     ao.send({ Target = msg.From, Data = json.encode({ kind = kind, requiredFee = fee }) })

@@ -12,10 +12,10 @@
   import GifSearchDialog from "$lib/components/GifDailog/gifDailog.svelte";
   import { currentUser } from "$lib/services/userService";
   import { onMount } from "svelte";
-  import { postService } from "$lib/services/PostService";
   import { timestampService } from "$lib/utils/date-time";
   import { profileService } from "$lib/services/ProfileService";
   import type { Profile } from "$lib/models/Profile";
+  import { postService } from "$lib/services/postService";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;

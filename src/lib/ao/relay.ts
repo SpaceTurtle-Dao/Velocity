@@ -1,7 +1,7 @@
 //@ts-ignore
 import { send, read } from "$lib/ao/process.svelte";
 //@ts-ignore
-import { FetchEvents, GetZones, GetZoneById, Register, Info, UpdateProfile } from "$lib/ao/messegeFactory.svelte";
+import { FetchEvents, GetZones, GetZoneById, Register, Info, UpdateProfile, Transfer, QueryFee } from "$lib/ao/messegeFactory.svelte";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
 import { currentUser } from "$lib/services/userService";
@@ -25,7 +25,6 @@ export const evalProcess = async (data: string, processId: string) => {
 };
 
 export const event = async (hub: string, tags: Array<Tag>) => {
-  //await walletService.connectWallet();
   const actionTag: Tag = {
     name: "Action",
     value: "Event",
@@ -36,6 +35,19 @@ export const event = async (hub: string, tags: Array<Tag>) => {
     console.log(tags);
     // @ts-ignore
     let result = await send(hub, tags, null);
+    ;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const payedEvent = async (recipient: string, quantity: string, payload: string) => {
+  let tags = Transfer(recipient, quantity, payload)
+  try {
+    console.log("***TAGS***");
+    console.log(tags);
+    // @ts-ignore
+    let result = await send(AO_Token, tags, null);
     ;
   } catch (e) {
     console.log(e);
@@ -66,8 +78,27 @@ export const info = async (processId: string): Promise<any> => {
       let json = JSON.parse(result.Data);
       //
       return json;
-    }else{
-      throw("Not Found")
+    } else {
+      throw ("Not Found")
+    }
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+export const queryFee = async (hubId: string, kind: string): Promise<any> => {
+  try {
+    // @ts-ignore
+    let message = QueryFee(kind);
+    let result = await read(hubId, message);
+    //
+    if (result) {
+      let json = JSON.parse(result.Data);
+      //
+      return json;
+    } else {
+      throw ("Not Found")
     }
   } catch (e) {
     console.log(e);
@@ -83,10 +114,10 @@ export const fetchEvents = async (processId: string, filters: string): Promise<a
     console.log(message)
     console.log(processId)
     let result = await read(processId, message);
-    
+
     if (result) {
       let json = JSON.parse(result.Data);
-      
+
       events = json;
     }
   } catch (e) {
@@ -124,18 +155,18 @@ export const fetchFollowList = async (
   return followList;
 };
 
-export const register = async (processId:string, spec: any): Promise<void> => {
+export const register = async (processId: string, spec: any): Promise<void> => {
   try {
     // @ts-ignore
     let message = Register();
     await send(processId, message, JSON.stringify(spec));
-    
+
   } catch (e) {
     console.log(e);
   }
 };
 
-export const getZones = async (processId:string, filters: string, page: Number, limit: Number): Promise<any[]> => {
+export const getZones = async (processId: string, filters: string, page: Number, limit: Number): Promise<any[]> => {
   let events: any[] = [];
   try {
     // @ts-ignore
@@ -153,7 +184,7 @@ export const getZones = async (processId:string, filters: string, page: Number, 
   return events;
 };
 
-export const getZone = async (processId:string, zoneId: string): Promise<any> => {
+export const getZone = async (processId: string, zoneId: string): Promise<any> => {
   let events: any[] = [];
   try {
     // @ts-ignore

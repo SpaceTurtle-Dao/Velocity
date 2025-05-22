@@ -6,5 +6,10 @@ export type Hub = {
     User: string,
     Followers: string[],
     Following: string[],
-    Spec:Spec
+    Spec:Spec,
+    FeePolicy:any,
+    scaleFactor:number,
+    spikeEnabled:Boolean,
+    spikeWindow:number,
+    spikeScale:number
 }
