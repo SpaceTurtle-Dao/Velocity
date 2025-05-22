@@ -118,8 +118,8 @@ export const fetchEvents = async (processId: string, filters: string): Promise<a
     let result = await read(processId, message);
 
     if (result) {
+      console.log(result)
       let json = JSON.parse(result.Data);
-
       events = json;
     }
   } catch (e) {

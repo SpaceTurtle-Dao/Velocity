@@ -79,11 +79,17 @@ const initUserStore = (): UserStore => {
       }
     },
     createEvent: async (hubId: string, tags: Tag[], kind:string) => {
-      console.log(hubId)
+      try {
+        await event(hubId, tags);
+      } catch (e) {
+        console.log(e)
+      }
+      /*console.log(hubId)
       let _currentUser = get(currentUser)
       let fee = (await queryFee(hubId, kind)).requiredFee
+      console.log(fee)
       if (!_currentUser) return
-      if (_currentUser.hub.Spec.processId == hubId || fee == 0) {
+      if (fee == 0) {
         try {
           await event(hubId, tags);
         } catch (e) {
@@ -97,7 +103,7 @@ const initUserStore = (): UserStore => {
         } catch (e) {
           console.log(e)
         }
-      }
+      }*/
     },
   };
 };

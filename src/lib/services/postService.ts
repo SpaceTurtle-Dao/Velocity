@@ -54,15 +54,13 @@ const service = (): PostService => {
                     const filter = {
                         kinds: ["1", "6"],
                         since: since,
-                        until: until
-                    };
-                    const filter2 = {
+                        until: until,
                         tags: { marker: ["root", "repost"] },
                     };
-                    // console.log("filter",filter);
-
-                    const _filters = JSON.stringify([filter, filter2]);
+                    
+                    const _filters = JSON.stringify([filter]);
                     let events = await fetchEvents(hubId, _filters);
+                    console.log(events)
                     for (var i = 0; i < events.length; i++) {
                         if (events[i].Content) {
                             let post = postFactory(events[i]);

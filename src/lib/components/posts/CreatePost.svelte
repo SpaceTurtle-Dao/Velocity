@@ -128,7 +128,7 @@
       const now = new Date();
       const since = timestampService.subtract(new Date(), 10, "days").getTime();
       const until = now.getTime();
-      await postService.fetchPost($currentUser.zone.spec.processId, since, until);
+      await postService.fetchPost($currentUser.hub.Spec.processId, since, until);
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {

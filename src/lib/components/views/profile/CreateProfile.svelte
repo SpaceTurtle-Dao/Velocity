@@ -5,7 +5,6 @@
     import { Label } from "$lib/components/ui/label";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
-    import { navigate } from "svelte-routing";
     import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
     import { upload } from "$lib/ao/uploader";
     import { Camera } from "lucide-svelte";
@@ -14,12 +13,10 @@
         AvatarFallback,
         AvatarImage,
     } from "$lib/components/ui/avatar";
-    import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
+    import { ARWEAVE_ADDRESS } from "$lib/constants";
     import { currentUser } from "$lib/services/UserService";
     import { hubService } from "$lib/services/HubService";
-    import { walk } from "svelte/compiler";
     import { walletService } from "$lib/services/walletService";
-    import { profileService } from "$lib/services/ProfileService";
     import { push } from "svelte-spa-router";
 
     const initialProfileSchema = z.object({
