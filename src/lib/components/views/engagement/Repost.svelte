@@ -6,7 +6,7 @@
   import { event } from "$lib/ao/relay";
   import type { Post } from "$lib/models/Post";
   import { hubService } from "$lib/services/HubService";
-  import { currentUser } from "$lib/services/userService";
+  import { currentUser } from "$lib/services/UserService";
   import { profileService } from "$lib/services/ProfileService";
     import { postService } from "$lib/services/PostService";
 
@@ -41,7 +41,7 @@
       },
     ];
 
-    await event(post.from, _tags);
+    await currentUser.createEvent(post.from, _tags,"6");
 
     // Immediately update local state
     reposted = true;
@@ -54,7 +54,7 @@
     if (post.from) {
       await postService.fetchRepost(post.from, post.id);
       if($currentUser){
-        reposted = reposts.filter((value) => value.from == $currentUser.hub?.spec.processId).length > 0;
+        reposted = reposts.filter((value) => value.from == $currentUser.hub?.Spec.processId).length > 0;
       }
     }
   });

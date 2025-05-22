@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { currentUser } from "$lib/services/userService";
+  import { currentUser } from "$lib/services/UserService";
   import { push } from "svelte-spa-router";
   import { writable } from "svelte/store";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";

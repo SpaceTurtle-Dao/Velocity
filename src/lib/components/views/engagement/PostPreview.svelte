@@ -4,11 +4,9 @@
   import ProfilePictureHoverCard from "$lib/components/UserProfile/ProfilePictureHoverCard.svelte";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import { Repeat2Icon } from "lucide-svelte";
-  import { profileService } from "$lib/services/ProfileService";
   import { onMount } from "svelte";
   import { PostType, type Post } from "$lib/models/Post";
-  import { currentUser } from "$lib/services/userService";
-  import type { Zone } from "$lib/models/Zone";
+  import { currentUser } from "$lib/services/UserService";
 
   export let post: Post;
   export let profile: Profile;

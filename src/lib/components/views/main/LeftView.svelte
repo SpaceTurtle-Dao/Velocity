@@ -12,7 +12,7 @@
     TestTube,
   } from "lucide-svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
-  import { currentUser } from "$lib/services/userService";
+  import { currentUser } from "$lib/services/UserService";
   import { Loader } from "lucide-svelte";
   import Connect from "$lib/components/wallet/connect.svelte";
   import CreateProfile from "../profile/CreateProfile.svelte";

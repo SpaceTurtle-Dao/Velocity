@@ -6,7 +6,7 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
-  import { currentUser } from "$lib/services/userService";
+  import { currentUser } from "$lib/services/UserService";
   import PostComponent from "../../posts/Post.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Link, CalendarDays } from "lucide-svelte";

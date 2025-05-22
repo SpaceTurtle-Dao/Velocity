@@ -3,7 +3,7 @@
        import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
        import { ARWEAVE_ADDRESS } from "$lib/constants";
        import { profileFromEvent, type Profile } from "$lib/models/Profile";
-       import { currentUser } from "$lib/services/userService";
+       import { currentUser } from "$lib/services/UserService";
        import { onMount } from "svelte";
        import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
        import { profileService } from "$lib/services/ProfileService";

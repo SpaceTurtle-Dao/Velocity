@@ -8,7 +8,7 @@
   import Left from "$lib/components/views/main/LeftView.svelte";
   import Right from "$lib/components/views/main/RightView.svelte";
   import SignUp from "./lib/components/views/signup/SignUp.svelte";
-  import { currentUser } from "$lib/services/userService";
+  import { currentUser } from "$lib/services/UserService";
   import Feed from "$lib/components/views/feed/Feed.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
   import IndividualPost from "$lib/components/posts/IndividualPost.svelte";

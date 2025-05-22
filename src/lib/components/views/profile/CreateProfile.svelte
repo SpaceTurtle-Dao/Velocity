@@ -15,7 +15,7 @@
         AvatarImage,
     } from "$lib/components/ui/avatar";
     import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
-    import { currentUser } from "$lib/services/userService";
+    import { currentUser } from "$lib/services/UserService";
     import { hubService } from "$lib/services/HubService";
     import { walk } from "svelte/compiler";
     import { walletService } from "$lib/services/walletService";

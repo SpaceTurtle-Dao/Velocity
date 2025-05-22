@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchEvents, event as aoEvent } from "$lib/ao/relay";
   import {
     Avatar,
     AvatarImage,
@@ -15,14 +14,11 @@
   import { link, push, location } from "svelte-spa-router";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
-  import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
-  import { currentUser } from "$lib/services/userService";
-  import { PROFILE_REGISTRY_ID } from "$lib/constants";
-  import type { Zone } from "$lib/models/Zone";
-    import { postService } from "$lib/services/PostService";
-    import type { Profile } from "$lib/models/Profile";
+  import { postService } from "$lib/services/PostService";
+  import type { Profile } from "$lib/models/Profile";
+    import { currentUser } from "$lib/services/UserService";
 
   export let params: { hubId?: string; id?: string } = {};
 
@@ -145,7 +141,7 @@
       tags.push({ name: "Content", value: _content });
       tags.push({ name: "action", value: "reply" });
 
-      await aoEvent(params.hubId, tags);
+      await currentUser.createEvent(params.hubId, tags, "1");
 
       clearFields();
       await refreshPage();

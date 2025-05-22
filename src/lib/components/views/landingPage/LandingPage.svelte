@@ -1,7 +1,7 @@
 <script lang="ts">
   import backgroundImage from "../../../../assets/Logo.png";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-  import { currentUser } from "$lib/services/userService";
+  import { currentUser } from "$lib/services/UserService";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { Loader } from "lucide-svelte";
   import { onMount } from "svelte";

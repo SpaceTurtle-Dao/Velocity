@@ -4,7 +4,7 @@
     import { Heart } from "lucide-svelte";
     import { onMount } from "svelte";
     import type { Post } from "$lib/models/Post";
-    import { currentUser } from "$lib/services/userService";
+    import { currentUser } from "$lib/services/UserService";
     import { postService } from "$lib/services/PostService";
 
     export let post: Post;

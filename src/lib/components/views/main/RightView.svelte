@@ -7,7 +7,7 @@
   import { ARWEAVE_ADDRESS } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
     import { profileService } from "$lib/services/ProfileService";
-    import { currentUser } from "$lib/services/userService";
+    import { currentUser } from "$lib/services/UserService";
 
   let searchQuery = "";
   let searchResults: Zone[] = [];
