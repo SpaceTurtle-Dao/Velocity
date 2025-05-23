@@ -33,6 +33,7 @@ const service = (): ProfileService => {
                     if (!message) throw ("message is empty");
                     let profile = JSON.parse(message.Content);
                     profile.from = message.From;
+                    profile.owner = message.Owner;
                     profile.created_at = messages[0].Timestamp;
                     profile.updated_at = message.Timestamp;
                     console.log(profile);

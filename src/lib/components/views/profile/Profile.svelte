@@ -34,7 +34,6 @@
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
   let hub: Hub;
-  let hubZone: Zone;
   let profile: Profile;
 
   let mimeTypes: string[] = [
@@ -55,26 +54,15 @@
   let showModal = false;
 
   profileService.subscribe((profiles) => {
-    if (params.address && profiles.has(params.address)) {
-      profile = profiles.get(params.address)!;
+    if (params.address) {
+      let _profile = profiles.get(params.address);
+      if(_profile) profile = _profile;
     }
   });
 
   hubService.subscribe((hubs) => {
     if (params.address && hubs.get(params.address)) {
       hub = hubs.get(params.address)!;
-    }
-  });
-
-  hubRegistryService.subscribe(async (zones) => {
-    if (params.address && zones.get(params.address)) {
-      hubZone = zones.get(params.address)!;
-      if (!hubZone) return;
-      try {
-        hubService.info(hubZone.spec.processId);
-      } catch (e) {
-        console.log(e);
-      }
     }
   });
 
@@ -98,10 +86,10 @@
   });
 
   async function fetchPost() {
-    if (!hubZone?.spec.processId) return;
+    if (!hub) return;
     try {
-      postService.fetchPostWithAuthors(hubZone.spec.processId, [
-        hubZone.spec.processId,
+      postService.fetchPostWithAuthors(hub.Spec.processId, [
+        hub.Spec.processId,
       ]);
     } catch (e) {
       console.log(e);
@@ -142,7 +130,16 @@
       if (!params.address) return;
       console.log(params.address);
       posts = []
-      if ($currentUser && $currentUser.address == params.address) {
+      let _hub = $hubService.get(params.address)
+      if(_hub){
+        hub = _hub
+      }else{
+        let zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
+        hub = await hubService.info(zone.spec.processId)
+        profileService.fetchProfiles(hub.Spec.processId,[params.address])
+      }
+      //hub = await hubService.info()
+      /*if ($currentUser && $currentUser.address == params.address) {
         console.log("Is Current User");
         hubZone = $currentUser.zone;
         hub = $currentUser.hub;
@@ -158,7 +155,7 @@
             ]);
             fetchPost();
           });
-      }
+      }*/
     } catch (error) {
       console.log(params.address);
       console.log("Error setting up profile:", error);
@@ -207,8 +204,8 @@
         <div class="flex justify-between space-x-2">
           <p class="font-bold text-2xl">{profile.displayName}</p>
           {#if $currentUser && params.address != $currentUser.address}
-            {#if hubZone?.spec.processId}
-              <Follow hubId={hubZone?.spec.processId} />
+            {#if hub}
+              <Follow hubId={hub.Spec.processId} />
             {/if}
           {:else}
             <Button

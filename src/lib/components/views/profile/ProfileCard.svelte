@@ -14,14 +14,13 @@
   import type { Hub } from "$lib/models/Hub";
 
   export let hubId: string;
-  let hub: Hub | undefined;
+  let hub: Hub;
   let profile: Profile;
 
   profileService.subscribe((profiles) => {
-    if (hub && profiles.has(hub.User)) {
-      console.log("**Got Profile Zone**");
-      profile = profiles.get(hub.User)!;
-      console.log(profile.owner);
+    let _profile = profiles.get(hubId)
+    if (_profile) {
+      profile = _profile;
     }
   });
 
@@ -31,7 +30,7 @@
 
   onMount(async () => {
     console.log("**Loading Profile card**");
-    hub = await hubService.info(hubId);
+    hubService.info(hubId).then((_hub) => hub = _hub);
     profileService.fetchProfiles(hubId, [hubId]);
   });
 </script>

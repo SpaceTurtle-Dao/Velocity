@@ -26,8 +26,8 @@
 
   onMount(async () => {
     if (!profile) return;
-    console.log(profile)
-    hubService.info(profile.from);
+    console.log(profile.owner)
+    hubService.info(profile.from).then((_hub) => hub = _hub);
   });
 </script>
 
