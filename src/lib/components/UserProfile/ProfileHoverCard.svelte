@@ -26,11 +26,12 @@
 
   onMount(async () => {
     if (!profile) return;
+    console.log(profile)
     hubService.info(profile.from);
   });
 </script>
 
-{#if profile}
+{#if profile }
   <HoverCard.Root>
     <HoverCard.Trigger>
       <a href="/profile/{profile.owner}" use:link>

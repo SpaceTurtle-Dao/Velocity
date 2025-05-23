@@ -62,6 +62,48 @@ local function getFollowers()
     return followers
 end
 
+function compareFollowLists(msg)
+    if msg.Kind ~= Kinds.FOLLOW then return nil end
+  
+    local oldList = {}
+    for i = #State.Events, 1, -1 do
+      local e = State.Events[i]
+      if e.Kind == Kinds.FOLLOW and e.From == msg.From then
+        for _, tag in ipairs(e.Tags or {}) do
+          if tag[1] == "p" then table.insert(oldList, tag[2]) end
+        end
+        break
+      end
+    end
+  
+    local newList = {}
+    for _, tag in ipairs(msg.Tags or {}) do
+      if tag[1] == "p" then table.insert(newList, tag[2]) end
+    end
+  
+    -- Convert to sets
+    local oldSet, newSet = {}, {}
+    for _, v in ipairs(oldList) do oldSet[v] = true end
+    for _, v in ipairs(newList) do newSet[v] = true end
+  
+    -- Compute additions and deletions
+    local additions, deletions = {}, {}
+  
+    for _, v in ipairs(newList) do
+      if not oldSet[v] then table.insert(additions, v) end
+    end
+  
+    for _, v in ipairs(oldList) do
+      if not newSet[v] then table.insert(deletions, v) end
+    end
+  
+    return {
+      additions = additions,
+      deletions = deletions
+    }
+  end
+  
+
 local function broadcastToFollowers(msg)
     for _, f in ipairs(getFollowers()) do
         ao.send({ Target = f, Action = "Event", Data = msg.Data, Tags = msg.Tags })
@@ -143,6 +185,18 @@ function event(msg)
 
     if msg.From == State.Owner then
         msg.From = ao.id
+        if msg.Kind == Kinds.FOLLOW then
+            for _, v in ipairs(json.decode(msg.p)) do
+                ao.send({ Target = v, Action = "Event", p = msg.p, Kind = msg.Kind })
+            end
+            --[[local result = compareFollowLists(msg)
+            for _, v in ipairs(result.additions) do
+                ao.send({ Target = v, Action = "Event", Tags = msg.Tags })
+            end
+            for _, v in ipairs(result.deletions) do
+                ao.send({ Target = v, Action = "Event", Tags = msg.Tags })
+            end]]--            
+        end
         table.insert(State.Events, msg)
         broadcastToFollowers(msg)
     elseif msg.Kind == Kinds.FOLLOW then

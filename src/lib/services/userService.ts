@@ -58,7 +58,6 @@ const initUserStore = (): UserStore => {
       _currentUser.hub.Following = _currentUser.hub.Following.filter((value) => value != hubId);
       set(_currentUser);
       await hubService.updateFollowList(_currentUser.hub.Spec.processId, _currentUser.hub.Following);
-      await hubService.updateFollowList(hubId, _currentUser.hub.Following);
     },
 
     follow: async (hubId: string) => {
@@ -68,8 +67,7 @@ const initUserStore = (): UserStore => {
       _currentUser.hub.Following.push(hubId);
       set(_currentUser);
       await hubService.updateFollowList(_currentUser.hub.Spec.processId, _currentUser.hub.Following);
-      await hubService.updateFollowList(hubId, _currentUser.hub.Following);
-    },
+    }, 
     updateProfile: async (hubId: string, profile: Profile): Promise<void> => {
       try {
         await createProfile(hubId, profile)
@@ -77,7 +75,7 @@ const initUserStore = (): UserStore => {
         console.log("Failed to register profile:", error);
         throw (error)
       }
-    },
+    }, 
     createEvent: async (hubId: string, tags: Tag[], kind:string) => {
       try {
         await event(hubId, tags);
