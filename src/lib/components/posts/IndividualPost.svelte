@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchEvents, event as aoEvent } from "$lib/ao/relay";
   import {
     Avatar,
     AvatarImage,
@@ -15,13 +14,11 @@
   import { link, push, location } from "svelte-spa-router";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
-  import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
-  import { addressStore } from "$lib/stores/address.store";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
-  import { PROFILE_REGISTRY_ID } from "$lib/constants";
-  import type { Zone } from "$lib/models/Zone";
+  import { postService } from "$lib/services/PostService";
+  import type { Profile } from "$lib/models/Profile";
+    import { currentUser } from "$lib/services/UserService";
 
   export let params: { hubId?: string; id?: string } = {};
 
@@ -36,7 +33,7 @@
   }
 
   let post: Post;
-  let profileZone: Zone;
+  let profile: Profile;
   let replies: Post[] = [];
   let replyCount = 0;
   let id: string;
@@ -48,7 +45,7 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
-  hubService.subscribe((posts) => {
+  postService.subscribe((posts) => {
     if (!params.hubId || !params.id) return;
     replies = posts
       .values()
@@ -58,9 +55,9 @@
     console.log(`got ${replyCount} Replies`);
   });
 
-  profileRegistryService.subscribe((zones) => {
-    if (post && post.owner && zones.has(post.owner)) {
-      profileZone = zones.get(post.owner)!;
+  profileService.subscribe((profiles) => {
+    if (post && post.owner && profiles.has(post.owner)) {
+      profile = profiles.get(post.owner)!;
     }
   });
 
@@ -68,11 +65,11 @@
     if (!params.hubId || !params.id) return;
     console.log(params.hubId);
     console.log(params.id);
-    post = await hubService.get(params.hubId, params.id);
-    profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), post.owner);
+    post = await postService.get(params.hubId, params.id);
+    profileService.fetchProfiles(params.hubId, [post.owner]);
     console.log(post);
-    //await hubService.fetchReplies(hubId, id);
-    //await hubService.fetchRepost(hubId, id);
+    //await postService.fetchReplies(hubId, id);
+    //await postService.fetchRepost(hubId, id);
   }
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
@@ -144,7 +141,7 @@
       tags.push({ name: "Content", value: _content });
       tags.push({ name: "action", value: "reply" });
 
-      await aoEvent(params.hubId, tags);
+      await currentUser.createEvent(params.hubId, tags, "1");
 
       clearFields();
       await refreshPage();
@@ -168,16 +165,16 @@
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
-          {#if profileZone}
+          {#if profile}
             <Avatar class="h-12 w-12 text-primary">
-              {#if profileZone.spec.thumbnail}
+              {#if profile.thumbnail}
                 <AvatarImage
-                  src={`https://www.arweave.net/${profileZone.spec.thumbnail}`}
-                  alt={profileZone.spec.displayName || "Current User"}
+                  src={`https://www.arweave.net/${profile.thumbnail}`}
+                  alt={profile.displayName || "Current User"}
                 />
               {:else}
                 <AvatarFallback>
-                  {profileZone.spec.userName?.[0] || "U"}
+                  {profile.userName?.[0] || "U"}
                 </AvatarFallback>
               {/if}
             </Avatar>

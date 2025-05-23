@@ -3,21 +3,20 @@
   import { MoreHorizontal } from "lucide-svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import DisconnectButton from "$lib/components/DisconnectWallet/DisconnectWallet.svelte";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/services/UserService";
   import { writable } from "svelte/store";
   import { profileService } from "$lib/services/ProfileService";
   import type { Profile } from "$lib/models/Profile";
-    import type { Zone } from "$lib/models/Zone";
-    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { walletService } from "$lib/services/walletService";
 
   let isMenuOpen = false;
   let menuRef: HTMLDivElement;
 
-  let profile: Zone;
+  export let profile: Profile;
 
-  profileRegistryService.subscribe((zones) => {
-    if ($addressStore.address && zones.has($addressStore.address)) {
-      profile = zones.get($addressStore.address)!;
+  profileService.subscribe((profiles) => {
+    if ($currentUser && profiles.has($currentUser.address)) {
+      profile = profiles.get($currentUser.address)!;
     }
   });
 
@@ -27,7 +26,7 @@
 
   async function handleDisconnect() {
     try {
-      await addressStore.disconnectWallet();
+      await walletService.disconnectWallet();
 
       const { subscribe, set } = writable();
       set(undefined);
@@ -62,17 +61,17 @@
       on:click={toggleMenu}
       class="flex items-center space-x-4 focus:outline-none"
     >
-      {#if profile.spec.thumbnail}
+      {#if profile.thumbnail}
         <ProfilePicture
-          src={toUrl(profile.spec.thumbnail)}
-          name={profile.spec.userName}
+          src={toUrl(profile.thumbnail)}
+          name={profile.userName}
         />
       {:else}
-        <ProfilePicture src="" name={profile.spec.userName} />
+        <ProfilePicture src="" name={profile.userName} />
       {/if}
       <div class="flex-grow text-left">
-        <p class="font-semibold text-white">{profile.spec.displayName}</p>
-        <p class="text-sm text-white">@{profile.spec.userName}</p>
+        <p class="font-semibold text-white">{profile.displayName}</p>
+        <p class="text-sm text-white">@{profile.userName}</p>
       </div>
       <MoreHorizontal class="w-5 h-5 text-white" />
     </button>

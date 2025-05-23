@@ -20,7 +20,7 @@
 	export async function send(processId, tags, data: string | null) {
 		console.log("tags");
 		console.log(tags);
-		console.log("data");
+		//console.log("data");
 		//console.log(data);
 		console.log("Sending message to: " + processId);
 		// The only 2 mandatory parameters here are process and signer
@@ -100,10 +100,11 @@
 			process: processId,
 		});
 		if (Error == undefined) {
+			console.log(Messages)
 			//let message = Messages.pop();
 			//let data = JSON.parse(message.Data);
 		} else {
+			throw Error;
 		}
-		throw Error;
 	};
 </script>

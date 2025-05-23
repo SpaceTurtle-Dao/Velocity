@@ -8,7 +8,7 @@
   import Left from "$lib/components/views/main/LeftView.svelte";
   import Right from "$lib/components/views/main/RightView.svelte";
   import SignUp from "./lib/components/views/signup/SignUp.svelte";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/services/UserService";
   import Feed from "$lib/components/views/feed/Feed.svelte";
   import Profile from "$lib/components/views/profile/Profile.svelte";
   import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
@@ -17,16 +17,7 @@
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
   import CollectionsPage from "$lib/components/Assets_Card/CollectionPage.svelte";
   // import { postService } from "$lib/services/PostService";
-  import { profileService } from "$lib/services/ProfileService";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
-  import { PROFILE_REGISTRY_ID } from "$lib/constants";
-
-  let address: string;
-
-  addressStore.subscribe((value) => {
-    if (value.address) address = value.address;
-  });
 
   //let isFollowListAlreadyFetched = false;
   //let initialRoute = window.location.hash.slice(1) || "/";
@@ -34,7 +25,7 @@
   const routes = {
     "/": Feed,
     "/search": CreateProfile,
-    // "/createprofile": CreateProfile,
+    //"/createprofile": CreateProfile,
     "/messages": MessagesPage,
     "/profile/:address": Profile,
     "/post/:hubId/:id": IndividualPost,
@@ -44,30 +35,21 @@
   };
 
   onMount(async () => {
-    console.log("getting connected status");
-    let isConnected = await addressStore.isConnected();
+    /*console.log("getting connected status");
+    let isConnected = await currentUser.isConnected();
     console.log("got status");
-    if (isConnected) {
-      let address = await addressStore.sync();
-      if (address) {
-        profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address);
-      }
-    } else {
-      await addressStore.connectWallet();
-    }
+    if (!isConnected) await currentUser.connectWallet();*/
   });
 </script>
 
-{#if address}
-  <div class="bg-background">
-    <MobileTopView />
-    <div class="flex w-full bg-background justify-center">
-      <Left />
-      <Middle>
-        <Router {routes} />
-      </Middle>
-      <Right />
-    </div>
-    <MobileBottomNavBar />
+<div class="bg-background">
+  <MobileTopView />
+  <div class="flex w-full bg-background justify-center">
+    <Left />
+    <Middle>
+      <Router {routes} />
+    </Middle>
+    <Right />
   </div>
-{/if}
+  <MobileBottomNavBar />
+</div>

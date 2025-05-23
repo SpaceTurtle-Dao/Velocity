@@ -11,7 +11,7 @@ Constants.GameplayProcess = "ElHCsTvRsN7_5Bpy1d3dC4kaVtAXMWiCMVz46H6sP3k"
 
 Constants.TARGET_WORLD_PID = "_9QcH-Ma0LRvYInsa36d8zEkMRB9tfoAyEaLHmlUw3U"
 
-Constants.ARToken = "xU9zFkq3X2ZQ6olwNVvr1vUWIjc3kXTWr7xKQD6dh10"
+Constants.AR_Token = "xU9zFkq3X2ZQ6olwNVvr1vUWIjc3kXTWr7xKQD6dh10"
 
 Constants.BazarUCM = "U3TjJAZWJjlWBB4KAXSHKzuky81jtyh0zqH8rUL4Wd0"
 
@@ -41,7 +41,7 @@ function BuyOreSchemaTags()
     },
     "Target": {
         "type": "string",
-        "const": "]] .. Constants.ARToken .. [["
+        "const": "]] .. Constants.AR_Token .. [["
     },
     "Recipient": {
       "type": "string",

@@ -1,11 +1,11 @@
 import type { Tag } from "$lib/models/Tag";
 import { event } from "$lib/ao/relay";
-import { ARToken, BazarUCM } from "$lib/constants";
+import { AR_Token, BazarUCM } from "$lib/constants";
 import { get, writable, type Readable } from "svelte/store";
 import Arweave from "arweave";
 import { connect, createDataItemSigner } from "@permaweb/aoconnect";
 import Permaweb, { type AssetCreateArgsType, type AssetDetailType, type AssetHeaderType, type CollectionDetailType, type CollectionType, } from '@permaweb/libs'
-import { addressStore } from "$lib/stores/address.store";
+import { currentUser } from "$lib/services/UserService";
 import { send } from "$lib/ao/process.svelte";
 
 
@@ -129,7 +129,7 @@ const service = (): UCMService => {
             };
             let targetTag: Tag = {
                 name: "Target",
-                value: ARToken,
+                value: AR_Token,
             };
             let recipientTag: Tag = {
                 name: "Recipient",
@@ -163,9 +163,8 @@ const service = (): UCMService => {
             _tags.push(swapTag);
             _tags.push(priceTag);
             _tags.push(denominationTag);
-            await addressStore.connectWallet();
             try {
-                let result = await send(ARToken, _tags, null);
+                let result = await send(AR_Token, _tags, null);
                 console.log(result)
             } catch (e) {
                 console.log(e)

@@ -4,268 +4,32 @@ import { PostType, type Post } from "$lib/models/Post";
 import { luaModule } from "./hub_lua";
 import { createProcess } from "$lib/ao/process.svelte";
 import type { Hub } from "$lib/models/Hub";
-import type { promises } from "dns";
 import type { Tag } from "$lib/models/Tag";
-export interface HubService extends Readable<Map<string, Post>> {
-    info: (hub: string) => Promise<Hub>
-    fetchPost: (hub: string, since: Number, until: Number) => Promise<void>;
-    fetchPostWithAuthors: (hub: string, authors: string[]) => Promise<void>;
-    fetchReplies: (hub: string, id: string) => Promise<void>;
-    fetchRepost: (hub: string, id: string) => Promise<void>;
-    fetchLikes: (hub: string, id: string) => Promise<any[]>;
-    get: (hub: string, id: string) => Promise<Post>;
+import type { Profile, ProfileCreateData } from "$lib/models/Profile";
+import { HUB_REGISTRY_ID } from "$lib/constants";
+import { hubRegistryService } from "./HubRegistryService";
+import { profileService } from "./ProfileService";
+
+
+export interface HubService extends Readable<Map<string, Hub>> {
+    info: (hubId: string) => Promise<Hub>
     updateFollowList: (hubId: string, followList: string[]) => Promise<void>;
-    create: () => Promise<string>;
+    create: (profileData: ProfileCreateData) => Promise<string>;
 }
 
 const service = (): HubService => {
-    const { subscribe, set, update } = writable<Map<string, Post>>(
+    const { subscribe, set, update } = writable<Map<string, Hub>>(
         new Map<string, any>()
     );
     return {
         subscribe,
         info: async (hubId: string): Promise<Hub> => {
-
-            let temp = await info(hubId)
-            //console.log(temp)
-            let hub: Hub = {
-                User: temp.User,
-                Followers: JSON.parse(temp.Followers),
-                Following: JSON.parse(temp.Following),
-                spec: temp.spec
-            };
+            let hubs = get(hubService)
+            let hub: Hub = await info(hubId)
+            console.log(hub)
+            hubs.set(hub.User,hub)
+            set(hubs)
             return hub
-
-
-        },
-        fetchPost: async (hubId: string, since: Number, until: Number): Promise<void> => {
-            // console.log("since",since);
-            // console.log("limit",until);
-            let posts = get(hubService)
-            console.log("**POST SIZE**")
-            console.log(posts.size)
-            if (posts.size > 0) {
-                try {
-                    const filter = {
-                        kinds: ["1", "6"],
-                        since: since,
-                        until: until
-                    };
-                    const filter2 = {
-                        tags: { marker: ["root", "repost"] },
-                    };
-
-                    const _filters = JSON.stringify([filter, filter2]);
-                    fetchEvents(hubId, _filters).then((events) => {
-                        for (var i = 0; i < events.length; i++) {
-                            if (events[i].Content) {
-                                let post = postFactory(events[i]);
-                                posts.set(post.id, post)
-
-                            }
-                        }
-                        // console.log("posts 2",posts.size)
-                        set(posts)
-                    });
-                } catch (error) {
-                    throw (error)
-                }
-            } else {
-                try {
-                    const filter = {
-                        kinds: ["1", "6"],
-                        since: since,
-                        until: until
-                    };
-                    const filter2 = {
-                        tags: { marker: ["root", "repost"] },
-                    };
-                    // console.log("filter",filter);
-
-                    const _filters = JSON.stringify([filter, filter2]);
-                    let events = await fetchEvents(hubId, _filters);
-                    for (var i = 0; i < events.length; i++) {
-                        if (events[i].Content) {
-                            let post = postFactory(events[i]);
-                            posts.set(post.id, post)
-
-                        }
-                    }
-                    // console.log("posts 1", posts.size);
-                    set(posts)
-                } catch (error) {
-                    throw (error)
-                }
-            }
-        },
-        fetchPostWithAuthors: async (hub: string, authors: string[] = []): Promise<void> => {
-            let posts = get(hubService)
-            let _posts = posts.values().toArray().filter((post) => {
-                return authors.includes(post.from)
-            })
-            if (_posts.length > 0) {
-                try {
-                    const filter = {
-                        kinds: ["1", "6"],
-                        authors: authors
-                    };
-                    const filter2 = {
-                        tags: { marker: ["root", "repost"] },
-                    };
-
-                    const _filters = JSON.stringify([filter, filter2]);
-                    fetchEvents(hub, _filters).then((events) => {
-                        for (var i = 0; i < events.length; i++) {
-                            if (events[i].Content) {
-                                let post = postFactory(events[i]);
-                                posts.set(post.id, post)
-                            }
-                        }
-                        set(posts)
-                    });
-                } catch (error) {
-                    throw (error)
-                }
-            } else {
-                try {
-                    const filter = {
-                        kinds: ["1", "6"],
-                        authors: authors
-                    };
-                    const filter2 = {
-                        tags: { marker: ["root", "repost"] },
-                    };
-
-                    const _filters = JSON.stringify([filter, filter2]);
-                    let events = await fetchEvents(hub, _filters);
-                    for (var i = 0; i < events.length; i++) {
-                        if (events[i].Content) {
-                            let post = postFactory(events[i]);
-                            posts.set(post.id, post)
-
-                        }
-                    }
-                    set(posts)
-                } catch (error) {
-                    throw (error)
-                }
-            }
-        },
-        fetchReplies: async (hub: string, id: string): Promise<void> => {
-            //console.log("getting Replies")
-            let posts = get(hubService);
-            try {
-                const filter = {
-                    kinds: ["1"],
-                    //since: since,
-                    //limit: limit
-                };
-                const filter2 = {
-                    tags: { e: [id] },
-                };
-
-                const _filters = JSON.stringify([filter, filter2]);
-                let events = await fetchEvents(hub, _filters);
-                for (var i = 0; i < events.length; i++) {
-                    if (events[i].Content) {
-                        let post = postFactory(events[i]);
-                        posts.set(post.from, post)
-                    }
-                }
-                set(posts)
-            } catch (error) {
-                throw (error)
-            }
-        },
-        fetchRepost: async (hub: string, id: string): Promise<void> => {
-            let posts = get(hubService);
-            try {
-                const filter = {
-                    kinds: ["6"],
-                    //since: since,
-                    //limit: limit
-                };
-                const filter2 = {
-                    tags: { e: [id] },
-                };
-
-                const _filters = JSON.stringify([filter, filter2]);
-                let events = await fetchEvents(hub, _filters)
-                for (var i = 0; i < events.length; i++) {
-                    if (events[i].Content) {
-                        let post = postFactory(events[i]);
-                        posts.set(post.from, post)
-                    }
-                }
-                set(posts)
-            } catch (error) {
-                throw (error)
-            }
-        },
-        fetchLikes: async (hub: string, id: string): Promise<any[]> => {
-            let likes: any[] = []
-            try {
-                const filter = {
-                    kinds: ["7"]
-                };
-                const filter2 = {
-                    tags: { e: [id] },
-                };
-
-                const _filters = JSON.stringify([filter, filter2]);
-                likes = await fetchEvents(hub, _filters)
-                return likes
-            } catch (error) {
-                throw (error)
-            }
-        },
-        get: async (hub: string, id: string): Promise<Post> => {
-            let posts = get(hubService)
-            if (posts.has(id)) {
-                try {
-                    const filter = {
-                        kinds: ["1", "6"],
-                        ids: [id]
-                    };
-                    const _filters = JSON.stringify([filter]);
-                    fetchEvents(hub, _filters).then(async (events) => {
-                        if (events.length == 0) return;
-                        let post = postFactory(events[0]);
-                        post = await getRepost(post)
-                        if (post.content) {
-                            posts.set(id, post)
-                            set(posts)
-                        } else {
-                            throw ("Content is Empty")
-                        }
-                    })
-                } catch (error) {
-                    throw (error)
-                }
-                return posts.get(id)!
-            } else {
-                try {
-                    const filter = {
-                        kinds: ["1", "6"],
-                        ids: [id]
-                    };
-                    const _filters = JSON.stringify([filter]);
-                    let events = await fetchEvents(hub, _filters);
-                    if (events.length == 0) throw ("Not Found")
-                    let post = postFactory(events[0]);
-                    post = await getRepost(post)
-                    if (post.content) {
-                        posts.set(id, post)
-                        set(posts)
-                        return post
-                    } else {
-                        throw ("Content is Empty")
-                    }
-                } catch (error) {
-                    throw (error)
-                }
-            }
-
         },
         updateFollowList: async (hubId: string, followList: string[]) => {
             try {
@@ -279,78 +43,66 @@ const service = (): HubService => {
                 console.log(error);
             }
         },
-        create: async (): Promise<string> => {
-            const processId = await createProcess();
-            evaluateHub(processId)
-            return processId
+        create: async (profileData: ProfileCreateData): Promise<string> => {
+            try {
+                const processId = await createProcess();
+                console.log(processId)
+                await evaluateHub(processId)
+                console.log("ProfileId", processId);
+                const hubSpec = {
+                    type: "hub",
+                    kinds: ["0", "1", "7", "6", "3", "2"],
+                    description: "Social message hub",
+                    version: "1.0.0",
+                    processId: processId
+                };
+                await hubRegistryService.register(HUB_REGISTRY_ID(), hubSpec);
+                await createProfile(processId, profileData)
+                console.log("*** Hub ID ***", processId);
+                //console.log("*** Profile ID ***", processId);
+                return processId;
+            } catch (error) {
+                console.log("Failed to register profile:", error);
+                throw (error)
+            }
         },
     };
 };
 
-function postFactory(event: any): Post {
-    let postType: PostType;
-    let repost: Post | undefined;
-    switch (event.Tags["marker"]) {
-        case "media":
-            postType = PostType.Media
-            break
-        case "reply":
-            postType = PostType.Reply
-            break
-        case "repost":
-            postType = PostType.Repost
-            let _event = JSON.parse(event.Content);
-            postType = PostType.Repost;
-            repost = postFactory(_event);
-            break
-        default:
-            postType = PostType.Root
-    }
-
-    if (event.Kind == "6") {
-        let _event = JSON.parse(event.Content);
-        postType = PostType.Repost;
-        repost = postFactory(_event);
-    };
-    let _post: Post = {
-        id: event.Id,
-        from: event.From,
-        owner: event.Owner,
-        timestamp: event.Timestamp,
-        content: event.Content,
-        type: postType,
-        rePost: repost,
-        reposted: [],
-        mimeType: event.mimeType,
-        url: event.url,
-        e: event.e,
-        event: event,
-        p: event.p
-    }
-    return _post
-}
-
-async function getRepost(post: Post): Promise<Post> {
-    let _post = post;
-    if (_post.type == PostType.Repost) {
-        const content = JSON.parse(_post.content);
-        _post.rePost = postFactory(content);
-    }
-    return _post
-}
-
 async function evaluateHub(processId: string) {
     try {
-        await sleep(3000);
         await evalProcess(luaModule, processId);
     } catch (e) {
-        await evaluateHub(processId);
+        console.log(e)
     }
 
 }
 
 function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function createProfile(hubId: string, profileData: ProfileCreateData) {
+    try {
+        let tags: Array<Tag> = [];
+        // Prepare the content for the event
+        const content = JSON.stringify(profileData);
+
+        const kindTag: Tag = {
+            name: "Kind",
+            value: "0",
+        };
+
+        const contentTag: Tag = {
+            name: "Content",
+            value: content,
+        };
+        tags.push(kindTag);
+        tags.push(contentTag);
+        await event(hubId, tags)
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 export const hubService = service();

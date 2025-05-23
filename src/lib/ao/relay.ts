@@ -1,23 +1,23 @@
 //@ts-ignore
 import { send, read } from "$lib/ao/process.svelte";
 //@ts-ignore
-import { FetchEvents, GetZones, GetZoneById, Register, Info, UpdateProfile } from "$lib/ao/messegeFactory.svelte";
+import { FetchEvents, GetZones, GetZoneById, Register, Info, UpdateProfile, Transfer, QueryFee } from "$lib/ao/messegeFactory.svelte";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile } from "$lib/models/Profile";
-import { addressStore } from "$lib/stores/address.store";
+import { currentUser } from "$lib/services/UserService";
 import { HUB_REGISTRY_ID } from "$lib/constants";
 //@ts-ignore
 import { Eval } from "./messegeFactory.svelte";
 import type { Spec } from "$lib/models/Spec";
 import type { Hub } from "$lib/models/Hub";
+import { walletService } from "$lib/services/walletService";
 
 export const evalProcess = async (data: string, processId: string) => {
-  await addressStore.connectWallet();
-
+  //await walletService.connectWallet();
   try {
     const tags = Eval();
     // @ts-ignore
-    let result = await send(processId, tags, data,);
+    await send(processId, tags, data);
     ;
   } catch (e) {
     console.log(e);
@@ -25,7 +25,6 @@ export const evalProcess = async (data: string, processId: string) => {
 };
 
 export const event = async (hub: string, tags: Array<Tag>) => {
-  await addressStore.connectWallet();
   const actionTag: Tag = {
     name: "Action",
     value: "Event",
@@ -42,8 +41,21 @@ export const event = async (hub: string, tags: Array<Tag>) => {
   }
 };
 
+export const payedEvent = async (recipient: string, quantity: string, payload: string) => {
+  let tags = Transfer(recipient, quantity, payload)
+  try {
+    console.log("***TAGS***");
+    console.log(tags);
+    // @ts-ignore
+    let result = await send(AO_Token, tags, null);
+    ;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export const updateProfile = async (processId: string, data: string) => {
-  await addressStore.connectWallet();
+  //await walletService.connectWallet();
   const tags: Tag[] = UpdateProfile();
   try {
     console.log("***TAGS***");
@@ -64,10 +76,30 @@ export const info = async (processId: string): Promise<any> => {
     //
     if (result) {
       let json = JSON.parse(result.Data);
+      return json;
+    } else {
+      throw ("Not Found")
+    }
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+export const queryFee = async (hubId: string, kind: string): Promise<any> => {
+  try {
+    // @ts-ignore
+    let message = QueryFee(kind);
+    console.log(message)
+    let result = await read(hubId, message);
+    console.log(result)
+    //
+    if (result) {
+      let json = JSON.parse(result.Data);
       //
       return json;
-    }else{
-      throw("Not Found")
+    } else {
+      throw ("Not Found")
     }
   } catch (e) {
     console.log(e);
@@ -80,11 +112,12 @@ export const fetchEvents = async (processId: string, filters: string): Promise<a
   try {
     // @ts-ignore
     let message = FetchEvents(filters);
+    console.log(message)
+    console.log(processId)
     let result = await read(processId, message);
-    
+
     if (result) {
       let json = JSON.parse(result.Data);
-      
       events = json;
     }
   } catch (e) {
@@ -92,34 +125,6 @@ export const fetchEvents = async (processId: string, filters: string): Promise<a
     //throw e;
   }
   return events;
-};
-
-export const fetchProfile = async (hub: string, address: string): Promise<Profile> => {
-  //console.log("Address", address);
-  const filter = JSON.stringify([
-    {
-      kinds: ["0"],
-      authors: [address],
-      //   limit: 1,
-    },
-  ]);
-
-  let messages = await fetchEvents(hub, filter);
-  //console.log("Messages from App", messages);
-
-  try {
-    // messages[0] give the latest profile change of this address and it  return that
-    let message = messages[0];
-    if (!message) throw ("message is empty");
-    let profile = JSON.parse(message.Content);
-    profile.address = message.From;
-    profile.created_at = messages[0].Timestamp;
-    profile.updated_at = message.Timestamp;
-    console.log("Profile from App", profile);
-    return profile;
-  } catch (e) {
-    throw e;
-  }
 };
 
 export const fetchFollowList = async (
@@ -150,18 +155,18 @@ export const fetchFollowList = async (
   return followList;
 };
 
-export const register = async (processId:string, spec: any): Promise<void> => {
+export const register = async (processId: string, spec: any): Promise<void> => {
   try {
     // @ts-ignore
     let message = Register();
-    let result = await send(processId, message, JSON.stringify(spec));
-    
+    await send(processId, message, JSON.stringify(spec));
+
   } catch (e) {
     console.log(e);
   }
 };
 
-export const getZones = async (processId:string, filters: string, page: Number, limit: Number): Promise<any[]> => {
+export const getZones = async (processId: string, filters: string, page: Number, limit: Number): Promise<any[]> => {
   let events: any[] = [];
   try {
     // @ts-ignore
@@ -179,7 +184,7 @@ export const getZones = async (processId:string, filters: string, page: Number, 
   return events;
 };
 
-export const getZone = async (processId:string, zoneId: string): Promise<any> => {
+export const getZone = async (processId: string, zoneId: string): Promise<any> => {
   let events: any[] = [];
   try {
     // @ts-ignore

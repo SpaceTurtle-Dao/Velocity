@@ -12,28 +12,18 @@
     TestTube,
   } from "lucide-svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/services/UserService";
   import { Loader } from "lucide-svelte";
   import Connect from "$lib/components/wallet/connect.svelte";
-  import { hubRegistryService } from "$lib/services/HubRegistryService";
   import CreateProfile from "../profile/CreateProfile.svelte";
-  import type { Zone } from "$lib/models/Zone";
   import { onMount } from "svelte";
-  import { HUB_REGISTRY_ID } from "$lib/constants";
+  import { walletService } from "$lib/services/walletService";
 
   let loader = false;
-  let zone: Zone;
-
-  hubRegistryService.subscribe((zones) => {
-    if ($addressStore.address && zones.has($addressStore.address)) {
-      zone = zones.get($addressStore.address)!;
-    }
-  });
 
   let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/" },
     { icon: Search, label: "Search", href: "/search" },
-    { icon: User, label: "Profile", href: "/profile/:address" },
     { icon: Mail, label: "Messages", href: "/messages" },
     { icon: TestTube, label: "Collections", href: "/collections" },
   ];
@@ -45,19 +35,21 @@
       {
         icon: User,
         label: "Profile",
-        href: `/profile/${$addressStore.address}`,
+        href: `/profile/${$currentUser?.address}`,
       },
       { icon: Mail, label: "Messages", href: "/messages" },
       { icon: TestTube, label: "Collections", href: "/collections" },
     ];
   }
 
-  onMount(() => {
-    if ($addressStore.address) {
-      hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $addressStore.address);
-    }
+  walletService.subscribe((address) => {
+    if (!address) return;
+    currentUser.setup(address).then(() => (loader = false));
   });
 
+  onMount(() => {
+    walletService.isConnected();
+  });
 </script>
 
 {#if !$isMobile}
@@ -68,7 +60,7 @@
           <li>
             <img class="w-10 h-10" src={Logo} alt="Logo" />
           </li>
-          {#if $addressStore.address}
+          {#if $currentUser}
             {#each menuItems2() as item}
               <li>
                 <a
@@ -115,12 +107,13 @@
           </li>
         </ul>
       </nav>
-      {#if $addressStore.address}
-        {#if zone}
-          <CreatePostModal />
-        {:else}
-          <CreateProfile />
-        {/if}
+      {#if $currentUser}
+        <CreatePostModal />
+        <div class="p-4">
+          <LowerProfile profile={$currentUser.profile} />
+        </div>
+      {:else if $walletService && !$currentUser}
+        <CreateProfile />
       {:else}
         <div class="mt-8 flex flex-col items-center justify-center">
           {#if loader}
@@ -130,9 +123,6 @@
           {/if}
         </div>
       {/if}
-      <div class="p-4">
-        <LowerProfile />
-      </div>
     </div>
   </div>
 {/if}

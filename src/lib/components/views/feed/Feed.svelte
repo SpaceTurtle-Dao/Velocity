@@ -5,11 +5,12 @@
   import { onMount, onDestroy } from "svelte";
   import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/services/UserService";
   import { timestampService } from "$lib/utils/date-time";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { HUB_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
+    import { postService } from "$lib/services/PostService";
 
   let feed: Array<Post> = [];
   let isLoadingFeed = true;
@@ -17,10 +18,9 @@
   let lastLoadedTimestamp: number | null = null;
   let scrollContainer: HTMLElement | null = null;
   let hubId: string;
-  let hub: Zone;
   let address: string;
 
-  hubService.subscribe(async (posts) => {
+  postService.subscribe(async (posts) => {
     feed = posts.values().toArray();
   });
 
@@ -32,11 +32,10 @@
     }
   });*/
 
-  addressStore.subscribe(async (value) => {
-    if (value.address && value.hub) {
-      address = value.address;
-      hub = value.hub;
-      hubId = hub.spec.processId;
+  currentUser.subscribe(async (_currentUser) => {
+    if (_currentUser) {
+      address = _currentUser.address;
+      hubId = _currentUser.zone.spec.processId;
       fetchFeedEvents();
       //hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address);
     }
@@ -50,8 +49,7 @@
       since = lastLoadedTimestamp
     }
     try {
-      hubService.fetchPost(hubId, since, until);
-      
+      postService.fetchPost(hubId, since, until);
       lastLoadedTimestamp = until;
     } catch (error) {
     } finally {
@@ -73,10 +71,10 @@
   }
 
   onMount(async () => {
-    let isConnected = await addressStore.isConnected();
+    /*let isConnected = await currentUser.isConnected();
     if (!isConnected) {
-      await addressStore.connectWallet();
-    }
+      await currentUser.connectWallet();
+    }*/
     scrollContainer = document.querySelector(".scrollbar-hidden");
     if (scrollContainer) {
       scrollContainer.addEventListener("scroll", handleScroll);

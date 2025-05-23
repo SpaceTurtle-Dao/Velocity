@@ -4,11 +4,9 @@
   import ProfilePictureHoverCard from "$lib/components/UserProfile/ProfilePictureHoverCard.svelte";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import { Repeat2Icon } from "lucide-svelte";
-  import { profileService } from "$lib/services/ProfileService";
   import { onMount } from "svelte";
-  import { fetchProfile } from "$lib/ao/relay";
   import { PostType, type Post } from "$lib/models/Post";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/services/UserService";
 
   export let post: Post;
   export let profile: Profile;
@@ -35,7 +33,7 @@
     <Repeat2Icon size={16} class="mr-2" />
     <span class="text-sm"
       >Reposted by
-      {#if profile.owner == $addressStore.address}
+      {#if $currentUser && profile.owner == $currentUser.address}
         You
       {:else}
         @{profile.displayName}
