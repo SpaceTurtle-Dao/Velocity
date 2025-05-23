@@ -5,10 +5,7 @@
     import { Label } from "$lib/components/ui/label";
     import { Button } from "$lib/components/ui/button/index.js";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
-    import { walletAddress } from "$lib/stores/walletStore";
-    import { navigate } from "svelte-routing";
     import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-    import { profileService } from "$lib/services/ProfileService";
     import { upload } from "$lib/ao/uploader";
     import { Camera } from "lucide-svelte";
     import {
@@ -16,9 +13,11 @@
         AvatarFallback,
         AvatarImage,
     } from "$lib/components/ui/avatar";
-    import { ARWEAVE_ADDRESS, PROFILE_REGISTRY_ID } from "$lib/constants";
-    import { profileRegistryService } from "$lib/services/ProfileRegistryService";
-    import { addressStore } from "$lib/stores/address.store";
+    import { ARWEAVE_ADDRESS } from "$lib/constants";
+    import { currentUser } from "$lib/services/UserService";
+    import { hubService } from "$lib/services/HubService";
+    import { walletService } from "$lib/services/walletService";
+    import { push } from "svelte-spa-router";
 
     const initialProfileSchema = z.object({
         name: z.string().min(1, "Name is required"),
@@ -71,6 +70,7 @@
     }
 
     async function createProfile() {
+        if(!$walletService) return;
         isLoading = true;
         try {
             initialProfileSchema.parse(profile);
@@ -86,23 +86,18 @@
                 profile.coverImage = _bannerFile.hash;
             }
 
-            const profileId = await profileService.create({
+            const hubId = await hubService.create({
                 userName: profile.name,
                 displayName: profile.display_name,
                 description: profile.description,
                 thumbnail: profile.thumbnail,
                 coverImage: profile.coverImage,
             });
-
-            if ($addressStore.address) {
-                profileRegistryService.getZoneById(
-                    PROFILE_REGISTRY_ID(),
-                    $addressStore.address!,
-                );
-            }
+            await currentUser.setup($walletService)
+            console.log($currentUser)
             // Navigate and close dialog
             isLoading = false;
-            navigate("/profile", { replace: true });
+            push("#/profile/"+$currentUser?.address);
             isOpen = false;
         } catch (err) {
             if (err instanceof z.ZodError) {

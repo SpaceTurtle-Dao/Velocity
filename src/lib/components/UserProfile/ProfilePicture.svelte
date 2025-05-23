@@ -21,7 +21,7 @@
 
 <Avatar.Root class={sizeClass}>
   {#if name}
-    {#if src != ""}
+    {#if src}
       <Avatar.Image class="object-cover" {src} alt={name} />
       <Avatar.Fallback class="text-primary">{getInitials(name)}</Avatar.Fallback
       >

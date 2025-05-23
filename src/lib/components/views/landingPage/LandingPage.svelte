@@ -1,14 +1,14 @@
 <script lang="ts">
   import backgroundImage from "../../../../assets/Logo.png";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-  import { addressStore } from "$lib/stores/address.store";
-  import { isConnected } from "$lib/stores/is-connectec.store";
+  import { currentUser } from "$lib/services/UserService";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { Loader } from "lucide-svelte";
   import { onMount } from "svelte";
   import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import { push, replace } from "svelte-spa-router";
+    import { walletService } from "$lib/services/walletService";
 
   let isLoading = true;
   let loader = false;
@@ -16,9 +16,9 @@
   /*onMount(async () => {
     try {
       hubService.fetchPost(0, 100);
-      await addressStore.sync();
-      if ($addressStore.address) {
-        await profileService.get($addressStore.address);
+      await currentUser.sync();
+      if ($currentUser.address) {
+        await profileService.get($currentUser.address);
         replace("/feed");
       }
     } catch (error) {
@@ -72,7 +72,7 @@
       </div>
 
       <div class="mt-8 flex flex-col items-center justify-center">
-        {#if $isConnected}
+        {#if loader}
           <Loader class="animate-spin w-12 h-12" />
         {:else}
           <ButtonWithLoader
@@ -80,7 +80,7 @@
             class="w-3/4"
             on:click={async () => {
               loader = true
-              await addressStore.connectWallet();
+              await walletService.connectWallet();
               loader = false;
               replace("/feed")
             }}>Connect Wallet</ButtonWithLoader

@@ -1,7 +1,7 @@
 <script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { onMount } from "svelte";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/services/UserService";
   import { hubService } from "$lib/services/HubService";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Zone } from "$lib/models/Zone";
@@ -9,50 +9,43 @@
   import { HUB_REGISTRY_ID } from "$lib/constants";
 
   export let hubId: string;
-  let hub: Hub;
-  let zone: Zone;
   let isSubscribed: boolean;
   let loader = false;
 
-  hubRegistryService.subscribe(async (zones) => {
-    if ($addressStore.address && zones.has($addressStore.address)) {
-      zone = zones.get($addressStore.address)!;
+  /*hubRegistryService.subscribe(async (zones) => {
+    if ($currentUser.address && zones.has($currentUser.address)) {
+      zone = zones.get($currentUser.address)!;
       hub = await hubService.info(zone?.spec.processId);
       isSubscribed = hub.Following.includes(hubId)!;
     }
-  });
+  });*/
 
-  async function unsubscribe() {
+  const unfollow = async () => {
     loader = true;
-    let temp = hub;
-    temp.Following = temp.Following.filter((value) => value != hubId);
-    hub = temp;
-    await hubService.updateFollowList(zone.spec.processId, hub.Following);
+    await currentUser.unfollow(hubId);
     loader = false;
-  }
+  };
 
-  async function subscribe() {
-    if (hub.Following.includes(hubId)) return;
+  const follow = async () => {
     loader = true;
-    let temp = hub;
-    temp.Following.push(hubId);
-    hub = temp;
-    await hubService.updateFollowList(zone.spec.processId, hub.Following);
+    await currentUser.follow(hubId);
     loader = false;
-  }
+  };
+
   onMount(async () => {
-    if (!$addressStore.address) return;
-    await hubRegistryService.getZoneById(HUB_REGISTRY_ID(),$addressStore.address,);
+    if (!$currentUser) return;
+    hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $currentUser.address);
+    isSubscribed = $currentUser.hub?.Following.includes(hubId)!;
   });
 </script>
 
-{#if hub}
+{#if $currentUser}
   {#if isSubscribed}
     <ButtonWithLoader
       {loader}
       class="group text-sm font-bold h-8 w-[120px]  rounded-full text-primary  hover:border-red-800 border-input bg-background hover:bg-accent hover:text-accent-foreground border"
       loaderClass="size-5"
-      on:click={unsubscribe}
+      on:click={unfollow}
       disabled={loader}
     >
       <span class="group-hover:hidden">Following</span>
@@ -63,7 +56,7 @@
       {loader}
       class="group text-sm font-bold h-8 w-[102px] rounded-full"
       loaderClass="size-5"
-      on:click={subscribe}
+      on:click={follow}
       disabled={loader}
       >Follow
     </ButtonWithLoader>

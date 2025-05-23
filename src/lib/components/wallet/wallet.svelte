@@ -3,7 +3,7 @@
     walletAddress,
     setWalletAddress,
     clearWalletAddress,
-  } from "../../stores/walletStore";
+  } from "../../services/walletService";
   import SmallSpinner from "$lib/components/spinners/smallSpinner.svelte";
   import {
     isConnected,

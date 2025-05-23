@@ -2,7 +2,6 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
@@ -13,8 +12,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
-  import { addressStore } from "$lib/stores/address.store";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { currentUser } from "$lib/services/UserService";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
 
   export let post: Post;
@@ -91,7 +89,7 @@
 
       tags.push({ name: "Content", value: _content });
 
-      newReply = await aoEvent(hubId, tags);
+      newReply = await currentUser.createEvent(hubId, tags, "1");
 
       const replyTags = tags.reduce((acc: any, tag) => {
         acc[tag.name.toLowerCase()] = tag.value;
@@ -158,15 +156,13 @@
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        {#if $addressStore.address}
-          {#await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), $addressStore.address) then profile}
-            {#if $profileRegistryService.has($addressStore.address)}
+        {#if $currentUser}
+          {#await profileService.fetchProfiles(PROFILE_REGISTRY_ID(), [$currentUser.address]) then _}
+            {#if $profileService.has($currentUser.address)}
               <ProfilePicture
                 size="lg"
-                src={$profileRegistryService.get($addressStore.address)?.spec
-                  .thumbnail}
-                name={$profileRegistryService.get($addressStore.address)?.spec
-                  .displayName}
+                src={$profileService.get($currentUser.address)?.thumbnail || ""}
+                name={$profileService.get($currentUser.address)?.displayName || "anon"}
               />
             {/if}
           {/await}

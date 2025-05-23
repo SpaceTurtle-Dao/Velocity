@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { z } from "zod";
-  import type { Profile, UserInfo } from "$lib/models/Profile";
+  import type { Profile } from "$lib/models/Profile";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import { Textarea } from "$lib/components/ui/textarea";
@@ -19,13 +19,10 @@
   import { Camera } from "lucide-svelte";
   import { upload } from "$lib/ao/uploader";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/services/UserService";
   import { profileService } from "$lib/services/ProfileService";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
-  import { PROFILE_REGISTRY_ID } from "$lib/constants";
-  import type { Zone } from "$lib/models/Zone";
 
-  export let initialProfile: Zone;
+  export let initialProfile: Profile;
 
   // Function to format Arweave transaction URLs
   function toUrl(tx: string) {
@@ -46,13 +43,13 @@
   type ProfileSchemaType = z.infer<typeof profileSchema>;
 
   let _profile: ProfileSchemaType = {
-    name: initialProfile.spec.userName || "",
-    display_name: initialProfile.spec.displayName || "",
-    description: initialProfile.spec.description || "",
-    profileImage: initialProfile.spec.thumbnail || "",
-    coverImage: initialProfile.spec.coverImage || "",
-    website: initialProfile.spec.website || "",
-    bot: initialProfile.spec.bot || false,
+    name: initialProfile.userName || "",
+    display_name: initialProfile.displayName || "",
+    description: initialProfile.description || "",
+    profileImage: initialProfile.thumbnail || "",
+    coverImage: initialProfile.coverImage || "",
+    website: initialProfile.website || "",
+    bot: initialProfile.bot || false,
   };
 
   let errors: Partial<Record<keyof ProfileSchemaType, string>> = {};
@@ -109,7 +106,7 @@
         bot: profile.bot,
       });*/
       try {
-        if ($addressStore.address) {
+        if ($currentUser) {
           /*const tags: Tag[] = [
             { name: "UserName", value: profile.name },
             { name: "DisplayName", value: profile.display_name },
@@ -118,33 +115,17 @@
             { name: "ProfileImage", value: profile.profileImage || "" },
           ];*/
 
-          const profileSpec = {
-            type: "profile",
-            userName: _profile.name,
-            displayName: _profile.display_name,
-            description: _profile.description || "",
-            thumbnail: _profile.profileImage || "",
-            coverImage: _profile.coverImage || "",
-            processId: initialProfile.spec.processId,
-          };
+          initialProfile.userName = _profile.name
+          initialProfile.displayName = _profile.display_name
+          initialProfile.description = _profile.description
+          initialProfile.thumbnail = _profile.profileImage
+          initialProfile.coverImage = _profile.coverImage
 
-          let data = {
-            UserName: _profile.name,
-            DisplayName: _profile.display_name,
-            description: _profile.description,
-            ProfileImage: _profile.profileImage,
-            CoverImage: _profile.coverImage,
-          };
-
-          const result = await profileService.update(
-            initialProfile.spec.processId,
-            JSON.stringify(data),
+          const result = await currentUser.updateProfile(
+            initialProfile.from,
+            initialProfile,
           );
-          await profileRegistryService.register(
-            PROFILE_REGISTRY_ID(),
-            profileSpec,
-          );
-          await profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(),$addressStore.address)
+          await profileService.fetchProfiles(initialProfile.from, [$currentUser.address])
           console.log("Profile updated successfully:", result);
           dispatch("profileUpdated");
         }

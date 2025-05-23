@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/services/UserService";
   import { push } from "svelte-spa-router";
   import { writable } from "svelte/store";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
@@ -8,7 +8,7 @@
   async function handleDisconnect() {
     try {
       // Disconnect the wallet
-      await addressStore.disconnectWallet();
+      await currentUser.disconnectWallet();
       
       // Clear all relevant stores
       const { subscribe, set } = writable();

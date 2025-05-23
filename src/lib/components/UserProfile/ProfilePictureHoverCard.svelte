@@ -1,23 +1,21 @@
 <script lang="ts">
   import type { Profile } from "$lib/models/Profile";
-  import type { Zone } from "$lib/models/Zone";
   import ProfileHoverCard from "./ProfileHoverCard.svelte";
   import ProfilePicture from "./ProfilePicture.svelte";
-
-  export let profile: Zone | undefined;
+  export let profile: Profile | undefined;
   export let size: "sm" | "base" | "lg" | "xl" = "sm";
 </script>
 
 {#if profile}
   <ProfileHoverCard {profile}>
-    {#if profile.spec.thumbnail}
+    {#if profile.thumbnail}
       <ProfilePicture
-        name={profile.spec.displayName}
-        src={`https://www.arweave.net/${profile.spec.thumbnail}`}
+        name={profile.displayName}
+        src={`https://www.arweave.net/${profile.thumbnail}`}
         {size}
       />
     {:else}
-      <ProfilePicture name={profile.spec.displayName} src="" {size} />
+      <ProfilePicture name={profile.displayName} src="" {size} />
     {/if}
   </ProfileHoverCard>
 {/if}

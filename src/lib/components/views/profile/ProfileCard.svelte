@@ -8,18 +8,19 @@
   import { onMount } from "svelte";
   import { hubService } from "$lib/services/HubService";
   import ProfilePictureHoverCard from "$lib/components/UserProfile/ProfilePictureHoverCard.svelte";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
   import type { Zone } from "$lib/models/Zone";
-  import { PROFILE_REGISTRY_ID } from "$lib/constants";
+  import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
+  import type { Hub } from "$lib/models/Hub";
 
   export let hubId: string;
-  let profile: Zone;
-  let address: string;
+  let hub: Hub;
+  let profile: Profile;
 
-  profileRegistryService.subscribe((zones) => {
-    if (address && zones.has(address)) {
-      profile = zones.get(address)!;
-      console.log(profile);
+  profileService.subscribe((profiles) => {
+    let _profile = profiles.get(hubId)
+    if (_profile) {
+      profile = _profile;
     }
   });
 
@@ -28,9 +29,9 @@
   }
 
   onMount(async () => {
-    let hub = await hubService.info(hubId);
-    address = hub.User;
-    profileRegistryService.getZoneById(PROFILE_REGISTRY_ID(), address);
+    console.log("**Loading Profile card**");
+    hubService.info(hubId).then((_hub) => hub = _hub);
+    profileService.fetchProfiles(hubId, [hubId]);
   });
 </script>
 
@@ -42,25 +43,25 @@
       </div>
       <div class="grid overflow-hidden">
         <ProfileHoverCard {profile}>
-          {profile.spec.userName}
+          {profile.userName}
         </ProfileHoverCard>
 
         <p class="text-muted-foreground text-sm truncate">
-          @{profile.spec.displayName}
+          @{profile.displayName}
         </p>
-        {#if profile.spec.description}
+        {#if profile.description}
           <p class="line-clamp-2" id={profile.owner}>
-            {profile.spec.description}
+            {profile.description}
           </p>
         {/if}
-        {#if profile.spec.website}
+        {#if profile.website}
           <a
             class="text-blue-500 hover:underline"
-            href={profile.spec.website}
+            href={profile.website}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {getDisplayUrl(profile.spec.website)}
+            {getDisplayUrl(profile.website)}
           </a>
         {/if}
       </div>

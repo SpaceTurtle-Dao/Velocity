@@ -3,12 +3,9 @@
     import type { Tag } from "$lib/models/Tag";
     import { Heart } from "lucide-svelte";
     import { onMount } from "svelte";
-    import { event } from "$lib/ao/relay";
     import type { Post } from "$lib/models/Post";
-    import { hubService } from "$lib/services/HubService";
-    import { addressStore } from "$lib/stores/address.store";
-    import { profileService } from "$lib/services/ProfileService";
-    import { hubRegistryService } from "$lib/services/HubRegistryService";
+    import { currentUser } from "$lib/services/UserService";
+    import { postService } from "$lib/services/PostService";
 
     export let post: Post;
 
@@ -21,7 +18,7 @@
     };
 
     async function like() {
-        if(!$addressStore.hub?.spec.processId) return
+        if(!$currentUser) return
         let _tags: Array<Tag> = [];
 
         let contentTag: Tag = {
@@ -44,9 +41,9 @@
             console.log("**Likes**");
             let temp = likes.filter((like) => {
                 console.log(like.From);
-                console.log($addressStore.hub?.spec.processId);
+                console.log($currentUser.hub?.Spec.processId);
                 console.log(like);
-                return like.From != $addressStore.hub?.spec.processId;
+                return like.From != $currentUser.hub?.Spec.processId;
             });
             likes = temp;
             liked = false;
@@ -56,15 +53,15 @@
             likes = temp;
             liked = true;
         }
-        await event(post.from, _tags);
-        hubService.fetchLikes(post.from, post.id).then((_likes) => {
+        await currentUser.createEvent(post.from, _tags, "7");
+        postService.fetchLikes(post.from, post.id).then((_likes) => {
             likes = _likes;
             console.log("**Likes**");
             let temp = likes.filter((like) => {
                 console.log(like.From);
-                console.log($addressStore.hub?.spec.processId);
+                console.log($currentUser.hub?.Spec.processId);
                 console.log(like);
-                return like.From == $addressStore.hub?.spec.processId;
+                return like.From == $currentUser.hub?.Spec.processId;
             });
             liked = temp.length > 0;
         });
@@ -72,14 +69,14 @@
 
     onMount(async () => {
         if (post.from) {
-            hubService.fetchLikes(post.from, post.id).then((_likes) => {
+            postService.fetchLikes(post.from, post.id).then((_likes) => {
                 likes = _likes;
                 console.log("**Likes**");
                 let temp = likes.filter((like) => {
                     console.log(like.From);
-                    console.log($addressStore.hub?.spec.processId);
+                    console.log($currentUser?.hub.Spec.processId);
                     console.log(like);
-                    return like.From == $addressStore.hub?.spec.processId;
+                    return like.From == $currentUser?.hub.Spec.processId;
                 });
                 liked = temp.length > 0;
             });

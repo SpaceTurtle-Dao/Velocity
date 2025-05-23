@@ -21,8 +21,8 @@
   } from "$lib/components/ui/avatar";
   import { ARWEAVE_ADDRESS } from "$lib/constants";
   import UserMenu from "./UserMenu.svelte";
-    import { profileService } from "$lib/services/ProfileService";
-    import { addressStore } from "$lib/stores/address.store";
+  import { profileService } from "$lib/services/ProfileService";
+  import { currentUser } from "$lib/services/UserService";
 
   export let url = "";
 
@@ -40,8 +40,8 @@
   }
 
   profileService.subscribe(async (profiles) => {
-    if($addressStore.address && profiles.has($addressStore.address)){
-      profile = await profileService.get($addressStore.address)
+    if ($currentUser && profiles.has($currentUser.address)) {
+      profile = await profiles.get($currentUser.address);
     }
   });
 </script>

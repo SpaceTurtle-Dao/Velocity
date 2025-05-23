@@ -6,7 +6,7 @@
     AvatarImage,
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
-  import { addressStore } from "$lib/stores/address.store";
+  import { currentUser } from "$lib/services/UserService";
   import PostComponent from "../../posts/Post.svelte";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Link, CalendarDays } from "lucide-svelte";
@@ -23,18 +23,16 @@
   import type { Post } from "$lib/models/Post";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Hub } from "$lib/models/Hub";
-  import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
-  import type { Zone } from "$lib/models/Zone";
-  import { profileRegistryService } from "$lib/services/ProfileRegistryService";
+  import { HUB_REGISTRY_ID } from "$lib/constants";
+  import type { Profile } from "$lib/models/Profile";
+  import { postService } from "$lib/services/PostService";
 
   export let params: { address?: string } = {};
 
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
-  let hubId: string;
   let hub: Hub;
-  let hubZone: Zone;
-  let profileZone: Zone;
+  let profile: Profile;
 
   let mimeTypes: string[] = [
     "image/apng",
@@ -53,51 +51,29 @@
 
   let showModal = false;
 
-  profileRegistryService.subscribe((zones) => {
-    if(params.address && zones.has(params.address)){
-      profileZone = zones.get(params.address)!
-      console.log(profileZone)
-      fetchPost();
-    }
-  })
-
-  /*profileService.subscribe((profiles) => {
-    console.log(profiles);
-    if (params.address && profiles.has(params.address))
-      profile = profiles.get(params.address);
-    if (profile) {
-      fetchPost();
-    }
-  });*/
-
-  hubRegistryService.subscribe(async (zones) => {
-    console.log(zones);
-    if (params.address && zones.has(params.address)) {
-      hubZone = zones.get(params.address)!;
-      hubId = hubZone?.spec.processId;
-      console.log(zones);
-      console.log(hubId);
-      try{
-        hub = await hubService.info(hubId);
-      }catch(e){
-        hub = await hubService.info(hubId);
-      }
-      console.log(hub);
+  profileService.subscribe((profiles) => {
+    if (params.address) {
+      let _profile = profiles.get(params.address);
+      if(_profile) profile = _profile;
     }
   });
 
-  hubService.subscribe((value) => {
+  hubService.subscribe((hubs) => {
+    if (params.address && hubs.get(params.address)) {
+      hub = hubs.get(params.address)!;
+    }
+  });
+
+  postService.subscribe((value) => {
+    posts = []
     let _posts: Array<Post> = [];
     let temp = value.values().toArray();
     for (var i = 0; i < temp.length; i++) {
-      if (temp[i].from == hubId) {
+      if (temp[i].from == profile.from) {
         _posts.push(temp[i]);
       }
     }
     posts = _posts;
-    /*posts = _posts.filter((post) => {
-      true
-    })*/
     media = posts.filter((value) => {
       if (value.mimeType) {
         return mimeTypes.includes(value.mimeType);
@@ -108,18 +84,23 @@
   });
 
   async function fetchPost() {
-    if (!hubId) return;
+    if (!hub) return;
     try {
-      await hubService.fetchPostWithAuthors(hubId, [hubId]);
+      postService.fetchPostWithAuthors(hub.Spec.processId, [
+        hub.Spec.processId,
+      ]);
     } catch (e) {
       console.log(e);
     }
   }
 
   // Placeholder functions - implement as needed
-  async function fetchSubscriptions() {
-    console.log("Fetching subscriptions");
-    // Implement subscription fetching logic
+  async function fetchFolloing() {
+    /*console.log("Fetching following");
+    console.log(hubZone.spec.processId)
+    hubService.info(hubZone.spec.processId).then((_hub) => {
+      hub = _hub;
+    });*/
   }
 
   function toggleModal() {
@@ -127,11 +108,11 @@
   }
 
   onMount(async () => {
-    await setup();
+    setup();
   });
 
   const onAddressParamChange = async () => {
-    await setup();
+    setup();
   };
 
   $: {
@@ -143,32 +124,54 @@
   let value = "post";
 
   async function setup() {
-    if (!params.address) return;
-    console.log(params.address);
     try {
-      await profileRegistryService.getZoneById(
-        PROFILE_REGISTRY_ID(),
-        params.address,
-      );
-      await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address);
+      if (!params.address) return;
+      console.log(params.address);
+      posts = []
+      let _hub = $hubService.get(params.address)
+      if(_hub){
+        hub = _hub
+      }else{
+        console.log("fetching data")
+        let zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
+        hub = await hubService.info(zone.spec.processId)
+        profileService.fetchProfiles(hub.Spec.processId,[params.address])
+      }
+      //hub = await hubService.info()
+      /*if ($currentUser && $currentUser.address == params.address) {
+        console.log("Is Current User");
+        hubZone = $currentUser.zone;
+        hub = $currentUser.hub;
+        profile = $currentUser.profile
+        fetchPost();
+      } else {
+        console.log("Is Not Current User");
+        hubRegistryService
+          .getZoneById(HUB_REGISTRY_ID(), params.address)
+          .then((_hubZone) => {
+            profileService.fetchProfiles(_hubZone.spec.processId, [
+              _hubZone.spec.processId,
+            ]);
+            fetchPost();
+          });
+      }*/
     } catch (error) {
       console.log(params.address);
       console.log("Error setting up profile:", error);
-      setup();
     }
   }
 </script>
 
-{#if profileZone}
-  <div class="md:mt-10 max-w-prose">
+<div class="md:mt-10 max-w-prose">
+  {#if profile}
     <Card
       class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"
     >
       <div class="relative mb-10">
         <div class="bg-gray-200 relative">
-          {#if profileZone.spec.coverImage}
+          {#if profile.coverImage}
             <img
-              src={`https://www.arweave.net/${profileZone.spec.coverImage}`}
+              src={`https://www.arweave.net/${profile.coverImage}`}
               alt="Banner"
               class="w-full max-h-48 object-cover"
             />
@@ -179,16 +182,16 @@
         <div class="absolute bottom-0 left-4 transform translate-y-1/3">
           <div class="relative">
             <Avatar class="w-24 h-24 border-4 border-white">
-              {#if profileZone.spec.thumbnail}
+              {#if profile.thumbnail}
                 <AvatarImage
                   class="object-cover"
-                  src={`https://www.arweave.net/${profileZone.spec.thumbnail}`}
-                  alt={profileZone.spec.displayName}
+                  src={`https://www.arweave.net/${profile.thumbnail}`}
+                  alt={profile.displayName}
                 />
               {/if}
               <AvatarFallback
-                >{profileZone.spec.displayName
-                  ? profileZone.spec.displayName[0].toUpperCase()
+                >{profile.userName
+                  ? profile.userName[0].toUpperCase()
                   : "U"}</AvatarFallback
               >
             </Avatar>
@@ -198,10 +201,10 @@
 
       <CardContent>
         <div class="flex justify-between space-x-2">
-          <p class="font-bold text-2xl">{profileZone.spec.displayName}</p>
-          {#if params.address != $addressStore.address}
-            {#if hubId}
-              <Follow {hubId} />
+          <p class="font-bold text-2xl">{profile.displayName}</p>
+          {#if $currentUser && params.address != $currentUser.address}
+            {#if hub}
+              <Follow hubId={hub.Spec.processId} />
             {/if}
           {:else}
             <Button
@@ -215,22 +218,22 @@
           {/if}
         </div>
         <p class="text-muted-foreground">
-          @{profileZone.spec.userName}
+          @{profile.userName}
         </p>
-        {#if profileZone.spec.description}
+        {#if profile.description}
           <p class="pt-2.5">
-            {profileZone.spec.description}
+            {profile.description}
           </p>
         {/if}
         <div class="flex flex-row space-x-5 pt-2.5">
-          {#if profileZone.spec.website}
+          {#if profile.website}
             <div class="flex flex-row space-x-1 justify-end items-center">
               <Link size={16} />
               <a
                 class="text-blue-400"
-                href={profileZone.spec.website}
+                href={profile.website}
                 target="_blank"
-                rel="noopener noreferrer">{getDisplayUrl(profileZone.spec.website)}</a
+                rel="noopener noreferrer">{getDisplayUrl(profile.website)}</a
               >
             </div>
           {/if}
@@ -239,7 +242,7 @@
           >
             <CalendarDays size={16} />
             <p>
-              Joined {formatJoinedTimestamp(Number(profileZone.registeredAt))}
+              Joined {formatJoinedTimestamp(Number(profile.created_at))}
             </p>
           </div>
         </div>
@@ -267,43 +270,46 @@
         </div>
       </CardContent>
     </Card>
-
-    <Tabs.Root bind:value class="max-w-prose ">
-      <Tabs.List class="grid grid-cols-4">
-        <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchPost} value="media">Assets</Tabs.Trigger>
-        <Tabs.Trigger on:click={fetchSubscriptions} value="following"
-          >Following</Tabs.Trigger
-        >
-        <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
-      </Tabs.List>
-      <Tabs.Content value="post">
-        {#each posts as post}
-          <div class="border border-border">
-            <PostComponent {post} />
-          </div>
-        {/each}
-      </Tabs.Content>
-      <Tabs.Content value="media">
-        {#each media as post}
-          <div class="border border-border max-w-prose">
-            <PostComponent {post} />
-          </div>
-        {/each}
-      </Tabs.Content>
-      <Tabs.Content value="following">
-        <!-- Placeholder for subscribed users list -->
-        <Users addresss={hub?.Following || []} />
-      </Tabs.Content>
-      <Tabs.Content value="followers">
-        <Users addresss={hub?.Followers || []} />
-      </Tabs.Content>
-    </Tabs.Root>
-  </div>
-{/if}
+  {/if}
+  <Tabs.Root bind:value class="max-w-prose ">
+    <Tabs.List class="grid grid-cols-4">
+      <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
+      <Tabs.Trigger on:click={fetchPost} value="media">Assets</Tabs.Trigger>
+      <Tabs.Trigger on:click={fetchFolloing} value="following"
+        >Following</Tabs.Trigger
+      >
+      <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
+    </Tabs.List>
+    <Tabs.Content value="post">
+      {#each posts as post}
+        <div class="border border-border">
+          <PostComponent {post} />
+        </div>
+      {/each}
+    </Tabs.Content>
+    <Tabs.Content value="media">
+      {#each media as post}
+        <div class="border border-border max-w-prose">
+          <PostComponent {post} />
+        </div>
+      {/each}
+    </Tabs.Content>
+    <Tabs.Content value="following">
+      <!-- Placeholder for subscribed users list -->
+      {#if hub}
+        <Users addresss={hub.Following || []} />
+      {/if}
+    </Tabs.Content>
+    <Tabs.Content value="followers">
+      {#if hub}
+        <Users addresss={hub.Followers || []} />
+      {/if}
+    </Tabs.Content>
+  </Tabs.Root>
+</div>
 
 <!-- Modal for UpdateProfile -->
-{#if showModal && profileZone}
+{#if showModal && profile}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
@@ -320,7 +326,7 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile initialProfile={profileZone} on:profileUpdated={toggleModal} />
+      <UpdateProfile initialProfile={profile} on:profileUpdated={toggleModal} />
     </div>
   </div>
 {/if}
