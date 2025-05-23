@@ -24,7 +24,7 @@
   import { hubRegistryService } from "$lib/services/HubRegistryService";
 
   export let post: Post;
-  //let hub: Hub;
+  let hub: Hub;
   let replies: Post[] = [];
   let profile: Profile;
   let replyingTo: Profile;
@@ -43,8 +43,10 @@
   });*/
 
   profileService.subscribe((profiles) => {
-    if (profiles.has(post.owner)) {
-      profile = profiles.get(post.owner)!;
+    if(!hub) return
+    if (profiles.has(hub.User)) {
+      profile = profiles.get(hub.User)!;
+      console.log(profile)
     }
   });
 
@@ -65,7 +67,10 @@
   }
 
   async function loadData() {
-    profileService.fetchProfiles(post.from, [post.owner]);
+    console.log(post)
+    console.log(post.owner)
+    hub = await hubService.info(post.from)
+    profileService.fetchProfiles(post.from, [post.from]);
     //hub = profile.hubId;
     //replies = await hubService.fetchReplies(hub, postId);
     //replyCount = replies.length;
