@@ -37,6 +37,7 @@ const service = (): ProfileService => {
                     profile.updated_at = message.Timestamp;
                     console.log(profile);
                     profiles.set(message.Owner,profile)
+                    profiles.set(message.From,profile)
                 }
                 set(profiles)
                 return profiles

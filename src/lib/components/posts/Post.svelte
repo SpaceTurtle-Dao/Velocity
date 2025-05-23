@@ -34,18 +34,10 @@
   let loadError: string | null = null;
   let dialogOpen = false;
 
-  /*hubRegistryService.subscribe((hubs) => {
-    if (!$currentUser.address) return;
-    if (hubs.has($currentUser.address)) {
-      let _hubZone = hubs.get($currentUser.address);
-      if (_hubZone) hubZone = _hubZone;
-    }
-  });*/
-
   profileService.subscribe((profiles) => {
-    if(!hub) return
-    if (profiles.has(hub.User)) {
-      profile = profiles.get(hub.User)!;
+    let _profile = profiles.get(post.from)
+    if (_profile) {
+      profile = _profile;
       console.log(profile)
     }
   });
@@ -69,7 +61,7 @@
   async function loadData() {
     console.log(post)
     console.log(post.owner)
-    hub = await hubService.info(post.from)
+    hubService.info(post.from).then((_hub) => hub = _hub)
     profileService.fetchProfiles(post.from, [post.from]);
     //hub = profile.hubId;
     //replies = await hubService.fetchReplies(hub, postId);
