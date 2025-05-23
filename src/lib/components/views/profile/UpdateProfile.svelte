@@ -118,7 +118,7 @@
           initialProfile.userName = _profile.name
           initialProfile.displayName = _profile.display_name
           initialProfile.description = _profile.description
-          initialProfile.profileImage = _profile.profileImage
+          initialProfile.thumbnail = _profile.profileImage
           initialProfile.coverImage = _profile.coverImage
 
           const result = await currentUser.updateProfile(

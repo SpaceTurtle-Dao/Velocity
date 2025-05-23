@@ -23,11 +23,9 @@
   import type { Post } from "$lib/models/Post";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Hub } from "$lib/models/Hub";
-  import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
-  import type { Zone } from "$lib/models/Zone";
+  import { HUB_REGISTRY_ID } from "$lib/constants";
   import type { Profile } from "$lib/models/Profile";
   import { postService } from "$lib/services/PostService";
-  import { P } from "flowbite-svelte";
 
   export let params: { address?: string } = {};
 
@@ -134,6 +132,7 @@
       if(_hub){
         hub = _hub
       }else{
+        console.log("fetching data")
         let zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
         hub = await hubService.info(zone.spec.processId)
         profileService.fetchProfiles(hub.Spec.processId,[params.address])
@@ -191,8 +190,8 @@
                 />
               {/if}
               <AvatarFallback
-                >{profile.displayName
-                  ? profile.displayName[0].toUpperCase()
+                >{profile.userName
+                  ? profile.userName[0].toUpperCase()
                   : "U"}</AvatarFallback
               >
             </Avatar>
