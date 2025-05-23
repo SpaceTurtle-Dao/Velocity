@@ -32,6 +32,10 @@
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
   let hub: Hub;
+  let followers: string[] = [];
+  let following: string[] = [];
+  let followersCount = 0;
+  let followingCount = 0;
   let profile: Profile;
 
   let mimeTypes: string[] = [
@@ -61,6 +65,10 @@
   hubService.subscribe((hubs) => {
     if (params.address && hubs.get(params.address)) {
       hub = hubs.get(params.address)!;
+      followers = hub.Followers
+      following = hub.Following
+      followersCount = followers.length
+      followingCount = following.length
     }
   });
 
@@ -131,30 +139,17 @@
       let _hub = $hubService.get(params.address)
       if(_hub){
         hub = _hub
+        profileService.fetchProfiles(hub.Spec.processId,[hub.Spec.processId])
+        console.log(hub)
       }else{
         console.log("fetching data")
         let zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
+        console.log(zone)
         hub = await hubService.info(zone.spec.processId)
-        profileService.fetchProfiles(hub.Spec.processId,[params.address])
+        console.log(hub)
+        profileService.fetchProfiles(hub.Spec.processId,[hub.Spec.processId])
       }
-      //hub = await hubService.info()
-      /*if ($currentUser && $currentUser.address == params.address) {
-        console.log("Is Current User");
-        hubZone = $currentUser.zone;
-        hub = $currentUser.hub;
-        profile = $currentUser.profile
-        fetchPost();
-      } else {
-        console.log("Is Not Current User");
-        hubRegistryService
-          .getZoneById(HUB_REGISTRY_ID(), params.address)
-          .then((_hubZone) => {
-            profileService.fetchProfiles(_hubZone.spec.processId, [
-              _hubZone.spec.processId,
-            ]);
-            fetchPost();
-          });
-      }*/
+      fetchPost();
     } catch (error) {
       console.log(params.address);
       console.log("Error setting up profile:", error);
@@ -253,13 +248,13 @@
             {:else}
               <div class="flex flex-row gap-4">
                 <div>
-                  <span class="font-bold mr-1">{hub.Following.length}</span>
+                  <span class="font-bold mr-1">{followingCount}</span>
                   <span class="font-normal text-muted-foreground"
                     >Following</span
                   >
                 </div>
                 <div>
-                  <span class="font-bold mr-1">{hub.Followers.length}</span>
+                  <span class="font-bold mr-1">{followersCount}</span>
                   <span class="font-normal text-muted-foreground"
                     >Followers</span
                   >
@@ -296,14 +291,10 @@
     </Tabs.Content>
     <Tabs.Content value="following">
       <!-- Placeholder for subscribed users list -->
-      {#if hub}
-        <Users addresss={hub.Following || []} />
-      {/if}
+      <Users addresss={following} />
     </Tabs.Content>
     <Tabs.Content value="followers">
-      {#if hub}
-        <Users addresss={hub.Followers || []} />
-      {/if}
+      <Users addresss={followers} />
     </Tabs.Content>
   </Tabs.Root>
 </div>

@@ -239,6 +239,21 @@ function event(msg)
         else
             table.insert(State.Events, msg)
         end
+    elseif msg.Kind == Kinds.NOTE and msg.Content and msg.e and msg.p and msg.marker == "reply" then
+        local _event = utils.find(
+            function(event)
+                return msg.From == event.From and msg.Kind == event.Kind and msg.e == event.e and
+                    msg.p == event.p
+            end,
+            State.Events
+        )
+        if _event then
+            State.Events = utils.filter(function(event)
+                return event.Id ~= _event.Id
+            end, State.Events)
+        else
+            table.insert(State.Events, msg)
+        end
     elseif isFollowed then
         table.insert(State.Events, msg)
     end

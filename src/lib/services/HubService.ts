@@ -28,6 +28,7 @@ const service = (): HubService => {
             let hub: Hub = await info(hubId)
             console.log(hub)
             hubs.set(hub.User,hub)
+            hubs.set(hub.Spec.processId,hub)
             set(hubs)
             return hub
         },
