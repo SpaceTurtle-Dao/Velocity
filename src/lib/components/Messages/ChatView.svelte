@@ -3,18 +3,15 @@
   export let messages;
   export let onBack = () => {};
 
-  // Mock messages (move this to MessagesPage later)
   let newMessage = "";
 
   function handleSend() {
     if (!newMessage.trim()) return;
-    // Handle sending message
     newMessage = "";
   }
 </script>
 
 <div class="flex flex-col h-full mt-5">
-  <!-- Chat Header -->
   <div class="p-4 border-b border-border bg-background-700/50 shadow-md">
     <div class="flex items-center space-x-4">
       <button 
@@ -71,7 +68,6 @@
     {/each}
   </div>
 
-  <!-- Message Input -->
   <div class="p-4 border-t border-border bg-background-700/50">
     <div class="flex items-center space-x-3">
       <button class="p-2 hover:bg-background-600 rounded-full transition-colors">
