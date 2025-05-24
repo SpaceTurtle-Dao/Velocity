@@ -10,6 +10,7 @@ export interface PostService extends Readable<Map<string, Post>> {
     fetchRepost: (hubId: string, id: string) => Promise<void>;
     fetchLikes: (hubId: string, id: string) => Promise<any[]>;
     get: (hubId: string, id: string) => Promise<Post>;
+    delete:() => void;
 }
 
 const service = (): PostService => {
@@ -183,13 +184,14 @@ const service = (): PostService => {
             let likes: any[] = []
             try {
                 const filter = {
-                    kinds: ["7"]
+                    kinds: ["7"],
+                    //tags: { e: [id] },
                 };
                 const filter2 = {
                     tags: { e: [id] },
                 };
 
-                const _filters = JSON.stringify([filter, filter2]);
+                const _filters = JSON.stringify([filter,filter2]);
                 likes = await fetchEvents(hub, _filters)
                 return likes
             } catch (error) {
@@ -244,10 +246,14 @@ const service = (): PostService => {
             }
 
         },
+        delete: () => {
+            set(new Map<string, any>())
+        }
     };
 };
 
 function postFactory(event: any): Post {
+    console.log(event)
     let postType: PostType;
     let repost: Post | undefined;
     switch (event.Tags["marker"]) {
@@ -274,6 +280,7 @@ function postFactory(event: any): Post {
     };
     let _post: Post = {
         id: event.Id,
+        original_Id: event.Tags["Original-Id"],
         from: event.From,
         owner: event.Owner,
         timestamp: event.Timestamp,

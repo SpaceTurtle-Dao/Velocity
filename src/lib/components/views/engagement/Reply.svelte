@@ -69,7 +69,7 @@
       const tags: Tag[] = [
         { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
-        { name: "e", value: post.id },
+        { name: "e", value: post.original_Id },
         { name: "p", value: post.from },
       ];
 

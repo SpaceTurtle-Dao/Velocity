@@ -29,7 +29,12 @@ export const event = async (hub: string, tags: Array<Tag>) => {
     name: "Action",
     value: "Event",
   };
+  let idTag: Tag = {
+    name: "Original-Id",
+    value: "",
+  };
   tags.push(actionTag);
+  tags.push(idTag);
   try {
     console.log("***TAGS***");
     console.log(tags);

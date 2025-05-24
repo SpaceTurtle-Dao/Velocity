@@ -2,40 +2,43 @@
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { onMount } from "svelte";
   import { currentUser } from "$lib/services/UserService";
-  import { hubService } from "$lib/services/HubService";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
-  import type { Zone } from "$lib/models/Zone";
-  import type { Hub } from "$lib/models/Hub";
   import { HUB_REGISTRY_ID } from "$lib/constants";
+    import { hubService } from "$lib/services/HubService";
 
   export let hubId: string;
   let isSubscribed: boolean;
   let loader = false;
 
-  /*hubRegistryService.subscribe(async (zones) => {
-    if ($currentUser.address && zones.has($currentUser.address)) {
-      zone = zones.get($currentUser.address)!;
-      hub = await hubService.info(zone?.spec.processId);
-      isSubscribed = hub.Following.includes(hubId)!;
-    }
-  });*/
+  hubService.subscribe((hubs) => {
+    if (!$currentUser) return;
+    let _hub = hubs.get($currentUser.address)
+    console.log(_hub)
+    isSubscribed = _hub?.Following.includes(hubId)!;
+    console.log(isSubscribed)
+  })
 
   const unfollow = async () => {
+    if (!$currentUser) return;
     loader = true;
+    hubService.info(hubId)
     await currentUser.unfollow(hubId);
+    await currentUser.setup($currentUser.address)
     loader = false;
   };
 
   const follow = async () => {
+    if (!$currentUser) return;
     loader = true;
+    hubService.info(hubId)
     await currentUser.follow(hubId);
+    await currentUser.setup($currentUser.address)
     loader = false;
   };
 
   onMount(async () => {
     if (!$currentUser) return;
-    hubRegistryService.getZoneById(HUB_REGISTRY_ID(), $currentUser.address);
-    isSubscribed = $currentUser.hub?.Following.includes(hubId)!;
+    currentUser.setup($currentUser.address)
   });
 </script>
 

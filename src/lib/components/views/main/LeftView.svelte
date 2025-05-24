@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { link } from "svelte-spa-router";
+  import { link, push } from "svelte-spa-router";
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
   import Logo from "../../../../assets/Logo2.png";
@@ -18,8 +18,10 @@
   import CreateProfile from "../profile/CreateProfile.svelte";
   import { onMount } from "svelte";
   import { walletService } from "$lib/services/walletService";
+    import { postService } from "$lib/services/PostService";
 
   let loader = false;
+  let address:string;
 
   let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/" },
@@ -45,6 +47,15 @@
   walletService.subscribe((address) => {
     if (!address) return;
     currentUser.setup(address).then(() => (loader = false));
+  });
+
+  addEventListener("walletSwitch", async (e) => {
+    console.log(e)
+    //@ts-ignore
+    const { address } = e.detail;
+    postService.delete()
+    await currentUser.setup(address)
+    if($currentUser) push(`/profile/${address}`);
   });
 
   onMount(() => {
@@ -97,14 +108,6 @@
               </li>
             {/each}
           {/if}
-          <li>
-            <div
-              class="flex items-center p-2 px-5 rounded-full hover:bg-background-700 transition-colors duration-200"
-            >
-              <MoreHorizontal class="w-6 h-6 mr-4 text-primary" />
-              <span class="text-lg font-medium text-primary">More</span>
-            </div>
-          </li>
         </ul>
       </nav>
       {#if $currentUser}
