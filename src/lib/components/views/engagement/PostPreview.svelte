@@ -6,7 +6,7 @@
   import { Repeat2Icon } from "lucide-svelte";
   import { onMount } from "svelte";
   import { PostType, type Post } from "$lib/models/Post";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
 
   export let post: Post;
   export let profile: Profile;

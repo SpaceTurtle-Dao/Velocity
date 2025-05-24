@@ -18,7 +18,7 @@
   import type { Post } from "$lib/models/Post";
   import { postService } from "$lib/services/PostService";
   import type { Profile } from "$lib/models/Profile";
-    import { currentUser } from "$lib/services/UserService";
+    import { currentUser } from "$lib/services/CurrentUser";
 
   export let params: { hubId?: string; id?: string } = {};
 

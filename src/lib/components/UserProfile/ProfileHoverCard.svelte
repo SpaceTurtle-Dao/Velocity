@@ -7,7 +7,7 @@
   import type { Profile } from "$lib/models/Profile";
   import Follow from "../Follow/Follow.svelte";
   import { Skeleton } from "$lib/components/ui/skeleton";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
   import { hubService } from "$lib/services/HubService";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Hub } from "$lib/models/Hub";
