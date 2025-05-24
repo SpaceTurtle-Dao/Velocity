@@ -7,6 +7,7 @@
        import { onMount } from "svelte";
        import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
        import { profileService } from "$lib/services/ProfileService";
+       import { walletService } from "$lib/services/WalletService";
 
        // import {}
 
@@ -17,65 +18,67 @@
        }
 
        async function diconnectWallet() {
-              await currentUser.disconnectWallet();
+              await walletService.disconnectWallet();
        }
 
        profileService.subscribe(async (profiles) => {
-              if ($currentUser && profiles.has($currentUser.address)) {
-                     profile = await profiles.get($currentUser.address);
+              if(!$currentUser) return;
+              let _profile = profiles.get($currentUser.address)
+              if (_profile) {
+                     profile = _profile;
               }
        });
 
-       onMount(async () => {
-              
-       });
+       onMount(async () => {});
 </script>
 
-<DropdownMenu.Root>
-       <DropdownMenu.Trigger asChild let:builder>
-              <div class="p-4">
-                     <div class="p-6">
-                            <div class="flex items-center space-x-4">
-                                   {#if profile.profileImage}
-                                          <Avatar
-                                                 class="h-24 w-24 ring-4 ring-white"
-                                          >
-                                                 <AvatarImage
-                                                        src={toUrl(
-                                                               profile.profileImage,
-                                                        )}
-                                                        alt={profile.displayName}
-                                                 />
-                                                 <AvatarFallback
-                                                        >{profile.displayName}</AvatarFallback
+{#if profile}
+       <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild let:builder>
+                     <div class="p-4">
+                            <div class="p-6">
+                                   <div class="flex items-center space-x-4">
+                                          {#if profile.profileImage}
+                                                 <Avatar
+                                                        class="h-24 w-24 ring-4 ring-white"
                                                  >
-                                          </Avatar>
-                                   {/if}
-                                   <div>
-                                          <h1
-                                                 class="text-3xl font-extrabold text-white"
-                                          >
-                                                 {profile.userName}
-                                          </h1>
-                                          <p class="text-secondary-200">
-                                                 @{profile.userName}
-                                          </p>
-                                          <p class="mt-2 text-white">
-                                                 {"profile.bio"}
-                                          </p>
+                                                        <AvatarImage
+                                                               src={toUrl(
+                                                                      profile.profileImage,
+                                                               )}
+                                                               alt={profile.displayName}
+                                                        />
+                                                        <AvatarFallback
+                                                               >{profile.displayName}</AvatarFallback
+                                                        >
+                                                 </Avatar>
+                                          {/if}
+                                          <div>
+                                                 <h1
+                                                        class="text-3xl font-extrabold text-white"
+                                                 >
+                                                        {profile.userName}
+                                                 </h1>
+                                                 <p class="text-secondary-200">
+                                                        @{profile.userName}
+                                                 </p>
+                                                 <p class="mt-2 text-white">
+                                                        {"profile.bio"}
+                                                 </p>
+                                          </div>
                                    </div>
                             </div>
                      </div>
-              </div>
-       </DropdownMenu.Trigger>
-       <DropdownMenu.Content>
-              <DropdownMenu.Group>
-                     <DropdownMenu.Label>Log out</DropdownMenu.Label>
-                     <!-- <DropdownMenu.Separator />
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content>
+                     <DropdownMenu.Group>
+                            <DropdownMenu.Label>Log out</DropdownMenu.Label>
+                            <!-- <DropdownMenu.Separator />
                      <DropdownMenu.Item>Profile</DropdownMenu.Item>
                      <DropdownMenu.Item>Billing</DropdownMenu.Item>
                      <DropdownMenu.Item>Team</DropdownMenu.Item>
                      <DropdownMenu.Item>Subscription</DropdownMenu.Item> -->
-              </DropdownMenu.Group>
-       </DropdownMenu.Content>
-</DropdownMenu.Root>
+                     </DropdownMenu.Group>
+              </DropdownMenu.Content>
+       </DropdownMenu.Root>
+{/if}

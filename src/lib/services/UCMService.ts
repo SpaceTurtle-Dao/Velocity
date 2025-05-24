@@ -5,7 +5,6 @@ import { get, writable, type Readable } from "svelte/store";
 import Arweave from "arweave";
 import { connect, createDataItemSigner } from "@permaweb/aoconnect";
 import Permaweb, { type AssetCreateArgsType, type AssetDetailType, type AssetHeaderType, type CollectionDetailType, type CollectionType, } from '@permaweb/libs'
-import { currentUser } from "$lib/services/UserService";
 import { send } from "$lib/ao/process.svelte";
 
 

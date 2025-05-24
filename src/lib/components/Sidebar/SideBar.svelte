@@ -26,7 +26,6 @@
 
   export let url = "";
 
-  let profile: Profile;
 
   const menuItems = [
     { icon: Home, label: "Home", href: "/" },
@@ -39,11 +38,6 @@
     return ARWEAVE_ADDRESS + tx;
   }
 
-  profileService.subscribe(async (profiles) => {
-    if ($currentUser && profiles.has($currentUser.address)) {
-      profile = await profiles.get($currentUser.address);
-    }
-  });
 </script>
 
 <Router {url}>
