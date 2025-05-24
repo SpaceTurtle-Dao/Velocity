@@ -3,12 +3,13 @@
   import { push } from "svelte-spa-router";
   import { writable } from "svelte/store";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
+    import { walletService } from "$lib/services/WalletService";
 
   
   async function handleDisconnect() {
     try {
       // Disconnect the wallet
-      await currentUser.disconnectWallet();
+      await walletService.disconnectWallet();
       
       // Clear all relevant stores
       const { subscribe, set } = writable();

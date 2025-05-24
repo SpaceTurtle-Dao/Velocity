@@ -131,30 +131,17 @@
       let _hub = $hubService.get(params.address)
       if(_hub){
         hub = _hub
+        profileService.fetchProfiles(hub.Spec.processId,[hub.Spec.processId])
+        console.log(hub)
       }else{
         console.log("fetching data")
         let zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
+        console.log(zone)
         hub = await hubService.info(zone.spec.processId)
-        profileService.fetchProfiles(hub.Spec.processId,[params.address])
+        console.log(hub)
+        profileService.fetchProfiles(hub.Spec.processId,[hub.Spec.processId])
       }
-      //hub = await hubService.info()
-      /*if ($currentUser && $currentUser.address == params.address) {
-        console.log("Is Current User");
-        hubZone = $currentUser.zone;
-        hub = $currentUser.hub;
-        profile = $currentUser.profile
-        fetchPost();
-      } else {
-        console.log("Is Not Current User");
-        hubRegistryService
-          .getZoneById(HUB_REGISTRY_ID(), params.address)
-          .then((_hubZone) => {
-            profileService.fetchProfiles(_hubZone.spec.processId, [
-              _hubZone.spec.processId,
-            ]);
-            fetchPost();
-          });
-      }*/
+      fetchPost();
     } catch (error) {
       console.log(params.address);
       console.log("Error setting up profile:", error);

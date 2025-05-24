@@ -18,7 +18,7 @@
     };
 
     async function like() {
-        if(!$currentUser) return
+        if (!$currentUser) return;
         let _tags: Array<Tag> = [];
 
         let contentTag: Tag = {
@@ -27,7 +27,7 @@
         };
         let eventTag: Tag = {
             name: "e",
-            value: post.id,
+            value: post.original_Id,
         };
         let pubkeyTag: Tag = {
             name: "p",
@@ -54,32 +54,30 @@
             liked = true;
         }
         await currentUser.createEvent(post.from, _tags, "7");
-        postService.fetchLikes(post.from, post.id).then((_likes) => {
+        postService.fetchLikes(post.from, post.original_Id).then((_likes) => {
             likes = _likes;
             console.log("**Likes**");
-            let temp = likes.filter((like) => {
-                console.log(like.From);
-                console.log($currentUser.hub?.Spec.processId);
-                console.log(like);
-                return like.From == $currentUser.hub?.Spec.processId;
-            });
-            liked = temp.length > 0;
+            for (var i = 0; i < likes.length; i++) {
+                if (
+                    likes[i].From == $currentUser?.address ||
+                    likes[i].From == $currentUser?.hub.Spec.processId
+                )
+                    liked = true;
+            }
         });
     }
 
     onMount(async () => {
-        if (post.from) {
-            postService.fetchLikes(post.from, post.id).then((_likes) => {
-                likes = _likes;
-                console.log("**Likes**");
-                let temp = likes.filter((like) => {
-                    console.log(like.From);
-                    console.log($currentUser?.hub.Spec.processId);
-                    console.log(like);
-                    return like.From == $currentUser?.hub.Spec.processId;
-                });
-                liked = temp.length > 0;
-            });
+        console.log(post);
+        likes = await postService.fetchLikes(post.from, post.original_Id);
+        console.log("**Likes**");
+        console.log(likes);
+        for (var i = 0; i < likes.length; i++) {
+            if (
+                likes[i].From == $currentUser?.address ||
+                likes[i].From == $currentUser?.hub.Spec.processId
+            )
+                liked = true;
         }
     });
 </script>

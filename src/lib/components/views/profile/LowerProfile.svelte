@@ -7,7 +7,7 @@
   import { writable } from "svelte/store";
   import { profileService } from "$lib/services/ProfileService";
   import type { Profile } from "$lib/models/Profile";
-  import { walletService } from "$lib/services/walletService";
+  import { walletService } from "$lib/services/WalletService";
 
   let isMenuOpen = false;
   let menuRef: HTMLDivElement;

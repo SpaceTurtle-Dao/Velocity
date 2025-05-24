@@ -35,6 +35,7 @@ const service = (): UserStore => {
     connectWallet: async () => {
       try {
         await window.arweaveWallet.connect(PERMISSIONS, APP_INFO, GATEWAY);
+        
         walletService.isConnected()
       } catch (error) {
         // To avoding loop of callbacks on address.subscribe callbacks
