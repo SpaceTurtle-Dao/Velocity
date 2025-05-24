@@ -21,6 +21,7 @@
   let address: string;
 
   postService.subscribe(async (posts) => {
+    feed = []
     feed = posts.values().toArray();
   });
 
@@ -42,6 +43,7 @@
   });
 
   async function fetchFeedEvents() {
+
     const now = new Date();
     let since = timestampService.subtract(new Date(), 10, "days").getTime();
     let until = now.getTime();

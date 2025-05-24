@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { link } from "svelte-spa-router";
+  import { link, push } from "svelte-spa-router";
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import LowerProfile from "$lib/components/views/profile/LowerProfile.svelte";
   import Logo from "../../../../assets/Logo2.png";
@@ -51,8 +51,8 @@
     console.log(e)
     //@ts-ignore
     const { address } = e.detail;
-
     await currentUser.setup(address)
+    if($currentUser) push(`/profile/${address}`);
   });
 
   onMount(() => {

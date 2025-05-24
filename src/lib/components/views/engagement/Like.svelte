@@ -18,7 +18,7 @@
     };
 
     async function like() {
-        if(!$currentUser) return
+        if (!$currentUser) return;
         let _tags: Array<Tag> = [];
 
         let contentTag: Tag = {
@@ -68,19 +68,17 @@
     }
 
     onMount(async () => {
-        if (post.from) {
-            postService.fetchLikes(post.from, post.id).then((_likes) => {
-                likes = _likes;
-                console.log("**Likes**");
-                let temp = likes.filter((like) => {
-                    console.log(like.From);
-                    console.log($currentUser?.hub.Spec.processId);
-                    console.log(like);
-                    return like.From == $currentUser?.hub.Spec.processId;
-                });
-                liked = temp.length > 0;
-            });
-        }
+        console.log(post);
+        likes = await postService.fetchLikes(post.from, post.id);
+        console.log("**Likes**");
+        console.log(likes);
+        let temp = likes.filter((like) => {
+            return (
+                like.From == $currentUser?.address ||
+                like.From == $currentUser?.hub.Spec.processId
+            );
+        });
+        liked = temp.length > 0;
     });
 </script>
 
@@ -90,7 +88,7 @@
     class="flex flex-row text-primary space-x-1 bg-transparent hover:bg-transparent"
     on:click={like}
 >
-    {#if liked}
+    {#if likes.length > 0}
         <Heart strokeWidth={0} class="fill-red-400" />
         <p class="font-thin text-red-400">{likes.length}</p>
     {:else}

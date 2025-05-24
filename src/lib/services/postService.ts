@@ -183,13 +183,14 @@ const service = (): PostService => {
             let likes: any[] = []
             try {
                 const filter = {
-                    kinds: ["7"]
+                    kinds: ["7"],
+                    tags: { e: [id] },
                 };
                 const filter2 = {
                     tags: { e: [id] },
                 };
 
-                const _filters = JSON.stringify([filter, filter2]);
+                const _filters = JSON.stringify([filter]);
                 likes = await fetchEvents(hub, _filters)
                 return likes
             } catch (error) {
