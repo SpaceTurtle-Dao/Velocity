@@ -47,6 +47,14 @@
     currentUser.setup(address).then(() => (loader = false));
   });
 
+  addEventListener("walletSwitch", async (e) => {
+    console.log(e)
+    //@ts-ignore
+    const { address } = e.detail;
+
+    await currentUser.setup(address)
+  });
+
   onMount(() => {
     walletService.isConnected();
   });
