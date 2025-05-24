@@ -6,7 +6,7 @@ import { PostType, type Post } from "$lib/models/Post";
 export interface PostService extends Readable<Map<string, Post>> {
     fetchPost: (hubId: string, since: Number, until: Number) => Promise<void>;
     fetchPostWithAuthors: (hub: string, authors: string[]) => Promise<void>;
-    fetchReplies: (hubId: string, id: string) => Promise<void>;
+    fetchReplies: (hubId: string, id: string) => Promise<Post[]>;
     fetchRepost: (hubId: string, id: string) => Promise<void>;
     fetchLikes: (hubId: string, id: string) => Promise<any[]>;
     get: (hubId: string, id: string) => Promise<Post>;
@@ -129,9 +129,9 @@ const service = (): PostService => {
                 }
             }
         },
-        fetchReplies: async (hub: string, id: string): Promise<void> => {
+        fetchReplies: async (hub: string, id: string): Promise<Post[]> => {
             //console.log("getting Replies")
-            let posts = get(postService);
+            let replies:Post[] = [];
             try {
                 const filter = {
                     kinds: ["1"],
@@ -147,10 +147,12 @@ const service = (): PostService => {
                 for (var i = 0; i < events.length; i++) {
                     if (events[i].Content) {
                         let post = postFactory(events[i]);
-                        posts.set(post.from, post)
+                        replies.push(post)
+                        //posts.set(post.from, post)
                     }
                 }
-                set(posts)
+                //set(posts)
+                return replies
             } catch (error) {
                 throw (error)
             }

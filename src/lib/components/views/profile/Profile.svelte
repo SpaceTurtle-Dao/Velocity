@@ -258,7 +258,7 @@
       </CardContent>
     </Card>
   {/if}
-  <Tabs.Root bind:value class="max-w-prose ">
+  <Tabs.Root bind:value>
     <Tabs.List class="grid grid-cols-4">
       <Tabs.Trigger on:click={fetchPost} value="post">Post</Tabs.Trigger>
       <Tabs.Trigger on:click={fetchPost} value="media">Assets</Tabs.Trigger>
@@ -267,27 +267,27 @@
       >
       <Tabs.Trigger value="followers">Followers</Tabs.Trigger>
     </Tabs.List>
-    <Tabs.Content value="post">
+    <Tabs.Content class="h-screen" value="post">
       {#each posts as post}
         <div class="border border-border">
           <PostComponent {post} />
         </div>
       {/each}
     </Tabs.Content>
-    <Tabs.Content value="media">
+    <Tabs.Content class="h-screen" value="media">
       {#each media as post}
         <div class="border border-border max-w-prose">
           <PostComponent {post} />
         </div>
       {/each}
     </Tabs.Content>
-    <Tabs.Content value="following">
+    <Tabs.Content class="h-screen" value="following">
       <!-- Placeholder for subscribed users list -->
       {#if hub}
         <Users addresss={hub.Following || []} />
       {/if}
     </Tabs.Content>
-    <Tabs.Content value="followers">
+    <Tabs.Content class="h-screen" value="followers">
       {#if hub}
         <Users addresss={hub.Followers || []} />
       {/if}

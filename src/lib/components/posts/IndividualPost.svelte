@@ -18,7 +18,7 @@
   import type { Post } from "$lib/models/Post";
   import { postService } from "$lib/services/postService";
   import type { Profile } from "$lib/models/Profile";
-    import { currentUser } from "$lib/services/CurrentUser";
+  import { currentUser } from "$lib/services/CurrentUser";
 
   export let params: { hubId?: string; id?: string } = {};
 
@@ -45,7 +45,7 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
-  postService.subscribe((posts) => {
+  /*postService.subscribe((posts) => {
     if (!params.hubId || !params.id) return;
     replies = posts
       .values()
@@ -53,7 +53,7 @@
       .toArray();
     replyCount = replies.length;
     console.log(`got ${replyCount} Replies`);
-  });
+  });*/
 
   profileService.subscribe((profiles) => {
     if (post && post.owner && profiles.has(post.owner)) {
@@ -68,7 +68,10 @@
     post = await postService.get(params.hubId, params.id);
     profileService.fetchProfiles(params.hubId, [post.owner]);
     console.log(post);
-    //await postService.fetchReplies(hubId, id);
+    replies = await postService.fetchReplies(post.from, post.original_Id);
+    replyCount = replies.length;
+    console.log(replies);
+    console.log(replyCount);
     //await postService.fetchRepost(hubId, id);
   }
 
@@ -122,7 +125,7 @@
       const tags: Tag[] = [
         { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
-        { name: "e", value: post.id },
+        { name: "e", value: post.original_Id },
         { name: "p", value: post.from },
       ];
 
@@ -152,9 +155,9 @@
     }
   }
 
-  async function handleReplyClick(reply: any, e: MouseEvent) {
+  async function handleReplyClick(reply: Post, e: MouseEvent) {
     e.preventDefault();
-    await push(`/post/${reply.From}/${reply.Id}`);
+    await push(`/post/${reply.from}/${reply.id}`);
   }
 </script>
 
@@ -165,16 +168,17 @@
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
-          {#if profile}
+          {#if $currentUser}
             <Avatar class="h-12 w-12 text-primary">
-              {#if profile.thumbnail}
+              {#if $currentUser.profile.thumbnail}
                 <AvatarImage
-                  src={`https://www.arweave.net/${profile.thumbnail}`}
-                  alt={profile.displayName || "Current User"}
+                  src={`https://www.arweave.net/${$currentUser.profile.thumbnail}`}
+                  alt={$currentUser.profile.displayName || "Current User"}
+                  class="object-cover"
                 />
               {:else}
                 <AvatarFallback>
-                  {profile.userName?.[0] || "U"}
+                  {$currentUser.profile.userName?.[0] || "U"}
                 </AvatarFallback>
               {/if}
             </Avatar>
