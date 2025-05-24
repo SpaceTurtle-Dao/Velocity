@@ -3,14 +3,8 @@ import { send, read } from "$lib/ao/process.svelte";
 //@ts-ignore
 import { FetchEvents, GetZones, GetZoneById, Register, Info, UpdateProfile, Transfer, QueryFee } from "$lib/ao/messegeFactory.svelte";
 import type { Tag } from "$lib/models/Tag";
-import type { Profile } from "$lib/models/Profile";
-import { currentUser } from "$lib/services/UserService";
-import { HUB_REGISTRY_ID } from "$lib/constants";
 //@ts-ignore
 import { Eval } from "./messegeFactory.svelte";
-import type { Spec } from "$lib/models/Spec";
-import type { Hub } from "$lib/models/Hub";
-import { walletService } from "$lib/services/walletService";
 
 export const evalProcess = async (data: string, processId: string) => {
   //await walletService.connectWallet();
