@@ -32,10 +32,6 @@
   let posts: Array<Post> = [];
   let media: Array<Post> = [];
   let hub: Hub;
-  let followers: string[] = [];
-  let following: string[] = [];
-  let followersCount = 0;
-  let followingCount = 0;
   let profile: Profile;
 
   let mimeTypes: string[] = [
@@ -65,10 +61,6 @@
   hubService.subscribe((hubs) => {
     if (params.address && hubs.get(params.address)) {
       hub = hubs.get(params.address)!;
-      followers = hub.Followers
-      following = hub.Following
-      followersCount = followers.length
-      followingCount = following.length
     }
   });
 
@@ -248,13 +240,13 @@
             {:else}
               <div class="flex flex-row gap-4">
                 <div>
-                  <span class="font-bold mr-1">{followingCount}</span>
+                  <span class="font-bold mr-1">{hub.Following.length}</span>
                   <span class="font-normal text-muted-foreground"
                     >Following</span
                   >
                 </div>
                 <div>
-                  <span class="font-bold mr-1">{followersCount}</span>
+                  <span class="font-bold mr-1">{hub.Followers.length}</span>
                   <span class="font-normal text-muted-foreground"
                     >Followers</span
                   >
@@ -291,10 +283,14 @@
     </Tabs.Content>
     <Tabs.Content value="following">
       <!-- Placeholder for subscribed users list -->
-      <Users addresss={following} />
+      {#if hub}
+        <Users addresss={hub.Following || []} />
+      {/if}
     </Tabs.Content>
     <Tabs.Content value="followers">
-      <Users addresss={followers} />
+      {#if hub}
+        <Users addresss={hub.Followers || []} />
+      {/if}
     </Tabs.Content>
   </Tabs.Root>
 </div>
