@@ -16,7 +16,7 @@
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
-  import { postService } from "$lib/services/PostService";
+  import { postService } from "$lib/services/postService";
   import type { Profile } from "$lib/models/Profile";
     import { currentUser } from "$lib/services/CurrentUser";
 

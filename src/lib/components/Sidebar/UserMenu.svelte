@@ -7,7 +7,7 @@
        import { onMount } from "svelte";
        import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
        import { profileService } from "$lib/services/ProfileService";
-       import { walletService } from "$lib/services/WalletService";
+       import { walletService } from "$lib/services/walletService";
 
        // import {}
 

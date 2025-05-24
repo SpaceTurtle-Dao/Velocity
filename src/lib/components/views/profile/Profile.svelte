@@ -25,7 +25,7 @@
   import type { Hub } from "$lib/models/Hub";
   import { HUB_REGISTRY_ID } from "$lib/constants";
   import type { Profile } from "$lib/models/Profile";
-  import { postService } from "$lib/services/PostService";
+  import { postService } from "$lib/services/postService";
 
   export let params: { address?: string } = {};
 

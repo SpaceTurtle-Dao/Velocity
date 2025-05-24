@@ -5,7 +5,7 @@
     import { onMount } from "svelte";
     import type { Post } from "$lib/models/Post";
     import { currentUser } from "$lib/services/CurrentUser";
-    import { postService } from "$lib/services/PostService";
+    import { postService } from "$lib/services/postService";
 
     export let post: Post;
 
