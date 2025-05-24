@@ -130,5 +130,3 @@ async function createProfile(hubId: string, profileData: ProfileCreateData) {
 }
 
 export const currentUser = initUserStore();
-
-
