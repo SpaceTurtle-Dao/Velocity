@@ -10,4 +10,9 @@ export default defineConfig({
        },
        plugins: [svelte()],
        base: "./",
+       optimizeDeps: {
+              force: true,
+              include: ['$lib/**/*.ts'],
+              exclude: ['vuetify', '@vueuse/core']
+       }
 })
