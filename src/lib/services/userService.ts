@@ -1,4 +1,4 @@
-import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
+import { HUB_REGISTRY_ID } from "$lib/constants";
 import type { Hub } from "$lib/models/Hub";
 import type { Profile, ProfileCreateData } from "$lib/models/Profile";
 import type { Tag } from "$lib/models/Tag";
