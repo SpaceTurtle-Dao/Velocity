@@ -15,8 +15,6 @@
         "checkJs": true,
         "isolatedModules": true,
         "moduleDetection": "force",
-        "declaration": true, // Generate type definitions
-		"declarationDir": "dist/types", // Output directory for type declarations
         "paths": {
             "$lib": ["./src/lib"],
             "$lib/*": ["./src/lib/*"]
