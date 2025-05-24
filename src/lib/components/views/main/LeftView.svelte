@@ -20,6 +20,7 @@
   import { walletService } from "$lib/services/walletService";
 
   let loader = false;
+  let address:string;
 
   let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/" },
@@ -105,14 +106,6 @@
               </li>
             {/each}
           {/if}
-          <li>
-            <div
-              class="flex items-center p-2 px-5 rounded-full hover:bg-background-700 transition-colors duration-200"
-            >
-              <MoreHorizontal class="w-6 h-6 mr-4 text-primary" />
-              <span class="text-lg font-medium text-primary">More</span>
-            </div>
-          </li>
         </ul>
       </nav>
       {#if $currentUser}
