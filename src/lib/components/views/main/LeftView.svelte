@@ -18,6 +18,7 @@
   import CreateProfile from "../profile/CreateProfile.svelte";
   import { onMount } from "svelte";
   import { walletService } from "$lib/services/walletService";
+    import { postService } from "$lib/services/PostService";
 
   let loader = false;
   let address:string;
@@ -52,6 +53,7 @@
     console.log(e)
     //@ts-ignore
     const { address } = e.detail;
+    postService.delete()
     await currentUser.setup(address)
     if($currentUser) push(`/profile/${address}`);
   });

@@ -161,7 +161,7 @@ function event(msg)
 
     if msg.From == State.Owner then
         msg.From = ao.id
-        msg.Original_Id = msg.Id
+        msg.Tags["Original-Id"] = msg.Id
         if msg.Kind == Kinds.FOLLOW and msg.p then
             table.insert(State.Events, msg)
             for _, v in ipairs(json.decode(msg.p)) do

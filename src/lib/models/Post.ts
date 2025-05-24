@@ -1,5 +1,6 @@
 export interface Post {
   id: string;
+  original_Id:string;
   from: string;
   owner: string;
   timestamp: number;
