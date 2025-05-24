@@ -1,6 +1,6 @@
 <script>
     import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-    import { walletService } from "$lib/services/walletService";
+    import { walletService } from "$lib/services/WalletService";
     export let loader = false;
 </script>
 

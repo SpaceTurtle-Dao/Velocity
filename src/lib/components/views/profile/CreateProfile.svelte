@@ -16,7 +16,7 @@
     import { ARWEAVE_ADDRESS } from "$lib/constants";
     import { currentUser } from "$lib/services/UserService";
     import { hubService } from "$lib/services/HubService";
-    import { walletService } from "$lib/services/walletService";
+    import { walletService } from "$lib/services/WalletService";
     import { push } from "svelte-spa-router";
 
     const initialProfileSchema = z.object({

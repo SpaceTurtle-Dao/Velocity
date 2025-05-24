@@ -5,7 +5,7 @@
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
   import { writable } from "svelte/store";
   import { currentUser } from "$lib/services/UserService"; // Make sure to import your address store
-  import { walletService } from "$lib/services/walletService";
+  import { walletService } from "$lib/services/WalletService";
 
   let opacity = "opacity-100";
   let showDisconnect = false;

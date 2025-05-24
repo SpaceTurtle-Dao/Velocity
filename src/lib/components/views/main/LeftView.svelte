@@ -17,7 +17,7 @@
   import Connect from "$lib/components/wallet/connect.svelte";
   import CreateProfile from "../profile/CreateProfile.svelte";
   import { onMount } from "svelte";
-  import { walletService } from "$lib/services/walletService";
+  import { walletService } from "$lib/services/WalletService";
     import { postService } from "$lib/services/PostService";
 
   let loader = false;
