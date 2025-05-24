@@ -8,7 +8,7 @@
   import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import { push, replace } from "svelte-spa-router";
-    import { walletService } from "$lib/services/WalletService";
+    import { walletService } from "$lib/services/walletService";
 
   let isLoading = true;
   let loader = false;

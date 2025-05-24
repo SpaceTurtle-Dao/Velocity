@@ -10,7 +10,7 @@
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { HUB_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
-    import { postService } from "$lib/services/PostService";
+    import { postService } from "$lib/services/postService";
 
   let feed: Array<Post> = [];
   let isLoadingFeed = true;

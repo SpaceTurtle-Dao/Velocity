@@ -8,7 +8,7 @@
   import { hubService } from "$lib/services/HubService";
   import { currentUser } from "$lib/services/CurrentUser";
   import { profileService } from "$lib/services/ProfileService";
-    import { postService } from "$lib/services/PostService";
+    import { postService } from "$lib/services/postService";
 
   export let post: Post;
 

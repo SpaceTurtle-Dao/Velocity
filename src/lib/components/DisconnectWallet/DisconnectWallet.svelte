@@ -3,7 +3,7 @@
   import { push } from "svelte-spa-router";
   import { writable } from "svelte/store";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
-    import { walletService } from "$lib/services/WalletService";
+    import { walletService } from "$lib/services/walletService";
 
   
   async function handleDisconnect() {
