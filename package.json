@@ -13,7 +13,7 @@
     "deploy-staging": "npm run build && permaweb-deploy --ant-process 87OqQaiyhnCWPyM-JbdlFTJ2mHPQUl9zpoWQ6JQ5_GE --undername staging"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "@sveltejs/vite-plugin-svelte": "5.0.3",
     "@tailwindcss/typography": "^0.5.14",
     "@tsconfig/svelte": "^5.0.4",
     "@types/lodash": "^4.17.14",
