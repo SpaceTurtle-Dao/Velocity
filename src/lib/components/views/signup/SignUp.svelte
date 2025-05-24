@@ -23,7 +23,7 @@
   import type { Tag } from "$lib/models/Tag";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import * as Dialog from "$lib/components/ui/dialog";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
 
   // Zod schema for signup validation
   const signupSchema = z.object({
