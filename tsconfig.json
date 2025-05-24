@@ -16,7 +16,6 @@
         "isolatedModules": true,
         "moduleDetection": "force",
         "paths": {
-            "$lib": ["./src/lib"],
             "$lib/*": ["./src/lib/*"]
         }
     },
