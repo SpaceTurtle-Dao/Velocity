@@ -23,7 +23,7 @@
   import type { Post } from "$lib/models/Post";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Hub } from "$lib/models/Hub";
-  import { HUB_REGISTRY_ID } from "$lib/constants";
+  import { HUB_REGISTRY_ID, toUrl } from "$lib/constants";
   import type { Profile } from "$lib/models/Profile";
   import { postService } from "$lib/services/postService";
 
@@ -159,7 +159,7 @@
         <div class="bg-gray-200 relative">
           {#if profile.coverImage}
             <img
-              src={`https://www.arweave.net/${profile.coverImage}`}
+              src={toUrl(profile.coverImage)}
               alt="Banner"
               class="w-full max-h-48 object-cover"
             />
@@ -173,7 +173,7 @@
               {#if profile.thumbnail}
                 <AvatarImage
                   class="object-cover"
-                  src={`https://www.arweave.net/${profile.thumbnail}`}
+                  src={toUrl(profile.thumbnail)}
                   alt={profile.displayName}
                 />
               {/if}

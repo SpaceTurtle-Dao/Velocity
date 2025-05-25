@@ -15,6 +15,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import type { Profile } from "$lib/models/Profile";
   import { postService } from "$lib/services/postService";
+    import { toUrl } from "$lib/constants";
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -167,7 +168,7 @@
         {#if profile}
           {#if profile.thumbnail}
             <ProfilePicture
-              src={`https://www.arweave.net/${profile.thumbnail}`}
+              src={toUrl(profile.thumbnail)}
               name={profile.userName}
               size="lg"
             />

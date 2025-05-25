@@ -149,7 +149,24 @@ export function WAR_TOKEN(): string {
     return "";
 }
 
-export const ARWEAVE_ADDRESS = "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/"
+export function ARWEAVE_URL(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "https://arweave.velocity.cloudnet.marshal.ao/";
+        }
+        case "staging": {
+            return "https://arweave.velocity.cloudnet.marshal.ao/";
+        }
+        case "production": {
+            return "https://arweave.net/";
+        }
+    }
+    return "";
+}
+
+export function toUrl(tx: string) {
+    return ARWEAVE_URL() + tx;
+}
 
 export const DEFAULT_QUANTITY = "1000000000000000000"
 export const DECIMALS = 1000000000000;

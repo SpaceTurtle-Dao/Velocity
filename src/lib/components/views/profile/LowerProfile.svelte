@@ -8,6 +8,7 @@
   import { profileService } from "$lib/services/ProfileService";
   import type { Profile } from "$lib/models/Profile";
   import { walletService } from "$lib/services/walletService";
+  import { toUrl } from "$lib/constants";
 
   let isMenuOpen = false;
   let menuRef: HTMLDivElement;
@@ -19,10 +20,6 @@
       profile = profiles.get($currentUser.address)!;
     }
   });
-
-  function toUrl(tx: string) {
-    return "https://arweave.net/" + tx;
-  }
 
   async function handleDisconnect() {
     try {

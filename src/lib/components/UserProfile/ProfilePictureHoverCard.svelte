@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { toUrl } from "$lib/constants";
   import type { Profile } from "$lib/models/Profile";
   import ProfileHoverCard from "./ProfileHoverCard.svelte";
   import ProfilePicture from "./ProfilePicture.svelte";
@@ -11,7 +12,7 @@
     {#if profile.thumbnail}
       <ProfilePicture
         name={profile.displayName}
-        src={`https://www.arweave.net/${profile.thumbnail}`}
+        src={toUrl(profile.thumbnail)}
         {size}
       />
     {:else}

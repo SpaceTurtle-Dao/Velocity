@@ -11,7 +11,7 @@
   import { hubService } from "$lib/services/HubService";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Hub } from "$lib/models/Hub";
-  import { HUB_REGISTRY_ID } from "$lib/constants";
+  import { HUB_REGISTRY_ID, toUrl } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
 
   export let profile: Profile | undefined;
@@ -44,7 +44,7 @@
           <a href="/profile/{profile.owner}" use:link>
             <ProfilePicture
               name={profile.displayName}
-              src={`https://www.arweave.net/${profile.thumbnail}`}
+              src={toUrl(profile.thumbnail)}
               size="xl"
             />
           </a>
