@@ -4,10 +4,11 @@
   import { onMount } from "svelte";
   import { push } from "svelte-spa-router";
   import TrendingAssets from "$lib/components/Assets_Card/TrendingAssets.svelte";
-  import { ARWEAVE_ADDRESS } from "$lib/constants";
+  import { ARWEAVE_ADDRESS, HUB_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
-    import { profileService } from "$lib/services/ProfileService";
-    import { currentUser } from "$lib/services/CurrentUser";
+  import { profileService } from "$lib/services/ProfileService";
+  import { currentUser } from "$lib/services/CurrentUser";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
 
   let searchQuery = "";
   let searchResults: Zone[] = [];
@@ -43,11 +44,13 @@
     isLoading = true;
     console.log(searchQuery.toLowerCase());
     try {
-      const filters = JSON.stringify({
-        search: searchQuery.toLowerCase(),
-      });
       //create a way to search through a list of known hubs
-      //searchResults = await profileService.searchProfiles($currentUser?.profile.from,searchQuery)
+      searchResults = await hubRegistryService.search(
+        HUB_REGISTRY_ID(),
+        searchQuery.toLowerCase(),
+        1,
+        100,
+      );
       console.log(searchResults);
       if (isSearchFocused && searchQuery.trim()) {
       }
