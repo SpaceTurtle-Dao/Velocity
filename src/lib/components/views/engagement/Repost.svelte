@@ -14,7 +14,6 @@
 
   let reposted = false;
   let reposts: Post[] = [];
-  let _tags: Array<Tag> = [];
 
   async function repost() {
     if (!$currentUser && !post) return;
@@ -33,7 +32,7 @@
       },
       {
         name: "e",
-        value: post.id.toString(),
+        value: post.original_Id,
       },
       {
         name: "marker",
@@ -52,10 +51,10 @@
 
   onMount(async () => {
     if (post.from) {
-      await postService.fetchRepost(post.from, post.id);
+      /*await postService.fetchRepost(post.from, post.original_Id);
       if($currentUser){
         reposted = reposts.filter((value) => value.from == $currentUser.hub?.Spec.processId).length > 0;
-      }
+      }*/
     }
   });
 </script>

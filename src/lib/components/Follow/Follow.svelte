@@ -24,6 +24,7 @@
     hubService.info(hubId)
     await currentUser.unfollow(hubId);
     await currentUser.setup($currentUser.address)
+    hubService.info(hubId)
     loader = false;
   };
 
@@ -33,6 +34,7 @@
     hubService.info(hubId)
     await currentUser.follow(hubId);
     await currentUser.setup($currentUser.address)
+    hubService.info(hubId)
     loader = false;
   };
 

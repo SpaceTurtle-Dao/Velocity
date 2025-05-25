@@ -22,11 +22,13 @@
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
+  import { postService } from "$lib/services/postService";
 
   export let post: Post;
   let hub: Hub;
   let replies: Post[] = [];
   let profile: Profile;
+  let rePostProfile: Profile;
   let replyingTo: Profile;
   let replyCount = 0;
   let hubZone: Zone;
@@ -35,10 +37,16 @@
   let dialogOpen = false;
 
   profileService.subscribe((profiles) => {
-    let _profile = profiles.get(post.from)
+    let _profile = profiles.get(post.from);
     if (_profile) {
       profile = _profile;
-      console.log(profile)
+      console.log(profile);
+    }
+    if (post.rePost) {
+      let _rePostProfile = profiles.get(post.rePost.from);
+      if (_rePostProfile) {
+        rePostProfile = _rePostProfile;
+      }
     }
   });
 
@@ -59,14 +67,15 @@
   }
 
   async function loadData() {
-    console.log(post)
-    console.log(post.owner)
-    hubService.info(post.from).then((_hub) => hub = _hub)
+    console.log(post);
+    console.log(post.owner);
+    hubService.info(post.from).then((_hub) => (hub = _hub));
     profileService.fetchProfiles(post.from, [post.from]);
-    //hub = profile.hubId;
-    //replies = await hubService.fetchReplies(hub, postId);
-    //replyCount = replies.length;
-    //hubService.fetchRepost(hub, postId);
+    replies = await postService.fetchReplies(post.from, post.original_Id);
+    replyCount = replies.length;
+    if (post.rePost) {
+      profileService.fetchProfiles(post.rePost.from, [post.rePost.from]);
+    }
   }
 
   onMount(async () => {
@@ -147,7 +156,7 @@
           {#if post.type == PostType.Reply && post.p}
             <div class="flex items-center text-muted-foreground mb-2">
               <CornerDownRight size={16} class="mr-2" />
-              {#await profileService.fetchProfiles(post.from, [post.p]) then _profile}
+              {#await profileService.fetchProfiles( post.from, [post.p], ) then _profile}
                 {#if $profileService.has(post.p)}
                   <span class="text-sm"
                     >Replying to @{$profileService.get(post.p)?.userName}</span
@@ -156,14 +165,14 @@
               {/await}
             </div>
           {/if}
-          {#if post.rePost && profile}
+          {#if rePostProfile}
             <div class="flex items-center text-muted-foreground mb-2">
               <Repeat2Icon size={16} class="mr-2" />
               <span class="text-sm">
-                {#if profile.owner == $currentUser?.address}
+                {#if rePostProfile.from == $currentUser?.hub.Spec.processId}
                   You Reposted
                 {:else}
-                  Reposted by @{profile.userName}
+                  Reposted by @{rePostProfile.userName}
                 {/if}
               </span>
             </div>
@@ -172,22 +181,10 @@
           <a use:link href={`/post/${post.from}/${post.id}`}>
             <div>
               <div class="flex justify-start space-x-3">
-                {#if post.rePost && profile}
-                  {#await profileService.fetchProfiles(post.from, [post.rePost.owner])}
-                    <div
-                      class="hidden sm:block h-9 w-9 rounded-full bg-gray-200 animate-pulse"
-                    ></div>
-                  {:then _profile}
-                    <div>
-                      {#if $profileService.has(post.rePost.from)}
-                        <ProfilePictureHoverCard
-                          profile={$profileService.get(
-                            post.rePost.from,
-                          )}
-                        />
-                      {/if}
-                    </div>
-                  {/await}
+                {#if rePostProfile}
+                  <div>
+                    <ProfilePictureHoverCard profile={rePostProfile} />
+                  </div>
                 {:else if profile}
                   <div>
                     <ProfilePictureHoverCard {profile} />
@@ -199,28 +196,18 @@
                 {/if}
                 <div class="flex-1">
                   <div class="flex space-x-1 mb-1">
-                    {#if post.rePost}
-                      {#await profileService.fetchProfiles(post.rePost.from, [post.rePost.owner])}
-                        <div
-                          class="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2"
-                        ></div>
-                      {:then _profile}
-                        {#if $profileService.get(post.rePost.from)}
-                          <ProfileHoverCard
-                            profile={($profileService.get(post.rePost.owner))}
+                    {#if rePostProfile}
+                      <ProfileHoverCard profile={rePostProfile}>
+                        <div class="flex space-x-1">
+                          <p class="font-medium text-primary">
+                            {rePostProfile.userName}
+                          </p>
+                          <span
+                            class="text-muted-foreground pl-0.5 text-ellipsis"
+                            >@{rePostProfile.displayName}</span
                           >
-                            <div class="flex space-x-1">
-                              <p class="font-medium text-primary">
-                                {$profileService.get(post.rePost.owner)?.userName}
-                              </p>
-                              <span
-                                class="text-muted-foreground pl-0.5 text-ellipsis"
-                                >@{$profileService.get(post.rePost.owner)?.displayName}</span
-                              >
-                            </div>
-                          </ProfileHoverCard>
-                        {/if}
-                      {/await}
+                        </div>
+                      </ProfileHoverCard>
                     {:else if profile}
                       <ProfileHoverCard {profile}>
                         <div class="flex space-x-1">
