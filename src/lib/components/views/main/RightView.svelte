@@ -90,7 +90,7 @@
 
 {#if !$isMobile}
   <div class="flex flex-col px-5 w-1/3">
-    <div class="bg-background-800 rounded-lg p-4 shadow-lg">
+    <div class="bg-background-800 p-4">
       <div class="relative pt-6">
         <div
           class="flex items-center space-x-2 bg-background-700 rounded-full p-2 border border-opacity-30 transition-all duration-200"
