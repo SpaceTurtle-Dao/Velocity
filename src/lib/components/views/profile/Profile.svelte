@@ -59,8 +59,9 @@
   });
 
   hubService.subscribe((hubs) => {
-    if (params.address && hubs.get(params.address)) {
-      hub = hubs.get(params.address)!;
+    if (params.address) {
+      let _hub = hubs.get(params.address)
+      if(_hub) hub = _hub;
     }
   });
 
