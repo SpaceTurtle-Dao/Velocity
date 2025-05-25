@@ -36,7 +36,9 @@ const service = (): HubRegistryService => {
       const filters = JSON.stringify({
         search: value,
       });
-      return await getZones(processId, filters, page, limit)
+      let zones = await getZones(processId, filters, page, limit)
+
+      return zones.filter((zone) => zone.spec.profile)
     },
     fetchZones: async (processId: string, filters: string, page: Number, limit: Number): Promise<Zone[]> => {
       return await getZones(processId, filters, page, limit)
