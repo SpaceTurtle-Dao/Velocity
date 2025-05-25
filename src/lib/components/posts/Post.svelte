@@ -281,7 +281,7 @@
               <Like {post} />
               <Buy />
             {/if}
-            <Share />
+            <Share {post} />
           </div>
         </div>
       {/if}
