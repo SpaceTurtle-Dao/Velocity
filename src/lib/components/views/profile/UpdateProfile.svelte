@@ -21,7 +21,8 @@
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import { currentUser } from "$lib/services/CurrentUser";
   import { profileService } from "$lib/services/ProfileService";
-  import { toUrl } from "$lib/constants";
+  import { HUB_REGISTRY_ID, toUrl } from "$lib/constants";
+    import { hubRegistryService } from "$lib/services/HubRegistryService";
 
   export let initialProfile: Profile;
 
@@ -30,7 +31,7 @@
     name: z.string().min(1, "Name is required"),
     display_name: z.string().min(1, "Display Name is required"),
     description: z.string().optional(),
-    profileImage: z.string().optional(),
+    thumbnail: z.string().optional(),
     coverImage: z.string().optional(),
     website: z.string().url().optional().or(z.literal("")),
     bot: z.boolean().optional(),
@@ -42,7 +43,7 @@
     name: initialProfile.userName || "",
     display_name: initialProfile.displayName || "",
     description: initialProfile.description || "",
-    profileImage: initialProfile.thumbnail || "",
+    thumbnail: initialProfile.thumbnail || "",
     coverImage: initialProfile.coverImage || "",
     website: initialProfile.website || "",
     bot: initialProfile.bot || false,
@@ -56,11 +57,11 @@
 
   const dispatch = createEventDispatcher();
 
-  function handleFileChange(event: Event, type: "profileImage" | "coverImage") {
+  function handleFileChange(event: Event, type: "thumbnail" | "coverImage") {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
     if (file) {
-      if (type === "profileImage") {
+      if (type === "thumbnail") {
         pictureFile = file;
       } else {
         coverImageFile = file;
@@ -81,7 +82,7 @@
       errors = {};
       if (pictureFile) {
         let _pictureFile = await upload(pictureFile);
-        _profile.profileImage = _pictureFile.hash;
+        _profile.thumbnail = _pictureFile.hash;
       }
       if (coverImageFile) {
         let _coverImageFile = await upload(coverImageFile);
@@ -114,13 +115,16 @@
           initialProfile.userName = _profile.name;
           initialProfile.displayName = _profile.display_name;
           initialProfile.description = _profile.description;
-          initialProfile.thumbnail = _profile.profileImage;
+          initialProfile.thumbnail = _profile.thumbnail;
           initialProfile.coverImage = _profile.coverImage;
 
           const result = await currentUser.updateProfile(
             initialProfile.from,
             initialProfile,
           );
+          let spec = $currentUser.zone.spec;
+          spec.profile = initialProfile;
+          await hubRegistryService.register(HUB_REGISTRY_ID(), spec);
           await profileService.fetchProfiles(initialProfile.from, [
             $currentUser.address,
           ]);
@@ -192,10 +196,10 @@
                       src={URL.createObjectURL(pictureFile)}
                       alt={_profile.name}
                     />
-                  {:else if _profile.profileImage}
+                  {:else if _profile.thumbnail}
                     <AvatarImage
                       class="object-cover"
-                      src={toUrl(_profile.profileImage)}
+                      src={toUrl(_profile.thumbnail)}
                       alt={_profile.name}
                     />
                   {:else}
@@ -217,7 +221,7 @@
                   type="file"
                   accept="image/*"
                   class="hidden"
-                  on:change={(e) => handleFileChange(e, "profileImage")}
+                  on:change={(e) => handleFileChange(e, "thumbnail")}
                 />
               </div>
             </div>
