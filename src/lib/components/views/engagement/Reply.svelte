@@ -12,7 +12,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { profileService } from "$lib/services/ProfileService";
   import type { Post } from "$lib/models/Post";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
   import { PROFILE_REGISTRY_ID } from "$lib/constants";
 
   export let post: Post;

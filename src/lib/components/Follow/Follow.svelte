@@ -1,7 +1,7 @@
 <script lang="ts">
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
   import { onMount } from "svelte";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { HUB_REGISTRY_ID } from "$lib/constants";
     import { hubService } from "$lib/services/HubService";
@@ -24,6 +24,7 @@
     hubService.info(hubId)
     await currentUser.unfollow(hubId);
     await currentUser.setup($currentUser.address)
+    hubService.info(hubId)
     loader = false;
   };
 
@@ -33,6 +34,7 @@
     hubService.info(hubId)
     await currentUser.follow(hubId);
     await currentUser.setup($currentUser.address)
+    hubService.info(hubId)
     loader = false;
   };
 

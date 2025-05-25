@@ -4,7 +4,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { onMount } from "svelte";
   import { profileService } from "$lib/services/ProfileService";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
   import { hubService } from "$lib/services/HubService";
 
   export let addresss: string[] = [];

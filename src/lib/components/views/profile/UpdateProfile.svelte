@@ -19,7 +19,7 @@
   import { Camera } from "lucide-svelte";
   import { upload } from "$lib/ao/uploader";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
   import { profileService } from "$lib/services/ProfileService";
 
   export let initialProfile: Profile;

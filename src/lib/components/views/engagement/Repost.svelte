@@ -6,15 +6,14 @@
   import { event } from "$lib/ao/relay";
   import type { Post } from "$lib/models/Post";
   import { hubService } from "$lib/services/HubService";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
   import { profileService } from "$lib/services/ProfileService";
-    import { postService } from "$lib/services/PostService";
+    import { postService } from "$lib/services/postService";
 
   export let post: Post;
 
   let reposted = false;
   let reposts: Post[] = [];
-  let _tags: Array<Tag> = [];
 
   async function repost() {
     if (!$currentUser && !post) return;
@@ -33,7 +32,7 @@
       },
       {
         name: "e",
-        value: post.id.toString(),
+        value: post.original_Id,
       },
       {
         name: "marker",
@@ -52,10 +51,10 @@
 
   onMount(async () => {
     if (post.from) {
-      await postService.fetchRepost(post.from, post.id);
+      /*await postService.fetchRepost(post.from, post.original_Id);
       if($currentUser){
         reposted = reposts.filter((value) => value.from == $currentUser.hub?.Spec.processId).length > 0;
-      }
+      }*/
     }
   });
 </script>

@@ -22,7 +22,7 @@
   import { ARWEAVE_ADDRESS } from "$lib/constants";
   import UserMenu from "./UserMenu.svelte";
   import { profileService } from "$lib/services/ProfileService";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
 
   export let url = "";
 

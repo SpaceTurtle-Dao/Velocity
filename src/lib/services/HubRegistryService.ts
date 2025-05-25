@@ -4,6 +4,7 @@ import type { Zone } from "$lib/models/Zone";
 export interface HubRegistryService extends Readable<Map<string, Zone>> {
   getZones: (processId: string, filters: string, page: Number, limit: Number) => Promise<void>;
   getZoneById: (processId: string, owner: string) => Promise<Zone>;
+  search: (processId: string, value: string, page: Number, limit: Number) => Promise<Zone[]>;
   fetchZones: (processId: string, filters: string, page: Number, limit: Number) => Promise<Zone[]>;
   register: (processId: string, spec: any) => Promise<void>;
 }
@@ -30,6 +31,14 @@ const service = (): HubRegistryService => {
         }
         set(zones)
       }
+    },
+    search: async (processId: string, value: string, page: Number, limit: Number): Promise<Zone[]> => {
+      const filters = JSON.stringify({
+        search: value,
+      });
+      let zones = await getZones(processId, filters, page, limit)
+
+      return zones.filter((zone) => zone.spec.profile)
     },
     fetchZones: async (processId: string, filters: string, page: Number, limit: Number): Promise<Zone[]> => {
       return await getZones(processId, filters, page, limit)

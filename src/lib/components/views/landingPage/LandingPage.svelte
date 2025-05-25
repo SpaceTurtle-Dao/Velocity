@@ -1,14 +1,14 @@
 <script lang="ts">
   import backgroundImage from "../../../../assets/Logo.png";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { Loader } from "lucide-svelte";
   import { onMount } from "svelte";
   import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
   import { push, replace } from "svelte-spa-router";
-    import { walletService } from "$lib/services/WalletService";
+    import { walletService } from "$lib/services/walletService";
 
   let isLoading = true;
   let loader = false;

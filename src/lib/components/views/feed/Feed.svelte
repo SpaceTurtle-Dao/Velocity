@@ -5,12 +5,12 @@
   import { onMount, onDestroy } from "svelte";
   import { hubService } from "$lib/services/HubService";
   import { profileService } from "$lib/services/ProfileService";
-  import { currentUser } from "$lib/services/UserService";
+  import { currentUser } from "$lib/services/CurrentUser";
   import { timestampService } from "$lib/utils/date-time";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { HUB_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
-    import { postService } from "$lib/services/PostService";
+    import { postService } from "$lib/services/postService";
 
   let feed: Array<Post> = [];
   let isLoadingFeed = true;
@@ -96,7 +96,7 @@
 
 {#if address}
   <div class="relative">
-    <div class="md:mt-10 mt-5 max-w-prose w-full">
+    <div class="md:mt-10 mt-5 max-w-prose w-screen">
       <Tabs.Root value="for you" class="max-w-prose">
         <Tabs.List class="grid grid-cols-1 md:mx-0 mx-4">
           <Tabs.Trigger

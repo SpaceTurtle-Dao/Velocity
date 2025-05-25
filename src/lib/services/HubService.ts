@@ -27,8 +27,8 @@ const service = (): HubService => {
             let hubs = get(hubService)
             let hub: Hub = await info(hubId)
             console.log(hub)
-            hubs.set(hub.User,hub)
-            hubs.set(hub.Spec.processId,hub)
+            hubs.set(hub.User, hub)
+            hubs.set(hub.Spec.processId, hub)
             set(hubs)
             return hub
         },
@@ -55,7 +55,8 @@ const service = (): HubService => {
                     kinds: ["0", "1", "7", "6", "3", "2"],
                     description: "Social message hub",
                     version: "1.0.0",
-                    processId: processId
+                    processId: processId,
+                    profile: profileData
                 };
                 await hubRegistryService.register(HUB_REGISTRY_ID(), hubSpec);
                 await createProfile(processId, profileData)
