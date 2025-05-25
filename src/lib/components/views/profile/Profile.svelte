@@ -150,7 +150,7 @@
   }
 </script>
 
-<div class="md:mt-10 max-w-prose">
+<div class="md:mt-10 max-w-prose relative">
   {#if profile}
     <Card
       class="mb-10 overflow-hidden shadow-lg rounded-none md:rounded-lg border-border relative"

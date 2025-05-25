@@ -96,7 +96,7 @@
 
 {#if address}
   <div class="relative">
-    <div class="md:mt-10 mt-5 max-w-prose w-screen">
+    <div class="md:mt-10 mt-5 max-w-prose">
       <Tabs.Root value="for you" class="max-w-prose">
         <Tabs.List class="grid grid-cols-1 md:mx-0 mx-4">
           <Tabs.Trigger
@@ -120,7 +120,7 @@
           {:else}
             <div>
               {#each feed as post}
-                <div class="max-w-prose">
+                <div class="max-w-prose border border-border">
                   <PostComponent {post} />
                 </div>
               {/each}
