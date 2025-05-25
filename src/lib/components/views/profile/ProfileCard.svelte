@@ -9,7 +9,7 @@
   import { hubService } from "$lib/services/HubService";
   import ProfilePictureHoverCard from "$lib/components/UserProfile/ProfilePictureHoverCard.svelte";
   import type { Zone } from "$lib/models/Zone";
-  import { HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
+  import { toUrl, HUB_REGISTRY_ID, PROFILE_REGISTRY_ID } from "$lib/constants";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import type { Hub } from "$lib/models/Hub";
 
@@ -23,11 +23,7 @@
       profile = _profile;
     }
   });
-
-  function toUrl(tx: string) {
-    return `https://arweave.net/${tx}`;
-  }
-
+  
   onMount(async () => {
     console.log("**Loading Profile card**");
     hubService.info(hubId).then((_hub) => hub = _hub);

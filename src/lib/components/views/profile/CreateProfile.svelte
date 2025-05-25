@@ -13,7 +13,7 @@
         AvatarFallback,
         AvatarImage,
     } from "$lib/components/ui/avatar";
-    import { ARWEAVE_ADDRESS } from "$lib/constants";
+    import { toUrl } from "$lib/constants";
     import { currentUser } from "$lib/services/CurrentUser";
     import { hubService } from "$lib/services/HubService";
     import { walletService } from "$lib/services/walletService";
@@ -46,10 +46,6 @@
     // New variables for file handling
     let pictureFile: File | null = null;
     let coverImageFile: File | null = null;
-
-    function toUrl(tx: string) {
-        return ARWEAVE_ADDRESS + tx;
-    }
 
     function handleFileChange(event: Event, type: "picture" | "banner") {
         const target = event.target as HTMLInputElement;

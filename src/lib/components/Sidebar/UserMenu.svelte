@@ -1,21 +1,17 @@
 <script lang="ts">
        import { Button } from "$lib/components/ui/button/index.js";
        import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
-       import { ARWEAVE_ADDRESS } from "$lib/constants";
        import { profileFromEvent, type Profile } from "$lib/models/Profile";
        import { currentUser } from "$lib/services/CurrentUser";
        import { onMount } from "svelte";
        import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
        import { profileService } from "$lib/services/ProfileService";
        import { walletService } from "$lib/services/walletService";
+    import { toUrl } from "$lib/constants";
 
        // import {}
 
        let profile: Profile;
-
-       function toUrl(tx: string) {
-              return ARWEAVE_ADDRESS + tx;
-       }
 
        async function diconnectWallet() {
               await walletService.disconnectWallet();

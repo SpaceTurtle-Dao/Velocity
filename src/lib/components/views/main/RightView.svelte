@@ -4,7 +4,7 @@
   import { onMount } from "svelte";
   import { push } from "svelte-spa-router";
   import TrendingAssets from "$lib/components/Assets_Card/TrendingAssets.svelte";
-  import { ARWEAVE_ADDRESS, HUB_REGISTRY_ID } from "$lib/constants";
+  import { HUB_REGISTRY_ID, toUrl } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
 
@@ -14,10 +14,6 @@
   let debounceTimer: NodeJS.Timeout;
   let isSearchFocused = false;
   let clickedProfile = false;
-
-  function toUrl(tx: string) {
-    return ARWEAVE_ADDRESS + tx;
-  }
 
   function handleBlur() {
     if (!clickedProfile) {

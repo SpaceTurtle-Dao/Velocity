@@ -21,13 +21,9 @@
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import { currentUser } from "$lib/services/CurrentUser";
   import { profileService } from "$lib/services/ProfileService";
+  import { toUrl } from "$lib/constants";
 
   export let initialProfile: Profile;
-
-  // Function to format Arweave transaction URLs
-  function toUrl(tx: string) {
-    return "https://arweave.net/" + tx;
-  }
 
   // Zod schema for profile validation
   const profileSchema = z.object({
@@ -115,17 +111,19 @@
             { name: "ProfileImage", value: profile.profileImage || "" },
           ];*/
 
-          initialProfile.userName = _profile.name
-          initialProfile.displayName = _profile.display_name
-          initialProfile.description = _profile.description
-          initialProfile.thumbnail = _profile.profileImage
-          initialProfile.coverImage = _profile.coverImage
+          initialProfile.userName = _profile.name;
+          initialProfile.displayName = _profile.display_name;
+          initialProfile.description = _profile.description;
+          initialProfile.thumbnail = _profile.profileImage;
+          initialProfile.coverImage = _profile.coverImage;
 
           const result = await currentUser.updateProfile(
             initialProfile.from,
             initialProfile,
           );
-          await profileService.fetchProfiles(initialProfile.from, [$currentUser.address])
+          await profileService.fetchProfiles(initialProfile.from, [
+            $currentUser.address,
+          ]);
           console.log("Profile updated successfully:", result);
           dispatch("profileUpdated");
         }

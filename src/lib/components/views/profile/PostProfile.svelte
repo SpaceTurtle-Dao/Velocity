@@ -14,18 +14,12 @@
         type Profile,
         type UserInfo,
     } from "$lib/models/Profile";
+    import { toUrl } from "$lib/constants";
 
     export let _user: UserInfo
 
     function formatDate(dateString: number): string {
         return new Date(dateString).toLocaleTimeString();
-    }
-
-    function toUrl(tx: string) {
-        return (
-            "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/" +
-            tx
-        );
     }
 </script>
 

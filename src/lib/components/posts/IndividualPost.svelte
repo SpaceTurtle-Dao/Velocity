@@ -19,6 +19,7 @@
   import { postService } from "$lib/services/postService";
   import type { Profile } from "$lib/models/Profile";
   import { currentUser } from "$lib/services/CurrentUser";
+    import { toUrl } from "$lib/constants";
 
   export let params: { hubId?: string; id?: string } = {};
 
@@ -172,7 +173,7 @@
             <Avatar class="h-12 w-12 text-primary">
               {#if $currentUser.profile.thumbnail}
                 <AvatarImage
-                  src={`https://www.arweave.net/${$currentUser.profile.thumbnail}`}
+                  src={toUrl($currentUser.profile.thumbnail)}
                   alt={$currentUser.profile.displayName || "Current User"}
                   class="object-cover"
                 />
