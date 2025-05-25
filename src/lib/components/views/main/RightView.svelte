@@ -6,8 +6,6 @@
   import TrendingAssets from "$lib/components/Assets_Card/TrendingAssets.svelte";
   import { ARWEAVE_ADDRESS, HUB_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
-  import { profileService } from "$lib/services/ProfileService";
-  import { currentUser } from "$lib/services/CurrentUser";
   import { hubRegistryService } from "$lib/services/HubRegistryService";
 
   let searchQuery = "";
@@ -48,7 +46,7 @@
       searchResults = await hubRegistryService.search(
         HUB_REGISTRY_ID(),
         searchQuery.toLowerCase(),
-        1,
+        0,
         100,
       );
       console.log(searchResults);
@@ -136,20 +134,20 @@
           class="mt-4 max-h-[320px] overflow-y-auto bg-card text-card-foreground border border-border rounded shadow-sm p-2"
         >
           <div class="space-y-2">
-            {#each searchResults as profile}
+            {#each searchResults as zone}
               <!-- Changed from link to on:click handler -->
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <!-- svelte-ignore a11y-no-static-element-interactions -->
               <div
-                on:click={(e) => navigateToProfile(profile.owner, e)}
+                on:click={(e) => navigateToProfile(zone.owner, e)}
                 on:mousedown={() => (clickedProfile = true)}
                 class="block hover:bg-background-600 cursor-pointer transition-colors duration-200 rounded-lg overflow-hidden"
               >
                 <div class="flex items-center space-x-3 p-3 bg-background-700">
-                  {#if profile.spec.thumbnail}
+                  {#if zone.spec.profile.thumbnail}
                     <img
-                      src={toUrl(profile.spec.thumbnail)}
-                      alt={profile.spec.displayName || profile.spec.userName}
+                      src={toUrl(zone.spec.profile.thumbnail)}
+                      alt={zone.spec.profile.displayName || zone.spec.profile.userName}
                       class="w-10 h-10 rounded-full object-cover"
                     />
                   {:else}
@@ -157,7 +155,7 @@
                       class="w-10 h-10 bg-background-600 flex items-center justify-center"
                     >
                       <span class="text-lg text-primary">
-                        {(profile.spec.displayName || profile.spec.userName)
+                        {(zone.spec.profile.displayName || zone.spec.profile.userName)
                           .charAt(0)
                           .toUpperCase()}
                       </span>
@@ -166,13 +164,13 @@
 
                   <div class="flex-1 min-w-0">
                     <h3 class="text-primary font-medium truncate">
-                      {profile.spec.displayName || profile.spec.userName}
+                      {zone.spec.profile.displayName || zone.spec.profile.userName}
                       <!-- Implement when address is there -->
                       <!-- {profile.displayName || profile.userName || profile.address.slice(0, 8) + '...'} -->
                     </h3>
-                    {#if profile.spec.description}
+                    {#if zone.spec.profile.description}
                       <p class="text-sm text-muted-foreground line-clamp-1">
-                        {profile.spec.description}
+                        {zone.spec.profile.description}
                       </p>
                     {/if}
                   </div>
