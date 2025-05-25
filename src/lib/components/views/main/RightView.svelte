@@ -28,7 +28,6 @@
   }
 
   async function handleSearch() {
-    // Clear results if search query is empty or search is not focused
     if (!searchQuery.trim() || !isSearchFocused) {
       searchResults = [];
       isLoading = false;
