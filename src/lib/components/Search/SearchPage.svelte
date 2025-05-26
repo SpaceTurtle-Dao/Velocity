@@ -16,7 +16,6 @@
   let clickedProfile = false;
   let searchInput: HTMLInputElement;
 
-  // Internal search logic
   async function handleSearch() {
     if (!searchQuery.trim() || !isSearchFocused) {
       searchResults = [];
@@ -62,7 +61,6 @@
   function navigateToProfile(address: string, event: MouseEvent) {
     clickedProfile = true;
     push(`/profile/${address}`);
-    // Clear search after navigation
     setTimeout(() => {
       searchQuery = "";
       searchResults = [];
