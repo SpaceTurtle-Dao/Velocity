@@ -1,46 +1,46 @@
 export function MU_URL(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "https://mu.velocity.ao-cloudnet.michaelbuhler.com";
+            return "https://mu.velocity.cloudnet.marshal.ao";
         }
         case "staging": {
-            return "https://mu.velocity.ao-cloudnet.michaelbuhler.com";
+            return "https://mu.velocity.cloudnet.marshal.ao";
         }
         case "production": {
-            return "https://mu.velocity.ao-cloudnet.michaelbuhler.com";
+            return "https://mu.velocity.cloudnet.marshal.ao";
         }
     }
-    return "https://mu.velocity.ao-cloudnet.michaelbuhler.com";
+    return "https://mu.velocity.cloudnet.marshal.ao";
 }
 
 export function CU_URL(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "https://cu.velocity.ao-cloudnet.michaelbuhler.com";
+            return "https://cu.velocity.cloudnet.marshal.ao";
         }
         case "staging": {
-            return "https://cu.velocity.ao-cloudnet.michaelbuhler.com";
+            return "https://cu.velocity.cloudnet.marshal.ao";
         }
         case "production": {
-            return "https://cu.velocity.ao-cloudnet.michaelbuhler.com";
+            return "https://cu.velocity.cloudnet.marshal.ao";
         }
     }
-    return "https://cu.velocity.ao-cloudnet.michaelbuhler.com";
+    return "https://cu.velocity.cloudnet.marshal.ao";
 }
 
 export function GATEWAY_URL(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "https://gateway.velocity.ao-cloudnet.michaelbuhler.com";
+            return "https://gateway.velocity.cloudnet.marshal.ao";
         }
         case "staging": {
-            return "https://gateway.velocity.ao-cloudnet.michaelbuhler.com";
+            return "https://gateway.velocity.cloudnet.marshal.ao";
         }
         case "production": {
-            return "https://gateway.velocity.ao-cloudnet.michaelbuhler.com";
+            return "https://gateway.velocity.cloudnet.marshal.ao";
         }
     }
-    return "https://gateway.velocity.ao-cloudnet.michaelbuhler.com";
+    return "https://gateway.velocity.cloudnet.marshal.ao";
 }
 
 export function SCHEDULER(): string {
