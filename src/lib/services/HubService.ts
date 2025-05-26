@@ -5,11 +5,10 @@ import { luaModule } from "./hub_lua";
 import { createProcess } from "$lib/ao/process.svelte";
 import type { Hub } from "$lib/models/Hub";
 import type { Tag } from "$lib/models/Tag";
-import type { Profile, ProfileCreateData } from "$lib/models/Profile";
+import type { ProfileCreateData } from "$lib/models/Profile";
 import { HUB_REGISTRY_ID } from "$lib/constants";
 import { hubRegistryService } from "./HubRegistryService";
 import { profileService } from "./ProfileService";
-
 
 export interface HubService extends Readable<Map<string, Hub>> {
     info: (hubId: string) => Promise<Hub>
