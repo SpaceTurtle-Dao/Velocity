@@ -17,13 +17,13 @@
   import CollectionsPage from "$lib/components/Assets_Card/CollectionPage.svelte";
   // import { postService } from "$lib/services/PostService";
   import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
-
+  import SearchPage from "$lib/components/Search/SearchPage.svelte";
   //let isFollowListAlreadyFetched = false;
   //let initialRoute = window.location.hash.slice(1) || "/";
 
   const routes = {
     "/": Feed,
-    "/search": CreateProfile,
+    "/search": SearchPage,
     //"/createprofile": CreateProfile,
     "/messages": MessagesPage,
     "/profile/:address": Profile,
