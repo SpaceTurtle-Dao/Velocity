@@ -13,7 +13,7 @@ export const upload = async (file) => {
 
   // #2 Make a connection to Arweave server; following standard example.
   const arweave = Arweave.init({
-    host: "arweave.velocity.cloudnet.marshal.ao",
+    host: ARWEAVE_URL(),
     port: 443,
     protocol: "https",
   });
