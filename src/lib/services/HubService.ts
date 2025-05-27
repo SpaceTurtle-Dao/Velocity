@@ -25,7 +25,7 @@ const service = (): HubService => {
         info: async (hubId: string): Promise<Hub> => {
             let hubs = get(hubService)
             let hub: Hub = await info(hubId)
-            console.log(hub)
+            //console.log(hub)
             hubs.set(hub.User, hub)
             hubs.set(hub.Spec.processId, hub)
             set(hubs)
@@ -46,9 +46,9 @@ const service = (): HubService => {
         create: async (profileData: ProfileCreateData): Promise<string> => {
             try {
                 const processId = await createProcess();
-                console.log(processId)
+                //console.log(processId)
                 await evaluateHub(processId)
-                console.log("ProfileId", processId);
+                //console.log("ProfileId", processId);
                 const hubSpec = {
                     type: "hub",
                     kinds: ["0", "1", "7", "6", "3", "2"],
@@ -59,7 +59,7 @@ const service = (): HubService => {
                 };
                 await hubRegistryService.register(HUB_REGISTRY_ID(), hubSpec);
                 await createProfile(processId, profileData)
-                console.log("*** Hub ID ***", processId);
+                //console.log("*** Hub ID ***", processId);
                 //console.log("*** Profile ID ***", processId);
                 return processId;
             } catch (error) {

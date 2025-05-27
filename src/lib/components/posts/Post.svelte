@@ -19,9 +19,7 @@
   import { PostType, type Post } from "$lib/models/Post";
   import { currentUser } from "$lib/services/CurrentUser";
   import type { Hub } from "$lib/models/Hub";
-  import { PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
-  import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { postService } from "$lib/services/postService";
 
   export let post: Post;
@@ -29,9 +27,7 @@
   let replies: Post[] = [];
   let profile: Profile;
   let rePostProfile: Profile;
-  let replyingTo: Profile;
   let replyCount = 0;
-  let hubZone: Zone;
   let isLoading: boolean = false;
   let loadError: string | null = null;
   let dialogOpen = false;
@@ -40,7 +36,6 @@
     let _profile = profiles.get(post.from);
     if (_profile) {
       profile = _profile;
-      console.log(profile);
     }
     if (post.rePost) {
       let _rePostProfile = profiles.get(post.rePost.from);
@@ -67,8 +62,8 @@
   }
 
   async function loadData() {
-    console.log(post);
-    console.log(post.owner);
+    //console.log(post);
+    //console.log(post.owner);
     hubService.info(post.from).then((_hub) => (hub = _hub));
     profileService.fetchProfiles(post.from, [post.from]);
     replies = await postService.fetchReplies(post.from, post.original_Id);
@@ -178,7 +173,7 @@
             </div>
           {/if}
 
-          <a use:link href={`/post/${post.from}/${post.id}`}>
+          <a use:link href={`/post/${post.from}/${post.original_Id}`}>
             <div>
               <div class="flex justify-start space-x-3">
                 {#if rePostProfile}

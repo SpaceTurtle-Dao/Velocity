@@ -32,11 +32,11 @@ const initUserStore = (): UserStore => {
       try {
         console.log("setting up")
         const zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address)
-        console.log(zone)
+        //console.log(zone)
         const hub = await hubService.info(zone?.spec.processId);
-        console.log(hub)
+        //console.log(hub)
         const profiles = await profileService.fetchProfiles(hub.Spec.processId, [hub.Spec.processId]);
-        console.log(profiles)
+        //console.log(profiles)
         const profile = profiles.get(address)
         if (!profile) return;
         console.log("setup complete")

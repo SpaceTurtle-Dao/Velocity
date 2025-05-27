@@ -127,19 +127,19 @@
   async function setup() {
     try {
       if (!params.address) return;
-      console.log(params.address);
+      //console.log(params.address);
       posts = []
       let _hub = $hubService.get(params.address)
       if(_hub){
         hub = _hub
         profileService.fetchProfiles(hub.Spec.processId,[hub.Spec.processId])
-        console.log(hub)
+        //console.log(hub)
       }else{
         console.log("fetching data")
         let zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
-        console.log(zone)
+        //console.log(zone)
         hub = await hubService.info(zone.spec.processId)
-        console.log(hub)
+        //console.log(hub)
         profileService.fetchProfiles(hub.Spec.processId,[hub.Spec.processId])
       }
       fetchPost();

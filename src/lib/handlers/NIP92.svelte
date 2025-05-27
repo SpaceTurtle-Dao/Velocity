@@ -81,7 +81,9 @@
 
 {#if post.mimeType && post.url && inlineUrl}
   <article class="pb-5 text-primary text-wrap ...">
+    {#if post.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}
     <p>{post.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
+    {/if}
   </article>
   {#if post.mimeType.startsWith("image/")}
     <img

@@ -56,8 +56,8 @@
   }
 
   onMount(async () => {
-    console.log("**Followers**")
-    console.log(addresss)
+    //console.log("**Followers**")
+    //console.log(addresss)
   });
 
 </script>

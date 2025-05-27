@@ -21,8 +21,8 @@ const service = (): PostService => {
         subscribe,
         fetchPost: async (hubId: string, since: Number, until: Number): Promise<void> => {
             let posts = get(postService)
-            console.log("**POST SIZE**")
-            console.log(posts.size)
+            //console.log("**POST SIZE**")
+            //console.log(posts.size)
             if (posts.size > 0) {
                 try {
                     const filter = {
@@ -37,11 +37,10 @@ const service = (): PostService => {
                     const _filters = JSON.stringify([filter, filter2]);
                     fetchEvents(hubId, _filters).then((events) => {
                         for (var i = 0; i < events.length; i++) {
-                            console.log(events[i])
+                            //console.log(events[i])
                             if (events[i].Content) {
                                 let post = postFactory(events[i]);
-                                posts.set(post.id, post)
-
+                                if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                             }
                         }
                         // console.log("posts 2",posts.size)
@@ -61,11 +60,11 @@ const service = (): PostService => {
                     
                     const _filters = JSON.stringify([filter]);
                     let events = await fetchEvents(hubId, _filters);
-                    console.log(events)
+                    //console.log(events)
                     for (var i = 0; i < events.length; i++) {
                         if (events[i].Content) {
                             let post = postFactory(events[i]);
-                            posts.set(post.id, post)
+                            if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
 
                         }
                     }
@@ -96,7 +95,7 @@ const service = (): PostService => {
                         for (var i = 0; i < events.length; i++) {
                             if (events[i].Content) {
                                 let post = postFactory(events[i]);
-                                posts.set(post.id, post)
+                                if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                             }
                         }
                         set(posts)
@@ -119,7 +118,7 @@ const service = (): PostService => {
                     for (var i = 0; i < events.length; i++) {
                         if (events[i].Content) {
                             let post = postFactory(events[i]);
-                            posts.set(post.id, post)
+                            if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
 
                         }
                     }
@@ -130,7 +129,7 @@ const service = (): PostService => {
             }
         },
         fetchReplies: async (hub: string, id: string): Promise<Post[]> => {
-            //console.log("getting Replies")
+            console.log("getting Replies")
             let replies:Post[] = [];
             try {
                 const filter = {
@@ -144,6 +143,7 @@ const service = (): PostService => {
 
                 const _filters = JSON.stringify([filter, filter2]);
                 let events = await fetchEvents(hub, _filters);
+                console.log(events)
                 for (var i = 0; i < events.length; i++) {
                     if (events[i].Content) {
                         let post = postFactory(events[i]);
@@ -174,7 +174,7 @@ const service = (): PostService => {
                 for (var i = 0; i < events.length; i++) {
                     if (events[i].Content) {
                         let post = postFactory(events[i]);
-                        posts.set(post.from, post)
+                        if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                     }
                 }
                 set(posts)
@@ -201,6 +201,8 @@ const service = (): PostService => {
             }
         },
         get: async (hub: string, id: string): Promise<Post> => {
+            console.log(hub)
+            console.log(id)
             let posts = get(postService)
             if (posts.has(id)) {
                 try {
@@ -214,7 +216,7 @@ const service = (): PostService => {
                         let post = postFactory(events[0]);
                         post = await getRepost(post)
                         if (post.content) {
-                            posts.set(id, post)
+                            if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                             set(posts)
                         } else {
                             throw ("Content is Empty")
@@ -236,7 +238,7 @@ const service = (): PostService => {
                     let post = postFactory(events[0]);
                     post = await getRepost(post)
                     if (post.content) {
-                        posts.set(id, post)
+                        if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                         set(posts)
                         return post
                     } else {

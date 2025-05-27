@@ -64,15 +64,15 @@
 
   async function loadPost() {
     if (!params.hubId || !params.id) return;
-    console.log(params.hubId);
-    console.log(params.id);
+    //console.log(params.hubId);
+    //console.log(params.id);
     post = await postService.get(params.hubId, params.id);
     profileService.fetchProfiles(params.hubId, [post.owner]);
     console.log(post);
     replies = await postService.fetchReplies(post.from, post.original_Id);
     replyCount = replies.length;
-    console.log(replies);
-    console.log(replyCount);
+    //console.log(replies);
+    //console.log(replyCount);
     //await postService.fetchRepost(hubId, id);
   }
 

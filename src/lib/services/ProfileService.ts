@@ -25,7 +25,7 @@ const service = (): ProfileService => {
             ]);
 
             let messages = await fetchEvents(hubId, filter);
-            console.log(messages)
+            //console.log(messages)
             try {
                 // messages[0] give the latest profile change of this address and it  return that
                 let message = messages[0];
@@ -36,7 +36,7 @@ const service = (): ProfileService => {
                     profile.owner = message.Owner;
                     profile.created_at = messages[0].Timestamp;
                     profile.updated_at = message.Timestamp;
-                    console.log(profile);
+                    //console.log(profile);
                     profiles.set(message.Owner,profile)
                     profiles.set(message.From,profile)
                 }
@@ -57,7 +57,7 @@ const service = (): ProfileService => {
             ]);
 
             let messages = await fetchEvents(hubId, filter);
-            console.log(messages)
+            //console.log(messages)
             try {
                 // messages[0] give the latest profile change of this address and it  return that
                 let message = messages[0];
@@ -67,7 +67,7 @@ const service = (): ProfileService => {
                     profile.from = message.From;
                     profile.created_at = messages[0].Timestamp;
                     profile.updated_at = message.Timestamp;
-                    console.log(profile);
+                    //console.log(profile);
                     profiles.set(message.Owner,profile)
                 }
                 set(profiles)
