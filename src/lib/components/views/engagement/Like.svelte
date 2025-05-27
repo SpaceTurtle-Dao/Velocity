@@ -43,7 +43,7 @@
                 //console.log(like.From);
                 //console.log($currentUser.hub?.Spec.processId);
                 //console.log(like);
-                return like.From != $currentUser.hub?.Spec.processId;
+                return like.From != $currentUser.hub?.Spec.processId || $currentUser.hub?.User;
             });
             likes = temp;
             liked = false;
