@@ -27,9 +27,7 @@
   let replies: Post[] = [];
   let profile: Profile;
   let rePostProfile: Profile;
-  let replyingTo: Profile;
   let replyCount = 0;
-  let hubZone: Zone;
   let isLoading: boolean = false;
   let loadError: string | null = null;
   let dialogOpen = false;
