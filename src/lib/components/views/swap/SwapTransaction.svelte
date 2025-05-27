@@ -22,6 +22,7 @@
   //   }
   // });
 
+  //@ts-ignore
   swapsStore.subscribe((value) => {
     console.log("got swaps");
     swaps = value;

@@ -6,103 +6,107 @@
   import { onMount } from "svelte";
   import type { Profile } from "$lib/models/Profile";
   import Follow from "../Follow/Follow.svelte";
-  import { followListStore } from "$lib/stores/follow-list.store";
-  import { currentUser } from "$lib/stores/current-user.store";
-  import { fetchFollowList } from "$lib/ao/relay";
   import { Skeleton } from "$lib/components/ui/skeleton";
+  import { currentUser } from "$lib/services/CurrentUser";
+  import { hubService } from "$lib/services/HubService";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
+  import type { Hub } from "$lib/models/Hub";
+  import { HUB_REGISTRY_ID, toUrl } from "$lib/constants";
+  import type { Zone } from "$lib/models/Zone";
 
-  export let profile: Profile;
+  export let profile: Profile | undefined;
+  let hub: Hub;
+  let isCurrentUser = $currentUser && $currentUser.address === profile?.owner;
 
-  let numberOfFollowing = 0;
-
-  let isCurrentUser = $currentUser.address === profile.address;
-
-  let followListLoading = true;
-
-  onMount(() => {
-    if (isCurrentUser) {
-      numberOfFollowing = $followListStore.size;
-      followListLoading = false;
-
-      followListStore.subscribe((set) => {
-        numberOfFollowing = set.size;
-      });
-    } else {
-      fetchFollowList(profile.address)
-        .then((followList) => {
-          numberOfFollowing = followList.length;
-          followListLoading = false;
-        })
-        .catch((e) => {
-          console.error(e);
-        });
+  hubService.subscribe(async (hubs) => {
+    if(profile?.owner && hubs.has(profile?.owner)){
+      hub = hubs.get(profile?.owner)!
     }
+  })
+
+  onMount(async () => {
+    if (!profile) return;
+    //console.log(profile.owner)
+    hubService.info(profile.from).then((_hub) => hub = _hub);
   });
 </script>
 
-<HoverCard.Root>
-  <HoverCard.Trigger>
-    <a href="/profile/{profile.address}" use:link>
-      <slot />
-    </a>
-  </HoverCard.Trigger>
-  <HoverCard.Content align="start">
-    <div class="flex justify-between">
-      <a href="/profile/{profile.address}" use:link>
-        <ProfilePicture name={profile.name} src={profile.picture} size="xl" />
+{#if profile }
+  <HoverCard.Root>
+    <HoverCard.Trigger>
+      <a href="/profile/{profile.owner}" use:link>
+        <slot />
       </a>
+    </HoverCard.Trigger>
+    <HoverCard.Content align="start">
+      <div class="flex justify-between">
+        {#if profile.thumbnail}
+          <a href="/profile/{profile.owner}" use:link>
+            <ProfilePicture
+              name={profile.displayName}
+              src={toUrl(profile.thumbnail)}
+              size="xl"
+            />
+          </a>
+        {:else}
+          <a href="/profile/{profile.owner}" use:link>
+            <ProfilePicture name={profile.displayName} src="" size="xl" />
+          </a>
+        {/if}
 
-      {#if !isCurrentUser}
-        <Follow address={profile.address} />
-      {/if}
-    </div>
-
-    <div class="text-primary text-lg font-bold">
-      <a href="/profile/{profile.address}" use:link>{profile.name}</a>
-    </div>
-
-    <div class="text-muted-foreground text-base font-normal">
-      <a href="/profile/{profile.address}" use:link>@{profile.display_name}</a>
-    </div>
-
-    {#if profile.about}
-      <div class="text-primary text-base font-normal mt-4">
-        {profile.about}
+        {#if !isCurrentUser}
+          <Follow hubId={profile.from} />
+        {/if}
       </div>
-    {/if}
 
-    {#if profile.website}
-      <div class="mt-4">
-        <a
-          class="text-blue-500 hover:underline"
-          href={profile.website}
-          target="_blank"
-          rel="noopener noreferrer"
+      <div class="text-primary text-lg font-bold">
+        <a href="/profile/{profile.owner}" use:link>{profile.userName}</a>
+      </div>
+
+      <div class="text-muted-foreground text-base font-normal">
+        <a href="/profile/{profile.owner}" use:link
+          >@{profile.displayName}</a
         >
-          {getDisplayUrl(profile.website)}
-        </a>
       </div>
-    {/if}
 
-    <div class="flex justify-between mt-4 items-center">
-      {#if followListLoading}
-        <Skeleton class="h-4 w-[92px] rounded-full" />
-      {:else}
-        <div>
-          <span class="text-sm font-bold">{numberOfFollowing}</span>
-
-          <span class="text-sm font-normal text-muted-foreground"
-            >Subscribing</span
-          >
+      {#if profile.description}
+        <div class="text-primary text-base font-normal mt-4">
+          {profile.description}
         </div>
       {/if}
 
-      <div>
-        <!-- <span class="text-sm font-bold">{userInfo.Subs}</span> -->
-        <span class="text-sm font-normal text-muted-foreground"
-          >Subscribers</span
-        >
+      {#if profile.website}
+        <div class="mt-4">
+          <a
+            class="text-blue-500 hover:underline"
+            href={profile.website}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {getDisplayUrl(profile.website)}
+          </a>
+        </div>
+      {/if}
+
+      <div class="flex justify-between mt-4 items-center">
+        {#if !hub}
+          <Skeleton class="h-4 w-[92px] rounded-full" />
+        {:else}
+          <div>
+            <span class="text-sm font-bold">{hub.Following.length}</span>
+
+            <span class="text-sm font-normal text-muted-foreground"
+              >Subscribing</span
+            >
+          </div>
+          <div>
+            <span class="text-sm font-bold">{hub.Followers.length}</span>
+            <span class="text-sm font-normal text-muted-foreground"
+              >Subscribers</span
+            >
+          </div>
+        {/if}
       </div>
-    </div>
-  </HoverCard.Content>
-</HoverCard.Root>
+    </HoverCard.Content>
+  </HoverCard.Root>
+{/if}

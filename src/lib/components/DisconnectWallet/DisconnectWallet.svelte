@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { addressStore } from "$lib/stores/address.store";
-  import { currentUser } from "$lib/stores/current-user.store";
+  import { currentUser } from "$lib/services/CurrentUser";
   import { push } from "svelte-spa-router";
   import { writable } from "svelte/store";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
+    import { walletService } from "$lib/services/walletService";
 
   
   async function handleDisconnect() {
     try {
       // Disconnect the wallet
-      await addressStore.disconnectWallet();
+      await walletService.disconnectWallet();
       
       // Clear all relevant stores
       const { subscribe, set } = writable();

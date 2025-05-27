@@ -1,19 +1,23 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import { event } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Plus, Image, X, Signpost, Gift } from "lucide-svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
-  import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
   import { isMobile } from "$lib/stores/is-mobile.store";
   import GifSearchDialog from "$lib/components/GifDailog/gifDailog.svelte";
+  import { currentUser } from "$lib/services/CurrentUser";
+  import { onMount } from "svelte";
+  import { timestampService } from "$lib/utils/date-time";
+  import { profileService } from "$lib/services/ProfileService";
+  import type { Profile } from "$lib/models/Profile";
+  import { postService } from "$lib/services/postService";
+    import { toUrl } from "$lib/constants";
 
-  let content = "";
+  let content:string;
   let fileInput: HTMLInputElement | null = null;
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
@@ -21,6 +25,13 @@
   let dialogOpen = false;
   let gifSearchOpen = false;
   let selectedGifUrl: string | null = null;
+  let profile: Profile;
+
+  profileService.subscribe((profiles) => {
+    if ($currentUser && profiles.has($currentUser.address)) {
+      profile = profiles.get($currentUser.address)!;
+    }
+  });
 
   function clearFields() {
     content = "";
@@ -57,7 +68,7 @@
 
   function handleGifSelect(url: string) {
     selectedGifUrl = url;
-    selectedMedia = null; // Clear media if GIF is selected
+    selectedMedia = null;
     mediaPreviewUrl = null;
     if (fileInput) {
       fileInput.value = "";
@@ -65,6 +76,7 @@
   }
 
   async function handleSubmit() {
+    if (!$currentUser)return
     isLoading = true;
     let kind: Tag = {
       name: "Kind",
@@ -77,44 +89,64 @@
     let _tags: Array<Tag> = [kind, markerTag];
     let _content = content;
 
-    if (selectedGifUrl) {
-      let urlTag: Tag = {
-        name: "url",
-        value: selectedGifUrl,
+    try {
+      if (selectedGifUrl) {
+        let urlTag: Tag = {
+          name: "url",
+          value: selectedGifUrl,
+        };
+        let mTag: Tag = {
+          name: "mimeType",
+          value: "image/gif",
+        };
+        if(_content){
+          _content = _content + " " + selectedGifUrl;
+        }else{
+          _content = selectedGifUrl;
+        }
+        _tags.push(urlTag);
+        _tags.push(mTag);
+      } else if (selectedMedia) {
+        let media = await upload(selectedMedia);
+        let urlTag: Tag = {
+          name: "url",
+          value: media.url,
+        };
+        let mTag: Tag = {
+          name: "mimeType",
+          value: media.mimeType || "",
+        };
+        if(_content){
+          _content = _content + " " + media.url;
+        }else{
+          _content = media.url;
+        }
+        _tags.push(urlTag);
+        _tags.push(mTag);
+      }
+      let contentTag: Tag = {
+        name: "Content",
+        value: _content,
       };
-      let mTag: Tag = {
-        name: "mimeType",
-        value: "image/gif",
-      };
-      _content = _content + " " + selectedGifUrl;
-      _tags.push(urlTag);
-      _tags.push(mTag);
-    } else if (selectedMedia) {
-      let media = await upload(selectedMedia);
-      let urlTag: Tag = {
-        name: "url",
-        value: media.url,
-      };
-      let mTag: Tag = {
-        name: "mimeType",
-        value: media.mimeType || "",
-      };
-      _content = _content + " " + media.url;
-      _tags.push(urlTag);
-      _tags.push(mTag);
+      _tags.push(contentTag);
+      console.log($currentUser.hub.Spec)
+      await currentUser.createEvent($currentUser.hub.Spec.processId, _tags, "1");
+      dialogOpen = false;
+      clearFields();
+      const now = new Date();
+      const since = timestampService.subtract(new Date(), 10, "days").getTime();
+      const until = now.getTime();
+      await postService.fetchPost($currentUser.hub.Spec.processId, since, until);
+    } catch (error) {
+      console.error("Error creating post:", error);
+    } finally {
+      isLoading = false;
     }
-    let contentTag: Tag = {
-      name: "Content",
-      value: _content,
-    };
-    _tags.push(contentTag);
-    await event(_tags);
-
-    notifyNewPostStore.update((num) => num + 1);
-    isLoading = false;
-    dialogOpen = false;
-    clearFields();
   }
+
+  onMount(async () => {
+    
+  });
 
   $: if (dialogOpen === false) {
     clearFields();
@@ -141,11 +173,17 @@
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        <ProfilePicture
-          src={$currentUser?.picture}
-          name={$currentUser?.name}
-          size="lg"
-        />
+        {#if profile}
+          {#if profile.thumbnail}
+            <ProfilePicture
+              src={toUrl(profile.thumbnail)}
+              name={profile.userName}
+              size="lg"
+            />
+          {:else}
+            <ProfilePicture src="" name={profile.userName} size="lg" />
+          {/if}
+        {/if}
 
         <div class="w-full">
           <Textarea
@@ -153,7 +191,7 @@
             placeholder="What's happening?!"
             class="text-lg w-full bg-background border-none focus:border-none outline-none focus:outline-none focus-visible:outline-none ring-none focus:ring-none focus-visible:ring-none ring-background overflow-y-hidden"
           />
-          
+
           {#if selectedMedia && mediaPreviewUrl}
             <div class="relative p-5">
               {#if selectedMedia.type.startsWith("video")}
@@ -189,7 +227,7 @@
               />
               <Button
                 variant="ghost"
-                on:click={() => selectedGifUrl = null}
+                on:click={() => (selectedGifUrl = null)}
                 class="text-muted-primary bg-muted-foreground h-18 w-18 hover:text-foreground rounded-full absolute top-2 right-2 p-1"
               >
                 <X />
@@ -230,7 +268,8 @@
         <ButtonWithLoader
           class="px-8 w-36 rounded-full font-semibold text-md"
           loader={isLoading}
-          disabled={isLoading || (!content && !selectedMedia && !selectedGifUrl)}
+          disabled={isLoading ||
+            (!content && !selectedMedia && !selectedGifUrl)}
           on:click={handleSubmit}>Post</ButtonWithLoader
         >
       </div>

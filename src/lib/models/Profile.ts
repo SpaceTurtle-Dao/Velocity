@@ -7,18 +7,30 @@ export type UserInfo = {
 };
 
 export type Profile = {
-  name: string;
-  about?: string;
-  picture?: string;
-  display_name: string;
-  address: string;
-  followList: string[];
+  displayName: string;
+  profileImage?: string;
+  coverImage?: string;
+  userName: string;
+  description?: string;
+  id: string;
+  owner: string;
+  from:string;
   website?: string;
-  banner?: string;
+  thumbnail?: string;
   bot?: boolean;
   created_at: number;
   updated_at?: number;
 };
+
+export type ProfileCreateData = {
+  userName: string;
+  displayName?: string;
+  description?: string;
+  thumbnail?: string;
+  coverImage?: string;
+  bot?: boolean;
+  website?: string;
+}
 
 export const profileFromEvent = (event: any): Profile => {
   if (event.Kind == "0") return JSON.parse(event.Content);

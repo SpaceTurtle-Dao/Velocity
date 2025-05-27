@@ -1,7 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fetchEvents, event as aoEvent } from "$lib/ao/relay";
-  import { currentUser } from "$lib/stores/current-user.store";
   import {
     Avatar,
     AvatarImage,
@@ -9,66 +7,73 @@
   } from "$lib/components/ui/avatar";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import Post from "$lib/components/posts/Post.svelte";
+  import PostComponent from "$lib/components/posts/Post.svelte";
   import { Image } from "lucide-svelte";
   import type { Tag } from "$lib/models/Tag";
   import { upload } from "$lib/ao/uploader";
   import { link, push, location } from "svelte-spa-router";
   import ButtonWithLoader from "../ButtonWithLoader/ButtonWithLoader.svelte";
-  import type { Profile } from "$lib/models/Profile";
   import { isMobile } from "$lib/stores/is-mobile.store";
+  import { profileService } from "$lib/services/ProfileService";
+  import type { Post } from "$lib/models/Post";
+  import { postService } from "$lib/services/postService";
+  import type { Profile } from "$lib/models/Profile";
+  import { currentUser } from "$lib/services/CurrentUser";
+    import { toUrl } from "$lib/constants";
 
-  // Reactive declaration for URL parsing
+  export let params: { hubId?: string; id?: string } = {};
+
+  const onAddressParamChange = async () => {
+    await loadPost();
+  };
+
   $: {
-    const urlParts = $location.split("/");
-    id = urlParts[urlParts.length - 1] || "/";
-    user = urlParts[urlParts.length - 2] || "/";
-    if (id !== "/" && user !== "/") {
-      loadPost(user, id);
+    if (params.hubId && params.id) {
+      onAddressParamChange();
     }
   }
 
-  let post: any = null;
-  let replies: any[] = [];
-  let _user: any;
+  let post: Post;
   let profile: Profile;
+  let replies: Post[] = [];
+  let replyCount = 0;
   let id: string;
   let user: string;
-
+  let hubId: string;
   let replyContent = "";
   let isSubmitting = false;
   let fileInput: HTMLInputElement;
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
-  async function loadPost(userId: string, postId: string) {
-    try {
-      // First, try to fetch the specific post
-      let postFilter = JSON.stringify([
-        {
-          ids: [postId],
-          kinds: ["1", "6"],
-        },
-      ]);
+  /*postService.subscribe((posts) => {
+    if (!params.hubId || !params.id) return;
+    replies = posts
+      .values()
+      .filter((value) => value.e == params.id)
+      .toArray();
+    replyCount = replies.length;
+    console.log(`got ${replyCount} Replies`);
+  });*/
 
-      let postResults = await fetchEvents(postFilter);
-
-      if (postResults.length > 0) {
-        post = postResults[0];
-        post.Tags = post.Tags || {};
-        // _user = await info(post.From);
-        profile = _user?.Profile;
-
-        // After loading the post, fetch its replies
-        await fetchReplies(postId);
-      } else {
-        console.error("Post not found");
-        post = null;
-      }
-    } catch (error) {
-      console.error("Error loading post:", error);
-      post = null;
+  profileService.subscribe((profiles) => {
+    if (post && post.owner && profiles.has(post.owner)) {
+      profile = profiles.get(post.owner)!;
     }
+  });
+
+  async function loadPost() {
+    if (!params.hubId || !params.id) return;
+    //console.log(params.hubId);
+    //console.log(params.id);
+    post = await postService.get(params.hubId, params.id);
+    profileService.fetchProfiles(params.hubId, [post.owner]);
+    console.log(post);
+    replies = await postService.fetchReplies(post.from, post.original_Id);
+    replyCount = replies.length;
+    //console.log(replies);
+    //console.log(replyCount);
+    //await postService.fetchRepost(hubId, id);
   }
 
   function findTagValue(tags: Tag[], tagName: string): string | undefined {
@@ -85,46 +90,14 @@
 
   async function refreshPage() {
     const scrollPos = window.scrollY;
-    await loadPost(user, id);
+    await loadPost();
     setTimeout(() => {
       window.scrollTo(0, scrollPos);
     }, 100);
   }
-
   onMount(async () => {
-    if (id !== "/" && user !== "/") {
-      await loadPost(user, id);
-    }
+    await loadPost();
   });
-
-  async function fetchReplies(postId: string) {
-    try {
-      let replyFilter = JSON.stringify([
-        {
-          kinds: ["1"],
-          limit: 100,
-          tags: { marker: ["reply"] },
-        },
-        {
-          tags: { e: [postId] },
-        },
-      ]);
-      replies = await fetchEvents(replyFilter);
-      replies = await Promise.all(
-        replies.map(async (reply) => {
-          // const replyUser = await info(reply.From);
-          return {
-            ...reply,
-            Tags: reply.Tags || {},
-            // user: replyUser,
-            // profile: replyUser?.Profile,
-          };
-        })
-      );
-    } catch (error) {
-      console.error("Error fetching replies:", error);
-    }
-  }
 
   function handleMediaSelect() {
     fileInput?.click();
@@ -145,6 +118,7 @@
   }
 
   async function handleReply() {
+    if (!params.hubId || !params.id) return;
     if (!replyContent.trim() && !selectedMedia) return;
 
     isSubmitting = true;
@@ -152,17 +126,9 @@
       const tags: Tag[] = [
         { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
-        { name: "e", value: post.Id },
-        { name: "p", value: post.From },
+        { name: "e", value: post.original_Id },
+        { name: "p", value: post.from },
       ];
-
-      const postTags: Tag[] = Array.isArray(post.Tags) ? post.Tags : [];
-      const rootValue = findTagValue(postTags, "root");
-
-      tags.push({
-        name: "root",
-        value: rootValue || post.Id,
-      });
 
       let _content = replyContent;
       if (selectedMedia) {
@@ -179,42 +145,45 @@
       tags.push({ name: "Content", value: _content });
       tags.push({ name: "action", value: "reply" });
 
-      await aoEvent(tags);
+      await currentUser.createEvent(params.hubId, tags, "1");
 
       clearFields();
       await refreshPage();
     } catch (error) {
-      console.error("Error creating reply:", error);
+      console.log("Error creating reply:", error);
     } finally {
       isSubmitting = false;
     }
   }
 
-  async function handleReplyClick(reply: any, e: MouseEvent) {
+  async function handleReplyClick(reply: Post, e: MouseEvent) {
     e.preventDefault();
-    await push(`/post/${reply.From}/${reply.Id}`);
+    await push(`/post/${reply.from}/${reply.id}`);
   }
 </script>
 
-<div class="max-w-prose mx-auto mb-10 {$isMobile ? "mt-0" : "mt-10"}">
-  {#if post}
+<div class="max-w-prose mx-auto mb-10 {$isMobile ? 'mt-0' : 'mt-10'}">
+  {#if params.hubId && params.id && post}
     <div class="border border-border hover:bg-gray-900/5">
-      <Post event={post} />
+      <PostComponent {post} />
 
       <div class="border-t border-border p-4">
         <div class="flex space-x-3">
-          <Avatar class="h-12 w-12 text-primary">
-            {#if $currentUser?.picture}
-              <AvatarImage
-                src={$currentUser.picture}
-                alt={$currentUser.name || "Current User"}
-              />
-            {:else}
-              <AvatarFallback>
-                {$currentUser?.name?.[0] || "U"}
-              </AvatarFallback>
-            {/if}
-          </Avatar>
+          {#if $currentUser}
+            <Avatar class="h-12 w-12 text-primary">
+              {#if $currentUser.profile.thumbnail}
+                <AvatarImage
+                  src={toUrl($currentUser.profile.thumbnail)}
+                  alt={$currentUser.profile.displayName || "Current User"}
+                  class="object-cover"
+                />
+              {:else}
+                <AvatarFallback>
+                  {$currentUser.profile.userName?.[0] || "U"}
+                </AvatarFallback>
+              {/if}
+            </Avatar>
+          {/if}
           <div class="flex-1">
             <Textarea
               bind:value={replyContent}
@@ -287,15 +256,14 @@
         </div>
       </div>
     </div>
-
-    {#each replies as reply (reply.Id)}
+    {#each replies as reply}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="border border-border hover:bg-gray-900/5 cursor-pointer"
         on:click={(e) => handleReplyClick(reply, e)}
       >
-        <Post event={reply} />
+        <PostComponent post={reply} />
       </div>
     {/each}
   {:else}

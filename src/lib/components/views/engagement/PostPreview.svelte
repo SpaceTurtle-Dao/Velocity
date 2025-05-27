@@ -1,22 +1,15 @@
 <script lang="ts">
-  import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { formatTimestamp } from "$lib/utils/timestamp.utils";
   import type { Profile } from "$lib/models/Profile";
   import ProfilePictureHoverCard from "$lib/components/UserProfile/ProfilePictureHoverCard.svelte";
   import ProfileHoverCard from "$lib/components/UserProfile/ProfileHoverCard.svelte";
   import { Repeat2Icon } from "lucide-svelte";
-  import { usersProfile } from "$lib/stores/users-profile.store";
-  import { currentUser } from "$lib/stores/current-user.store";
+  import { onMount } from "svelte";
+  import { PostType, type Post } from "$lib/models/Post";
+  import { currentUser } from "$lib/services/CurrentUser";
 
-  export let event: any;
-  export let user: Profile | undefined;
-  export let isRepost: boolean;
-
-  let originalPostEvent = isRepost ? JSON.parse(event.Content) : event;
-
-  let profile = $usersProfile.get(event.From);
-
-  let originalPostProfile = $usersProfile.get(originalPostEvent.From);
+  export let post: Post;
+  export let profile: Profile;
 
   function formatContent(content: string): string {
     // console.log("hhhh", JSON.parse(content));
@@ -31,17 +24,19 @@
 
     return urlReplaceContent.slice(0, 400) + "...";
   }
+
+  onMount(async () => {});
 </script>
 
-{#if isRepost}
+{#if post.type == PostType.Repost}
   <div class="flex items-center text-muted-foreground mb-2">
     <Repeat2Icon size={16} class="mr-2" />
     <span class="text-sm"
       >Reposted by
-      {#if profile?.address == $currentUser?.address}
+      {#if $currentUser && profile.owner == $currentUser.address}
         You
       {:else}
-        @{profile?.display_name}
+        @{profile.displayName}
       {/if}
     </span>
   </div>
@@ -49,8 +44,8 @@
 
 <div class="flex mt-4">
   <div class="h-full flex flex-col items-center">
-    {#if originalPostProfile}
-      <ProfilePictureHoverCard size="lg" profile={originalPostProfile} />
+    {#if post.rePost}
+      <ProfilePictureHoverCard size="lg" {profile} />
     {/if}
     <div
       id="vertical-line"
@@ -61,43 +56,44 @@
     <div
       class="h-12 w-full flex items-center min-w-0 overflow-hidden whitespace-nowrap"
     >
-      {#if isRepost && originalPostProfile}
-        <ProfileHoverCard profile={originalPostProfile}>
-          <div class="flex space-x-1">
-            <div class="text-primary text-base font-medium mr-1 ml-2">
-              {originalPostProfile?.name}
-            </div>
-
-            <div class="text-muted-foreground text-base font-light truncate">
-              {"@" + originalPostProfile?.display_name}
-            </div>
-          </div>
-        </ProfileHoverCard>
-      {:else if profile}
+      {#if post.rePost}
         <ProfileHoverCard {profile}>
           <div class="flex space-x-1">
             <div class="text-primary text-base font-medium mr-1 ml-2">
-              {profile?.name}
+              {profile.userName}
             </div>
 
             <div class="text-muted-foreground text-base font-light truncate">
-              {"@" + profile?.display_name}
+              {"@" + profile.displayName}
             </div>
           </div>
         </ProfileHoverCard>
-      {/if}
+        <ProfileHoverCard {profile}>
+          <div class="flex space-x-1">
+            <div class="text-primary text-base font-medium mr-1 ml-2">
+              {profile.userName}
+            </div>
 
-      <span class="text-muted-foreground pl-1">
-        · {formatTimestamp(originalPostEvent.Timestamp)}</span
-      >
+            <div class="text-muted-foreground text-base font-light truncate">
+              {"@" + profile.displayName}
+            </div>
+          </div>
+        </ProfileHoverCard>
+
+        <span class="text-muted-foreground pl-1">
+          · {formatTimestamp(post.rePost.timestamp)}</span
+        >
+      {/if}
     </div>
-    <div class="text-primary text-start mt-4">
-      {formatContent(originalPostEvent.Content)}
-    </div>
+    {#if post.rePost}
+      <div class="text-primary text-start mt-4">
+        {formatContent(post.rePost.content)}
+      </div>
+    {/if}
 
     <div class="text-start text-muted-foreground mt-5">
       {"Replying to "}
-      <span class="text-sky-500">{"@" + profile?.display_name}</span>
+      <span class="text-sky-500">{"@" + profile.displayName}</span>
     </div>
   </div>
 </div>

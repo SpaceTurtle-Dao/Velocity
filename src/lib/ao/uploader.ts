@@ -1,4 +1,6 @@
+import { ARWEAVE_URL, toUrl } from "$lib/constants";
 import Arweave from "arweave";
+
 import mime from 'mime';
 // @ts-ignore
 export const upload = async (file) => {
@@ -11,7 +13,7 @@ export const upload = async (file) => {
 
   // #2 Make a connection to Arweave server; following standard example.
   const arweave = Arweave.init({
-    host: "arweave.net",
+    host: ARWEAVE_URL(),
     port: 443,
     protocol: "https",
   });
@@ -28,8 +30,9 @@ export const upload = async (file) => {
   transaction.addTag('Content-Type', mimeType!);
   await arweave.transactions.sign(transaction);
   const response = await arweave.transactions.post(transaction);
+  console.log(response)
   const status = await arweave.transactions.getStatus(transaction.id);
-  let url = `https://www.arweave.net/${transaction.id}?ext=${ext}`;
+  let url = `${toUrl(transaction.id)}?ext=${ext}`;
   console.log(
     `Completed transaction ${transaction.id} with status code ${status}!`,
   );

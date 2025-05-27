@@ -12,20 +12,20 @@
     Plus,
   } from "lucide-svelte";
   import UserProfile from "../views/profile/UserProfile.svelte";
-  import Feed from "$lib/Feed.svelte";
-  import { currentUser } from "$lib/stores/profile.store";
+  import Feed from "$lib/components/views/feed/Feed.svelte";
   import { profileFromEvent, type Profile } from "$lib/models/Profile";
   import {
     Avatar,
     AvatarFallback,
     AvatarImage,
   } from "$lib/components/ui/avatar";
-  import { ARWEAVE_ADDRESS } from "$lib/constants";
+  import { ARWEAVE_URL } from "$lib/constants";
   import UserMenu from "./UserMenu.svelte";
+  import { profileService } from "$lib/services/ProfileService";
+  import { currentUser } from "$lib/services/CurrentUser";
 
   export let url = "";
 
-  let profile: Profile;
 
   const menuItems = [
     { icon: Home, label: "Home", href: "/" },
@@ -34,13 +34,6 @@
     { icon: User, label: "Profile", href: "/UserProfile" },
   ];
 
-  function toUrl(tx: string) {
-    return ARWEAVE_ADDRESS + tx;
-  }
-
-  currentUser.subscribe((value) => {
-    profile = profileFromEvent(value.Profile);
-  });
 </script>
 
 <Router {url}>

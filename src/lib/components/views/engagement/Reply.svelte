@@ -2,9 +2,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import { event as aoEvent, fetchEvents } from "$lib/ao/relay";
   import { upload } from "$lib/ao/uploader";
-  import { currentUser } from "$lib/stores/current-user.store";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Image, X } from "lucide-svelte";
@@ -12,13 +10,14 @@
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import PostPreview from "./PostPreview.svelte";
   import type { Profile } from "$lib/models/Profile";
-  import { usersProfile } from "$lib/stores/users-profile.store";
+  import { profileService } from "$lib/services/ProfileService";
+  import type { Post } from "$lib/models/Post";
+  import { currentUser } from "$lib/services/CurrentUser";
+  import { PROFILE_REGISTRY_ID } from "$lib/constants";
 
-  export let event: any;
-  export let isRepost: boolean;
-
+  export let post: Post;
+  export let hubId: string;
   let newReply: any;
-  let profile = $usersProfile.get(event.From);
 
   let content = "";
   let fileInput: HTMLInputElement | null = null;
@@ -57,32 +56,22 @@
     }
   }
 
+  async function initializeHubId() {}
+
   async function handleSubmit() {
     if (!content.trim() && !selectedMedia) return;
+    if (!hubId) {
+      await initializeHubId();
+    }
 
     isLoading = true;
     try {
       const tags: Tag[] = [
         { name: "Kind", value: "1" },
         { name: "marker", value: "reply" },
-        { name: "e", value: event.Id },
-        { name: "p", value: event.From },
+        { name: "e", value: post.original_Id },
+        { name: "p", value: post.from },
       ];
-
-      // Check if the event is already a reply
-      const eventTags: Tag[] = Array.isArray(event.Tags) ? event.Tags : [];
-      const markerValue = findTagValue(eventTags, "marker");
-      const parentEventId = findTagValue(eventTags, "e");
-      const rootValue = findTagValue(eventTags, "root");
-
-      // Add root tag based on the event type
-      if (rootValue) {
-        tags.push({ name: "root", value: rootValue });
-      } else if (markerValue === "reply" && parentEventId) {
-        tags.push({ name: "root", value: parentEventId });
-      } else {
-        tags.push({ name: "root", value: event.Id });
-      }
 
       let _content = content;
 
@@ -99,9 +88,8 @@
       }
 
       tags.push({ name: "Content", value: _content });
-      tags.push({ name: "action", value: "reply" });
 
-      newReply = await aoEvent(tags);
+      newReply = await currentUser.createEvent(hubId, tags, "1");
 
       const replyTags = tags.reduce((acc: any, tag) => {
         acc[tag.name.toLowerCase()] = tag.value;
@@ -116,7 +104,7 @@
       clearFields();
       dialogOpen = false;
     } catch (error) {
-      console.error("Error creating reply:", error);
+      console.log("Error creating reply:", error);
     } finally {
       isLoading = false;
     }
@@ -133,6 +121,10 @@
   $: if (dialogOpen === false) {
     clearFields();
   }
+
+  onMount(async () => {
+    await initializeHubId();
+  });
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
@@ -160,16 +152,21 @@
   </Dialog.Trigger>
   <Dialog.Content class="w-full text-primary border-border">
     <Dialog.Header>
-      <PostPreview {event} {isRepost} user={profile} />
+      <!--<PostPreview {post} />-->
     </Dialog.Header>
     <form on:submit|preventDefault={() => {}}>
       <div class="flex">
-        <ProfilePicture
-          size="lg"
-          src={$currentUser?.picture}
-          name={$currentUser?.name}
-        />
-
+        {#if $currentUser}
+          {#await profileService.fetchProfiles(PROFILE_REGISTRY_ID(), [$currentUser.address]) then _}
+            {#if $profileService.has($currentUser.address)}
+              <ProfilePicture
+                size="lg"
+                src={$profileService.get($currentUser.address)?.thumbnail || ""}
+                name={$profileService.get($currentUser.address)?.displayName || "anon"}
+              />
+            {/if}
+          {/await}
+        {/if}
         <div class="w-full ml-3">
           <Textarea
             bind:value={content}

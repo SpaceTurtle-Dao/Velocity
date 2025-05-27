@@ -9,6 +9,20 @@
 		return _tags;
 	};
 
+	export const Transfer = (
+		Recipient: string,
+		Quantity: string,
+		payload: string,
+	) => {
+		let _tags = [
+			{ name: "Action", value: "Transfer" },
+			{ name: "Recipient", value: Recipient },
+			{ name: "Quantity", value: Quantity },
+			{ name: "X-Payload", value: payload },
+		];
+		return _tags;
+	};
+
 	export const Subscribe = (relay: string) => {
 		let _tags = [
 			{ name: "Action", value: "Subscribe" },
@@ -48,6 +62,14 @@
 
 	export const Info = () => {
 		let _tags = [{ name: "Action", value: "Info" }];
+		return _tags;
+	};
+
+	export const QueryFee = (kind: string) => {
+		let _tags = [
+			{ name: "Action", value: "QueryFee" },
+			{ name: "Kind", value: kind },
+		];
 		return _tags;
 	};
 
@@ -91,10 +113,30 @@
 		];
 	};
 
-	//INDEXER METHODS
-	export const Request = () => {
-		let _tags = [{ name: "Action", value: "Request" }];
-		return _tags;
+	export const UpdateProfile = () => {
+		return [{ name: "Action", value: "Update-Profile" }];
+	};
+
+	//REGISTRY METHODS
+
+	export const Register = () => {
+		return [{ name: "Action", value: "Register" }];
+	};
+
+	export const GetZones = (filters: string, page: string, limit: string) => {
+		return [
+			{ name: "Action", value: "GetZones" },
+			{ name: "Filters", value: filters },
+			{ name: "Page", value: page },
+			{ name: "Limit", value: limit },
+		];
+	};
+
+	export const GetZoneById = (zoneId: string) => {
+		return [
+			{ name: "Action", value: "GetZoneById" },
+			{ name: "ZoneId", value: zoneId },
+		];
 	};
 
 	export const RelayMessage = (owner: string) => {

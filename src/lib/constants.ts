@@ -1,31 +1,121 @@
-export function HUB_ID(): string {
+export function MU_URL(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "https://mu.velocity.cloudnet.marshal.ao";
         }
         case "staging": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "https://mu.velocity.cloudnet.marshal.ao";
         }
         case "production": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "https://mu.velocity.cloudnet.marshal.ao";
+        }
+    }
+    return "https://mu.velocity.cloudnet.marshal.ao";
+}
+
+export function CU_URL(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "https://cu.velocity.cloudnet.marshal.ao";
+        }
+        case "staging": {
+            return "https://cu.velocity.cloudnet.marshal.ao";
+        }
+        case "production": {
+            return "https://cu.velocity.cloudnet.marshal.ao";
+        }
+    }
+    return "https://cu.velocity.cloudnet.marshal.ao";
+}
+
+export function GATEWAY_URL(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "https://gateway.velocity.cloudnet.marshal.ao";
+        }
+        case "staging": {
+            return "https://gateway.velocity.cloudnet.marshal.ao";
+        }
+        case "production": {
+            return "https://gateway.velocity.cloudnet.marshal.ao";
+        }
+    }
+    return "https://gateway.velocity.cloudnet.marshal.ao";
+}
+
+export function SCHEDULER(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "Tm7v2ddwSr_5UxjmuCmhkMSZpzhtKJkkpLMZK_p6mQU";
+        }
+        case "staging": {
+            return "Tm7v2ddwSr_5UxjmuCmhkMSZpzhtKJkkpLMZK_p6mQU";
+        }
+        case "production": {
+            return "Tm7v2ddwSr_5UxjmuCmhkMSZpzhtKJkkpLMZK_p6mQU";
+        }
+    }
+    return "Tm7v2ddwSr_5UxjmuCmhkMSZpzhtKJkkpLMZK_p6mQU";
+}
+
+export function AOS_MODULE(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "JArYBF-D8q2OmZ4Mok00sD2Y_6SYEQ7Hjx-6VZ_jl3g";
+        }
+        case "staging": {
+            return "JArYBF-D8q2OmZ4Mok00sD2Y_6SYEQ7Hjx-6VZ_jl3g";
+        }
+        case "production": {
+            return "JArYBF-D8q2OmZ4Mok00sD2Y_6SYEQ7Hjx-6VZ_jl3g";
         }
     }
     return "";
 }
 
-export function INDEXER_ID(): string {
+export function HUB_MESSAGE_ID(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "6FhxvMPEDArljbh1C2XlkY68-QgepPy7UTpM3czWrt0";
         }
         case "staging": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "6FhxvMPEDArljbh1C2XlkY68-QgepPy7UTpM3czWrt0";
         }
         case "production": {
-            return "6gLP92yIF8ZgrHZpogUoFeyFuJl9utOaxyK58VFnpCM";
+            return "6FhxvMPEDArljbh1C2XlkY68-QgepPy7UTpM3czWrt0";
         }
     }
     return "";
+}
+
+export function HUB_REGISTRY_ID(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "g_eSbkmD4LzfZtXaCLmeMcLIBQrqxnY-oFQJJNMIn4w";
+        }
+        case "staging": {
+            return "g_eSbkmD4LzfZtXaCLmeMcLIBQrqxnY-oFQJJNMIn4w";
+        }
+        case "production": {
+            return "g_eSbkmD4LzfZtXaCLmeMcLIBQrqxnY-oFQJJNMIn4w";
+        }
+    }
+    return "g_eSbkmD4LzfZtXaCLmeMcLIBQrqxnY-oFQJJNMIn4w";
+}
+
+export function PROFILE_REGISTRY_ID(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "9ahkAJRhJO46sALHkqb1_0Ck-hSpqBCLJwdxvtMzoqI";
+        }
+        case "staging": {
+            return "9ahkAJRhJO46sALHkqb1_0Ck-hSpqBCLJwdxvtMzoqI";
+        }
+        case "production": {
+            return "9ahkAJRhJO46sALHkqb1_0Ck-hSpqBCLJwdxvtMzoqI";
+        }
+    }
+    return "9ahkAJRhJO46sALHkqb1_0Ck-hSpqBCLJwdxvtMzoqI";
 }
 
 export function RELAY_MESSAGE_ID(): string {
@@ -59,14 +149,35 @@ export function WAR_TOKEN(): string {
     return "";
 }
 
-export const ARWEAVE_ADDRESS = "https://7emz5ndufz7rlmskejnhfx3znpjy32uw73jm46tujftmrg5mdmca.arweave.net/"
+export function ARWEAVE_URL(): string {
+    switch (import.meta.env.MODE) {
+        case "development": {
+            return "arweave.velocity.cloudnet.marshal.ao";
+        }
+        case "staging": {
+            return "arweave.velocity.cloudnet.marshal.ao";
+        }
+        case "production": {
+            return "arweave.net";
+        }
+    }
+    return "";
+}
+
+export function toUrl(tx: string) {
+    return "https://"+ARWEAVE_URL()+"/"+tx;
+}
 
 export const DEFAULT_QUANTITY = "1000000000000000000"
 export const DECIMALS = 1000000000000;
 
 
+export const AR_Token = "xU9zFkq3X2ZQ6olwNVvr1vUWIjc3kXTWr7xKQD6dh10"
+export const AO_Token = "0syT13r0s0tgPmIed95bJnuSqaD29HQNN8D3ElLSrsc"
+export const BazarUCM = "U3TjJAZWJjlWBB4KAXSHKzuky81jtyh0zqH8rUL4Wd0"
+
 export function formatNumber(num: number) {
-    const suffixes = ['', 'K', 'M', 'B', 'T', 'P', 'E']; // Add more if needed
+    const suffixes = ['', 'K', 'M', 'B', 'T', 'P', 'E'];
     let tier = Math.log10(Math.abs(num)) / 3 | 0;
 
     if (tier === 0) return num.toString();

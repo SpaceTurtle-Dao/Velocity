@@ -1,157 +1,149 @@
 <script lang="ts">
-  import Post from "$lib/components/posts/Post.svelte";
+  import PostComponent from "$lib/components/posts/Post.svelte";
+  import type { Post } from "$lib/models/Post";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
-  import { onMount } from "svelte";
-  import { fetchEvents } from "$lib/ao/relay";
-  import { currentUser } from "$lib/stores/current-user.store";
-  import { notifyNewPostStore } from "$lib/stores/notify-new-post.store";
+  import { onMount, onDestroy } from "svelte";
+  import { hubService } from "$lib/services/HubService";
+  import { profileService } from "$lib/services/ProfileService";
+  import { currentUser } from "$lib/services/CurrentUser";
+  import { timestampService } from "$lib/utils/date-time";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
+  import { HUB_REGISTRY_ID } from "$lib/constants";
+  import type { Zone } from "$lib/models/Zone";
+  import { postService } from "$lib/services/postService";
 
-  let events: Array<any> = [];
-  let filters: Array<any> = [];
-  let isFetchingAlready = false;
+  let feed: Array<Post> = [];
+  let isLoadingFeed = true;
+  let isLoadingMore = false;
+  let lastLoadedTimestamp: number | null = null;
+  let scrollContainer: HTMLElement | null = null;
+  let hubId: string;
+  let address: string;
 
-  function processEvents(rawEvents: any) {
-    const postMap = new Map();
-    const topLevelPosts: any = [];
-
-    //@ts-ignore
-    rawEvents.forEach((event) => {
-      // Create a new object to avoid reference issues
-      postMap.set(event.Id, { ...event, replies: [] });
-    });
-
-    // Second pass: Organize posts and replies
-    //@ts-ignore
-    rawEvents.forEach((event) => {
-      if (event.Tags["marker"] === "reply") {
-        const parentId = event.Tags["e"];
-        const parent = postMap.get(parentId);
-        if (parent) {
-          parent.replies.push(postMap.get(event.Id));
-        } else {
-          // If parent not found, treat as top-level post
-          topLevelPosts.push(postMap.get(event.Id));
-        }
-      } else if (event.Tags["marker"] === "root" || !event.Tags["marker"]) {
-        topLevelPosts.push(postMap.get(event.Id));
-      }
-    });
-
-    // Sort posts by timestamp, newest first
-    //@ts-ignore
-    return topLevelPosts.sort((a, b) => b.Timestamp - a.Timestamp);
-  }
-
-  async function fetchFeedEvents() {
-    if (isFetchingAlready || !$currentUser) return;
-
-    try {
-      isFetchingAlready = true;
-
-      const filter = {
-        kinds: ["1", "6"],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-        tags: { marker: ["root"] },
-      };
-
-      const _filters = JSON.stringify([filter]);
-      const _events = await fetchEvents(_filters);
-
-      // Process and update events
-      events = processEvents(_events);
-      console.log("Updated events:", events);
-    } catch (error) {
-      console.error("Error fetching feed events:", error);
-    } finally {
-      isFetchingAlready = false;
-    }
-  }
-
-  async function fetchFollowingEvents() {
-    if (!$currentUser?.followList) return;
-
-    try {
-      const filter = {
-        kinds: ["1", "6"],
-        since: 1663905355000,
-        until: Date.now(),
-        limit: 100,
-        tags: { marker: ["root"] },
-        // authors: $currentUser.followList,
-      };
-
-      const _filters = JSON.stringify([filter]);
-      const _events = await fetchEvents(_filters);
-      events = processEvents(_events);
-    } catch (error) {
-      console.error("Error fetching following events:", error);
-    }
-  }
-
-  function handleNewReply(event: any) {
-    const newReply = event.detail;
-    // Process events including the new reply
-    events = processEvents([...events.flat(), newReply]);
-  }
-
-  // Initialize feed
-  onMount(async () => {
-    await fetchFeedEvents();
+  postService.subscribe(async (posts) => {
+    feed = []
+    feed = posts.values().toArray();
   });
 
-  // Handle new post notifications
-  notifyNewPostStore.subscribe(async (value) => {
-    if (value) {
-      await fetchFeedEvents();
-      // Reset the notification store
-      notifyNewPostStore.set(0);
+  /*hubRegistryService.subscribe(async (hubs) => {
+    if (address && hubs.has(address)) {
+      hub = hubs.get(address)!;
+      hubId = hub.spec.processId;
+      fetchFeedEvents();
+    }
+  });*/
+
+  currentUser.subscribe(async (_currentUser) => {
+    if (_currentUser) {
+      address = _currentUser.address;
+      hubId = _currentUser.zone.spec.processId;
+      fetchFeedEvents();
+      //hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address);
+    }
+  });
+
+  async function fetchFeedEvents() {
+
+    const now = new Date();
+    let since = timestampService.subtract(new Date(), 10, "days").getTime();
+    let until = now.getTime();
+    if(lastLoadedTimestamp){
+      since = lastLoadedTimestamp
+    }
+    try {
+      postService.fetchPost(hubId, since, until);
+      lastLoadedTimestamp = until;
+    } catch (error) {
+    } finally {
+      isLoadingFeed = false;
+    }
+  }
+
+  function handleScroll() {
+    if (!scrollContainer) return;
+
+    const scrollPosition =
+      scrollContainer.scrollTop + scrollContainer.clientHeight;
+    const scrollHeight = scrollContainer.scrollHeight;
+    const threshold = 200;
+
+    if (scrollHeight - scrollPosition < threshold && !isLoadingMore) {
+      fetchFeedEvents();
+    }
+  }
+
+  onMount(async () => {
+    /*let isConnected = await currentUser.isConnected();
+    if (!isConnected) {
+      await currentUser.connectWallet();
+    }*/
+    scrollContainer = document.querySelector(".scrollbar-hidden");
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll);
+    } else {
+      console.error(
+        "Could not find scrollable container with class .scrollbar-hidden",
+      );
+    }
+  });
+
+  onDestroy(() => {
+    if (scrollContainer) {
+      scrollContainer.removeEventListener("scroll", handleScroll);
     }
   });
 </script>
 
-{#if $currentUser}
-  <div class="flex justify-center max-w-[653px] w-full">
-    <div class="md:mt-10 mt-5 max-w-prose w-full">
+{#if address}
+  <div class="relative">
+    <div class="md:mt-10 mt-5 max-w-prose">
       <Tabs.Root value="for you" class="max-w-prose">
-        <Tabs.List class="grid grid-cols-2 md:mx-0 mx-4 ">
+        <Tabs.List class="grid grid-cols-1 md:mx-0 mx-4">
           <Tabs.Trigger
             class="underline-tabs-trigger"
             on:click={fetchFeedEvents}
             value="for you">For You</Tabs.Trigger
           >
-          <Tabs.Trigger on:click={fetchFollowingEvents} value="following"
-            >Following</Tabs.Trigger
-          >
         </Tabs.List>
 
         <Tabs.Content value="for you">
-          <div>
-            {#each events as event (event.Id)}
-              <div class="border border-border max-w-prose">
-                <Post
-                  {event}
-                  replies={event.replies}
-                  on:newReply={handleNewReply}
-                />
+          {#if feed.length === 0}
+            <div class="flex justify-center items-center py-16">
+              <div
+                class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"
+                role="status"
+              >
+                <span class="sr-only">Loading...</span>
               </div>
-            {/each}
-          </div>
-        </Tabs.Content>
+              <span class="ml-3 text-muted-foreground">Loading posts...</span>
+            </div>
+          {:else}
+            <div>
+              {#each feed as post}
+                <div class="max-w-prose border border-border">
+                  <PostComponent {post} />
+                </div>
+              {/each}
 
-        <Tabs.Content value="following">
-          <div>
-            {#each events as event (event.Id)}
-              <div class="border border-border max-w-prose">
-                <Post
-                  {event}
-                  replies={event.replies}
-                  on:newReply={handleNewReply}
-                />
+              <div class="sticky bottom-0 bg-background/80 backdrop-blur-sm">
+                {#if isLoadingMore}
+                  <div class="flex justify-center items-center py-4">
+                    <div
+                      class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"
+                      role="status"
+                    >
+                      <span class="sr-only">Loading more...</span>
+                    </div>
+                    <span class="ml-3 text-muted-foreground"
+                      >Loading more posts...</span
+                    >
+                  </div>
+                {/if}
               </div>
-            {/each}
-          </div>
+
+              <div id="scroll-sentinel" class="h-4"></div>
+            </div>
+          {/if}
         </Tabs.Content>
       </Tabs.Root>
     </div>
