@@ -19,9 +19,7 @@
   import { PostType, type Post } from "$lib/models/Post";
   import { currentUser } from "$lib/services/CurrentUser";
   import type { Hub } from "$lib/models/Hub";
-  import { PROFILE_REGISTRY_ID } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
-  import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { postService } from "$lib/services/postService";
 
   export let post: Post;
@@ -177,7 +175,7 @@
             </div>
           {/if}
 
-          <a use:link href={`/post/${post.from}/${post.id}`}>
+          <a use:link href={`/post/${post.from}/${post.original_Id}`}>
             <div>
               <div class="flex justify-start space-x-3">
                 {#if rePostProfile}
