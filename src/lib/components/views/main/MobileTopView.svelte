@@ -3,23 +3,56 @@
   import { isMobile } from "$lib/stores/is-mobile.store";
   import Logo from "../../../../assets/Logo2.png";
   import CreatePostModal from "$lib/components/posts/CreatePost.svelte";
-  import { writable } from "svelte/store";
-  import { currentUser } from "$lib/services/CurrentUser"; // Make sure to import your address store
+  import { currentUser } from "$lib/services/CurrentUser";
   import { walletService } from "$lib/services/walletService";
+  import { Loader } from "lucide-svelte";
+  import Connect from "$lib/components/wallet/connect.svelte";
+  import CreateProfile from "../profile/CreateProfile.svelte";
+  import { onMount } from "svelte";
+  import { postService } from "$lib/services/postService";
+  import { toUrl } from "$lib/constants";
 
   let opacity = "opacity-100";
   let showDisconnect = false;
+  let loader = false;
+  let isLoadingProfile = false;
+
+  onMount(() => {
+    walletService.isConnected();
+  });
+
+  walletService.subscribe((address) => {
+    if (!address) return;
+    isLoadingProfile = true;
+    currentUser.setup(address).then(() => {
+      loader = false;
+      isLoadingProfile = false;
+    }).catch(() => {
+      isLoadingProfile = false;
+    });
+  });
+
+  addEventListener("walletSwitch", async (e) => {
+    console.log(e);
+    //@ts-ignore
+    const { address } = e.detail;
+    postService.delete();
+    isLoadingProfile = true;
+    try {
+      await currentUser.setup(address);
+    } finally {
+      isLoadingProfile = false;
+    }
+  });
 
   async function handleDisconnect() {
     try {
       // Disconnect the wallet
       await walletService.disconnectWallet();
+      
+      // Clear the current user store
+      currentUser.set(undefined);
 
-      // This will clear the stores
-      const { subscribe, set } = writable();
-      set(undefined);
-
-      // Reset location and force a clean state
       window.location.href = "/";
     } catch (error) {
       console.error("Error disconnecting wallet:", error);
@@ -53,15 +86,26 @@
 {#if $isMobile}
   <div class="px-4 py-2 flex justify-between border-b border-gray-800">
     <div class="profile-menu relative">
-      <button on:click={toggleDisconnect} class="focus:outline-none">
+      <button 
+        on:click={toggleDisconnect} 
+        class="focus:outline-none"
+        aria-expanded={showDisconnect}
+        aria-haspopup="true"
+        aria-label="User menu"
+      >
         {#if $currentUser}
-          <!--{#await profileService.get($currentUser.address) then profile}
-            <ProfilePicture
-              size="sm"
-              src={profile.thumbnail}
-              name={profile.userName}
-            />
-          {/await}-->
+          <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+            <span class="text-sm font-medium text-white">
+              {#if $currentUser.profile.thumbnail}
+                <ProfilePicture
+                  src={toUrl($currentUser.profile.thumbnail)}
+                  name={$currentUser.profile.userName}
+                />
+              {:else}
+                <ProfilePicture src="" name={$currentUser.profile.userName} />
+              {/if}
+            </span>
+          </div>
         {/if}
       </button>
 
@@ -97,17 +141,55 @@
     <div class="size-8"></div>
   </div>
 
-  <div
-    class="rounded-full size-14 fixed bottom-32 right-6 z-50 {opacity} transition-opacity duration-400 ease-in-out"
-    on:touchstart|capture={() => {
-      opacity = "opacity-100";
-    }}
-    on:mouseenter={() => {
-      opacity = "opacity-100";
-    }}
-    tabindex="0"
-    role="button"
-  >
-    <CreatePostModal />
-  </div>
+  {#if !$currentUser && !$walletService}
+    <div class="fixed inset-0 flex items-center justify-center z-40 bg-background/50 backdrop-blur-sm">
+      <div class="bg-background border border-gray-800 rounded-lg p-8 max-w-sm w-full mx-4 text-center">
+        <img src={Logo} class="w-16 h-16 mx-auto mb-4" alt="velocity logo" />
+        <h2 class="text-xl font-semibold text-white mb-2">Welcome to Velocity</h2>
+        <p class="text-gray-400 mb-6">Connect your wallet to get started</p>
+        
+        {#if loader}
+          <div class="flex items-center justify-center">
+            <Loader class="animate-spin w-8 h-8 text-primary" />
+          </div>
+        {:else}
+          <Connect {loader} />
+        {/if}
+      </div>
+    </div>
+  {:else if $walletService && !$currentUser}
+    <div class="fixed inset-0 flex items-center justify-center z-40 bg-background/50 backdrop-blur-sm">
+      <div class="bg-background border border-gray-800 rounded-lg p-8 max-w-sm w-full mx-4 text-center">
+        {#if isLoadingProfile}
+          <!-- Show loader while searching for profile -->
+          <img src={Logo} class="w-16 h-16 mx-auto mb-4" alt="velocity logo" />
+          <h2 class="text-xl font-semibold text-white mb-2">Loading Profile</h2>
+          <p class="text-gray-400 mb-6">Searching for your profile...</p>
+          <div class="flex items-center justify-center">
+            <Loader class="animate-spin w-8 h-8 text-primary" />
+          </div>
+        {:else}
+          <!-- Show create profile when profile is not found -->
+          <CreateProfile />
+        {/if}
+      </div>
+    </div>
+  {/if}
+
+  <!-- Floating Action Button for Create Post - Only show when user is connected -->
+  {#if $currentUser}
+    <div
+      class="rounded-full size-14 fixed bottom-32 right-6 z-50 {opacity} transition-opacity duration-400 ease-in-out"
+      on:touchstart|capture={() => {
+        opacity = "opacity-100";
+      }}
+      on:mouseenter={() => {
+        opacity = "opacity-100";
+      }}
+      tabindex="0"
+      role="button"
+    >
+      <CreatePostModal />
+    </div>
+  {/if}
 {/if}

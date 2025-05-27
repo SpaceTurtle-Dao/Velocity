@@ -7,7 +7,6 @@
   import { hubRegistryService } from "$lib/services/HubRegistryService";
   import { isMobile } from "$lib/stores/is-mobile.store";
 
-  // Internal state - no props needed
   let searchQuery = "";
   let searchResults: Zone[] = [];
   let isLoading = false;

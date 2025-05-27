@@ -18,10 +18,11 @@
   import CreateProfile from "../profile/CreateProfile.svelte";
   import { onMount } from "svelte";
   import { walletService } from "$lib/services/walletService";
-    import { postService } from "$lib/services/postService";
+  import { postService } from "$lib/services/postService";
 
   let loader = false;
-  let address:string;
+  let address: string;
+  let isLoadingProfile = false;
 
   let menuItems = [
     { icon: HomeIcon, label: "Home", href: "/" },
@@ -46,21 +47,35 @@
 
   walletService.subscribe((address) => {
     if (!address) return;
-    currentUser.setup(address).then(() => (loader = false));
+    isLoadingProfile = true;
+    currentUser.setup(address).then(() => {
+      loader = false;
+      isLoadingProfile = false;
+    }).catch(() => {
+      isLoadingProfile = false;
+    });
   });
 
   addEventListener("walletSwitch", async (e) => {
-    console.log(e)
+    console.log(e);
     //@ts-ignore
     const { address } = e.detail;
-    postService.delete()
-    await currentUser.setup(address)
-    if($currentUser) push(`/profile/${address}`);
+    postService.delete();
+    isLoadingProfile = true;
+    try {
+      await currentUser.setup(address);
+      if ($currentUser) push(`/profile/${address}`);
+    } finally {
+      isLoadingProfile = false;
+    }
   });
 
   onMount(() => {
     walletService.isConnected();
   });
+
+  // Export the loading states so MiddleView can access them
+  export { isLoadingProfile, loader };
 </script>
 
 {#if !$isMobile}
@@ -116,7 +131,16 @@
           <LowerProfile profile={$currentUser.profile} />
         </div>
       {:else if $walletService && !$currentUser}
-        <CreateProfile />
+        {#if isLoadingProfile}
+          <!-- Show loader while searching for profile -->
+          <div class="mt-8 flex flex-col items-center justify-center text-center">
+            <Loader class="animate-spin w-12 h-12 text-primary mb-4" />
+            <p class="text-gray-400">Loading Profile...</p>
+          </div>
+        {:else}
+          <!-- Show create profile when profile is not found -->
+          <CreateProfile />
+        {/if}
       {:else}
         <div class="mt-8 flex flex-col items-center justify-center">
           {#if loader}
