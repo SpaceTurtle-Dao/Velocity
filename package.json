@@ -8,9 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
-    "deploy-main": "npm run build && permaweb-deploy --ant-process 87OqQaiyhnCWPyM-JbdlFTJ2mHPQUl9zpoWQ6JQ5_GE",
-    "deploy-dev": "npm run build && permaweb-deploy --ant-process 87OqQaiyhnCWPyM-JbdlFTJ2mHPQUl9zpoWQ6JQ5_GE --undername dev",
-    "deploy-staging": "npm run build && permaweb-deploy --ant-process 87OqQaiyhnCWPyM-JbdlFTJ2mHPQUl9zpoWQ6JQ5_GE --undername staging"
+    "deploy-main": "npm run build && permaweb-deploy --ant-process XYkT4IuPxrGLxbCJOzrtkKQMK0xPUlRjIRCpswk_XkA",
+    "deploy-dev": "npm run build && permaweb-deploy --ant-process XYkT4IuPxrGLxbCJOzrtkKQMK0xPUlRjIRCpswk_XkA --undername dev",
+    "deploy-staging": "npm run build && permaweb-deploy --ant-process XYkT4IuPxrGLxbCJOzrtkKQMK0xPUlRjIRCpswk_XkA --undername staging"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
