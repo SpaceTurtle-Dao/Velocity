@@ -55,7 +55,7 @@
         {/if}
 
         {#if !isCurrentUser}
-          <Follow hubId={profile.owner} />
+          <Follow hubId={profile.from} />
         {/if}
       </div>
 

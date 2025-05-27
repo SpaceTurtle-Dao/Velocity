@@ -40,8 +40,7 @@ const service = (): PostService => {
                             //console.log(events[i])
                             if (events[i].Content) {
                                 let post = postFactory(events[i]);
-                                posts.set(post.id, post)
-
+                                if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                             }
                         }
                         // console.log("posts 2",posts.size)
