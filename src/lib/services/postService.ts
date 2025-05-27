@@ -201,6 +201,8 @@ const service = (): PostService => {
             }
         },
         get: async (hub: string, id: string): Promise<Post> => {
+            console.log(hub)
+            console.log(id)
             let posts = get(postService)
             if (posts.has(id)) {
                 try {
