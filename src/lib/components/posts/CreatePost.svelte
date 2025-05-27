@@ -17,7 +17,7 @@
   import { postService } from "$lib/services/postService";
     import { toUrl } from "$lib/constants";
 
-  let content = "";
+  let content:string;
   let fileInput: HTMLInputElement | null = null;
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
@@ -99,7 +99,11 @@
           name: "mimeType",
           value: "image/gif",
         };
-        _content = _content + " " + selectedGifUrl;
+        if(_content){
+          _content = _content + " " + selectedGifUrl;
+        }else{
+          _content = selectedGifUrl;
+        }
         _tags.push(urlTag);
         _tags.push(mTag);
       } else if (selectedMedia) {
@@ -112,7 +116,11 @@
           name: "mimeType",
           value: media.mimeType || "",
         };
-        _content = _content + " " + media.url;
+        if(_content){
+          _content = _content + " " + media.url;
+        }else{
+          _content = media.url;
+        }
         _tags.push(urlTag);
         _tags.push(mTag);
       }

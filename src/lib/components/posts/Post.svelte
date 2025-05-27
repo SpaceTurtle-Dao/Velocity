@@ -40,7 +40,6 @@
     let _profile = profiles.get(post.from);
     if (_profile) {
       profile = _profile;
-      console.log(profile);
     }
     if (post.rePost) {
       let _rePostProfile = profiles.get(post.rePost.from);
@@ -67,8 +66,8 @@
   }
 
   async function loadData() {
-    console.log(post);
-    console.log(post.owner);
+    //console.log(post);
+    //console.log(post.owner);
     hubService.info(post.from).then((_hub) => (hub = _hub));
     profileService.fetchProfiles(post.from, [post.from]);
     replies = await postService.fetchReplies(post.from, post.original_Id);
