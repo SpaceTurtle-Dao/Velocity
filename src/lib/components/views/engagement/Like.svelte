@@ -38,11 +38,11 @@
         _tags.push(eventTag);
         _tags.push(pubkeyTag);
         if (liked) {
-            console.log("**Likes**");
+            //console.log("**Likes**");
             let temp = likes.filter((like) => {
-                console.log(like.From);
-                console.log($currentUser.hub?.Spec.processId);
-                console.log(like);
+                //console.log(like.From);
+                //console.log($currentUser.hub?.Spec.processId);
+                //console.log(like);
                 return like.From != $currentUser.hub?.Spec.processId;
             });
             likes = temp;
@@ -56,7 +56,7 @@
         await currentUser.createEvent(post.from, _tags, "7");
         postService.fetchLikes(post.from, post.original_Id).then((_likes) => {
             likes = _likes;
-            console.log("**Likes**");
+            //console.log("**Likes**");
             for (var i = 0; i < likes.length; i++) {
                 if (
                     likes[i].From == $currentUser?.address ||
@@ -68,10 +68,10 @@
     }
 
     onMount(async () => {
-        console.log(post);
+        //console.log(post);
         likes = await postService.fetchLikes(post.from, post.original_Id);
-        console.log("**Likes**");
-        console.log(likes);
+        //console.log("**Likes**");
+        //console.log(likes);
         for (var i = 0; i < likes.length; i++) {
             if (
                 likes[i].From == $currentUser?.address ||

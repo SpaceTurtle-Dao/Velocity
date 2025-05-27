@@ -165,7 +165,7 @@ export function ARWEAVE_URL(): string {
 }
 
 export function toUrl(tx: string) {
-    return  "https://"+ARWEAVE_URL()+"/"+tx;
+    return "https://"+ARWEAVE_URL()+"/"+tx;
 }
 
 export const DEFAULT_QUANTITY = "1000000000000000000"

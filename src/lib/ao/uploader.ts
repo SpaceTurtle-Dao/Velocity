@@ -1,4 +1,4 @@
-import { ARWEAVE_URL } from "$lib/constants";
+import { ARWEAVE_URL, toUrl } from "$lib/constants";
 import Arweave from "arweave";
 
 import mime from 'mime';
@@ -32,7 +32,7 @@ export const upload = async (file) => {
   const response = await arweave.transactions.post(transaction);
   console.log(response)
   const status = await arweave.transactions.getStatus(transaction.id);
-  let url = `${ARWEAVE_URL()}${transaction.id}?ext=${ext}`;
+  let url = `${toUrl(transaction.id)}?ext=${ext}`;
   console.log(
     `Completed transaction ${transaction.id} with status code ${status}!`,
   );

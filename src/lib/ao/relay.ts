@@ -89,9 +89,9 @@ export const queryFee = async (hubId: string, kind: string): Promise<any> => {
   try {
     // @ts-ignore
     let message = QueryFee(kind);
-    console.log(message)
+    //console.log(message)
     let result = await read(hubId, message);
-    console.log(result)
+    //console.log(result)
     //
     if (result) {
       let json = JSON.parse(result.Data);
@@ -111,8 +111,8 @@ export const fetchEvents = async (processId: string, filters: string): Promise<a
   try {
     // @ts-ignore
     let message = FetchEvents(filters);
-    console.log(message)
-    console.log(processId)
+    //console.log(message)
+    //console.log(processId)
     let result = await read(processId, message);
 
     if (result) {
@@ -171,7 +171,7 @@ export const getZones = async (processId: string, filters: string, page: Number,
     // @ts-ignore
     let message = GetZones(filters, page.toString(), limit.toString());
     let result = await read(processId, message);
-    console.log(message)
+    //console.log(message)
     if (result) {
       let json = JSON.parse(result.Data);
       events = json;

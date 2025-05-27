@@ -13,9 +13,9 @@
   hubService.subscribe((hubs) => {
     if (!$currentUser) return;
     let _hub = hubs.get($currentUser.address)
-    console.log(_hub)
+    //console.log(_hub)
     isSubscribed = _hub?.Following.includes(hubId)!;
-    console.log(isSubscribed)
+    //console.log(isSubscribed)
   })
 
   const unfollow = async () => {
