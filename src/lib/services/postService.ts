@@ -64,7 +64,7 @@ const service = (): PostService => {
                     for (var i = 0; i < events.length; i++) {
                         if (events[i].Content) {
                             let post = postFactory(events[i]);
-                            posts.set(post.id, post)
+                            if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
 
                         }
                     }
@@ -95,7 +95,7 @@ const service = (): PostService => {
                         for (var i = 0; i < events.length; i++) {
                             if (events[i].Content) {
                                 let post = postFactory(events[i]);
-                                posts.set(post.id, post)
+                                if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                             }
                         }
                         set(posts)
@@ -118,7 +118,7 @@ const service = (): PostService => {
                     for (var i = 0; i < events.length; i++) {
                         if (events[i].Content) {
                             let post = postFactory(events[i]);
-                            posts.set(post.id, post)
+                            if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
 
                         }
                     }
@@ -174,7 +174,7 @@ const service = (): PostService => {
                 for (var i = 0; i < events.length; i++) {
                     if (events[i].Content) {
                         let post = postFactory(events[i]);
-                        posts.set(post.from, post)
+                        if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                     }
                 }
                 set(posts)
@@ -216,7 +216,7 @@ const service = (): PostService => {
                         let post = postFactory(events[0]);
                         post = await getRepost(post)
                         if (post.content) {
-                            posts.set(id, post)
+                            if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                             set(posts)
                         } else {
                             throw ("Content is Empty")
@@ -238,7 +238,7 @@ const service = (): PostService => {
                     let post = postFactory(events[0]);
                     post = await getRepost(post)
                     if (post.content) {
-                        posts.set(id, post)
+                        if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                         set(posts)
                         return post
                     } else {
