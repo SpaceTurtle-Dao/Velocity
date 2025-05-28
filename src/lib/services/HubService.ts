@@ -46,7 +46,7 @@ const service = (): HubService => {
         create: async (profileData: ProfileCreateData): Promise<string> => {
             try {
                 const processId = await createProcess();
-                //console.log(processId)
+                console.log(processId)
                 await evaluateHub(processId)
                 //console.log("ProfileId", processId);
                 const hubSpec = {

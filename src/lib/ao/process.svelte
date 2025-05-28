@@ -87,6 +87,7 @@
 			// @ts-ignore
 			signer: createDataItemSigner(window.arweaveWallet),
 		});
+		console.log(processId)
 		await sleep(3000);
 		return processId;
 	};
