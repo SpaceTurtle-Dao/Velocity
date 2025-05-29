@@ -33,26 +33,26 @@
 
 {#if profile}
   <div class="flex items-center justify-between min-w-0">
-    <div class="flex gap-2">
-      <div class="hidden sm:flex justify-center pt-1.5">
-        <ProfilePictureHoverCard {profile} size="lg" />
+    <div class="flex gap-2 sm:gap-3">
+      <div class="flex justify-center pt-1.5">
+        <ProfilePictureHoverCard {profile} size="sm" />
       </div>
-      <div class="grid overflow-hidden">
+      <div class="grid overflow-hidden flex-1">
         <ProfileHoverCard {profile}>
-          {profile.userName}
+          <span class="font-medium text-sm sm:text-base">{profile.userName}</span>
         </ProfileHoverCard>
 
-        <p class="text-muted-foreground text-sm truncate">
+        <p class="text-muted-foreground text-xs sm:text-sm truncate">
           @{profile.displayName}
         </p>
         {#if profile.description}
-          <p class="line-clamp-2" id={profile.owner}>
+          <p class="line-clamp-2 text-xs sm:text-sm" id={profile.owner}>
             {profile.description}
           </p>
         {/if}
         {#if profile.website}
           <a
-            class="text-blue-500 hover:underline"
+            class="text-blue-500 hover:underline text-xs sm:text-sm"
             href={profile.website}
             target="_blank"
             rel="noopener noreferrer"

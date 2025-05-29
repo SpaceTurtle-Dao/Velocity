@@ -16,13 +16,13 @@
     AvatarFallback,
     AvatarImage,
   } from "$lib/components/ui/avatar";
-  import { Camera } from "lucide-svelte";
+  import { Camera, X } from "lucide-svelte";
   import { upload } from "$lib/ao/uploader";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import { currentUser } from "$lib/services/CurrentUser";
   import { profileService } from "$lib/services/ProfileService";
   import { HUB_REGISTRY_ID, toUrl } from "$lib/constants";
-    import { hubRegistryService } from "$lib/services/HubRegistryService";
+  import { hubRegistryService } from "$lib/services/HubRegistryService";
 
   export let initialProfile: Profile;
 
@@ -74,6 +74,10 @@
     }
   }
 
+  function closeModal() {
+    dispatch("close");
+  }
+
   async function updateProfile() {
     if (!initialProfile) return;
     loader = true;
@@ -89,29 +93,8 @@
         _profile.coverImage = _coverImageFile.hash;
       }
 
-      //const updated_at = Date.now();
-
-      /*const content = JSON.stringify({
-        name: profile.name,
-        display_name: profile.display_name,
-        about: profile.about,
-        dateCreated: initialProfile?.dateCreated,
-        updated_at,
-        thumbnail: profile.profileImage,
-        website: profile.website,
-        coverImage: profile.coverImage,
-        bot: profile.bot,
-      });*/
       try {
         if ($currentUser) {
-          /*const tags: Tag[] = [
-            { name: "UserName", value: profile.name },
-            { name: "DisplayName", value: profile.display_name },
-            { name: "Description", value: profile.about || "" },
-            { name: "CoverImage", value: profile.coverImage || "" },
-            { name: "ProfileImage", value: profile.profileImage || "" },
-          ];*/
-
           initialProfile.userName = _profile.name;
           initialProfile.displayName = _profile.display_name;
           initialProfile.description = _profile.description;
@@ -151,127 +134,194 @@
 </script>
 
 {#if _profile}
-  <div class="mx-auto max-w-2xl p-4">
-    <Card class="w-full relative border border-border rounded-lg">
-      <CardHeader>
-        <CardTitle>Update Your Profile</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form on:submit|preventDefault={() => {}} class="space-y-6">
-          <div class="relative mb-16">
-            <div class="h-32 bg-gray-200 relative">
-              {#if coverImageFile}
-                <img
-                  src={URL.createObjectURL(coverImageFile)}
-                  alt="coverImage"
-                  class="w-full h-full object-cover"
-                />
-              {:else if _profile.coverImage}
-                <img
-                  src={toUrl(_profile.coverImage)}
-                  alt="coverImage"
-                  class="w-full h-full object-cover"
-                />
-              {/if}
-              <label
-                for="coverImage"
-                class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer"
-              >
-                <Camera size={24} class="text-white" />
-              </label>
-              <Input
-                id="coverImage"
-                type="file"
-                accept="image/*"
-                class="hidden"
-                on:change={(e) => handleFileChange(e, "coverImage")}
+  <!-- Modal Backdrop -->
+  <div 
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" 
+    on:click={closeModal}
+    on:keydown={(e) => e.key === 'Escape' && closeModal()}
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+  >
+    <!-- Modal Container -->
+    <div 
+      class="bg-background rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col" 
+      on:click|stopPropagation
+      on:keydown|stopPropagation
+    >
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-4 border-b border-border">
+        <h2 id="modal-title" class="text-xl font-semibold text-foreground">Edit Profile</h2>
+        <button 
+          type="button"
+          on:click={closeModal}
+          class="p-2 hover:bg-accent rounded-full transition-colors text-muted-foreground hover:text-foreground"
+          aria-label="Close modal"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- Cover Image Section -->
+        <div class="relative">
+          <div class="h-32 sm:h-40 bg-gradient-to-r from-blue-400 to-purple-500 relative overflow-hidden">
+            {#if coverImageFile}
+              <img
+                src={URL.createObjectURL(coverImageFile)}
+                alt="Cover"
+                class="w-full h-full object-cover"
               />
-            </div>
-            <div class="absolute bottom-0 left-4 transform translate-y-1/3">
-              <div class="relative">
-                <Avatar class="w-24 h-24 border-4 border-white">
-                  {#if pictureFile}
-                    <AvatarImage
-                      class="object-cover"
-                      src={URL.createObjectURL(pictureFile)}
-                      alt={_profile.name}
-                    />
-                  {:else if _profile.thumbnail}
-                    <AvatarImage
-                      class="object-cover"
-                      src={toUrl(_profile.thumbnail)}
-                      alt={_profile.name}
-                    />
-                  {:else}
-                    <AvatarFallback
-                      >{_profile.name
-                        ? _profile.name[0].toUpperCase()
-                        : "U"}</AvatarFallback
-                    >
-                  {/if}
-                </Avatar>
-                <label
-                  for="picture"
-                  class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full cursor-pointer"
-                >
-                  <Camera size={20} class="text-white" />
-                </label>
-                <Input
-                  id="picture"
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  on:change={(e) => handleFileChange(e, "thumbnail")}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <Label for="name">Name *</Label>
-              <Input id="name" bind:value={_profile.name} />
-              {#if errors.name}
-                <p class="text-red-500 text-sm">{errors.name}</p>
-              {/if}
-            </div>
-
-            <div class="space-y-2">
-              <Label for="display_name">Display Name *</Label>
-              <Input id="display_name" bind:value={_profile.display_name} />
-              {#if errors.display_name}
-                <p class="text-red-500 text-sm">
-                  {errors.display_name}
-                </p>
-              {/if}
-            </div>
-          </div>
-
-          <div class="space-y-2">
-            <Label for="description">About</Label>
-            <Textarea
-              id="description"
-              bind:value={_profile.description}
-              rows={3}
+            {:else if _profile.coverImage}
+              <img
+                src={toUrl(_profile.coverImage)}
+                alt="Cover"
+                class="w-full h-full object-cover"
+              />
+            {/if}
+            <div class="absolute inset-0 bg-black/20"></div>
+            <label
+              for="coverImage"
+              class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 transition-colors p-2 rounded-full cursor-pointer"
+            >
+              <Camera size={14} class="text-white" />
+            </label>
+            <Input
+              id="coverImage"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              on:change={(e) => handleFileChange(e, "coverImage")}
             />
           </div>
 
-          <div class="space-y-2">
-            <Label for="website">Website</Label>
-            <Input id="website" type="url" bind:value={_profile.website} />
-            {#if errors.website}
-              <p class="text-red-500 text-sm">{errors.website}</p>
-            {/if}
+          <!-- Profile Picture -->
+          <div class="absolute -bottom-10 left-4">
+            <div class="relative">
+              <Avatar class="w-20 h-20 border-4 border-background shadow-lg">
+                {#if pictureFile}
+                  <AvatarImage
+                    class="object-cover"
+                    src={URL.createObjectURL(pictureFile)}
+                    alt={_profile.name}
+                  />
+                {:else if _profile.thumbnail}
+                  <AvatarImage
+                    class="object-cover"
+                    src={toUrl(_profile.thumbnail)}
+                    alt={_profile.name}
+                  />
+                {:else}
+                  <AvatarFallback class="text-lg font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                    {_profile.name ? _profile.name[0].toUpperCase() : "U"}
+                  </AvatarFallback>
+                {/if}
+              </Avatar>
+              <label
+                for="picture"
+                class="absolute -bottom-1 -right-1 bg-primary hover:bg-primary/90 transition-colors p-1.5 rounded-full cursor-pointer shadow-lg"
+              >
+                <Camera size={12} class="text-primary-foreground" />
+              </label>
+              <Input
+                id="picture"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                on:change={(e) => handleFileChange(e, "thumbnail")}
+              />
+            </div>
           </div>
+        </div>
 
+        <!-- Form Section -->
+        <div class="pt-12 p-4">
+          <form on:submit|preventDefault={() => {}} class="space-y-6">
+            <!-- Basic Info Card -->
+            <Card class="border-0 shadow-sm">
+              <CardHeader class="pb-4">
+                <CardTitle class="text-lg text-foreground">Basic Information</CardTitle>
+              </CardHeader>
+              <CardContent class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <Label for="name" class="text-sm font-medium text-foreground">Name *</Label>
+                    <Input 
+                      id="name" 
+                      bind:value={_profile.name}
+                      class="h-10 rounded-lg border-input bg-background text-foreground"
+                      placeholder="Enter your name"
+                    />
+                    {#if errors.name}
+                      <p class="text-destructive text-xs">{errors.name}</p>
+                    {/if}
+                  </div>
+
+                  <div class="space-y-2">
+                    <Label for="display_name" class="text-sm font-medium text-foreground">Display Name *</Label>
+                    <Input 
+                      id="display_name" 
+                      bind:value={_profile.display_name}
+                      class="h-10 rounded-lg border-input bg-background text-foreground"
+                      placeholder="Enter display name"
+                    />
+                    {#if errors.display_name}
+                      <p class="text-destructive text-xs">{errors.display_name}</p>
+                    {/if}
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <Label for="description" class="text-sm font-medium text-foreground">About</Label>
+                  <Textarea
+                    id="description"
+                    bind:value={_profile.description}
+                    rows={3}
+                    class="resize-none rounded-lg border-input bg-background text-foreground"
+                    placeholder="Tell us about yourself..."
+                  />
+                </div>
+
+                <div class="space-y-2">
+                  <Label for="website" class="text-sm font-medium text-foreground">Website</Label>
+                  <Input 
+                    id="website" 
+                    type="url" 
+                    bind:value={_profile.website}
+                    class="h-10 rounded-lg border-input bg-background text-foreground"
+                    placeholder="https://your-website.com"
+                  />
+                  {#if errors.website}
+                    <p class="text-destructive text-xs">{errors.website}</p>
+                  {/if}
+                </div>
+              </CardContent>
+            </Card>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-border">
+        <div class="flex gap-3">
+          <button
+            type="button"
+            on:click={closeModal}
+            class="flex-1 h-10 px-4 rounded-lg border border-input bg-background hover:bg-accent transition-colors text-foreground font-medium"
+          >
+            Cancel
+          </button>
           <ButtonWithLoader
-            class="bg-primary text-primary-foreground px-8 w-full rounded-full font-semibold hover:bg-primary/80 text-md disabled:cursor-not-allowed disabled:opacity-100"
+            class="flex-1 h-10 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors disabled:opacity-50"
             {loader}
             disabled={loader}
-            on:click={updateProfile}>Update Profile</ButtonWithLoader
+            on:click={updateProfile}
           >
-        </form>
-      </CardContent>
-    </Card>
+            {loader ? "Updating..." : "Update Profile"}
+          </ButtonWithLoader>
+        </div>
+      </div>
+    </div>
   </div>
 {/if}

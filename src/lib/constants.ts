@@ -61,13 +61,13 @@ export function SCHEDULER(): string {
 export function AOS_MODULE(): string {
     switch (import.meta.env.MODE) {
         case "development": {
-            return "JArYBF-D8q2OmZ4Mok00sD2Y_6SYEQ7Hjx-6VZ_jl3g";
+            return "28gHGe_ARwPfCL7zYD2HB5oGvvP74mbfbHLESNFo55o";
         }
         case "staging": {
-            return "JArYBF-D8q2OmZ4Mok00sD2Y_6SYEQ7Hjx-6VZ_jl3g";
+            return "28gHGe_ARwPfCL7zYD2HB5oGvvP74mbfbHLESNFo55o";
         }
         case "production": {
-            return "JArYBF-D8q2OmZ4Mok00sD2Y_6SYEQ7Hjx-6VZ_jl3g";
+            return "28gHGe_ARwPfCL7zYD2HB5oGvvP74mbfbHLESNFo55o";
         }
     }
     return "";

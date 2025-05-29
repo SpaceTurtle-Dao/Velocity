@@ -4,7 +4,7 @@
   import { upload } from "$lib/ao/uploader";
   import type { Tag } from "$lib/models/Tag";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
-  import { Plus, Image, X, Signpost, Gift } from "lucide-svelte";
+  import { Plus, Image, X, Signpost, Gift, Loader2 } from "lucide-svelte";
   import ButtonWithLoader from "$lib/components/ButtonWithLoader/ButtonWithLoader.svelte";
   import ProfilePicture from "$lib/components/UserProfile/ProfilePicture.svelte";
   import { isMobile } from "$lib/stores/is-mobile.store";
@@ -22,6 +22,7 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
   let isLoading = false;
+  let isUploading = false; // New state for upload loading
   let dialogOpen = false;
   let gifSearchOpen = false;
   let selectedGifUrl: string | null = null;
@@ -38,6 +39,7 @@
     selectedMedia = null;
     mediaPreviewUrl = null;
     selectedGifUrl = null;
+    isUploading = false; // Reset upload state
     if (fileInput) {
       fileInput.value = "";
     }
@@ -61,6 +63,7 @@
   function removeSelectedMedia() {
     selectedMedia = null;
     mediaPreviewUrl = null;
+    isUploading = false; // Reset upload state
     if (fileInput) {
       fileInput.value = "";
     }
@@ -107,7 +110,9 @@
         _tags.push(urlTag);
         _tags.push(mTag);
       } else if (selectedMedia) {
+        isUploading = true; // Start upload loading
         let media = await upload(selectedMedia);
+        isUploading = false; // End upload loading
         let urlTag: Tag = {
           name: "url",
           value: media.url,
@@ -139,6 +144,7 @@
       await postService.fetchPost($currentUser.hub.Spec.processId, since, until);
     } catch (error) {
       console.error("Error creating post:", error);
+      isUploading = false; // Reset upload state on error
     } finally {
       isLoading = false;
     }
@@ -199,22 +205,36 @@
                 <video
                   src={mediaPreviewUrl}
                   controls
-                  class="w-full h-48 object-cover rounded-md"
+                  class="w-full h-48 object-cover rounded-md {isUploading ? 'opacity-50' : ''}"
                 />
               {:else}
                 <img
                   src={mediaPreviewUrl}
                   alt="Selected media"
-                  class="w-full object-cover rounded-md"
+                  class="w-full object-cover rounded-md {isUploading ? 'opacity-50' : ''}"
                 />
               {/if}
-              <Button
-                variant="ghost"
-                on:click={removeSelectedMedia}
-                class="text-muted-primary bg-muted-foreground h-18 w-18 hover:text-foreground rounded-full absolute top-2 right-2 p-1"
-              >
-                <X />
-              </Button>
+              
+              <!-- Upload Loading Overlay -->
+              {#if isUploading}
+                <div class="absolute inset-0 flex items-center justify-center bg-black/20 rounded-md">
+                  <div class="flex flex-col items-center gap-2 text-white">
+                    <Loader2 class="h-8 w-8 animate-spin" />
+                    <span class="text-sm font-medium">Uploading...</span>
+                  </div>
+                </div>
+              {/if}
+              
+              <!-- Remove button (only show when not uploading) -->
+              {#if !isUploading}
+                <Button
+                  variant="ghost"
+                  on:click={removeSelectedMedia}
+                  class="text-muted-primary bg-muted-foreground h-18 w-18 hover:text-foreground rounded-full absolute top-2 right-2 p-1"
+                >
+                  <X />
+                </Button>
+              {/if}
             </div>
           {/if}
 
@@ -252,6 +272,7 @@
             variant="ghost"
             on:click={handleMediaButtonClick}
             class="text-primary hover:bg-primary/10 rounded-full"
+            disabled={isUploading}
           >
             <Image size={24} />
           </Button>
@@ -269,7 +290,8 @@
           class="px-8 w-36 rounded-full font-semibold text-md"
           loader={isLoading}
           disabled={isLoading ||
-            (!content && !selectedMedia && !selectedGifUrl)}
+            (!content && !selectedMedia && !selectedGifUrl) ||
+            isUploading}
           on:click={handleSubmit}>Post</ButtonWithLoader
         >
       </div>
