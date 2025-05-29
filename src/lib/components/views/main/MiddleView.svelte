@@ -14,14 +14,23 @@
   let loader = false;
   let isLoadingProfile = false;
   let showContent = false;
+  let currentPath = "";
 
   onMount(() => {
     walletService.isConnected();
-    // Add a slight delay for smooth animation
+    currentPath = window.location.hash;
     setTimeout(() => showContent = true, 100);
+    
+    const handleHashChange = () => {
+      currentPath = window.location.hash;
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   });
 
-  // Subscribe to wallet service changes
   walletService.subscribe((address) => {
     if (!address) return;
     isLoadingProfile = true;
@@ -46,6 +55,8 @@
       isLoadingProfile = false;
     }
   });
+
+  $: isProfilePage = currentPath.includes('#/profile/');
 </script>
 
 <div
@@ -53,25 +64,21 @@
     ? 'h-[calc(100vh-49px-53px)]'
     : 'h-screen'} relative"
 >
-  <!-- Elegant loading/connection states overlay - Desktop only -->
-  {#if !$isMobile && showContent && (!$currentUser && !$walletService || ($walletService && !$currentUser))}
+  {#if !$isMobile && showContent && !isProfilePage && (!$currentUser && !$walletService || ($walletService && !$currentUser))}
     <div 
       class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-background via-background/95 to-background/90 backdrop-blur-sm"
       in:fade={{ duration: 500 }}
     >
-      <!-- Animated background elements -->
       <div class="absolute inset-0 overflow-hidden">
         <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 dark:bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
         <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/8 dark:bg-blue-500/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-2xl animate-pulse delay-500"></div>
       </div>
 
-      <!-- Main content card -->
       <div 
         class="relative z-10 bg-background/90 dark:bg-background/80 backdrop-blur-xl border border-border shadow-2xl rounded-2xl p-8 max-w-md w-full mx-4 text-center"
         in:scale={{ duration: 600, delay: 200, start: 0.9 }}
       >
-        <!-- Logo with glow effect -->
         <div class="relative mb-6">
           <div class="absolute inset-0 bg-primary/30 dark:bg-primary/20 blur-xl rounded-full"></div>
           <img 
@@ -83,7 +90,6 @@
         </div>
 
         {#if !$currentUser && !$walletService}
-          <!-- Connect Wallet State -->
           <div in:fly={{ y: 20, duration: 600, delay: 600 }}>
             <div class="flex items-center justify-center mb-4">
               <div class="relative">
@@ -113,7 +119,6 @@
           </div>
 
         {:else if $walletService && !$currentUser}
-          <!-- Profile Loading/Creation State -->
           <div in:fly={{ y: 20, duration: 600, delay: 600 }}>
             {#if isLoadingProfile}
               <!-- Loading Profile -->
@@ -145,7 +150,6 @@
               </div>
               
             {:else}
-              <!-- Create Profile -->
               <div class="flex items-center justify-center mb-4">
                 <div class="relative">
                   <User class="w-8 h-8 text-green-500 dark:text-green-400" />
@@ -168,11 +172,9 @@
           </div>
         {/if}
 
-        <!-- Decorative bottom border -->
         <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full"></div>
       </div>
 
-      <!-- Floating particles effect -->
       <div class="absolute inset-0 pointer-events-none">
         {#each Array(6) as _, i}
           <div 
@@ -189,7 +191,6 @@
     </div>
   {/if}
 
-  <!-- Main content slot -->
   <slot />
 </div>
 

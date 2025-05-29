@@ -16,9 +16,23 @@
   let showDisconnect = false;
   let loader = false;
   let isLoadingProfile = false;
+  let currentPath = "";
 
   onMount(() => {
     walletService.isConnected();
+    
+    // Track route changes
+    currentPath = window.location.hash;
+    
+    // Listen for hash changes
+    const handleHashChange = () => {
+      currentPath = window.location.hash;
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   });
 
   walletService.subscribe((address) => {
@@ -71,6 +85,9 @@
       showDisconnect = false;
     }
   }
+
+  // Check if current route is a profile page
+  $: isProfilePage = currentPath.includes('#/profile/');
 </script>
 
 <svelte:window
@@ -141,7 +158,7 @@
     <div class="size-8"></div>
   </div>
 
-  {#if !$currentUser && !$walletService}
+  {#if !isProfilePage && !$currentUser && !$walletService}
     <div class="fixed inset-0 flex items-center justify-center z-40 bg-background/50 backdrop-blur-sm">
       <div class="bg-background border border-gray-800 rounded-lg p-8 max-w-sm w-full mx-4 text-center">
         <img src={Logo} class="w-16 h-16 mx-auto mb-4" alt="velocity logo" />
@@ -157,11 +174,10 @@
         {/if}
       </div>
     </div>
-  {:else if $walletService && !$currentUser}
+  {:else if !isProfilePage && $walletService && !$currentUser}
     <div class="fixed inset-0 flex items-center justify-center z-40 bg-background/50 backdrop-blur-sm">
       <div class="bg-background border border-gray-800 rounded-lg p-8 max-w-sm w-full mx-4 text-center">
         {#if isLoadingProfile}
-          <!-- Show loader while searching for profile -->
           <img src={Logo} class="w-16 h-16 mx-auto mb-4" alt="velocity logo" />
           <h2 class="text-xl font-semibold text-white mb-2">Loading Profile</h2>
           <p class="text-gray-400 mb-6">Searching for your profile...</p>
@@ -169,14 +185,12 @@
             <Loader class="animate-spin w-8 h-8 text-primary" />
           </div>
         {:else}
-          <!-- Show create profile when profile is not found -->
           <CreateProfile />
         {/if}
       </div>
     </div>
   {/if}
 
-  <!-- Floating Action Button for Create Post - Only show when user is connected -->
   {#if $currentUser}
     <div
       class="rounded-full size-14 fixed bottom-32 right-6 z-50 {opacity} transition-opacity duration-400 ease-in-out"
