@@ -314,7 +314,11 @@
           on:click={toggleModal}><X class="w-5 h-5" /></Button
         >
       </div>
-      <UpdateProfile initialProfile={profile} on:profileUpdated={toggleModal} />
+      <UpdateProfile 
+        initialProfile={profile} 
+        on:profileUpdated={toggleModal}
+        on:close={toggleModal}
+      />
     </div>
   </div>
 {/if}
