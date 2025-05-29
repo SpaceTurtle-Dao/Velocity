@@ -13,6 +13,7 @@
   hubService.subscribe((hubs) => {
     if (!$currentUser) return;
     let _hub = hubs.get($currentUser.address)
+    console.log("Follow", _hub)
     //console.log(_hub)
     isSubscribed = _hub?.Following.includes(hubId)!;
     //console.log(isSubscribed)
@@ -33,6 +34,7 @@
     loader = true;
     hubService.info(hubId)
     await currentUser.follow(hubId);
+    console.log("Follow", hubId)
     await currentUser.setup($currentUser.address)
     hubService.info(hubId)
     loader = false;

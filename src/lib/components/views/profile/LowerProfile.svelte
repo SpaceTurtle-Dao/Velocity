@@ -67,10 +67,10 @@
         <ProfilePicture src="" name={profile.userName} />
       {/if}
       <div class="flex-grow text-left">
-        <p class="font-semibold text-white">{profile.displayName}</p>
-        <p class="text-sm text-white">@{profile.userName}</p>
+        <p class="font-semibold text-foreground">{profile.displayName}</p>
+        <p class="text-sm text-muted-foreground">@{profile.userName}</p>
       </div>
-      <MoreHorizontal class="w-5 h-5 text-white" />
+      <MoreHorizontal class="w-5 h-5 text-muted-foreground" />
     </button>
 
     {#if isMenuOpen}
