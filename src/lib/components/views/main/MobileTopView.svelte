@@ -35,7 +35,7 @@
     };
   });
 
-  walletService.subscribe((address) => {
+  /*walletService.subscribe((address) => {
     if (!address) return;
     isLoadingProfile = true;
     currentUser.setup(address).then(() => {
@@ -57,7 +57,7 @@
     } finally {
       isLoadingProfile = false;
     }
-  });
+  });*/
 
   async function handleDisconnect() {
     try {
@@ -65,7 +65,7 @@
       await walletService.disconnectWallet();
       
       // Clear the current user store
-      currentUser.set(undefined);
+      //currentUser.set(undefined);
 
       window.location.href = "/";
     } catch (error) {

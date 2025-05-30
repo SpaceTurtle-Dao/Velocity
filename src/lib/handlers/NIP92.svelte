@@ -11,7 +11,7 @@
   let processedContent: string;
   let assetId: string | null = null;
   let collectionId: string | null = null;
-  let assetDetails: any = null;
+  let assetDetails: any;
   let loading: boolean = false;
   let error: string | null = null;
   let isBazarLink: boolean = false;
@@ -63,13 +63,15 @@
 
     try {
       const collection = await ucmService.getCollection(id);
-      // console.log("Collection data:", collection);
-      assetDetails = collection;
+      if (collection) {
+        // console.log("Collection data:", collection);
+        assetDetails = collection;
+        loading = false;
+      }
     } catch (err) {
       console.log("Failed to fetch collection details:", err);
       error = "Failed to load collection details";
     } finally {
-      loading = false;
     }
   }
 
@@ -82,7 +84,7 @@
 {#if post.mimeType && post.url && inlineUrl}
   <article class="pb-5 text-primary text-wrap ...">
     {#if post.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}
-    <p>{post.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
+      <p>{post.content.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "")}</p>
     {/if}
   </article>
   {#if post.mimeType.startsWith("image/")}

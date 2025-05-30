@@ -66,8 +66,11 @@
     //console.log(post.owner);
     hubService.info(post.from).then((_hub) => (hub = _hub));
     profileService.fetchProfiles(post.from, [post.from]);
-    replies = await postService.fetchReplies(post.from, post.original_Id);
-    replyCount = replies.length;
+    postService.fetchReplies(post.from, post.original_Id).then((value) => {
+      replies = value
+      replyCount = replies.length;
+    } );
+    
     if (post.rePost) {
       profileService.fetchProfiles(post.rePost.from, [post.rePost.from]);
     }

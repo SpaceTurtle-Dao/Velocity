@@ -109,10 +109,12 @@
   }
 
   onMount(async () => {
+    console.log("profile page")
     setup();
   });
 
   const onAddressParamChange = async () => {
+    console.log("address changed")
     setup();
   };
 

@@ -8,6 +8,8 @@ import { hubService } from "$lib/services/HubService";
 import { profileService } from "$lib/services/ProfileService";
 import { writable, type Readable, get } from "svelte/store";
 import { event, payedEvent, queryFee } from "$lib/ao/relay";
+import { timestampService } from "$lib/utils/date-time";
+import { postService } from "./postService";
 
 export interface UserStoreData {
   address: string;
@@ -37,6 +39,7 @@ const initUserStore = (): UserStore => {
         //console.log(hub)
         const profiles = await profileService.fetchProfiles(hub.Spec.processId, [hub.Spec.processId]);
         //console.log(profiles)
+        await fetchFeedEvents(hub.Spec.processId)
         const profile = profiles.get(address)
         if (!profile) return;
         console.log("setup complete")
@@ -128,5 +131,18 @@ async function createProfile(hubId: string, profileData: ProfileCreateData) {
     console.log(err)
   }
 }
+
+async function fetchFeedEvents(hubId:string) {
+    const now = new Date();
+    let since = timestampService.subtract(new Date(), 10, "days").getTime();
+    let until = now.getTime();
+    try {
+      
+      postService.fetchPost(hubId, since, until);
+    } catch (error) {
+    } finally {
+      
+    }
+  }
 
 export const currentUser = initUserStore();

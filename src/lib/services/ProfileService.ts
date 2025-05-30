@@ -55,9 +55,10 @@ const service = (): ProfileService => {
                     //   limit: 1,
                 },
             ]);
-
+            console.log("starting search")
             let messages = await fetchEvents(hubId, filter);
-            //console.log(messages)
+            console.log("end search")
+            console.log(messages)
             try {
                 // messages[0] give the latest profile change of this address and it  return that
                 let message = messages[0];

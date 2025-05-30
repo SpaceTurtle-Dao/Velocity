@@ -36,7 +36,10 @@ const service = (): HubRegistryService => {
       const filters = JSON.stringify({
         search: value,
       });
+      console.log("starting search")
       let zones = await getZones(processId, filters, page, limit)
+      console.log("end search")
+      console.log(zones)
 
       return zones.filter((zone) => zone.spec.profile)
     },

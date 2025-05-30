@@ -129,7 +129,6 @@ const service = (): PostService => {
             }
         },
         fetchReplies: async (hub: string, id: string): Promise<Post[]> => {
-            console.log("getting Replies")
             let replies:Post[] = [];
             try {
                 const filter = {
@@ -257,7 +256,6 @@ const service = (): PostService => {
 };
 
 function postFactory(event: any): Post {
-    console.log(event)
     let postType: PostType;
     let repost: Post | undefined;
     switch (event.Tags["marker"]) {

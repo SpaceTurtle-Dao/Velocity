@@ -10,7 +10,7 @@ import { send } from "$lib/ao/process.svelte";
 
 export interface UCMService extends Readable<Map<string, CollectionType>> {
     fetchCollections: () => Promise<CollectionType[]>;
-    getCollection: (id: string) => Promise<CollectionDetailType>;
+    getCollection: (id: string) => Promise<any>;
     getAtomicAsset: (id: string, args?: { useGateway?: boolean }) => Promise<AssetDetailType>;
     fetchAtomicAssets: (id: string[]) => Promise<AssetHeaderType[]>;
     createAtomicAsset: (args: AssetCreateArgsType) => Promise<string>;
@@ -47,7 +47,7 @@ const service = (): UCMService => {
                 return []
             }
         },
-        getCollection: async (collectionId: string): Promise<CollectionDetailType> => {
+        getCollection: async (collectionId: string): Promise<any> => {
             const wallet = window.arweaveWallet;
             const permaweb = Permaweb.init({
                 ao: connect(),
@@ -58,7 +58,7 @@ const service = (): UCMService => {
                 }),
                 signer: createDataItemSigner(wallet),
             });
-            const collection = permaweb.getCollection(collectionId)
+            const collection = await permaweb.getCollection(collectionId)
             if (collection) {
                 // console.log(collection)
                 return collection

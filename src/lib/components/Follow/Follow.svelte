@@ -42,7 +42,7 @@
 
   onMount(async () => {
     if (!$currentUser) return;
-    currentUser.setup($currentUser.address)
+    //currentUser.setup($currentUser.address)
   });
 </script>
 

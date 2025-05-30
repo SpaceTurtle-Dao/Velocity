@@ -96,13 +96,13 @@
             <span class="text-sm font-bold">{hub.Following.length}</span>
 
             <span class="text-sm font-normal text-muted-foreground"
-              >Subscribing</span
+              >Following</span
             >
           </div>
           <div>
             <span class="text-sm font-bold">{hub.Followers.length}</span>
             <span class="text-sm font-normal text-muted-foreground"
-              >Subscribers</span
+              >Followers</span
             >
           </div>
         {/if}

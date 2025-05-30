@@ -21,7 +21,7 @@
   let address: string;
 
   postService.subscribe(async (posts) => {
-    feed = []
+    feed = [];
     feed = posts.values().toArray();
   });
 
@@ -37,18 +37,17 @@
     if (_currentUser) {
       address = _currentUser.address;
       hubId = _currentUser.zone.spec.processId;
-      fetchFeedEvents();
+      //fetchFeedEvents();
       //hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address);
     }
   });
 
   async function fetchFeedEvents() {
-
     const now = new Date();
     let since = timestampService.subtract(new Date(), 10, "days").getTime();
     let until = now.getTime();
-    if(lastLoadedTimestamp){
-      since = lastLoadedTimestamp
+    if (lastLoadedTimestamp) {
+      since = lastLoadedTimestamp;
     }
     try {
       postService.fetchPost(hubId, since, until);
@@ -73,10 +72,6 @@
   }
 
   onMount(async () => {
-    /*let isConnected = await currentUser.isConnected();
-    if (!isConnected) {
-      await currentUser.connectWallet();
-    }*/
     scrollContainer = document.querySelector(".scrollbar-hidden");
     if (scrollContainer) {
       scrollContainer.addEventListener("scroll", handleScroll);
