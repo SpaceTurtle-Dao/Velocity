@@ -6,11 +6,10 @@ import { PostType, type Post } from "$lib/models/Post";
 export interface PostService extends Readable<Map<string, Post>> {
     fetchPost: (hubId: string, since: Number, until: Number) => Promise<void>;
     fetchPostWithAuthors: (hub: string, authors: string[]) => Promise<void>;
-    fetchReplies: (hubId: string, id: string) => Promise<Post[]>;
     fetchRepost: (hubId: string, id: string) => Promise<void>;
     fetchLikes: (hubId: string, id: string) => Promise<any[]>;
     get: (hubId: string, id: string) => Promise<Post>;
-    delete:() => void;
+    delete: () => void;
 }
 
 const service = (): PostService => {
@@ -23,56 +22,30 @@ const service = (): PostService => {
             let posts = get(postService)
             //console.log("**POST SIZE**")
             //console.log(posts.size)
-            if (posts.size > 0) {
-                try {
-                    const filter = {
-                        kinds: ["1", "6"],
-                        since: since,
-                        until: until
-                    };
-                    const filter2 = {
-                        tags: { marker: ["root", "repost"] },
-                    };
+            try {
+                const filter = {
+                    kinds: ["1", "6"],
+                    since: since,
+                    until: until
+                };
+                const filter2 = {
+                    tags: { marker: ["root", "repost"] },
+                };
 
-                    const _filters = JSON.stringify([filter, filter2]);
-                    fetchEvents(hubId, _filters).then((events) => {
-                        for (var i = 0; i < events.length; i++) {
-                            //console.log(events[i])
-                            if (events[i].Content) {
-                                let post = postFactory(events[i]);
-                                if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
-                            }
-                        }
-                        // console.log("posts 2",posts.size)
-                        set(posts)
-                    });
-                } catch (error) {
-                    throw (error)
-                }
-            } else {
-                try {
-                    const filter = {
-                        kinds: ["1", "6"],
-                        since: since,
-                        until: until,
-                        tags: { marker: ["root", "repost"] },
-                    };
-                    
-                    const _filters = JSON.stringify([filter]);
-                    let events = await fetchEvents(hubId, _filters);
-                    //console.log(events)
+                const _filters = JSON.stringify([filter, filter2]);
+                fetchEvents(hubId, _filters).then((events) => {
                     for (var i = 0; i < events.length; i++) {
+                        //console.log(events[i])
                         if (events[i].Content) {
                             let post = postFactory(events[i]);
-                            if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
-
+                            if (!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                         }
                     }
-                    // console.log("posts 1", posts.size);
+                    // console.log("posts 2",posts.size)
                     set(posts)
-                } catch (error) {
-                    throw (error)
-                }
+                });
+            } catch (error) {
+                throw (error)
             }
         },
         fetchPostWithAuthors: async (hub: string, authors: string[] = []): Promise<void> => {
@@ -95,7 +68,7 @@ const service = (): PostService => {
                         for (var i = 0; i < events.length; i++) {
                             if (events[i].Content) {
                                 let post = postFactory(events[i]);
-                                if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
+                                if (!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                             }
                         }
                         set(posts)
@@ -118,7 +91,7 @@ const service = (): PostService => {
                     for (var i = 0; i < events.length; i++) {
                         if (events[i].Content) {
                             let post = postFactory(events[i]);
-                            if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
+                            if (!posts.has(post.original_Id)) posts.set(post.original_Id, post);
 
                         }
                     }
@@ -126,34 +99,6 @@ const service = (): PostService => {
                 } catch (error) {
                     throw (error)
                 }
-            }
-        },
-        fetchReplies: async (hub: string, id: string): Promise<Post[]> => {
-            let replies:Post[] = [];
-            try {
-                const filter = {
-                    kinds: ["1"],
-                    //since: since,
-                    //limit: limit
-                };
-                const filter2 = {
-                    tags: { e: [id] },
-                };
-
-                const _filters = JSON.stringify([filter, filter2]);
-                let events = await fetchEvents(hub, _filters);
-                console.log(events)
-                for (var i = 0; i < events.length; i++) {
-                    if (events[i].Content) {
-                        let post = postFactory(events[i]);
-                        replies.push(post)
-                        //posts.set(post.from, post)
-                    }
-                }
-                //set(posts)
-                return replies
-            } catch (error) {
-                throw (error)
             }
         },
         fetchRepost: async (hub: string, id: string): Promise<void> => {
@@ -173,7 +118,7 @@ const service = (): PostService => {
                 for (var i = 0; i < events.length; i++) {
                     if (events[i].Content) {
                         let post = postFactory(events[i]);
-                        if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
+                        if (!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                     }
                 }
                 set(posts)
@@ -192,7 +137,7 @@ const service = (): PostService => {
                     tags: { e: [id] },
                 };
 
-                const _filters = JSON.stringify([filter,filter2]);
+                const _filters = JSON.stringify([filter, filter2]);
                 likes = await fetchEvents(hub, _filters)
                 return likes
             } catch (error) {
@@ -215,7 +160,7 @@ const service = (): PostService => {
                         let post = postFactory(events[0]);
                         post = await getRepost(post)
                         if (post.content) {
-                            if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
+                            if (!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                             set(posts)
                         } else {
                             throw ("Content is Empty")
@@ -237,7 +182,7 @@ const service = (): PostService => {
                     let post = postFactory(events[0]);
                     post = await getRepost(post)
                     if (post.content) {
-                        if(!posts.has(post.original_Id)) posts.set(post.original_Id, post);
+                        if (!posts.has(post.original_Id)) posts.set(post.original_Id, post);
                         set(posts)
                         return post
                     } else {

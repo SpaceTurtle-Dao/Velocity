@@ -21,6 +21,7 @@
   import type { Hub } from "$lib/models/Hub";
   import type { Zone } from "$lib/models/Zone";
   import { postService } from "$lib/services/postService";
+    import { repliesService } from "$lib/services/RepliesService";
 
   export let post: Post;
   let hub: Hub;
@@ -45,6 +46,11 @@
     }
   });
 
+  repliesService.subscribe((_replies) => {
+    replies = _replies.values().toArray();
+    replyCount = replies.length
+  })
+
   function transformEventToPost(
     event: any,
     isRepost = false,
@@ -66,13 +72,13 @@
     //console.log(post.owner);
     hubService.info(post.from).then((_hub) => (hub = _hub));
     profileService.fetchProfiles(post.from, [post.from]);
-    postService.fetchReplies(post.from, post.original_Id).then((value) => {
-      replies = value
-      replyCount = replies.length;
-    } );
+    repliesService.fetchReplies(post.from, post.original_Id);
     
     if (post.rePost) {
       profileService.fetchProfiles(post.rePost.from, [post.rePost.from]);
+    }
+    if (post.type == PostType.Reply && post.p) {
+      profileService.fetchProfiles( post.from, [post.p], )
     }
   }
 
@@ -154,13 +160,11 @@
           {#if post.type == PostType.Reply && post.p}
             <div class="flex items-center text-muted-foreground mb-2">
               <CornerDownRight size={16} class="mr-2" />
-              {#await profileService.fetchProfiles( post.from, [post.p], ) then _profile}
-                {#if $profileService.has(post.p)}
+              {#if $profileService.has(post.p)}
                   <span class="text-sm"
                     >Replying to @{$profileService.get(post.p)?.userName}</span
                   >
                 {/if}
-              {/await}
             </div>
           {/if}
           {#if rePostProfile}

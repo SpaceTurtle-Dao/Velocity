@@ -37,8 +37,6 @@
     if (_currentUser) {
       address = _currentUser.address;
       hubId = _currentUser.zone.spec.processId;
-      //fetchFeedEvents();
-      //hubRegistryService.getZoneById(HUB_REGISTRY_ID(), address);
     }
   });
 
