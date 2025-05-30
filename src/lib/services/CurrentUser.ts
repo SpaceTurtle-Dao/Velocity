@@ -39,7 +39,7 @@ const initUserStore = (): UserStore => {
         //console.log(hub)
         const profiles = await profileService.fetchProfiles(hub.Spec.processId, [hub.Spec.processId]);
         //console.log(profiles)
-        fetchFeedEvents(hub.Spec.processId)
+        await fetchFeedEvents(hub.Spec.processId)
         const profile = profiles.get(address)
         if (!profile) return;
         console.log("setup complete")
