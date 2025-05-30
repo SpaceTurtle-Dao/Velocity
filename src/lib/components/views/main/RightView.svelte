@@ -2,7 +2,7 @@
   import { isMobile } from "$lib/stores/is-mobile.store";
   import { Search as SearchIcon } from "lucide-svelte";
   import { onMount } from "svelte";
-  import { push } from "svelte-spa-router";
+  import { push, replace } from "svelte-spa-router";
   import TrendingAssets from "$lib/components/Assets_Card/TrendingAssets.svelte";
   import { HUB_REGISTRY_ID, toUrl } from "$lib/constants";
   import type { Zone } from "$lib/models/Zone";
@@ -35,7 +35,7 @@
     }
 
     isLoading = true;
-    console.log(searchQuery.toLowerCase());
+    //console.log(searchQuery.toLowerCase());
     try {
       //create a way to search through a list of known hubs
       searchResults = await hubRegistryService.search(
@@ -45,20 +45,20 @@
         100,
       );
       console.log(searchResults);
+      isLoading = false;
       if (isSearchFocused && searchQuery.trim()) {
       }
     } catch (error) {
       console.log("Search error:", error);
-      searchResults = [];
+      //searchResults = [];
     } finally {
-      isLoading = false;
     }
   }
 
-  function navigateToProfile(address: string, event: MouseEvent) {
+  async function navigateToProfile(address: string, event: MouseEvent) {
     //event.preventDefault();
     //event.stopPropagation();
-    //clickedProfile = true;
+    clickedProfile = true;
     push(`/profile/${address}`);
   }
 
@@ -142,7 +142,8 @@
                   {#if zone.spec.profile.thumbnail}
                     <img
                       src={toUrl(zone.spec.profile.thumbnail)}
-                      alt={zone.spec.profile.displayName || zone.spec.profile.userName}
+                      alt={zone.spec.profile.displayName ||
+                        zone.spec.profile.userName}
                       class="w-10 h-10 rounded-full object-cover"
                     />
                   {:else}
@@ -150,7 +151,10 @@
                       class="w-10 h-10 bg-background-600 flex items-center justify-center"
                     >
                       <span class="text-lg text-primary">
-                        {(zone.spec.profile.displayName || zone.spec.profile.userName)
+                        {(
+                          zone.spec.profile.displayName ||
+                          zone.spec.profile.userName
+                        )
                           .charAt(0)
                           .toUpperCase()}
                       </span>
@@ -159,7 +163,8 @@
 
                   <div class="flex-1 min-w-0">
                     <h3 class="text-primary font-medium truncate">
-                      {zone.spec.profile.displayName || zone.spec.profile.userName}
+                      {zone.spec.profile.displayName ||
+                        zone.spec.profile.userName}
                       <!-- Implement when address is there -->
                       <!-- {profile.displayName || profile.userName || profile.address.slice(0, 8) + '...'} -->
                     </h3>

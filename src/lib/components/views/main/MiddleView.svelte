@@ -9,6 +9,8 @@
   import { onMount } from "svelte";
   import { postService } from "$lib/services/postService";
   import { fade, scale, fly } from "svelte/transition";
+  import { push } from "svelte-spa-router";
+  import { PERMISSIONS } from "$lib/constants/wallet.constants";
 
   // 49px MobileTopView 53px MobileBottomNavBar
   let loader = false;
@@ -19,30 +21,37 @@
   onMount(() => {
     walletService.isConnected();
     currentPath = window.location.hash;
-    setTimeout(() => showContent = true, 100);
-    
+    setTimeout(() => (showContent = true), 100);
+
     const handleHashChange = () => {
       currentPath = window.location.hash;
     };
-    window.addEventListener('hashchange', handleHashChange);
-    
+    window.addEventListener("hashchange", handleHashChange);
+
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener("hashchange", handleHashChange);
     };
   });
 
-  walletService.subscribe((address) => {
-    if (!address) return;
+  addEventListener("arweaveWalletLoaded", async (e) => {
+    //@ts-ignore
+    const { permissions } = e.detail;
+    postService.delete();
     isLoadingProfile = true;
-    currentUser.setup(address).then(() => {
-      loader = false;
-      isLoadingProfile = false;
-    }).catch(() => {
-      isLoadingProfile = false;
-    });
+    try {
+      let hasPermissions = PERMISSIONS.every((permission) =>
+        permissions.includes(permission),
+      );
+      if (!hasPermissions) return;
+      let address = await window.arweaveWallet.getActiveAddress();
+      currentUser.setup(address).then(() => {
+        isLoadingProfile = false;
+      });
+      if ($currentUser) push(`/profile/${address}`);
+    } finally {
+    }
   });
 
-  // Handle wallet switch events
   addEventListener("walletSwitch", async (e) => {
     console.log(e);
     //@ts-ignore
@@ -50,9 +59,11 @@
     postService.delete();
     isLoadingProfile = true;
     try {
-      await currentUser.setup(address);
+      currentUser.setup(address).then(() => {
+        isLoadingProfile = false;
+      });
+      if ($currentUser) push(`/profile/${address}`);
     } finally {
-      isLoadingProfile = false;
     }
   });
 
@@ -70,20 +81,28 @@
       in:fade={{ duration: 500 }}
     >
       <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 dark:bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/8 dark:bg-blue-500/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-2xl animate-pulse delay-500"></div>
+        <div
+          class="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 dark:bg-primary/5 rounded-full blur-3xl animate-pulse"
+        ></div>
+        <div
+          class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/8 dark:bg-blue-500/3 rounded-full blur-3xl animate-pulse delay-1000"
+        ></div>
+        <div
+          class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-2xl animate-pulse delay-500"
+        ></div>
       </div>
 
-      <div 
+      <div
         class="relative z-10 bg-background/90 dark:bg-background/80 backdrop-blur-xl border border-border shadow-2xl rounded-2xl p-8 max-w-md w-full mx-4 text-center"
         in:scale={{ duration: 600, delay: 200, start: 0.9 }}
       >
         <div class="relative mb-6">
-          <div class="absolute inset-0 bg-primary/30 dark:bg-primary/20 blur-xl rounded-full"></div>
-          <img 
-            src={Logo} 
-            class="relative w-20 h-20 mx-auto drop-shadow-2xl" 
+          <div
+            class="absolute inset-0 bg-primary/30 dark:bg-primary/20 blur-xl rounded-full"
+          ></div>
+          <img
+            src={Logo}
+            class="relative w-20 h-20 mx-auto drop-shadow-2xl"
             alt="velocity logo"
             in:scale={{ duration: 800, delay: 400 }}
           />
@@ -94,30 +113,38 @@
             <div class="flex items-center justify-center mb-4">
               <div class="relative">
                 <Wallet class="w-8 h-8 text-primary" />
-                <Sparkles class="w-4 h-4 text-yellow-500 dark:text-yellow-400 absolute -top-1 -right-1 animate-pulse" />
+                <Sparkles
+                  class="w-4 h-4 text-yellow-500 dark:text-yellow-400 absolute -top-1 -right-1 animate-pulse"
+                />
               </div>
             </div>
-            
-            <h2 class="text-2xl font-bold bg-gradient-to-r from-foreground via-foreground/90 to-foreground/80 bg-clip-text text-transparent mb-3">
+
+            <h2
+              class="text-2xl font-bold bg-gradient-to-r from-foreground via-foreground/90 to-foreground/80 bg-clip-text text-transparent mb-3"
+            >
               Welcome to Velocity
             </h2>
-            
+
             <p class="text-muted-foreground mb-8 leading-relaxed">
-              Connect your wallet to start your journey in the decentralized social experience
+              Connect your wallet to start your journey in the decentralized
+              social experience
             </p>
-            
+
             {#if loader}
               <div class="flex items-center justify-center space-x-3">
                 <Loader class="animate-spin w-6 h-6 text-primary" />
-                <span class="text-foreground/80 animate-pulse">Connecting...</span>
+                <span class="text-foreground/80 animate-pulse"
+                  >Connecting...</span
+                >
               </div>
             {:else}
-              <div class="transform hover:scale-105 transition-transform duration-200">
+              <div
+                class="transform hover:scale-105 transition-transform duration-200"
+              >
                 <Connect {loader} />
               </div>
             {/if}
           </div>
-
         {:else if $walletService && !$currentUser}
           <div in:fly={{ y: 20, duration: 600, delay: 600 }}>
             {#if isLoadingProfile}
@@ -125,59 +152,78 @@
               <div class="flex items-center justify-center mb-4">
                 <div class="relative">
                   <User class="w-8 h-8 text-primary" />
-                  <div class="absolute -inset-2 border-2 border-primary/30 rounded-full animate-spin border-t-primary"></div>
+                  <div
+                    class="absolute -inset-2 border-2 border-primary/30 rounded-full animate-spin border-t-primary"
+                  ></div>
                 </div>
               </div>
-              
-              <h2 class="text-2xl font-bold bg-gradient-to-r from-primary via-blue-500 to-purple-500 bg-clip-text text-transparent mb-3">
+
+              <h2
+                class="text-2xl font-bold bg-gradient-to-r from-primary via-blue-500 to-purple-500 bg-clip-text text-transparent mb-3"
+              >
                 Loading Profile
               </h2>
-              
+
               <p class="text-muted-foreground mb-8 leading-relaxed">
                 Searching for your profile in the network...
               </p>
-              
+
               <div class="flex items-center justify-center space-x-3">
                 <Loader class="animate-spin w-6 h-6 text-primary" />
-                <span class="text-foreground/80 animate-pulse">Please wait...</span>
+                <span class="text-foreground/80 animate-pulse"
+                  >Please wait...</span
+                >
               </div>
-              
+
               <!-- Progress dots -->
               <div class="flex justify-center space-x-2 mt-6">
-                <div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                <div class="w-2 h-2 bg-primary/70 rounded-full animate-pulse delay-150"></div>
-                <div class="w-2 h-2 bg-primary/40 rounded-full animate-pulse delay-300"></div>
+                <div
+                  class="w-2 h-2 bg-primary rounded-full animate-pulse"
+                ></div>
+                <div
+                  class="w-2 h-2 bg-primary/70 rounded-full animate-pulse delay-150"
+                ></div>
+                <div
+                  class="w-2 h-2 bg-primary/40 rounded-full animate-pulse delay-300"
+                ></div>
               </div>
-              
             {:else}
               <div class="flex items-center justify-center mb-4">
                 <div class="relative">
                   <User class="w-8 h-8 text-green-500 dark:text-green-400" />
-                  <Sparkles class="w-4 h-4 text-green-400 dark:text-green-300 absolute -top-1 -right-1 animate-bounce" />
+                  <Sparkles
+                    class="w-4 h-4 text-green-400 dark:text-green-300 absolute -top-1 -right-1 animate-bounce"
+                  />
                 </div>
               </div>
-              
-              <h2 class="text-2xl font-bold bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent mb-3">
+
+              <h2
+                class="text-2xl font-bold bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent mb-3"
+              >
                 Create Your Profile
               </h2>
-              
+
               <p class="text-muted-foreground mb-8 leading-relaxed">
                 Complete your profile to join the Velocity community
               </p>
-              
-              <div class="transform hover:scale-105 transition-transform duration-200">
+
+              <div
+                class="transform hover:scale-105 transition-transform duration-200"
+              >
                 <CreateProfile />
               </div>
             {/if}
           </div>
         {/if}
 
-        <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full"></div>
+        <div
+          class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full"
+        ></div>
       </div>
 
       <div class="absolute inset-0 pointer-events-none">
         {#each Array(6) as _, i}
-          <div 
+          <div
             class="absolute w-1 h-1 bg-primary/40 dark:bg-primary/30 rounded-full animate-float"
             style="
               left: {Math.random() * 100}%; 
@@ -203,7 +249,8 @@
   }
 
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px) rotate(0deg);
       opacity: 0.5;
     }
@@ -219,7 +266,8 @@
 
   /* Custom gradient animations */
   @keyframes gradient-shift {
-    0%, 100% {
+    0%,
+    100% {
       background-position: 0% 50%;
     }
     50% {
