@@ -119,8 +119,7 @@
           <LowerProfile profile={$currentUser.profile} />
         </div>
       {:else if $walletService && !$currentUser}
-        {#if isLoadingProfile}
-          <!-- Show loader while searching for profile -->
+        <!--{#if isLoadingProfile}
           <div
             class="mt-8 flex flex-col items-center justify-center text-center"
           >
@@ -128,17 +127,16 @@
             <p class="text-gray-400">Loading Profile...</p>
           </div>
         {:else}
-          <!-- Show create profile when profile is not found -->
           <CreateProfile />
-        {/if}
+        {/if}-->
       {:else}
-        <div class="mt-8 flex flex-col items-center justify-center">
+        <!--<div class="mt-8 flex flex-col items-center justify-center">
           {#if loader}
             <Loader class="animate-spin w-12 h-12" />
           {:else}
             <Connect {loader} />
           {/if}
-        </div>
+        </div>-->
       {/if}
     </div>
   </div>

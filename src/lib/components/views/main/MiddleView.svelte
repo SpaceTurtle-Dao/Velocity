@@ -18,14 +18,15 @@
   let showContent = false;
   let currentPath = "";
 
+  const handleHashChange = () => {
+      currentPath = window.location.hash;
+  };
+
   onMount(() => {
-    walletService.isConnected();
+    //walletService.isConnected();
     currentPath = window.location.hash;
     setTimeout(() => (showContent = true), 100);
 
-    const handleHashChange = () => {
-      currentPath = window.location.hash;
-    };
     window.addEventListener("hashchange", handleHashChange);
 
     return () => {
@@ -43,7 +44,9 @@
         permissions.includes(permission),
       );
       if (!hasPermissions) return;
+      console.log("Getting Address")
       let address = await window.arweaveWallet.getActiveAddress();
+      console.log("Got Address")
       currentUser.setup(address).then(() => {
         isLoadingProfile = false;
       });
