@@ -56,7 +56,7 @@
     }
   });
 
-  $: isProfilePage = currentPath.includes('#/profile/');
+  $: isHomePage = currentPath === '#/' || currentPath === '';
 </script>
 
 <div
@@ -64,7 +64,7 @@
     ? 'h-[calc(100vh-49px-53px)]'
     : 'h-screen'} relative"
 >
-  {#if !$isMobile && showContent && !isProfilePage && (!$currentUser && !$walletService || ($walletService && !$currentUser))}
+  {#if !$isMobile && showContent && isHomePage && (!$currentUser && !$walletService || ($walletService && !$currentUser))}
     <div 
       class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-background via-background/95 to-background/90 backdrop-blur-sm"
       in:fade={{ duration: 500 }}
