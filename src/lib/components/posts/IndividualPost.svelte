@@ -20,6 +20,7 @@
   import type { Profile } from "$lib/models/Profile";
   import { currentUser } from "$lib/services/CurrentUser";
     import { toUrl } from "$lib/constants";
+    import { repliesService } from "$lib/services/RepliesService";
 
   export let params: { hubId?: string; id?: string } = {};
 
@@ -46,15 +47,15 @@
   let selectedMedia: File | null = null;
   let mediaPreviewUrl: string | null = null;
 
-  /*postService.subscribe((posts) => {
+  repliesService.subscribe((_replies) => {
     if (!params.hubId || !params.id) return;
-    replies = posts
+    replies = _replies
       .values()
       .filter((value) => value.e == params.id)
       .toArray();
     replyCount = replies.length;
-    console.log(`got ${replyCount} Replies`);
-  });*/
+    //console.log(`got ${replyCount} Replies`);
+  });
 
   profileService.subscribe((profiles) => {
     if (post && post.owner && profiles.has(post.owner)) {
@@ -69,7 +70,7 @@
     post = await postService.get(params.hubId, params.id);
     profileService.fetchProfiles(params.hubId, [post.owner]);
     console.log(post);
-    replies = await postService.fetchReplies(post.from, post.original_Id);
+    repliesService.fetchReplies(post.from, post.original_Id);
     replyCount = replies.length;
     //console.log(replies);
     //console.log(replyCount);

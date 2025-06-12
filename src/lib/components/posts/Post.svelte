@@ -47,9 +47,13 @@
   });
 
   repliesService.subscribe((_replies) => {
-    replies = _replies.values().toArray();
-    replyCount = replies.length
-  })
+    replies = _replies
+      .values()
+      .filter((value) => value.e == post.original_Id)
+      .toArray();
+    replyCount = replies.length;
+    //console.log(`got ${replyCount} Replies`);
+  });
 
   function transformEventToPost(
     event: any,

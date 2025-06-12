@@ -25,7 +25,7 @@
   });
   
   onMount(async () => {
-    console.log("**Loading Profile card**");
+    //console.log("**Loading Profile card**");
     hubService.info(hubId).then((_hub) => hub = _hub);
     profileService.fetchProfiles(hubId, [hubId]);
   });

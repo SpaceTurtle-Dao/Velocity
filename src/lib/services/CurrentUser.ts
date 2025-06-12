@@ -134,10 +134,9 @@ async function createProfile(hubId: string, profileData: ProfileCreateData) {
 
 async function fetchFeedEvents(hubId:string) {
     const now = new Date();
-    let since = timestampService.subtract(new Date(), 10, "days").getTime();
+    let since = timestampService.subtract(new Date(), 100, "days").getTime();
     let until = now.getTime();
     try {
-      
       postService.fetchPost(hubId, since, until);
     } catch (error) {
     } finally {

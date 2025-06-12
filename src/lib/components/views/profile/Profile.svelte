@@ -110,7 +110,7 @@
 
   onMount(async () => {
     console.log("profile page")
-    setup();
+    //setup();
   });
 
   const onAddressParamChange = async () => {
@@ -133,18 +133,23 @@
       posts = []
       let _hub = $hubService.get(params.address)
       if(_hub){
+        console.log("Hub Exist")
         hub = _hub
         profileService.fetchProfiles(hub.Spec.processId,[hub.Spec.processId])
         //console.log(hub)
       }else{
-        console.log("fetching data")
+        console.log("Hub Not Found")
+        console.log("Getting Zone")
         let zone = await hubRegistryService.getZoneById(HUB_REGISTRY_ID(), params.address)
-        //console.log(zone)
+        console.log("Got Zone")
+        console.log("Getting Hub")
         hub = await hubService.info(zone.spec.processId)
-        //console.log(hub)
+        console.log("Got Hub")
         profileService.fetchProfiles(hub.Spec.processId,[hub.Spec.processId])
       }
-      fetchPost();
+      console.log("fetching post for " + profile.displayName)
+      await fetchPost();
+      console.log("got post for " + profile.displayName)
     } catch (error) {
       console.log(params.address);
       console.log("Error setting up profile:", error);

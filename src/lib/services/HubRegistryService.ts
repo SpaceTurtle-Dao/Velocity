@@ -57,11 +57,17 @@ const service = (): HubRegistryService => {
 
         return zone
       } else {
-        console.log("fetching zone")
-        let zone = await getZone(processId, owner)
-        zones.set(zone.owner, zone)
-        set(zones)
-        return zone
+        try {
+          console.log("fetching zone")
+          let zone = await getZone(processId, owner)
+          zones.set(zone.owner, zone)
+          console.log("got zone")
+          set(zones)
+          return zone
+        } catch (e) {
+          throw(e)
+        }
+
       }
     },
   };
