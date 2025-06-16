@@ -58,7 +58,7 @@
   }
 
   async function fetchCollectionDetails(id: string) {
-    loading = true;
+    /*loading = true;
     error = null;
 
     try {
@@ -72,7 +72,7 @@
       console.log("Failed to fetch collection details:", err);
       error = "Failed to load collection details";
     } finally {
-    }
+    }*/
   }
 
   onMount(() => {

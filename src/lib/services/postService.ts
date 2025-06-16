@@ -1,6 +1,7 @@
 import { fetchEvents, } from "$lib/ao/relay";
 import { get, writable, type Readable } from "svelte/store";
 import { PostType, type Post } from "$lib/models/Post";
+import { profileService } from "./ProfileService";
 
 
 export interface PostService extends Readable<Map<string, Post>> {
@@ -20,6 +21,7 @@ const service = (): PostService => {
         subscribe,
         fetchPost: async (hubId: string, since: Number, until: Number): Promise<void> => {
             let posts = get(postService)
+            let profiles = []
             //console.log("**POST SIZE**")
             //console.log(posts.size)
             try {
@@ -33,8 +35,9 @@ const service = (): PostService => {
                 };
 
                 const _filters = JSON.stringify([filter, filter2]);
-                fetchEvents(hubId, _filters).then((events) => {
+                fetchEvents(hubId, _filters).then(async (events) => {
                     for (var i = 0; i < events.length; i++) {
+                        profiles.push(profileService.fetchProfiles(events[i].From,[events[i].From]))
                         //console.log(events[i])
                         if (events[i].Content) {
                             let post = postFactory(events[i]);
@@ -42,6 +45,7 @@ const service = (): PostService => {
                         }
                     }
                     // console.log("posts 2",posts.size)
+                    await Promise.all(profiles)
                     set(posts)
                 });
             } catch (error) {

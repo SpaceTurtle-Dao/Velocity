@@ -24,9 +24,8 @@ const service = (): ProfileService => {
                 },
             ]);
 
-            let messages = await fetchEvents(hubId, filter);
-            //console.log(messages)
             try {
+                let messages = await fetchEvents(hubId, filter);
                 // messages[0] give the latest profile change of this address and it  return that
                 let message = messages[0];
                 for (var i = 0; i < messages.length; i++) {
