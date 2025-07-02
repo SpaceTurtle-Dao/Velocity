@@ -7,30 +7,38 @@
   import Middle from "$lib/components/views/main/MiddleView.svelte";
   import Left from "$lib/components/views/main/LeftView.svelte";
   import Right from "$lib/components/views/main/RightView.svelte";
-  import SignUp from "./lib/components/views/signup/SignUp.svelte";
-  import Feed from "$lib/components/views/feed/Feed.svelte";
-  import Profile from "$lib/components/views/profile/Profile.svelte";
-  import IndividualPost from "$lib/components/posts/IndividualPost.svelte";
-  import MessagesPage from "$lib/components/Messages/MessagesPage.svelte";
+  import { wrap } from "svelte-spa-router/wrap";
   import MobileTopView from "$lib/components/views/main/MobileTopView.svelte";
   import MobileBottomNavBar from "$lib/components/views/main/MobileBottomNavBar.svelte";
-  import CollectionsPage from "$lib/components/Assets_Card/CollectionPage.svelte";
-  // import { postService } from "$lib/services/PostService";
-  import CreateProfile from "$lib/components/views/profile/CreateProfile.svelte";
-  import SearchPage from "$lib/components/Search/SearchPage.svelte";
-  //let isFollowListAlreadyFetched = false;
-  //let initialRoute = window.location.hash.slice(1) || "/";
 
   const routes = {
-    "/": Feed,
-    "/search": SearchPage,
-    //"/createprofile": CreateProfile,
-    "/messages": MessagesPage,
-    "/profile/:address": Profile,
-    "/post/:hubId/:id": IndividualPost,
-    "/signup": SignUp,
-    "/test": MobileTopView,
-    "/collections": CollectionsPage,
+    "/": wrap({
+      asyncComponent: () => import("$lib/components/views/feed/Feed.svelte"),
+    }),
+    "/search": wrap({
+      asyncComponent: () =>
+        import("$lib/components/Search/SearchPage.svelte"),
+    }),
+    "/messages": wrap({
+      asyncComponent: () =>
+        import("$lib/components/Messages/MessagesPage.svelte"),
+    }),
+    "/profile/:address": wrap({
+      asyncComponent: () =>
+        import("$lib/components/views/profile/Profile.svelte"),
+    }),
+    "/post/:hubId/:id": wrap({
+      asyncComponent: () =>
+        import("$lib/components/posts/IndividualPost.svelte"),
+    }),
+    "/signup": wrap({
+      asyncComponent: () =>
+        import("./lib/components/views/signup/SignUp.svelte"),
+    }),
+    "/collections": wrap({
+      asyncComponent: () =>
+        import("$lib/components/Assets_Card/CollectionPage.svelte"),
+    }),
   };
 
   onMount(async () => {

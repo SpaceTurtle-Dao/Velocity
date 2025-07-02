@@ -92,6 +92,7 @@
       class="border border-border rounded-lg w-full"
       alt="The project logo"
       src={post.url}
+      loading="lazy"
     />
   {:else}
     <Video src={post.url} controls />

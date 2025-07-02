@@ -10,6 +10,9 @@ import { HUB_REGISTRY_ID } from "$lib/constants";
 import { hubRegistryService } from "./HubRegistryService";
 import { profileService } from "./ProfileService";
 
+// Cache for hubs
+const hubCache = new Map<string, Hub>();
+
 export interface HubService extends Readable<Map<string, Hub>> {
     info: (hubId: string) => Promise<Hub>
     updateFollowList: (hubId: string, followList: string[]) => Promise<void>;
@@ -23,17 +26,21 @@ const service = (): HubService => {
     return {
         subscribe,
         info: async (hubId: string): Promise<Hub> => {
-            let hubs = get(hubService)
-            let hub: Hub = await info(hubId)
-            //console.log(hub)
-            hubs.set(hub.User, hub)
-            hubs.set(hub.Spec.processId, hub)
-            set(hubs)
-            return hub
+            if (hubCache.has(hubId)) {
+                return hubCache.get(hubId)!;
+            }
+
+            const hub: Hub = await info(hubId);
+            hubCache.set(hubId, hub);
+            update(hubs => {
+                hubs.set(hub.User, hub);
+                hubs.set(hub.Spec.processId, hub);
+                return hubs;
+            });
+            return hub;
         },
         updateFollowList: async (hubId: string, followList: string[]) => {
             try {
-
                 let kind: Tag = { name: "Kind", value: "3" };
                 let pTag: Tag = { name: "p", value: JSON.stringify(followList) };
                 let tags: Tag[] = [kind, pTag];
@@ -46,9 +53,7 @@ const service = (): HubService => {
         create: async (profileData: ProfileCreateData): Promise<string> => {
             try {
                 const processId = await createProcess();
-                console.log(processId)
-                await evaluateHub(processId)
-                //console.log("ProfileId", processId);
+                await evaluateHub(processId);
                 const hubSpec = {
                     type: "hub",
                     kinds: ["0", "1", "7", "6", "3", "2"],
@@ -58,9 +63,7 @@ const service = (): HubService => {
                     profile: profileData
                 };
                 await hubRegistryService.register(HUB_REGISTRY_ID(), hubSpec);
-                await createProfile(processId, profileData)
-                //console.log("*** Hub ID ***", processId);
-                //console.log("*** Profile ID ***", processId);
+                await createProfile(processId, profileData);
                 return processId;
             } catch (error) {
                 console.log("Failed to register profile:", error);
@@ -76,17 +79,11 @@ async function evaluateHub(processId: string) {
     } catch (e) {
         console.log(e)
     }
-
-}
-
-function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function createProfile(hubId: string, profileData: ProfileCreateData) {
     try {
         let tags: Array<Tag> = [];
-        // Prepare the content for the event
         const content = JSON.stringify(profileData);
 
         const kindTag: Tag = {
@@ -100,9 +97,9 @@ async function createProfile(hubId: string, profileData: ProfileCreateData) {
         };
         tags.push(kindTag);
         tags.push(contentTag);
-        await event(hubId, tags)
+        await event(hubId, tags);
     } catch (err) {
-        console.log(err)
+        console.log(err);
     }
 }
 

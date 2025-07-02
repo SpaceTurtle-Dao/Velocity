@@ -3,6 +3,9 @@ import { get, writable, type Readable } from "svelte/store";
 import type { Tag } from "$lib/models/Tag";
 import type { Profile, ProfileCreateData } from "$lib/models/Profile";
 
+// Cache for profiles
+const profileCache = new Map<string, Profile>();
+
 export interface ProfileService extends Readable<Map<string, Profile>> {
     fetchProfiles: (hubId: string, addresses: string[]) => Promise<Map<string, Profile>>;
     searchProfiles: (hubId: string, search: string) => Promise<Map<string, Profile>>;
@@ -15,64 +18,78 @@ const service = (): ProfileService => {
     return {
         subscribe,
         fetchProfiles: async (hubId: string, addresses: string[]): Promise<Map<string, Profile>> => {
-            let profiles = get(profileService)
+            const profiles = get(profileService);
+            const cachedProfiles = new Map<string, Profile>();
+            const profilesToFetch = [];
+
+            for (const address of addresses) {
+                if (profileCache.has(address)) {
+                    cachedProfiles.set(address, profileCache.get(address)!);
+                } else {
+                    profilesToFetch.push(address);
+                }
+            }
+
+            if (cachedProfiles.size > 0) {
+                update(store => new Map([...store, ...cachedProfiles]));
+            }
+
+            if (profilesToFetch.length === 0) {
+                return cachedProfiles;
+            }
+
             const filter = JSON.stringify([
                 {
                     kinds: ["0"],
-                    authors: addresses,
-                    //   limit: 1,
+                    authors: profilesToFetch,
                 },
             ]);
 
-            let messages = await fetchEvents(hubId, filter);
-            //console.log(messages)
+            const messages = await fetchEvents(hubId, filter);
+
             try {
-                // messages[0] give the latest profile change of this address and it  return that
-                let message = messages[0];
-                for (var i = 0; i < messages.length; i++) {
-                    if (!message) throw ("message is empty");
-                    let profile = JSON.parse(message.Content);
+                for (const message of messages) {
+                    if (!message) continue;
+                    const profile = JSON.parse(message.Content);
                     profile.from = message.From;
                     profile.owner = message.Owner;
-                    profile.created_at = messages[0].Timestamp;
+                    profile.created_at = message.Timestamp;
                     profile.updated_at = message.Timestamp;
-                    //console.log(profile);
-                    profiles.set(message.Owner,profile)
-                    profiles.set(message.From,profile)
+                    
+                    profileCache.set(message.Owner, profile);
+                    profiles.set(message.Owner, profile);
+                    profiles.set(message.From, profile);
                 }
-                set(profiles)
-                return profiles
+                set(profiles);
+                return profiles;
             } catch (e) {
                 throw e;
             }
         },
         searchProfiles: async (hubId: string, search: string): Promise<Map<string, Profile>> => {
-            let profiles = get(profileService)
+            const profiles = get(profileService);
             const filter = JSON.stringify([
                 {
                     kinds: ["0"],
                     search: search,
-                    //   limit: 1,
                 },
             ]);
-            console.log("starting search")
-            let messages = await fetchEvents(hubId, filter);
-            console.log("end search")
-            console.log(messages)
+
+            const messages = await fetchEvents(hubId, filter);
+
             try {
-                // messages[0] give the latest profile change of this address and it  return that
-                let message = messages[0];
-                for (var i = 0; i < messages.length; i++) {
-                    if (!message) throw ("message is empty");
-                    let profile = JSON.parse(message.Content);
+                for (const message of messages) {
+                    if (!message) continue;
+                    const profile = JSON.parse(message.Content);
                     profile.from = message.From;
-                    profile.created_at = messages[0].Timestamp;
+                    profile.created_at = message.Timestamp;
                     profile.updated_at = message.Timestamp;
-                    //console.log(profile);
-                    profiles.set(message.Owner,profile)
+
+                    profileCache.set(message.Owner, profile);
+                    profiles.set(message.Owner, profile);
                 }
-                set(profiles)
-                return profiles
+                set(profiles);
+                return profiles;
             } catch (e) {
                 throw e;
             }
